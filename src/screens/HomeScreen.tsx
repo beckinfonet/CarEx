@@ -1,5 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SIZES } from '../constants/theme';
 import { SearchBar } from '../components/SearchBar';
 import { FilterBar } from '../components/FilterBar';
@@ -7,14 +10,22 @@ import { CategoryList } from '../components/CategoryList';
 import { CarCard } from '../components/CarCard';
 import { BottomBar } from '../components/BottomBar';
 import { CARS } from '../constants/mockData';
+import { RootStackParamList } from '../types/navigation';
+
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 export const HomeScreen = () => {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const [searchQuery, setSearchQuery] = React.useState('');
 
   const filteredCars = CARS.filter(car => 
     car.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
     car.model.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleCarPress = (carId: string) => {
+    navigation.navigate('CarDetails', { carId });
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -38,7 +49,9 @@ export const HomeScreen = () => {
           
           <View style={styles.carList}>
             {filteredCars.map((car) => (
-              <CarCard key={car.id} data={car} />
+              <TouchableOpacity key={car.id} onPress={() => handleCarPress(car.id)}>
+                <CarCard data={car} />
+              </TouchableOpacity>
             ))}
           </View>
         </ScrollView>
