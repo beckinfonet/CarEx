@@ -1,6 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback, Animated, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { COLORS, SIZES } from '../constants/theme';
+import { RootStackParamList } from '../types/navigation';
 
 interface MoreMenuProps {
   visible: boolean;
@@ -8,7 +11,7 @@ interface MoreMenuProps {
 }
 
 const MENU_ITEMS = [
-  { id: 1, name: 'Продать авто', icon: '🚘' },
+  { id: 1, name: 'Продать авто', icon: '🚘', route: 'SellCar' },
   { id: 2, name: 'Автосервис', icon: '🔧' },
   { id: 3, name: 'Финансы', icon: '💰' },
   { id: 4, name: 'Страхование', icon: '🛡️' },
@@ -17,6 +20,16 @@ const MENU_ITEMS = [
 ];
 
 export const MoreMenu = ({ visible, onClose }: MoreMenuProps) => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const handlePress = (item: typeof MENU_ITEMS[0]) => {
+    onClose();
+    if (item.route) {
+        // @ts-ignore
+        navigation.navigate(item.route);
+    }
+  };
+
   return (
     <Modal
       visible={visible}
@@ -38,7 +51,11 @@ export const MoreMenu = ({ visible, onClose }: MoreMenuProps) => {
               
               <View style={styles.grid}>
                 {MENU_ITEMS.map((item) => (
-                  <TouchableOpacity key={item.id} style={styles.menuItem}>
+                  <TouchableOpacity 
+                    key={item.id} 
+                    style={styles.menuItem}
+                    onPress={() => handlePress(item)}
+                  >
                     <View style={styles.iconContainer}>
                       <Text style={styles.icon}>{item.icon}</Text>
                     </View>
