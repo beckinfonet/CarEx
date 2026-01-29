@@ -76,7 +76,7 @@ export const HomeScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.backButton}>
-            <ArrowLeft size={24} color={COLORS.accent} />
+            {/* <ArrowLeft size={24} color={COLORS.accent} /> */}
           </View>
           <Text style={styles.headerTitle}>CarEx</Text>
           <View style={styles.langSwitch}>
