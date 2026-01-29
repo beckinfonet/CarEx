@@ -4,7 +4,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Heart, Phone } from 'lucide-react-native';
+import { ArrowLeft, Heart, Phone, AlertTriangle } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -55,6 +55,40 @@ export const CarDetailsScreen = () => {
       .catch((err) => console.error('An error occurred', err));
   };
 
+  const handleReport = () => {
+    Alert.alert(
+      'Report Listing',
+      'Please select a reason for reporting this listing:',
+      [
+        {
+          text: 'Inappropriate Content',
+          onPress: () => confirmReport('Inappropriate Content'),
+        },
+        {
+          text: 'Spam / Fraud',
+          onPress: () => confirmReport('Spam / Fraud'),
+        },
+        {
+          text: 'Other',
+          onPress: () => confirmReport('Other'),
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ]
+    );
+  };
+
+  const confirmReport = (reason: string) => {
+    // In a real app, this would send an API request to your backend
+    Alert.alert(
+      'Report Received',
+      `Thank you for reporting this listing for "${reason}". We will review it shortly.`,
+      [{ text: 'OK' }]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
@@ -64,9 +98,14 @@ export const CarDetailsScreen = () => {
           <ArrowLeft size={24} color={COLORS.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{car.make} {car.model}</Text>
-        <TouchableOpacity style={styles.favoriteButton}>
-          <Heart size={24} color={COLORS.accent} />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.iconButton} onPress={handleReport}>
+            <AlertTriangle size={24} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton}>
+            <Heart size={24} color={COLORS.accent} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.content}>
@@ -189,6 +228,14 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconButton: {
+    padding: 8,
+    marginLeft: 4,
   },
   favoriteButton: {
     padding: 8,

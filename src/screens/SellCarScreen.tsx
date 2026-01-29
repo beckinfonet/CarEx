@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
+import NetInfo from '@react-native-community/netinfo';
 import { ArrowLeft, Camera, X } from 'lucide-react-native';
 
 export const SellCarScreen = () => {
@@ -74,6 +75,12 @@ export const SellCarScreen = () => {
   };
 
   const handleSubmit = async () => {
+    const netState = await NetInfo.fetch();
+    if (!netState.isConnected) {
+        Alert.alert('No Internet', 'Please check your internet connection and try again.');
+        return;
+    }
+
     if (images.length === 0 || !formData.make || !formData.model || !formData.price) {
       Alert.alert('Error', 'Please fill in all required fields and upload at least one image.');
       return;

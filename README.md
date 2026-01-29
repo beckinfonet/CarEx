@@ -36,12 +36,12 @@ A modern React Native application for buying and selling cars, built with a Node
     *   [x] Update `src/constants/config.ts` with Production URL
 *   **Compliance & Assets**
     *   [x] Generate App Icons (`AppIcon.appiconset`) from `assets/logo.svg`
-    *   [ ] Create Launch Screen (Splash)
-    *   [ ] Review `Info.plist` Permission Strings (Camera/Photo Library)
-    *   [ ] Terms of Service & Privacy Policy Links
-    *   [ ] User Reporting/Blocking (UGC Compliance)
+    *   [x] Create Launch Screen (Splash)
+    *   [x] Review `Info.plist` Permission Strings (Camera/Photo Library)
+    *   [x] Terms of Service & Privacy Policy Links
+    *   [x] User Reporting/Blocking (UGC Compliance)
 *   **Features**
-    *   [ ] Offline Mode Handling (NetInfo)
+    *   [x] Offline Mode Handling (NetInfo)
     *   [ ] User Authentication (Login/Register)
     *   [ ] Favorites Persistence
 

@@ -34,11 +34,11 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>CarEx uses your location to find nearby cars and services.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to upload car photos.</string>
+	<string>CarEx needs access to your photos to let you select vehicle images for your sales listing.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to take car photos.</string>
+	<string>CarEx uses the camera to let you take photos of your vehicle to create a sales listing.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
