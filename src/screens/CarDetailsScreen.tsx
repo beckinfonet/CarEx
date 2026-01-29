@@ -79,7 +79,7 @@ export const CarDetailsScreen = () => {
 
   const handleCallSeller = () => {
     // In a real app, this phone number would come from the car/seller object
-    const phoneNumber = '1234567890'; // Use international format without + or 00 for whatsapp link logic if needed, but usually just number
+    const phoneNumber = '14087500555'; // Use international format without + or 00 for whatsapp link logic if needed, but usually just number
     // Clean phone number for WhatsApp: remove all non-numeric characters
     const cleanPhone = phoneNumber.replace(/\D/g, '');
     const whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(`Hi, I'm interested in your ${car.make} ${car.model}`)}`;
