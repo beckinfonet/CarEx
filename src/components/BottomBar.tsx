@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { MoreMenu } from './MoreMenu';
 import { User, Truck, Menu } from 'lucide-react-native';
@@ -7,14 +7,18 @@ import { User, Truck, Menu } from 'lucide-react-native';
 export const BottomBar = () => {
   const [menuVisible, setMenuVisible] = useState(false);
 
+  const handleComingSoon = (feature: string) => {
+    Alert.alert('Coming Soon', `${feature} will be available in the next update!`);
+  };
+
   return (
     <>
       <View style={styles.container}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={() => handleComingSoon('Registration')}>
           <User size={20} color={COLORS.accent} />
           <Text style={styles.text}>Регистрация</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={() => handleComingSoon('Logistics')}>
           <Truck size={20} color={COLORS.accent} />
           <Text style={styles.text}>Логистика</Text>
         </TouchableOpacity>

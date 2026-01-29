@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, Dimensions, Linking, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -13,8 +14,43 @@ export const CarDetailsScreen = () => {
   const route = useRoute();
   const { carId } = route.params as { carId: string };
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  
+  const [isFavorite, setIsFavorite] = useState(false);
+
   const car = CARS.find(c => c.id === carId) || (route.params as any).carData;
+
+  useEffect(() => {
+    checkFavoriteStatus();
+  }, [carId]);
+
+  const checkFavoriteStatus = async () => {
+    try {
+      const favorites = await AsyncStorage.getItem('favorites');
+      if (favorites) {
+        const parsed = JSON.parse(favorites);
+        setIsFavorite(parsed.includes(carId));
+      }
+    } catch (e) {
+      console.error('Failed to load favorites');
+    }
+  };
+
+  const toggleFavorite = async () => {
+    try {
+      const favorites = await AsyncStorage.getItem('favorites');
+      let parsed = favorites ? JSON.parse(favorites) : [];
+
+      if (isFavorite) {
+        parsed = parsed.filter((id: string) => id !== carId);
+      } else {
+        parsed.push(carId);
+      }
+
+      await AsyncStorage.setItem('favorites', JSON.stringify(parsed));
+      setIsFavorite(!isFavorite);
+    } catch (e) {
+      console.error('Failed to toggle favorite');
+    }
+  };
 
   // Normalize images to an array
   const images = car?.imageUrls || (car?.image ? [car.image] : []);
@@ -43,16 +79,26 @@ export const CarDetailsScreen = () => {
 
   const handleCallSeller = () => {
     // In a real app, this phone number would come from the car/seller object
-    const phoneNumber = 'tel:+1234567890'; 
-    Linking.canOpenURL(phoneNumber)
+    const phoneNumber = '1234567890'; // Use international format without + or 00 for whatsapp link logic if needed, but usually just number
+    // Clean phone number for WhatsApp: remove all non-numeric characters
+    const cleanPhone = phoneNumber.replace(/\D/g, '');
+    const whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(`Hi, I'm interested in your ${car.make} ${car.model}`)}`;
+
+    Linking.canOpenURL(whatsappUrl)
       .then((supported) => {
-        if (!supported) {
-          Alert.alert('Error', 'Phone calls are not supported on this device');
+        if (supported) {
+          return Linking.openURL(whatsappUrl);
         } else {
-          return Linking.openURL(phoneNumber);
+          // Fallback to regular phone call if WhatsApp is not installed
+          return Linking.openURL(`tel:${phoneNumber}`);
         }
       })
-      .catch((err) => console.error('An error occurred', err));
+      .catch((err) => {
+        console.error('An error occurred', err);
+        // Only fallback if error implies unsupported scheme (though canOpenURL should catch that)
+        // But sometimes canOpenURL throws on iOS if scheme not in Info.plist
+        Linking.openURL(`tel:${phoneNumber}`).catch(e => console.error("Call failed", e));
+      });
   };
 
   const handleReport = () => {
@@ -92,7 +138,7 @@ export const CarDetailsScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
-      
+
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={COLORS.textPrimary} />
@@ -102,17 +148,21 @@ export const CarDetailsScreen = () => {
           <TouchableOpacity style={styles.iconButton} onPress={handleReport}>
             <AlertTriangle size={24} color={COLORS.textSecondary} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Heart size={24} color={COLORS.accent} />
+          <TouchableOpacity style={styles.iconButton} onPress={toggleFavorite}>
+            <Heart
+              size={24}
+              color={isFavorite ? '#EF4444' : COLORS.accent}
+              fill={isFavorite ? '#EF4444' : 'none'}
+            />
           </TouchableOpacity>
         </View>
       </View>
 
       <ScrollView style={styles.content}>
         <View style={styles.imageCarousel}>
-          <ScrollView 
-            horizontal 
-            pagingEnabled 
+          <ScrollView
+            horizontal
+            pagingEnabled
             showsHorizontalScrollIndicator={false}
             onScroll={handleScroll}
             scrollEventThrottle={16}
@@ -121,22 +171,22 @@ export const CarDetailsScreen = () => {
               <Image key={index} source={{ uri: img }} style={styles.mainImage} resizeMode="cover" />
             ))}
           </ScrollView>
-          
+
           {images.length > 1 && (
             <View style={styles.pagination}>
               {images.map((_: any, index: number) => (
-                <View 
-                  key={index} 
+                <View
+                  key={index}
                   style={[
-                    styles.paginationDot, 
+                    styles.paginationDot,
                     index === activeImageIndex && styles.activeDot
-                  ]} 
+                  ]}
                 />
               ))}
             </View>
           )}
         </View>
-        
+
         <View style={styles.detailsContainer}>
           <View style={styles.titleRow}>
             <View>
@@ -149,38 +199,38 @@ export const CarDetailsScreen = () => {
           <View style={styles.specsContainer}>
             <Text style={styles.sectionTitle}>Характеристики</Text>
             <View style={styles.specsGrid}>
-                {renderSpecItem('Кузов', car.bodyType)}
-                {renderSpecItem('Двигатель', car.engine || '-')}
-                {renderSpecItem('Трансмиссия', car.transmission)}
-                {renderSpecItem('Привод', car.drivetrain)}
-                {renderSpecItem('Топливо', car.fuel)}
-                {renderSpecItem('MPG/Запас', car.mpg)}
-                {renderSpecItem('Владельцы', car.owners || '1')} 
-                {/* Note: 'owners' wasn't in upload form, defaulting to 1 or add to schema if needed */}
+              {renderSpecItem('Кузов', car.bodyType)}
+              {renderSpecItem('Двигатель', car.engine || '-')}
+              {renderSpecItem('Трансмиссия', car.transmission)}
+              {renderSpecItem('Привод', car.drivetrain)}
+              {renderSpecItem('Топливо', car.fuel)}
+              {renderSpecItem('MPG/Запас', car.mpg)}
+              {renderSpecItem('Владельцы', car.owners || '1')}
+              {/* Note: 'owners' wasn't in upload form, defaulting to 1 or add to schema if needed */}
             </View>
           </View>
 
           <View style={styles.specsContainer}>
             <Text style={styles.sectionTitle}>Состояние</Text>
             <View style={styles.specsGrid}>
-                {renderSpecItem('Состояние', car.condition)}
-                <View style={styles.fullWidthItem}>
-                    <Text style={styles.specLabel}>Известные проблемы</Text>
-                    <Text style={styles.specValue}>
-                        {car.knownIssues && car.knownIssues.length > 0 ? car.knownIssues.join(', ') : 'Нет'}
-                    </Text>
-                </View>
+              {renderSpecItem('Состояние', car.condition)}
+              <View style={styles.fullWidthItem}>
+                <Text style={styles.specLabel}>Известные проблемы</Text>
+                <Text style={styles.specValue}>
+                  {car.knownIssues && car.knownIssues.length > 0 ? car.knownIssues.join(', ') : 'Нет'}
+                </Text>
+              </View>
             </View>
           </View>
 
           <View style={styles.specsContainer}>
             <Text style={styles.sectionTitle}>Экстерьер / Интерьер</Text>
             <View style={styles.specsGrid}>
-                {renderSpecItem('Цвет кузова', car.exteriorColor)}
-                {renderSpecItem('Цвет салона', car.interiorColor)}
-                {renderSpecItem('Материал', car.interiorMaterial)}
-                {renderSpecItem('Мест', car.seats)}
-                {renderSpecItem('Дверей', car.doors)}
+              {renderSpecItem('Цвет кузова', car.exteriorColor)}
+              {renderSpecItem('Цвет салона', car.interiorColor)}
+              {renderSpecItem('Материал', car.interiorMaterial)}
+              {renderSpecItem('Мест', car.seats)}
+              {renderSpecItem('Дверей', car.doors)}
             </View>
           </View>
 

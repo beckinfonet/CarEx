@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { COLORS, SIZES } from '../constants/theme';
@@ -39,6 +39,10 @@ export const MoreMenu = ({ visible, onClose }: MoreMenuProps) => {
 
   const handlePress = (item: typeof MENU_ITEMS[0]) => {
     onClose();
+    if (item.id === 6) { // Help
+        Linking.openURL('https://www.carexmarket.com/help').catch(err => console.error("Couldn't load page", err));
+        return;
+    }
     if (item.route) {
         // @ts-ignore
         navigation.navigate(item.route);

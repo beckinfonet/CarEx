@@ -43,7 +43,7 @@ A modern React Native application for buying and selling cars, built with a Node
 *   **Features**
     *   [x] Offline Mode Handling (NetInfo)
     *   [ ] User Authentication (Login/Register)
-    *   [ ] Favorites Persistence
+    *   [x] Favorites Persistence
 
 ## 🛠 Tech Stack
 *   **Frontend**: React Native, TypeScript, React Navigation, Axios, Lucide Icons, React Native SVG
