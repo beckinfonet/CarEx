@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Alert, ActivityIndicator, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import axios from 'axios';
@@ -20,12 +20,26 @@ export const SellCarScreen = () => {
     fuel: 'Бензин',
     bodyType: 'Седан',
     description: '',
+    // New Fields
+    engine: '',
+    transmission: 'Automatic',
+    drivetrain: 'FWD',
+    mpg: '',
+    condition: 'Excellent',
+    knownIssues: [] as string[],
+    exteriorColor: '',
+    interiorColor: '',
+    interiorMaterial: 'Leather',
+    seats: '',
+    doors: '',
   });
+
+  const [expandedField, setExpandedField] = useState<string | null>(null);
 
   const handleChoosePhoto = async () => {
     const result = await launchImageLibrary({
       mediaType: 'photo',
-      selectionLimit: 5 - images.length, // Allow remaining slots
+      selectionLimit: 5 - images.length,
     });
 
     if (result.assets && result.assets.length > 0) {
@@ -39,6 +53,24 @@ export const SellCarScreen = () => {
     setImages(newImages);
   };
 
+  const toggleDropdown = (field: string) => {
+    setExpandedField(expandedField === field ? null : field);
+  };
+
+  const handleSelect = (field: string, value: string) => {
+    if (field === 'knownIssues') {
+      const currentIssues = formData.knownIssues;
+      if (currentIssues.includes(value)) {
+        setFormData({ ...formData, knownIssues: currentIssues.filter(i => i !== value) });
+      } else {
+        setFormData({ ...formData, knownIssues: [...currentIssues, value] });
+      }
+    } else {
+      setFormData({ ...formData, [field]: value });
+      setExpandedField(null);
+    }
+  };
+
   const handleSubmit = async () => {
     if (images.length === 0 || !formData.make || !formData.model || !formData.price) {
       Alert.alert('Error', 'Please fill in all required fields and upload at least one image.');
@@ -48,14 +80,14 @@ export const SellCarScreen = () => {
     setLoading(true);
 
     const data = new FormData();
-    data.append('make', formData.make);
-    data.append('model', formData.model);
-    data.append('year', formData.year);
-    data.append('price', formData.price);
-    data.append('mileage', formData.mileage);
-    data.append('fuel', formData.fuel);
-    data.append('bodyType', formData.bodyType);
-    data.append('description', formData.description);
+    Object.keys(formData).forEach(key => {
+        if (key === 'knownIssues') {
+            data.append(key, JSON.stringify(formData[key]));
+        } else {
+            // @ts-ignore
+            data.append(key, formData[key]);
+        }
+    });
 
     images.forEach((img, index) => {
       if (img.uri) {
@@ -81,14 +113,48 @@ export const SellCarScreen = () => {
       ]);
     } catch (error: any) {
       console.error('Upload Error Details:', error);
-      if (error.response) {
-        Alert.alert('Error', `Upload failed: ${error.response.data.message || error.response.status}`);
-      } else {
-        Alert.alert('Error', 'Failed to create upload request.');
-      }
+      Alert.alert('Error', 'Failed to upload car listing.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderDropdown = (label: string, value: string | string[], field: string, options: string[]) => {
+    const isExpanded = expandedField === field;
+    const displayValue = Array.isArray(value) 
+        ? (value.length > 0 ? value.join(', ') : 'Нет') 
+        : value;
+
+    return (
+        <View style={styles.dropdownContainer}>
+            <TouchableOpacity 
+                style={[styles.selectButton, isExpanded && styles.selectButtonExpanded]} 
+                onPress={() => toggleDropdown(field)}
+            >
+                <Text style={styles.selectLabel}>{label}</Text>
+                <Text style={styles.selectValue}>{displayValue} {isExpanded ? '▲' : '▼'}</Text>
+            </TouchableOpacity>
+            
+            {isExpanded && (
+                <View style={styles.dropdownOptions}>
+                    {options.map((option, index) => {
+                        const isSelected = Array.isArray(value) ? value.includes(option) : value === option;
+                        return (
+                            <TouchableOpacity 
+                                key={index} 
+                                style={[styles.dropdownOption, isSelected && styles.selectedDropdownOption]} 
+                                onPress={() => handleSelect(field, option)}
+                            >
+                                <Text style={[styles.dropdownOptionText, isSelected && styles.selectedOptionText]}>
+                                    {option} {isSelected && '✓'}
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
+            )}
+        </View>
+    );
   };
 
   return (
@@ -122,74 +188,140 @@ export const SellCarScreen = () => {
         </View>
 
         <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Марка (например, BMW)"
-            placeholderTextColor={COLORS.textSecondary}
-            value={formData.make}
-            onChangeText={(text) => setFormData({ ...formData, make: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Модель (например, X5)"
-            placeholderTextColor={COLORS.textSecondary}
-            value={formData.model}
-            onChangeText={(text) => setFormData({ ...formData, model: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Тип кузова (Седан, SUV...)"
-            placeholderTextColor={COLORS.textSecondary}
-            value={formData.bodyType}
-            onChangeText={(text) => setFormData({ ...formData, bodyType: text })}
-          />
-          <View style={styles.row}>
+            <Text style={styles.sectionHeader}>Основная информация</Text>
             <TextInput
-              style={[styles.input, styles.halfInput]}
-              placeholder="Год"
-              placeholderTextColor={COLORS.textSecondary}
-              keyboardType="numeric"
-              value={formData.year}
-              onChangeText={(text) => setFormData({ ...formData, year: text })}
+                style={styles.input}
+                placeholder="Марка (например, BMW)"
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.make}
+                onChangeText={(text) => setFormData({ ...formData, make: text })}
             />
             <TextInput
-              style={[styles.input, styles.halfInput]}
-              placeholder="Цена ($)"
-              placeholderTextColor={COLORS.textSecondary}
-              keyboardType="numeric"
-              value={formData.price}
-              onChangeText={(text) => setFormData({ ...formData, price: text })}
+                style={styles.input}
+                placeholder="Модель (например, X5)"
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.model}
+                onChangeText={(text) => setFormData({ ...formData, model: text })}
             />
-          </View>
-          <TextInput
-            style={styles.input}
-            placeholder="Пробег (км)"
-            placeholderTextColor={COLORS.textSecondary}
-            keyboardType="numeric"
-            value={formData.mileage}
-            onChangeText={(text) => setFormData({ ...formData, mileage: text })}
-          />
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Описание"
-            placeholderTextColor={COLORS.textSecondary}
-            multiline
-            numberOfLines={4}
-            value={formData.description}
-            onChangeText={(text) => setFormData({ ...formData, description: text })}
-          />
+            <TextInput
+                style={styles.input}
+                placeholder="Тип кузова (Седан, SUV...)"
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.bodyType}
+                onChangeText={(text) => setFormData({ ...formData, bodyType: text })}
+            />
+            <View style={styles.row}>
+                <TextInput
+                style={[styles.input, styles.halfInput]}
+                placeholder="Год"
+                placeholderTextColor={COLORS.textSecondary}
+                keyboardType="numeric"
+                value={formData.year}
+                onChangeText={(text) => setFormData({ ...formData, year: text })}
+                />
+                <TextInput
+                style={[styles.input, styles.halfInput]}
+                placeholder="Цена ($)"
+                placeholderTextColor={COLORS.textSecondary}
+                keyboardType="numeric"
+                value={formData.price}
+                onChangeText={(text) => setFormData({ ...formData, price: text })}
+                />
+            </View>
 
-          <TouchableOpacity 
-            style={[styles.submitButton, loading && styles.disabledButton]} 
-            onPress={handleSubmit}
-            disabled={loading}
-          >
-            {loading ? (
-                <ActivityIndicator color="#000" />
-            ) : (
-                <Text style={styles.submitButtonText}>Разместить объявление</Text>
-            )}
-          </TouchableOpacity>
+            <Text style={styles.sectionHeader}>Характеристики</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Двигатель (e.g., 3.0L V6)"
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.engine}
+                onChangeText={(text) => setFormData({ ...formData, engine: text })}
+            />
+            
+            {renderDropdown('Трансмиссия', formData.transmission, 'transmission', ['Automatic', 'Manual', 'CVT'])}
+            {renderDropdown('Привод', formData.drivetrain, 'drivetrain', ['FWD', 'RWD', 'AWD', '4WD'])}
+            {renderDropdown('Топливо', formData.fuel, 'fuel', ['Gasoline', 'Diesel', 'Hybrid', 'Plug-in Hybrid', 'Electric'])}
+            
+            <TextInput
+                style={styles.input}
+                placeholder="MPG / Запас хода"
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.mpg}
+                onChangeText={(text) => setFormData({ ...formData, mpg: text })}
+            />
+            <TextInput
+                style={styles.input}
+                placeholder="Пробег (км)"
+                placeholderTextColor={COLORS.textSecondary}
+                keyboardType="numeric"
+                value={formData.mileage}
+                onChangeText={(text) => setFormData({ ...formData, mileage: text })}
+            />
+
+            <Text style={styles.sectionHeader}>Состояние</Text>
+            {renderDropdown('Общее состояние', formData.condition, 'condition', ['Excellent', 'Good', 'Fair', 'Needs Work'])}
+            
+            {renderDropdown('Известные проблемы', formData.knownIssues, 'knownIssues', ['Engine', 'Transmission', 'Suspension', 'Electrical', 'Interior', 'Body/Cosmetic'])}
+
+            <Text style={styles.sectionHeader}>Экстерьер / Интерьер</Text>
+            <View style={styles.row}>
+                <TextInput
+                    style={[styles.input, styles.halfInput]}
+                    placeholder="Цвет кузова"
+                    placeholderTextColor={COLORS.textSecondary}
+                    value={formData.exteriorColor}
+                    onChangeText={(text) => setFormData({ ...formData, exteriorColor: text })}
+                />
+                <TextInput
+                    style={[styles.input, styles.halfInput]}
+                    placeholder="Цвет салона"
+                    placeholderTextColor={COLORS.textSecondary}
+                    value={formData.interiorColor}
+                    onChangeText={(text) => setFormData({ ...formData, interiorColor: text })}
+                />
+            </View>
+            {renderDropdown('Материал салона', formData.interiorMaterial, 'interiorMaterial', ['Cloth', 'Leather', 'Vegan Leather', 'Alcantara'])}
+            
+            <View style={styles.row}>
+                <TextInput
+                    style={[styles.input, styles.halfInput]}
+                    placeholder="Мест"
+                    placeholderTextColor={COLORS.textSecondary}
+                    keyboardType="numeric"
+                    value={formData.seats}
+                    onChangeText={(text) => setFormData({ ...formData, seats: text })}
+                />
+                <TextInput
+                    style={[styles.input, styles.halfInput]}
+                    placeholder="Дверей"
+                    placeholderTextColor={COLORS.textSecondary}
+                    keyboardType="numeric"
+                    value={formData.doors}
+                    onChangeText={(text) => setFormData({ ...formData, doors: text })}
+                />
+            </View>
+
+            <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="Дополнительное описание"
+                placeholderTextColor={COLORS.textSecondary}
+                multiline
+                numberOfLines={4}
+                value={formData.description}
+                onChangeText={(text) => setFormData({ ...formData, description: text })}
+            />
+
+            <TouchableOpacity 
+                style={[styles.submitButton, loading && styles.disabledButton]} 
+                onPress={handleSubmit}
+                disabled={loading}
+            >
+                {loading ? (
+                    <ActivityIndicator color="#000" />
+                ) : (
+                    <Text style={styles.submitButtonText}>Разместить объявление</Text>
+                )}
+            </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -283,6 +415,13 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingBottom: 40,
   },
+  sectionHeader: {
+    color: COLORS.accent,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 16,
+    marginBottom: 8,
+  },
   input: {
     backgroundColor: COLORS.searchBackground,
     borderRadius: SIZES.borderRadius,
@@ -299,6 +438,57 @@ const styles = StyleSheet.create({
   halfInput: {
     width: '48%',
   },
+  dropdownContainer: {
+    marginBottom: 0,
+  },
+  selectButton: {
+    backgroundColor: COLORS.searchBackground,
+    borderRadius: SIZES.borderRadius,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  selectButtonExpanded: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderBottomWidth: 0,
+  },
+  selectLabel: {
+    color: COLORS.textSecondary,
+    fontSize: 12,
+  },
+  selectValue: {
+    color: COLORS.textPrimary,
+    fontSize: 16,
+  },
+  dropdownOptions: {
+    backgroundColor: COLORS.searchBackground,
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: COLORS.border,
+    borderBottomLeftRadius: SIZES.borderRadius,
+    borderBottomRightRadius: SIZES.borderRadius,
+  },
+  dropdownOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  selectedDropdownOption: {
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+  },
+  dropdownOptionText: {
+    color: COLORS.textPrimary,
+    fontSize: 14,
+  },
+  selectedOptionText: {
+    color: COLORS.accent,
+    fontWeight: 'bold',
+  },
   textArea: {
     height: 100,
     textAlignVertical: 'top',
@@ -308,7 +498,8 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: SIZES.borderRadius,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 24,
+    marginBottom: 40,
   },
   disabledButton: {
     opacity: 0.7,
