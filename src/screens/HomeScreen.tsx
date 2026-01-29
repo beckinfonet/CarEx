@@ -10,6 +10,7 @@ import { FilterBar } from '../components/FilterBar';
 import { CategoryList } from '../components/CategoryList';
 import { CarCard } from '../components/CarCard';
 import { BottomBar } from '../components/BottomBar';
+import { CATEGORIES } from '../constants/mockData';
 import { RootStackParamList } from '../types/navigation';
 import { ArrowLeft } from 'lucide-react-native';
 
@@ -22,6 +23,7 @@ export const HomeScreen = () => {
   const [cars, setCars] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
 
   const fetchCars = async () => {
     try {
@@ -60,10 +62,22 @@ export const HomeScreen = () => {
     }
   }, [isFocused]);
 
-  const filteredCars = cars.filter(car =>
-    car.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    car.model.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCars = cars.filter(car => {
+    const matchesSearch = car.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      car.model.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!selectedCategory) return matchesSearch;
+
+    const category = CATEGORIES.find(c => c.id === selectedCategory);
+    if (!category) return matchesSearch;
+
+    const bodyType = car.bodyType || '';
+    const matchesCategory = bodyType.toLowerCase().includes(category.name.toLowerCase()) ||
+      category.name.toLowerCase().includes(bodyType.toLowerCase()) ||
+      (category.id === 2 && bodyType.toLowerCase().includes('suv'));
+
+    return matchesSearch && matchesCategory;
+  });
 
   const handleCarPress = (car: any) => {
     navigation.navigate('CarDetails', { carId: car.id, carData: car });
@@ -93,7 +107,10 @@ export const HomeScreen = () => {
         >
           <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
           <FilterBar />
-          <CategoryList />
+          <CategoryList
+            selectedCategory={selectedCategory}
+            onSelectCategory={(id) => setSelectedCategory(selectedCategory === id ? null : id)}
+          />
 
           <View style={styles.carList}>
             {loading && cars.length === 0 ? (
