@@ -12,11 +12,11 @@ export const TRANSLATIONS = {
     carHistory: 'История авто',
     help: 'Помощь',
     about: 'О приложении',
-    
+
     // Home Screen
     searchPlaceholder: 'Марка/Модель/VIN',
     noCars: 'Нет автомобилей',
-    
+
     // Categories
     sedan: 'Седан',
     suv: 'SUV/RV',
@@ -64,9 +64,9 @@ export const TRANSLATIONS = {
     doors: 'Дверей',
     description: 'Описание',
     noDescription: 'Описание отсутствует.',
-    callSeller: 'Позвонить продавцу',
+    callSeller: 'Связаться с продавцом',
     reportListing: 'Пожаловаться',
-    
+
     // Sell Car
     sellHeader: 'Продать авто',
     mainInfo: 'Основная информация',
@@ -91,7 +91,7 @@ export const TRANSLATIONS = {
     submitListing: 'Разместить объявление',
     phoneNumber: 'Номер телефона (например, 821012345678)',
     photo: 'Фото',
-    
+
     // Common
     error: 'Ошибка',
     success: 'Успешно',
@@ -112,11 +112,11 @@ export const TRANSLATIONS = {
     carHistory: 'Car History',
     help: 'Help',
     about: 'About',
-    
+
     // Home Screen
     searchPlaceholder: 'Make/Model/VIN',
     noCars: 'No cars found',
-    
+
     // Categories
     sedan: 'Sedan',
     suv: 'SUV/RV',
@@ -164,9 +164,9 @@ export const TRANSLATIONS = {
     doors: 'Doors',
     description: 'Description',
     noDescription: 'No description available.',
-    callSeller: 'Call Seller',
+    callSeller: 'Contact Seller',
     reportListing: 'Report Listing',
-    
+
     // Sell Car
     sellHeader: 'Sell Car',
     mainInfo: 'Main Information',
@@ -191,7 +191,7 @@ export const TRANSLATIONS = {
     submitListing: 'List Car',
     phoneNumber: 'Phone Number (e.g., 821012345678)',
     photo: 'Photo',
-    
+
     // Common
     error: 'Error',
     success: 'Success',

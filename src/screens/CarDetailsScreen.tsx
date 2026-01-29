@@ -5,7 +5,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Heart, Phone, AlertTriangle } from 'lucide-react-native';
+import { ArrowLeft, Heart, MessageCircle, AlertTriangle } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 
 const { width } = Dimensions.get('window');
@@ -248,7 +248,7 @@ export const CarDetailsScreen = () => {
 
       <View style={styles.footer}>
         <TouchableOpacity style={styles.contactButton} onPress={handleCallSeller}>
-          <Phone size={20} color="#000" style={{ marginRight: 8 }} />
+          <MessageCircle size={20} color="#000" style={{ marginRight: 8 }} />
           <Text style={styles.contactButtonText}>{t.callSeller}</Text>
         </TouchableOpacity>
       </View>
