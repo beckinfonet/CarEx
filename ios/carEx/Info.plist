@@ -42,6 +42,7 @@
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>whatsapp</string>
+		<string>tg</string>
 		<string>mailto</string>
 		<string>tel</string>
 	</array>

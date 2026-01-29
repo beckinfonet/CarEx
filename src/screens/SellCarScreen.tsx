@@ -38,6 +38,7 @@ export const SellCarScreen = () => {
     seats: '',
     doors: '',
     phoneNumber: '82', // Default to KR country code
+    telegramUsername: '',
   });
 
   const [expandedField, setExpandedField] = useState<string | null>(null);
@@ -215,6 +216,14 @@ export const SellCarScreen = () => {
                 keyboardType="phone-pad"
                 value={formData.phoneNumber}
                 onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
+            />
+            <TextInput
+                style={styles.input}
+                placeholder={t.telegramUsername}
+                placeholderTextColor={COLORS.textSecondary}
+                autoCapitalize="none"
+                value={formData.telegramUsername}
+                onChangeText={(text) => setFormData({ ...formData, telegramUsername: text })}
             />
             <TextInput
                 style={styles.input}

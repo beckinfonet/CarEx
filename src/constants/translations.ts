@@ -14,7 +14,7 @@ export const TRANSLATIONS = {
     about: 'О приложении',
 
     // Home Screen
-    searchPlaceholder: 'Марка/Модель/VIN',
+    searchPlaceholder: 'Поиск по марке, модели или VIN',
     noCars: 'Нет автомобилей',
 
     // Categories
@@ -90,6 +90,7 @@ export const TRANSLATIONS = {
     addDesc: 'Дополнительное описание',
     submitListing: 'Разместить объявление',
     phoneNumber: 'Номер телефона (например, 821012345678)',
+    telegramUsername: 'Telegram (username без @)',
     photo: 'Фото',
 
     // Common
@@ -114,7 +115,7 @@ export const TRANSLATIONS = {
     about: 'About',
 
     // Home Screen
-    searchPlaceholder: 'Make/Model/VIN',
+    searchPlaceholder: 'Search by make, Model or VIN',
     noCars: 'No cars found',
 
     // Categories
@@ -190,6 +191,7 @@ export const TRANSLATIONS = {
     addDesc: 'Additional Description',
     submitListing: 'List Car',
     phoneNumber: 'Phone Number (e.g., 821012345678)',
+    telegramUsername: 'Telegram (username without @)',
     photo: 'Photo',
 
     // Common

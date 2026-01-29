@@ -5,7 +5,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Heart, MessageCircle, AlertTriangle } from 'lucide-react-native';
+import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 
 const { width } = Dimensions.get('window');
@@ -103,6 +103,28 @@ export const CarDetailsScreen = () => {
         // But sometimes canOpenURL throws on iOS if scheme not in Info.plist
         Linking.openURL(`tel:${phoneNumber}`).catch(e => console.error("Call failed", e));
       });
+  };
+
+  const handleTelegram = () => {
+    if (!car.telegramUsername) {
+      Alert.alert('No Telegram', 'This seller has not provided a Telegram username.');
+      return;
+    }
+
+    // Clean username (remove @ if present)
+    const username = car.telegramUsername.replace('@', '').trim();
+    const telegramUrl = `tg://resolve?domain=${username}`;
+    const webUrl = `https://t.me/${username}`;
+
+    Linking.canOpenURL(telegramUrl)
+      .then((supported) => {
+        if (supported) {
+          return Linking.openURL(telegramUrl);
+        } else {
+          return Linking.openURL(webUrl);
+        }
+      })
+      .catch(() => Linking.openURL(webUrl));
   };
 
   const handleReport = () => {
@@ -251,7 +273,13 @@ export const CarDetailsScreen = () => {
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.contactButton} onPress={handleCallSeller}>
+        {car.telegramUsername && (
+          <TouchableOpacity style={[styles.contactButton, styles.telegramButton]} onPress={handleTelegram}>
+            <Send size={20} color="#FFF" style={{ marginRight: 8 }} />
+            <Text style={[styles.contactButtonText, { color: '#FFF' }]}>Telegram</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity style={[styles.contactButton, car.telegramUsername ? { flex: 1, marginLeft: 8 } : { width: '100%' }]} onPress={handleCallSeller}>
           <MessageCircle size={20} color="#000" style={{ marginRight: 8 }} />
           <Text style={styles.contactButtonText}>{t.callSeller}</Text>
         </TouchableOpacity>
@@ -420,6 +448,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
     backgroundColor: COLORS.background,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   contactButton: {
     backgroundColor: COLORS.accent,
@@ -428,6 +458,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  telegramButton: {
+    backgroundColor: '#229ED9', // Telegram Blue
+    flex: 1,
+    marginRight: 8,
   },
   contactButtonText: {
     color: '#000000',
