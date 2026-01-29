@@ -1,16 +1,23 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const { width } = Dimensions.get('window');
+
 export const CarDetailsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { carId } = route.params as { carId: string };
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   
-  const car = CARS.find(c => c.id === carId);
+  const car = CARS.find(c => c.id === carId) || (route.params as any).carData;
+
+  // Normalize images to an array (support legacy mock data and new array structure)
+  // In a real app, you would fetch this from the API using carId
+  const images = car?.imageUrls || (car?.image ? [car.image] : []);
 
   if (!car) {
     return (
@@ -19,6 +26,13 @@ export const CarDetailsScreen = () => {
       </View>
     );
   }
+
+  const handleScroll = (event: any) => {
+    const slideSize = event.nativeEvent.layoutMeasurement.width;
+    const index = event.nativeEvent.contentOffset.x / slideSize;
+    const roundIndex = Math.round(index);
+    setActiveImageIndex(roundIndex);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -35,7 +49,33 @@ export const CarDetailsScreen = () => {
       </View>
 
       <ScrollView style={styles.content}>
-        <Image source={{ uri: car.image }} style={styles.mainImage} resizeMode="cover" />
+        <View style={styles.imageCarousel}>
+          <ScrollView 
+            horizontal 
+            pagingEnabled 
+            showsHorizontalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+          >
+            {images.map((img, index) => (
+              <Image key={index} source={{ uri: img }} style={styles.mainImage} resizeMode="cover" />
+            ))}
+          </ScrollView>
+          
+          {images.length > 1 && (
+            <View style={styles.pagination}>
+              {images.map((_, index) => (
+                <View 
+                  key={index} 
+                  style={[
+                    styles.paginationDot, 
+                    index === activeImageIndex && styles.activeDot
+                  ]} 
+                />
+              ))}
+            </View>
+          )}
+        </View>
         
         <View style={styles.detailsContainer}>
           <View style={styles.titleRow}>
@@ -49,7 +89,7 @@ export const CarDetailsScreen = () => {
           <View style={styles.specsGrid}>
              <View style={styles.specItem}>
                <Text style={styles.specLabel}>Кузов</Text>
-               <Text style={styles.specValue}>Седан</Text>
+               <Text style={styles.specValue}>{car.bodyType || 'Седан'}</Text>
              </View>
              <View style={styles.specItem}>
                <Text style={styles.specLabel}>Двигатель</Text>
@@ -68,9 +108,7 @@ export const CarDetailsScreen = () => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Описание</Text>
             <Text style={styles.description}>
-              Отличный автомобиль в идеальном состоянии. Прошел полное техническое обслуживание. 
-              Не битый, не крашенный. Салон чистый, ухоженный. Богатая комплектация: климат-контроль, 
-              подогрев сидений, камера заднего вида. Возможен торг у капота.
+              {car.description || 'Отличный автомобиль в идеальном состоянии. Прошел полное техническое обслуживание. Не битый, не крашенный. Салон чистый, ухоженный. Богатая комплектация: климат-контроль, подогрев сидений, камера заднего вида. Возможен торг у капота.'}
             </Text>
           </View>
         </View>
@@ -131,9 +169,34 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  mainImage: {
-    width: '100%',
+  imageCarousel: {
+    position: 'relative',
     height: 250,
+  },
+  mainImage: {
+    width: width,
+    height: 250,
+  },
+  pagination: {
+    position: 'absolute',
+    bottom: 16,
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: COLORS.accent,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   detailsContainer: {
     padding: SIZES.padding,
@@ -213,4 +276,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-

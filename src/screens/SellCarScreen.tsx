@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Alert, ActivityIndicator, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import axios from 'axios';
@@ -9,7 +9,7 @@ import { COLORS, SIZES } from '../constants/theme';
 export const SellCarScreen = () => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
-  const [image, setImage] = useState<Asset | null>(null);
+  const [images, setImages] = useState<Asset[]>([]);
   
   const [formData, setFormData] = useState({
     make: '',
@@ -18,23 +18,30 @@ export const SellCarScreen = () => {
     price: '',
     mileage: '',
     fuel: 'Бензин',
+    bodyType: 'Седан',
     description: '',
   });
 
   const handleChoosePhoto = async () => {
     const result = await launchImageLibrary({
       mediaType: 'photo',
-      selectionLimit: 1,
+      selectionLimit: 5 - images.length, // Allow remaining slots
     });
 
     if (result.assets && result.assets.length > 0) {
-      setImage(result.assets[0]);
+      setImages([...images, ...result.assets]);
     }
   };
 
+  const removeImage = (index: number) => {
+    const newImages = [...images];
+    newImages.splice(index, 1);
+    setImages(newImages);
+  };
+
   const handleSubmit = async () => {
-    if (!image || !formData.make || !formData.model || !formData.price) {
-      Alert.alert('Error', 'Please fill in all required fields and upload an image.');
+    if (images.length === 0 || !formData.make || !formData.model || !formData.price) {
+      Alert.alert('Error', 'Please fill in all required fields and upload at least one image.');
       return;
     }
 
@@ -47,21 +54,22 @@ export const SellCarScreen = () => {
     data.append('price', formData.price);
     data.append('mileage', formData.mileage);
     data.append('fuel', formData.fuel);
+    data.append('bodyType', formData.bodyType);
     data.append('description', formData.description);
 
-    if (image.uri) {
-        // Prepare the file object for React Native FormData
+    images.forEach((img, index) => {
+      if (img.uri) {
         const file = {
-            uri: image.uri,
-            type: image.type,
-            name: image.fileName || 'upload.jpg',
+          uri: img.uri,
+          type: img.type,
+          name: img.fileName || `image_${index}.jpg`,
         };
-        // @ts-ignore: FormData expects Blob but RN handles this object structure
-        data.append('image', file);
-    }
+        // @ts-ignore
+        data.append('images', file);
+      }
+    });
 
     try {
-      // Use localhost for iOS, for Android use 10.0.2.2
       await axios.post('http://localhost:5001/api/cars', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -74,15 +82,8 @@ export const SellCarScreen = () => {
     } catch (error: any) {
       console.error('Upload Error Details:', error);
       if (error.response) {
-        console.error('Server Response Status:', error.response.status);
-        console.error('Server Response Data:', error.response.data);
-        console.error('Server Response Headers:', error.response.headers);
         Alert.alert('Error', `Upload failed: ${error.response.data.message || error.response.status}`);
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-        Alert.alert('Error', 'No response from server. Check your network connection.');
       } else {
-        console.error('Error config:', error.message);
         Alert.alert('Error', 'Failed to create upload request.');
       }
     } finally {
@@ -101,16 +102,24 @@ export const SellCarScreen = () => {
       </View>
 
       <ScrollView style={styles.content}>
-        <TouchableOpacity style={styles.imageUpload} onPress={handleChoosePhoto}>
-          {image ? (
-            <Image source={{ uri: image.uri }} style={styles.uploadedImage} />
-          ) : (
-            <View style={styles.placeholder}>
-              <Text style={styles.uploadIcon}>📷</Text>
-              <Text style={styles.uploadText}>Добавить фото</Text>
-            </View>
-          )}
-        </TouchableOpacity>
+        <View style={styles.imageSection}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageList}>
+                {images.map((img, index) => (
+                    <View key={index} style={styles.imagePreviewContainer}>
+                        <Image source={{ uri: img.uri }} style={styles.uploadedImage} />
+                        <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
+                            <Text style={styles.removeButtonText}>✕</Text>
+                        </TouchableOpacity>
+                    </View>
+                ))}
+                {images.length < 5 && (
+                    <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
+                         <Text style={styles.uploadIcon}>📷</Text>
+                         <Text style={styles.uploadText}>Фото</Text>
+                    </TouchableOpacity>
+                )}
+            </ScrollView>
+        </View>
 
         <View style={styles.form}>
           <TextInput
@@ -126,6 +135,13 @@ export const SellCarScreen = () => {
             placeholderTextColor={COLORS.textSecondary}
             value={formData.model}
             onChangeText={(text) => setFormData({ ...formData, model: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Тип кузова (Седан, SUV...)"
+            placeholderTextColor={COLORS.textSecondary}
+            value={formData.bodyType}
+            onChangeText={(text) => setFormData({ ...formData, bodyType: text })}
           />
           <View style={styles.row}>
             <TextInput
@@ -209,32 +225,59 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: SIZES.padding,
   },
-  imageUpload: {
-    height: 200,
+  imageSection: {
+    marginBottom: 24,
+    height: 120,
+  },
+  imageList: {
+    flexDirection: 'row',
+  },
+  imagePreviewContainer: {
+    width: 120,
+    height: 120,
+    marginRight: 12,
+    borderRadius: SIZES.borderRadius,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  uploadedImage: {
+    width: '100%',
+    height: '100%',
+  },
+  removeButton: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removeButtonText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  addImageButton: {
+    width: 120,
+    height: 120,
     backgroundColor: COLORS.cardBackground,
     borderRadius: SIZES.borderRadius,
-    marginBottom: 24,
-    overflow: 'hidden',
     borderWidth: 1,
     borderColor: COLORS.border,
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  uploadedImage: {
-    width: '100%',
-    height: '100%',
-  },
-  placeholder: {
-    alignItems: 'center',
-  },
   uploadIcon: {
-    fontSize: 40,
-    marginBottom: 8,
+    fontSize: 32,
+    marginBottom: 4,
   },
   uploadText: {
     color: COLORS.textSecondary,
-    fontSize: 14,
+    fontSize: 12,
   },
   form: {
     gap: 16,
@@ -276,4 +319,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-

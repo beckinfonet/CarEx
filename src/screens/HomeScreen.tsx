@@ -1,30 +1,71 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, Alert, RefreshControl } from 'react-native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import axios from 'axios';
 import { COLORS, SIZES } from '../constants/theme';
 import { SearchBar } from '../components/SearchBar';
 import { FilterBar } from '../components/FilterBar';
 import { CategoryList } from '../components/CategoryList';
 import { CarCard } from '../components/CarCard';
 import { BottomBar } from '../components/BottomBar';
-import { CARS } from '../constants/mockData';
+import { CARS as MOCK_CARS } from '../constants/mockData';
 import { RootStackParamList } from '../types/navigation';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 export const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const isFocused = useIsFocused();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [cars, setCars] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredCars = CARS.filter(car => 
+  const fetchCars = async () => {
+    try {
+      // Use localhost for iOS, for Android use 10.0.2.2
+      const response = await axios.get('http://localhost:5001/api/cars');
+
+      // Transform API data to match UI component needs if necessary
+      const apiCars = response.data.map((car: any) => ({
+        id: car._id,
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        price: car.price,
+        mileage: car.mileage,
+        fuel: car.fuel,
+        currency: car.currency,
+        // Use first image from imageUrls array, or single imageUrl, or fallback
+        image: (car.imageUrls && car.imageUrls.length > 0) ? car.imageUrls[0] : (car.imageUrl || 'https://via.placeholder.com/400x300'),
+        // Keep full data for details
+        ...car
+      }));
+
+      setCars(apiCars);
+    } catch (error) {
+      console.error('Failed to fetch cars:', error);
+      // Fallback to mock data if API fails
+      setCars(MOCK_CARS);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchCars();
+    }
+  }, [isFocused]);
+
+  const filteredCars = cars.filter(car =>
     car.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
     car.model.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleCarPress = (carId: string) => {
-    navigation.navigate('CarDetails', { carId });
+  const handleCarPress = (car: any) => {
+    navigation.navigate('CarDetails', { carId: car.id, carData: car });
   };
 
   return (
@@ -42,17 +83,30 @@ export const HomeScreen = () => {
           </View>
         </View>
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={fetchCars} tintColor={COLORS.accent} />
+          }
+        >
           <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
           <FilterBar />
           <CategoryList />
-          
+
           <View style={styles.carList}>
-            {filteredCars.map((car) => (
-              <TouchableOpacity key={car.id} onPress={() => handleCarPress(car.id)}>
-                <CarCard data={car} />
-              </TouchableOpacity>
-            ))}
+            {loading && cars.length === 0 ? (
+              <ActivityIndicator size="large" color={COLORS.accent} style={{ marginTop: 20 }} />
+            ) : (
+              filteredCars.map((car) => (
+                <TouchableOpacity key={car.id} onPress={() => handleCarPress(car)}>
+                  <CarCard data={car} />
+                </TouchableOpacity>
+              ))
+            )}
+            {!loading && filteredCars.length === 0 && (
+              <Text style={styles.emptyText}>Нет автомобилей</Text>
+            )}
           </View>
         </ScrollView>
 
@@ -112,6 +166,12 @@ const styles = StyleSheet.create({
   },
   carList: {
     paddingBottom: 16,
+  },
+  emptyText: {
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
   },
 });
 
