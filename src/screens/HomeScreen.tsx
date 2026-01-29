@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, Alert, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, Alert, RefreshControl, Image } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,7 +14,6 @@ import { BottomBar } from '../components/BottomBar';
 import { CATEGORIES } from '../constants/mockData';
 import { RootStackParamList } from '../types/navigation';
 import { ArrowLeft } from 'lucide-react-native';
-import { Logo } from '../components/Logo';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -95,8 +94,16 @@ export const HomeScreen = () => {
             {/* <ArrowLeft size={24} color={COLORS.accent} /> */}
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Logo size={32} color={COLORS.accent} />
-            <Text style={styles.headerTitle}> CarEx</Text>
+            <Image
+              source={require('../assets/CarExWord.png')}
+              style={{ width: 130, height: 70, marginLeft: 0 }}
+              resizeMode="contain"
+            />
+            <Image
+              source={require('../assets/car-logo-transparent.png')}
+              style={{ width: 60, height: 70 }}
+              resizeMode="contain"
+            />
           </View>
           <View style={styles.langSwitch}>
             <Text style={styles.langText}>RU <Text style={styles.langTextInactive}>EN</Text></Text>
@@ -152,8 +159,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
-    marginBottom: 8,
+    paddingVertical: 8,
+    marginBottom: 0,
   },
   backButton: {
     width: 40,
