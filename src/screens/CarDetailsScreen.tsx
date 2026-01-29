@@ -15,8 +15,7 @@ export const CarDetailsScreen = () => {
   
   const car = CARS.find(c => c.id === carId) || (route.params as any).carData;
 
-  // Normalize images to an array (support legacy mock data and new array structure)
-  // In a real app, you would fetch this from the API using carId
+  // Normalize images to an array
   const images = car?.imageUrls || (car?.image ? [car.image] : []);
 
   if (!car) {
@@ -33,6 +32,13 @@ export const CarDetailsScreen = () => {
     const roundIndex = Math.round(index);
     setActiveImageIndex(roundIndex);
   };
+
+  const renderSpecItem = (label: string, value: string | number) => (
+    <View style={styles.specItem}>
+      <Text style={styles.specLabel}>{label}</Text>
+      <Text style={styles.specValue}>{value || '-'}</Text>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -57,14 +63,14 @@ export const CarDetailsScreen = () => {
             onScroll={handleScroll}
             scrollEventThrottle={16}
           >
-            {images.map((img, index) => (
+            {images.map((img: string, index: number) => (
               <Image key={index} source={{ uri: img }} style={styles.mainImage} resizeMode="cover" />
             ))}
           </ScrollView>
           
           {images.length > 1 && (
             <View style={styles.pagination}>
-              {images.map((_, index) => (
+              {images.map((_: any, index: number) => (
                 <View 
                   key={index} 
                   style={[
@@ -86,29 +92,48 @@ export const CarDetailsScreen = () => {
             <Text style={styles.price}>{car.currency}{car.price.toLocaleString()}</Text>
           </View>
 
-          <View style={styles.specsGrid}>
-             <View style={styles.specItem}>
-               <Text style={styles.specLabel}>Кузов</Text>
-               <Text style={styles.specValue}>{car.bodyType || 'Седан'}</Text>
-             </View>
-             <View style={styles.specItem}>
-               <Text style={styles.specLabel}>Двигатель</Text>
-               <Text style={styles.specValue}>2.5 л / {car.fuel}</Text>
-             </View>
-             <View style={styles.specItem}>
-               <Text style={styles.specLabel}>Привод</Text>
-               <Text style={styles.specValue}>Передний</Text>
-             </View>
-             <View style={styles.specItem}>
-               <Text style={styles.specLabel}>Владельцы</Text>
-               <Text style={styles.specValue}>1</Text>
-             </View>
+          <View style={styles.specsContainer}>
+            <Text style={styles.sectionTitle}>Характеристики</Text>
+            <View style={styles.specsGrid}>
+                {renderSpecItem('Кузов', car.bodyType)}
+                {renderSpecItem('Двигатель', car.engine || '-')}
+                {renderSpecItem('Трансмиссия', car.transmission)}
+                {renderSpecItem('Привод', car.drivetrain)}
+                {renderSpecItem('Топливо', car.fuel)}
+                {renderSpecItem('MPG/Запас', car.mpg)}
+                {renderSpecItem('Владельцы', car.owners || '1')} 
+                {/* Note: 'owners' wasn't in upload form, defaulting to 1 or add to schema if needed */}
+            </View>
+          </View>
+
+          <View style={styles.specsContainer}>
+            <Text style={styles.sectionTitle}>Состояние</Text>
+            <View style={styles.specsGrid}>
+                {renderSpecItem('Состояние', car.condition)}
+                <View style={styles.fullWidthItem}>
+                    <Text style={styles.specLabel}>Известные проблемы</Text>
+                    <Text style={styles.specValue}>
+                        {car.knownIssues && car.knownIssues.length > 0 ? car.knownIssues.join(', ') : 'Нет'}
+                    </Text>
+                </View>
+            </View>
+          </View>
+
+          <View style={styles.specsContainer}>
+            <Text style={styles.sectionTitle}>Экстерьер / Интерьер</Text>
+            <View style={styles.specsGrid}>
+                {renderSpecItem('Цвет кузова', car.exteriorColor)}
+                {renderSpecItem('Цвет салона', car.interiorColor)}
+                {renderSpecItem('Материал', car.interiorMaterial)}
+                {renderSpecItem('Мест', car.seats)}
+                {renderSpecItem('Дверей', car.doors)}
+            </View>
           </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Описание</Text>
             <Text style={styles.description}>
-              {car.description || 'Отличный автомобиль в идеальном состоянии. Прошел полное техническое обслуживание. Не битый, не крашенный. Салон чистый, ухоженный. Богатая комплектация: климат-контроль, подогрев сидений, камера заднего вида. Возможен торг у капота.'}
+              {car.description || 'Описание отсутствует.'}
             </Text>
           </View>
         </View>
@@ -222,16 +247,22 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
+  specsContainer: {
+    marginBottom: 24,
+  },
   specsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 24,
     backgroundColor: COLORS.cardBackground,
     borderRadius: SIZES.borderRadius,
     padding: 16,
   },
   specItem: {
     width: '50%',
+    marginBottom: 16,
+  },
+  fullWidthItem: {
+    width: '100%',
     marginBottom: 16,
   },
   specLabel: {
