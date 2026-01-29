@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../constants/theme';
+import { Gauge, Fuel, ChevronRight } from 'lucide-react-native';
 
 interface CarProps {
   make: string;
@@ -20,15 +21,17 @@ export const CarCard = ({ data }: { data: CarProps }) => {
       <View style={styles.details}>
         <View style={styles.header}>
           <Text style={styles.title}>{data.make} {data.model}</Text>
-          <Text style={styles.arrow}>›</Text>
+          <ChevronRight size={20} color={COLORS.textSecondary} />
         </View>
         <Text style={styles.year}>{data.year}</Text>
         <Text style={styles.price}>{data.currency}{data.price.toLocaleString()}</Text>
         <View style={styles.infoRow}>
-          <Text style={styles.infoText}>⚙️ Пробег: {data.mileage.toLocaleString()} км</Text>
+          <Gauge size={14} color={COLORS.textSecondary} style={styles.icon} />
+          <Text style={styles.infoText}>Пробег: {data.mileage.toLocaleString()} км</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.infoText}>⛽️ Топливо: {data.fuel}</Text>
+          <Fuel size={14} color={COLORS.textSecondary} style={styles.icon} />
+          <Text style={styles.infoText}>Топливо: {data.fuel}</Text>
         </View>
       </View>
     </View>
@@ -82,7 +85,10 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: 4,
+  },
+  icon: {
+    marginRight: 6,
   },
   infoText: {
     color: COLORS.textSecondary,
