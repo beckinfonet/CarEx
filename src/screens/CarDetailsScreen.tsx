@@ -81,11 +81,12 @@ export const CarDetailsScreen = () => {
 
   const handleCallSeller = () => {
     // Phone number from car object or fallback
-    const phoneNumber = car.phoneNumber || '821012345678';
+    const phoneNumber = car.phoneNumber || '821044879094';
 
     // Clean phone number for WhatsApp: remove all non-numeric characters
     const cleanPhone = phoneNumber.replace(/\D/g, '');
-    const whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(`Hi, I'm interested in your ${car.make} ${car.model}`)}`;
+    const message = `Hi, I'm interested in your ${car.make} ${car.model} ${car.listingId ? `(ID: ${car.listingId})` : ''}`;
+    const whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
 
     Linking.canOpenURL(whatsappUrl)
       .then((supported) => {
@@ -195,6 +196,9 @@ export const CarDetailsScreen = () => {
             <View>
               <Text style={styles.title}>{car.make} {car.model} {car.year}</Text>
               <Text style={styles.subtitle}>{car.mileage.toLocaleString()} км • {car.fuel}</Text>
+              {car.listingId && (
+                <Text style={styles.listingId}>ID: {car.listingId}</Text>
+              )}
             </View>
             <Text style={styles.price}>{car.currency}{car.price.toLocaleString()}</Text>
           </View>
@@ -357,6 +361,12 @@ const styles = StyleSheet.create({
   subtitle: {
     color: COLORS.textSecondary,
     fontSize: 14,
+  },
+  listingId: {
+    color: COLORS.accent,
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: 'bold',
   },
   price: {
     color: COLORS.accent,
