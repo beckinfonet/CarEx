@@ -1,97 +1,90 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# CarEx - Mobile Car Marketplace
 
-# Getting Started
+A modern React Native application for buying and selling cars, built with a Node.js/MongoDB backend and AWS S3 integration.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 📱 Project Status
 
-## Step 1: Start Metro
+### ✅ Completed
+*   **Core Architecture**
+    *   React Native project setup (0.73+)
+    *   Navigation (Stack Navigator)
+    *   Theme System (Dark Mode, Business Blue Accent)
+    *   Centralized Configuration (`src/constants/config.ts`)
+*   **UI/UX**
+    *   Home Screen (Search, Category Filters, Car List)
+    *   Car Details Screen (Image Carousel, Specs, Description)
+    *   Sell Car Screen (Form, Image Picker, Inline Dropdowns)
+    *   Components: `SearchBar`, `FilterBar`, `CategoryList`, `CarCard`, `BottomBar`, `MoreMenu`
+    *   **Vector Icons**: Replaced all emojis with Lucide React Native icons
+    *   **Logo**: Custom vector logo integrated into Header
+*   **Backend & Data**
+    *   Node.js/Express Server
+    *   MongoDB Cloud Integration
+    *   AWS S3 Image Storage
+    *   API: `GET /api/cars` (Fetch listings)
+    *   API: `POST /api/cars` (Create listing with multiple images)
+    *   Dynamic Schema: Supports Engine, Transmission, Condition, etc.
+*   **Features**
+    *   Interactive Category Filtering
+    *   Call Seller (Linking API)
+    *   Pull-to-Refresh
+    *   Multi-image Upload
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+### 🚧 Pending (App Store Prep)
+*   **Deployment**
+    *   [ ] Deploy Backend to Public Cloud (AWS EC2/Render/Heroku)
+    *   [ ] Update `src/constants/config.ts` with Production URL
+*   **Compliance & Assets**
+    *   [ ] Generate App Icons (`AppIcon.appiconset`) from `assets/logo.svg`
+    *   [ ] Create Launch Screen (Splash)
+    *   [ ] Review `Info.plist` Permission Strings (Camera/Photo Library)
+    *   [ ] Terms of Service & Privacy Policy Links
+    *   [ ] User Reporting/Blocking (UGC Compliance)
+*   **Features**
+    *   [ ] Offline Mode Handling (NetInfo)
+    *   [ ] User Authentication (Login/Register)
+    *   [ ] Favorites Persistence
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## 🛠 Tech Stack
+*   **Frontend**: React Native, TypeScript, React Navigation, Axios, Lucide Icons, React Native SVG
+*   **Backend**: Node.js, Express, Mongoose (MongoDB), AWS SDK (S3), Multer
+*   **Infrastructure**: AWS S3 (Images), MongoDB Atlas (Database)
 
-```sh
-# Using npm
-npm start
+## 🚀 Getting Started
 
-# OR using Yarn
-yarn start
+### 1. Prerequisites
+*   Node.js >= 18
+*   CocoaPods (for iOS)
+*   MongoDB Cluster
+*   AWS S3 Bucket
+
+### 2. Backend Setup
+```bash
+cd backend-services/carEx-services
+# Create .env file with:
+# PORT=5001
+# MONGODB_URI=...
+# AWS_ACCESS_KEY_ID=...
+# AWS_SECRET_ACCESS_KEY=...
+# AWS_REGION=...
+# AWS_BUCKET_NAME=...
+
+npm install
+node server.js
 ```
 
-## Step 2: Build and run your app
+### 3. Frontend Setup
+```bash
+cd carEx
+npm install
+cd ios && pod install && cd ..
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+# Run iOS
 npm run ios
 
-# OR using Yarn
-yarn ios
+# Run Android
+npm run android
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+## 🎨 Asset Generation
+The source logo is available at `assets/logo.svg`. Use this to generate your App Icons and Splash Screen.

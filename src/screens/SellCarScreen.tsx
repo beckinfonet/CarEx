@@ -5,6 +5,7 @@ import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../constants/theme';
+import { API_URL } from '../constants/config';
 import { ArrowLeft, Camera, X } from 'lucide-react-native';
 
 export const SellCarScreen = () => {
@@ -103,7 +104,7 @@ export const SellCarScreen = () => {
     });
 
     try {
-      await axios.post('http://localhost:5001/api/cars', data, {
+      await axios.post(`${API_URL}/api/cars`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

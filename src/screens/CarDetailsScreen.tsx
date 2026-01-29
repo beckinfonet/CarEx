@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, Dimensions, Linking, Alert } from 'react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -40,6 +40,20 @@ export const CarDetailsScreen = () => {
       <Text style={styles.specValue}>{value || '-'}</Text>
     </View>
   );
+
+  const handleCallSeller = () => {
+    // In a real app, this phone number would come from the car/seller object
+    const phoneNumber = 'tel:+1234567890'; 
+    Linking.canOpenURL(phoneNumber)
+      .then((supported) => {
+        if (!supported) {
+          Alert.alert('Error', 'Phone calls are not supported on this device');
+        } else {
+          return Linking.openURL(phoneNumber);
+        }
+      })
+      .catch((err) => console.error('An error occurred', err));
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -141,7 +155,7 @@ export const CarDetailsScreen = () => {
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.contactButton}>
+        <TouchableOpacity style={styles.contactButton} onPress={handleCallSeller}>
           <Phone size={20} color="#000" style={{ marginRight: 8 }} />
           <Text style={styles.contactButtonText}>Позвонить продавцу</Text>
         </TouchableOpacity>

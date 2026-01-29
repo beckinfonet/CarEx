@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { COLORS, SIZES } from '../constants/theme';
+import { API_URL } from '../constants/config';
 import { SearchBar } from '../components/SearchBar';
 import { FilterBar } from '../components/FilterBar';
 import { CategoryList } from '../components/CategoryList';
@@ -13,6 +14,7 @@ import { BottomBar } from '../components/BottomBar';
 import { CATEGORIES } from '../constants/mockData';
 import { RootStackParamList } from '../types/navigation';
 import { ArrowLeft } from 'lucide-react-native';
+import { Logo } from '../components/Logo';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -27,7 +29,7 @@ export const HomeScreen = () => {
 
   const fetchCars = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/cars');
+      const response = await axios.get(`${API_URL}/api/cars`);
       const apiCars = response.data.map((car: any) => ({
         id: car._id,
         make: car.make,
@@ -92,7 +94,10 @@ export const HomeScreen = () => {
           <View style={styles.backButton}>
             {/* <ArrowLeft size={24} color={COLORS.accent} /> */}
           </View>
-          <Text style={styles.headerTitle}>CarEx</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Logo size={32} color={COLORS.accent} />
+            <Text style={styles.headerTitle}> CarEx</Text>
+          </View>
           <View style={styles.langSwitch}>
             <Text style={styles.langText}>RU <Text style={styles.langTextInactive}>EN</Text></Text>
           </View>
