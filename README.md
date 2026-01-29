@@ -32,10 +32,10 @@ A modern React Native application for buying and selling cars, built with a Node
 
 ### 🚧 Pending (App Store Prep)
 *   **Deployment**
-    *   [ ] Deploy Backend to Public Cloud (AWS EC2/Render/Heroku)
-    *   [ ] Update `src/constants/config.ts` with Production URL
+    *   [x] Deploy Backend to Public Cloud (AWS EC2/Render/Heroku)
+    *   [x] Update `src/constants/config.ts` with Production URL
 *   **Compliance & Assets**
-    *   [ ] Generate App Icons (`AppIcon.appiconset`) from `assets/logo.svg`
+    *   [x] Generate App Icons (`AppIcon.appiconset`) from `assets/logo.svg`
     *   [ ] Create Launch Screen (Splash)
     *   [ ] Review `Info.plist` Permission Strings (Camera/Photo Library)
     *   [ ] Terms of Service & Privacy Policy Links
