@@ -15,26 +15,29 @@ import { SellCarScreen } from './src/screens/SellCarScreen';
 import { AboutScreen } from './src/screens/AboutScreen';
 import { OfflineNotice } from './src/components/OfflineNotice';
 import { RootStackParamList } from './src/types/navigation';
+import { LanguageProvider } from './src/context/LanguageContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <OfflineNotice />
-        <Stack.Navigator 
-          screenOptions={{ 
-            headerShown: false,
-            animation: 'slide_from_right'
-          }}
-        >
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
-          <Stack.Screen name="SellCar" component={SellCarScreen} />
-          <Stack.Screen name="About" component={AboutScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <LanguageProvider>
+        <NavigationContainer>
+          <OfflineNotice />
+          <Stack.Navigator 
+            screenOptions={{ 
+              headerShown: false,
+              animation: 'slide_from_right'
+            }}
+          >
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
+            <Stack.Screen name="SellCar" component={SellCarScreen} />
+            <Stack.Screen name="About" component={AboutScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </LanguageProvider>
     </SafeAreaProvider>
   );
 }

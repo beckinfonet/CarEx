@@ -1,0 +1,203 @@
+export const TRANSLATIONS = {
+  RU: {
+    // Header & Navigation
+    appName: 'CarEx',
+    registration: 'Регистрация',
+    logistics: 'Логистика',
+    more: 'Ещё',
+    sellCar: 'Продать авто',
+    carService: 'Автосервис',
+    finance: 'Финансы',
+    insurance: 'Страхование',
+    carHistory: 'История авто',
+    help: 'Помощь',
+    about: 'О приложении',
+    
+    // Home Screen
+    searchPlaceholder: 'Марка/Модель/VIN',
+    noCars: 'Нет автомобилей',
+    
+    // Categories
+    sedan: 'Седан',
+    suv: 'SUV/RV',
+    passenger: 'Пассажирские',
+    truck: 'Грузовые',
+    special: 'Спецтехника',
+
+    // Filters
+    year: 'Год',
+    price: 'Цена',
+    fuel: 'Топливо',
+    transmission: 'КПП',
+    mileage: 'Пробег',
+    from: 'От',
+    to: 'До',
+    apply: 'Применить',
+    reset: 'Сбросить',
+
+    // Fuel Types
+    gasoline: 'Бензин',
+    diesel: 'Дизель',
+    electric: 'Электро',
+    hybrid: 'Гибрид',
+    pluginHybrid: 'Plug-in Hybrid',
+
+    // Transmission Types
+    automatic: 'Automatic',
+    manual: 'Manual',
+    cvt: 'CVT',
+    robot: 'Robot',
+
+    // Car Details
+    mileageLabel: 'Пробег',
+    fuelLabel: 'Топливо',
+    bodyType: 'Кузов',
+    engine: 'Двигатель',
+    drivetrain: 'Привод',
+    owners: 'Владельцы',
+    condition: 'Состояние',
+    knownIssues: 'Известные проблемы',
+    exteriorColor: 'Цвет кузова',
+    interiorColor: 'Цвет салона',
+    interiorMaterial: 'Материал',
+    seats: 'Мест',
+    doors: 'Дверей',
+    description: 'Описание',
+    noDescription: 'Описание отсутствует.',
+    callSeller: 'Позвонить продавцу',
+    reportListing: 'Пожаловаться',
+    
+    // Sell Car
+    sellHeader: 'Продать авто',
+    mainInfo: 'Основная информация',
+    brand: 'Марка (например, BMW)',
+    model: 'Модель (например, X5)',
+    typeBody: 'Тип кузова (Седан, SUV...)',
+    enterYear: 'Год',
+    enterPrice: 'Цена ($)',
+    specs: 'Характеристики',
+    enterEngine: 'Двигатель (e.g., 3.0L V6)',
+    mpgRange: 'MPG / Запас хода',
+    enterMileage: 'Пробег (км)',
+    conditionLabel: 'Общее состояние',
+    issuesLabel: 'Известные проблемы',
+    extInt: 'Экстерьер / Интерьер',
+    bodyColor: 'Цвет кузова',
+    interiorColorInput: 'Цвет салона',
+    interiorMatLabel: 'Материал салона',
+    enterSeats: 'Мест',
+    enterDoors: 'Дверей',
+    addDesc: 'Дополнительное описание',
+    submitListing: 'Разместить объявление',
+    phoneNumber: 'Номер телефона (например, 821012345678)',
+    photo: 'Фото',
+    
+    // Common
+    error: 'Ошибка',
+    success: 'Успешно',
+    loading: 'Загрузка...',
+    comingSoon: 'Скоро будет доступно!',
+    noInternet: 'Нет подключения к интернету',
+  },
+  EN: {
+    // Header & Navigation
+    appName: 'CarEx',
+    registration: 'Registration',
+    logistics: 'Logistics',
+    more: 'More',
+    sellCar: 'Sell Car',
+    carService: 'Car Service',
+    finance: 'Finance',
+    insurance: 'Insurance',
+    carHistory: 'Car History',
+    help: 'Help',
+    about: 'About',
+    
+    // Home Screen
+    searchPlaceholder: 'Make/Model/VIN',
+    noCars: 'No cars found',
+    
+    // Categories
+    sedan: 'Sedan',
+    suv: 'SUV/RV',
+    passenger: 'Passenger',
+    truck: 'Trucks',
+    special: 'Special',
+
+    // Filters
+    year: 'Year',
+    price: 'Price',
+    fuel: 'Fuel',
+    transmission: 'Trans',
+    mileage: 'Mileage',
+    from: 'From',
+    to: 'To',
+    apply: 'Apply',
+    reset: 'Reset',
+
+    // Fuel Types
+    gasoline: 'Gasoline',
+    diesel: 'Diesel',
+    electric: 'Electric',
+    hybrid: 'Hybrid',
+    pluginHybrid: 'Plug-in Hybrid',
+
+    // Transmission Types
+    automatic: 'Automatic',
+    manual: 'Manual',
+    cvt: 'CVT',
+    robot: 'Robot',
+
+    // Car Details
+    mileageLabel: 'Mileage',
+    fuelLabel: 'Fuel',
+    bodyType: 'Body',
+    engine: 'Engine',
+    drivetrain: 'Drivetrain',
+    owners: 'Owners',
+    condition: 'Condition',
+    knownIssues: 'Known Issues',
+    exteriorColor: 'Ext. Color',
+    interiorColor: 'Int. Color',
+    interiorMaterial: 'Material',
+    seats: 'Seats',
+    doors: 'Doors',
+    description: 'Description',
+    noDescription: 'No description available.',
+    callSeller: 'Call Seller',
+    reportListing: 'Report Listing',
+    
+    // Sell Car
+    sellHeader: 'Sell Car',
+    mainInfo: 'Main Information',
+    brand: 'Make (e.g., BMW)',
+    model: 'Model (e.g., X5)',
+    typeBody: 'Body Type (Sedan, SUV...)',
+    enterYear: 'Year',
+    enterPrice: 'Price ($)',
+    specs: 'Specifications',
+    enterEngine: 'Engine (e.g., 3.0L V6)',
+    mpgRange: 'MPG / Range',
+    enterMileage: 'Mileage (km)',
+    conditionLabel: 'Condition',
+    issuesLabel: 'Known Issues',
+    extInt: 'Exterior / Interior',
+    bodyColor: 'Exterior Color',
+    interiorColorInput: 'Interior Color',
+    interiorMatLabel: 'Interior Material',
+    enterSeats: 'Seats',
+    enterDoors: 'Doors',
+    addDesc: 'Additional Description',
+    submitListing: 'List Car',
+    phoneNumber: 'Phone Number (e.g., 821012345678)',
+    photo: 'Photo',
+    
+    // Common
+    error: 'Error',
+    success: 'Success',
+    loading: 'Loading...',
+    comingSoon: 'Coming soon in the next update!',
+    noInternet: 'No Internet Connection',
+  }
+};
+

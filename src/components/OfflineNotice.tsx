@@ -3,12 +3,14 @@ import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { useNetwork } from '../hooks/useNetwork';
 import { WifiOff } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useLanguage } from '../context/LanguageContext';
 
 const { width } = Dimensions.get('window');
 
 export const OfflineNotice = () => {
   const isConnected = useNetwork();
   const insets = useSafeAreaInsets();
+  const { t } = useLanguage();
 
   if (isConnected) {
     return null;
@@ -17,7 +19,7 @@ export const OfflineNotice = () => {
   return (
     <View style={[styles.container, { paddingTop: insets.top, height: 44 + insets.top }]}>
       <WifiOff size={16} color="#FFF" style={styles.icon} />
-      <Text style={styles.text}>No Internet Connection</Text>
+      <Text style={styles.text}>{t.noInternet}</Text>
     </View>
   );
 };

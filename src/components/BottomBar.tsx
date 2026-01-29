@@ -4,33 +4,37 @@ import { COLORS, SIZES } from '../constants/theme';
 import { MoreMenu } from './MoreMenu';
 import { User, Truck, Menu } from 'lucide-react-native';
 
-export const BottomBar = () => {
+interface BottomBarProps {
+  t: any;
+}
+
+export const BottomBar = ({ t }: BottomBarProps) => {
   const [menuVisible, setMenuVisible] = useState(false);
 
   const handleComingSoon = (feature: string) => {
-    Alert.alert('Coming Soon', `${feature} will be available in the next update!`);
+    Alert.alert(t.comingSoon, `${feature}`);
   };
 
   return (
     <>
       <View style={styles.container}>
-        <TouchableOpacity style={styles.button} onPress={() => handleComingSoon('Registration')}>
+        <TouchableOpacity style={styles.button} onPress={() => handleComingSoon(t.registration)}>
           <User size={20} color={COLORS.accent} />
-          <Text style={styles.text}>Регистрация</Text>
+          <Text style={styles.text}>{t.registration}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handleComingSoon('Logistics')}>
+        <TouchableOpacity style={styles.button} onPress={() => handleComingSoon(t.logistics)}>
           <Truck size={20} color={COLORS.accent} />
-          <Text style={styles.text}>Логистика</Text>
+          <Text style={styles.text}>{t.logistics}</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.button}
           onPress={() => setMenuVisible(true)}
         >
           <Menu size={20} color={COLORS.textPrimary} />
-          <Text style={styles.text}>Ещё</Text>
+          <Text style={styles.text}>{t.more}</Text>
         </TouchableOpacity>
       </View>
-      <MoreMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
+      <MoreMenu visible={menuVisible} onClose={() => setMenuVisible(false)} t={t} />
     </>
   );
 };

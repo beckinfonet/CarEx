@@ -3,7 +3,7 @@ import { View, TextInput, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { Search } from 'lucide-react-native';
 
-export const SearchBar = ({ value, onChangeText }: { value?: string; onChangeText?: (text: string) => void }) => {
+export const SearchBar = ({ value, onChangeText, placeholder }: { value?: string; onChangeText?: (text: string) => void; placeholder?: string }) => {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
@@ -11,7 +11,7 @@ export const SearchBar = ({ value, onChangeText }: { value?: string; onChangeTex
       </View>
       <TextInput
         style={styles.input}
-        placeholder="Марка/Модель/VIN"
+        placeholder={placeholder || "Марка/Модель/VIN"}
         placeholderTextColor={COLORS.textSecondary}
         value={value}
         onChangeText={onChangeText}

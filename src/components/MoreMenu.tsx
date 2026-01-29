@@ -9,6 +9,7 @@ import { Car, Wrench, Banknote, Shield, ClipboardList, HelpCircle, X, Info } fro
 interface MoreMenuProps {
   visible: boolean;
   onClose: () => void;
+  t: any;
 }
 
 const getIcon = (id: number) => {
@@ -24,18 +25,18 @@ const getIcon = (id: number) => {
   }
 };
 
-const MENU_ITEMS = [
-  { id: 1, name: 'Продать авто', icon: '🚘', route: 'SellCar' },
-  { id: 2, name: 'Автосервис', icon: '🔧' },
-  { id: 3, name: 'Финансы', icon: '💰' },
-  { id: 4, name: 'Страхование', icon: '🛡️' },
-  { id: 5, name: 'История авто', icon: '📋' },
-  { id: 6, name: 'Помощь', icon: '❓' },
-  { id: 7, name: 'О приложении', icon: 'ℹ️', route: 'About' },
-];
-
-export const MoreMenu = ({ visible, onClose }: MoreMenuProps) => {
+export const MoreMenu = ({ visible, onClose, t }: MoreMenuProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const MENU_ITEMS = [
+    { id: 1, name: t.sellCar, icon: '🚘', route: 'SellCar' },
+    { id: 2, name: t.carService, icon: '🔧' },
+    { id: 3, name: t.finance, icon: '💰' },
+    { id: 4, name: t.insurance, icon: '🛡️' },
+    { id: 5, name: t.carHistory, icon: '📋' },
+    { id: 6, name: t.help, icon: '❓' },
+    { id: 7, name: t.about, icon: 'ℹ️', route: 'About' },
+  ];
 
   const handlePress = (item: typeof MENU_ITEMS[0]) => {
     onClose();
@@ -62,7 +63,7 @@ export const MoreMenu = ({ visible, onClose }: MoreMenuProps) => {
             <View style={styles.menuContainer}>
               <View style={styles.indicator} />
               <View style={styles.header}>
-                <Text style={styles.title}>Все сервисы</Text>
+                <Text style={styles.title}>{t.appName}</Text>
                 <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                   <X size={20} color={COLORS.textSecondary} />
                 </TouchableOpacity>

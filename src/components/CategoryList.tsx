@@ -7,6 +7,7 @@ import { Car, Truck, Bus, Tractor } from 'lucide-react-native';
 interface CategoryListProps {
   selectedCategory: number | null;
   onSelectCategory: (id: number) => void;
+  t: any;
 }
 
 const getIcon = (id: number, isActive: boolean) => {
@@ -22,7 +23,18 @@ const getIcon = (id: number, isActive: boolean) => {
   }
 };
 
-export const CategoryList = ({ selectedCategory, onSelectCategory }: CategoryListProps) => {
+export const CategoryList = ({ selectedCategory, onSelectCategory, t }: CategoryListProps) => {
+  const getCategoryName = (id: number) => {
+      switch(id) {
+          case 1: return t.sedan;
+          case 2: return t.suv;
+          case 3: return t.passenger;
+          case 4: return t.truck;
+          case 5: return t.special;
+          default: return '';
+      }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -38,7 +50,7 @@ export const CategoryList = ({ selectedCategory, onSelectCategory }: CategoryLis
                 {getIcon(category.id, isActive)}
               </View>
               <Text style={[styles.categoryName, isActive && styles.activeCategoryName]}>
-                {category.name}
+                {getCategoryName(category.id)}
               </Text>
             </TouchableOpacity>
           );

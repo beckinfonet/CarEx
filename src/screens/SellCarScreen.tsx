@@ -8,8 +8,10 @@ import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
 import NetInfo from '@react-native-community/netinfo';
 import { ArrowLeft, Camera, X } from 'lucide-react-native';
+import { useLanguage } from '../context/LanguageContext';
 
 export const SellCarScreen = () => {
+  const { t } = useLanguage();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<Asset[]>([]);
@@ -180,7 +182,7 @@ export const SellCarScreen = () => {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={COLORS.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Продать авто</Text>
+        <Text style={styles.headerTitle}>{t.sellHeader}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -198,17 +200,17 @@ export const SellCarScreen = () => {
                 {images.length < 5 && (
                     <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
                          <Camera size={32} color={COLORS.textSecondary} style={{ marginBottom: 4 }} />
-                         <Text style={styles.uploadText}>Фото</Text>
+                         <Text style={styles.uploadText}>{t.photo}</Text>
                     </TouchableOpacity>
                 )}
             </ScrollView>
         </View>
 
         <View style={styles.form}>
-            <Text style={styles.sectionHeader}>Основная информация</Text>
+            <Text style={styles.sectionHeader}>{t.mainInfo}</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Номер телефона (например, 821012345678)"
+                placeholder={t.phoneNumber}
                 placeholderTextColor={COLORS.textSecondary}
                 keyboardType="phone-pad"
                 value={formData.phoneNumber}
@@ -216,21 +218,21 @@ export const SellCarScreen = () => {
             />
             <TextInput
                 style={styles.input}
-                placeholder="Марка (например, BMW)"
+                placeholder={t.brand}
                 placeholderTextColor={COLORS.textSecondary}
                 value={formData.make}
                 onChangeText={(text) => setFormData({ ...formData, make: text })}
             />
             <TextInput
                 style={styles.input}
-                placeholder="Модель (например, X5)"
+                placeholder={t.model}
                 placeholderTextColor={COLORS.textSecondary}
                 value={formData.model}
                 onChangeText={(text) => setFormData({ ...formData, model: text })}
             />
             <TextInput
                 style={styles.input}
-                placeholder="Тип кузова (Седан, SUV...)"
+                placeholder={t.typeBody}
                 placeholderTextColor={COLORS.textSecondary}
                 value={formData.bodyType}
                 onChangeText={(text) => setFormData({ ...formData, bodyType: text })}
@@ -238,7 +240,7 @@ export const SellCarScreen = () => {
             <View style={styles.row}>
                 <TextInput
                 style={[styles.input, styles.halfInput]}
-                placeholder="Год"
+                placeholder={t.enterYear}
                 placeholderTextColor={COLORS.textSecondary}
                 keyboardType="numeric"
                 value={formData.year}
@@ -246,7 +248,7 @@ export const SellCarScreen = () => {
                 />
                 <TextInput
                 style={[styles.input, styles.halfInput]}
-                placeholder="Цена ($)"
+                placeholder={t.enterPrice}
                 placeholderTextColor={COLORS.textSecondary}
                 keyboardType="numeric"
                 value={formData.price}
@@ -254,63 +256,63 @@ export const SellCarScreen = () => {
                 />
             </View>
 
-            <Text style={styles.sectionHeader}>Характеристики</Text>
+            <Text style={styles.sectionHeader}>{t.specs}</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Двигатель (e.g., 3.0L V6)"
+                placeholder={t.enterEngine}
                 placeholderTextColor={COLORS.textSecondary}
                 value={formData.engine}
                 onChangeText={(text) => setFormData({ ...formData, engine: text })}
             />
             
-            {renderDropdown('Трансмиссия', formData.transmission, 'transmission', ['Automatic', 'Manual', 'CVT'])}
-            {renderDropdown('Привод', formData.drivetrain, 'drivetrain', ['FWD', 'RWD', 'AWD', '4WD'])}
-            {renderDropdown('Топливо', formData.fuel, 'fuel', ['Gasoline', 'Diesel', 'Hybrid', 'Plug-in Hybrid', 'Electric'])}
+            {renderDropdown(t.transmission, formData.transmission, 'transmission', [t.automatic, t.manual, t.cvt, t.robot])}
+            {renderDropdown(t.drivetrain, formData.drivetrain, 'drivetrain', ['FWD', 'RWD', 'AWD', '4WD'])}
+            {renderDropdown(t.fuel, formData.fuel, 'fuel', [t.gasoline, t.diesel, t.hybrid, t.pluginHybrid, t.electric])}
             
             <TextInput
                 style={styles.input}
-                placeholder="MPG / Запас хода"
+                placeholder={t.mpgRange}
                 placeholderTextColor={COLORS.textSecondary}
                 value={formData.mpg}
                 onChangeText={(text) => setFormData({ ...formData, mpg: text })}
             />
             <TextInput
                 style={styles.input}
-                placeholder="Пробег (км)"
+                placeholder={t.enterMileage}
                 placeholderTextColor={COLORS.textSecondary}
                 keyboardType="numeric"
                 value={formData.mileage}
                 onChangeText={(text) => setFormData({ ...formData, mileage: text })}
             />
 
-            <Text style={styles.sectionHeader}>Состояние</Text>
-            {renderDropdown('Общее состояние', formData.condition, 'condition', ['Excellent', 'Good', 'Fair', 'Needs Work'])}
+            <Text style={styles.sectionHeader}>{t.conditionLabel}</Text>
+            {renderDropdown(t.conditionLabel, formData.condition, 'condition', ['Excellent', 'Good', 'Fair', 'Needs Work'])}
             
-            {renderDropdown('Известные проблемы', formData.knownIssues, 'knownIssues', ['Engine', 'Transmission', 'Suspension', 'Electrical', 'Interior', 'Body/Cosmetic'])}
+            {renderDropdown(t.issuesLabel, formData.knownIssues, 'knownIssues', ['Engine', 'Transmission', 'Suspension', 'Electrical', 'Interior', 'Body/Cosmetic'])}
 
-            <Text style={styles.sectionHeader}>Экстерьер / Интерьер</Text>
+            <Text style={styles.sectionHeader}>{t.extInt}</Text>
             <View style={styles.row}>
                 <TextInput
                     style={[styles.input, styles.halfInput]}
-                    placeholder="Цвет кузова"
+                    placeholder={t.bodyColor}
                     placeholderTextColor={COLORS.textSecondary}
                     value={formData.exteriorColor}
                     onChangeText={(text) => setFormData({ ...formData, exteriorColor: text })}
                 />
                 <TextInput
                     style={[styles.input, styles.halfInput]}
-                    placeholder="Цвет салона"
+                    placeholder={t.interiorColorInput}
                     placeholderTextColor={COLORS.textSecondary}
                     value={formData.interiorColor}
                     onChangeText={(text) => setFormData({ ...formData, interiorColor: text })}
                 />
             </View>
-            {renderDropdown('Материал салона', formData.interiorMaterial, 'interiorMaterial', ['Cloth', 'Leather', 'Vegan Leather', 'Alcantara'])}
+            {renderDropdown(t.interiorMatLabel, formData.interiorMaterial, 'interiorMaterial', ['Cloth', 'Leather', 'Vegan Leather', 'Alcantara'])}
             
             <View style={styles.row}>
                 <TextInput
                     style={[styles.input, styles.halfInput]}
-                    placeholder="Мест"
+                    placeholder={t.enterSeats}
                     placeholderTextColor={COLORS.textSecondary}
                     keyboardType="numeric"
                     value={formData.seats}
@@ -318,7 +320,7 @@ export const SellCarScreen = () => {
                 />
                 <TextInput
                     style={[styles.input, styles.halfInput]}
-                    placeholder="Дверей"
+                    placeholder={t.enterDoors}
                     placeholderTextColor={COLORS.textSecondary}
                     keyboardType="numeric"
                     value={formData.doors}
@@ -328,7 +330,7 @@ export const SellCarScreen = () => {
 
             <TextInput
                 style={[styles.input, styles.textArea]}
-                placeholder="Дополнительное описание"
+                placeholder={t.addDesc}
                 placeholderTextColor={COLORS.textSecondary}
                 multiline
                 numberOfLines={4}
@@ -344,7 +346,7 @@ export const SellCarScreen = () => {
                 {loading ? (
                     <ActivityIndicator color="#000" />
                 ) : (
-                    <Text style={styles.submitButtonText}>Разместить объявление</Text>
+                    <Text style={styles.submitButtonText}>{t.submitListing}</Text>
                 )}
             </TouchableOpacity>
         </View>

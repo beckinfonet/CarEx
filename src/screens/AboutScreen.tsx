@@ -5,8 +5,10 @@ import { useNavigation } from '@react-navigation/native';
 import { ArrowLeft, ExternalLink } from 'lucide-react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { Logo } from '../components/Logo';
+import { useLanguage } from '../context/LanguageContext';
 
 export const AboutScreen = () => {
+  const { t } = useLanguage();
   const navigation = useNavigation();
 
   const openLink = (url: string) => {
@@ -21,7 +23,7 @@ export const AboutScreen = () => {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={COLORS.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>О приложении</Text>
+        <Text style={styles.headerTitle}>{t.about}</Text>
         <View style={{ width: 40 }} />
       </View>
 

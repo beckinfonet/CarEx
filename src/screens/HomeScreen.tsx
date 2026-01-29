@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, Alert, RefreshControl, Image } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import axios from 'axios';
 import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
 import { SearchBar } from '../components/SearchBar';
@@ -14,10 +14,13 @@ import { BottomBar } from '../components/BottomBar';
 import { CATEGORIES } from '../constants/mockData';
 import { RootStackParamList } from '../types/navigation';
 import { ArrowLeft } from 'lucide-react-native';
+import { FilterModal } from '../components/FilterModal';
+import { useLanguage } from '../context/LanguageContext';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 export const HomeScreen = () => {
+  const { t, language, setLanguage } = useLanguage();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const isFocused = useIsFocused();
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,6 +28,9 @@ export const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [activeFilters, setActiveFilters] = useState<{ [key: string]: any }>({});
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentFilterType, setCurrentFilterType] = useState<string | null>(null);
 
   const fetchCars = async () => {
     try {
@@ -67,21 +73,56 @@ export const HomeScreen = () => {
     const matchesSearch = car.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
       car.model.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (!selectedCategory) return matchesSearch;
+    // Filter Logic
+    let matchesFilters = true;
+    if (activeFilters['Год']) {
+      const { min, max } = activeFilters['Год'];
+      if (min && car.year < parseInt(min)) matchesFilters = false;
+      if (max && car.year > parseInt(max)) matchesFilters = false;
+    }
+    if (activeFilters['Цена']) {
+      const { min, max } = activeFilters['Цена'];
+      if (min && car.price < parseInt(min)) matchesFilters = false;
+      if (max && car.price > parseInt(max)) matchesFilters = false;
+    }
+    if (activeFilters['Пробег']) {
+      const { min, max } = activeFilters['Пробег'];
+      if (min && car.mileage < parseInt(min)) matchesFilters = false;
+      if (max && car.mileage > parseInt(max)) matchesFilters = false;
+    }
+    if (activeFilters['Топливо'] && activeFilters['Топливо'] !== car.fuel) matchesFilters = false;
+    if (activeFilters['КПП'] && activeFilters['КПП'] !== car.transmission) matchesFilters = false;
+
+    if (!selectedCategory) return matchesSearch && matchesFilters;
 
     const category = CATEGORIES.find(c => c.id === selectedCategory);
-    if (!category) return matchesSearch;
+    if (!category) return matchesSearch && matchesFilters;
 
     const bodyType = car.bodyType || '';
     const matchesCategory = bodyType.toLowerCase().includes(category.name.toLowerCase()) ||
       category.name.toLowerCase().includes(bodyType.toLowerCase()) ||
       (category.id === 2 && bodyType.toLowerCase().includes('suv'));
 
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesCategory && matchesFilters;
   });
 
   const handleCarPress = (car: any) => {
     navigation.navigate('CarDetails', { carId: car.id, carData: car });
+  };
+
+  const handleFilterPress = (filter: string) => {
+    setCurrentFilterType(filter);
+    setModalVisible(true);
+  };
+
+  const handleApplyFilter = (filterType: string, value: any) => {
+    const newFilters = { ...activeFilters };
+    if (value === null || (typeof value === 'object' && !value.min && !value.max)) {
+      delete newFilters[filterType];
+    } else {
+      newFilters[filterType] = value;
+    }
+    setActiveFilters(newFilters);
   };
 
   return (
@@ -101,13 +142,18 @@ export const HomeScreen = () => {
             />
             <Image
               source={require('../assets/car-logo-transparent.png')}
-              style={{ width: 60, height: 70 }}
+              style={{ width: 60, height: 80 }}
               resizeMode="contain"
             />
           </View>
-          <View style={styles.langSwitch}>
-            <Text style={styles.langText}>RU <Text style={styles.langTextInactive}>EN</Text></Text>
-          </View>
+          <TouchableOpacity
+            style={styles.langSwitch}
+            onPress={() => setLanguage(language === 'RU' ? 'EN' : 'RU')}
+          >
+            <Text style={[styles.langText, language === 'RU' && styles.activeLang]}>RU</Text>
+            <View style={styles.divider} />
+            <Text style={[styles.langText, language === 'EN' && styles.activeLang]}>EN</Text>
+          </TouchableOpacity>
         </View>
 
         <ScrollView
@@ -117,11 +163,12 @@ export const HomeScreen = () => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.accent} />
           }
         >
-          <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
-          <FilterBar />
+          <SearchBar value={searchQuery} onChangeText={setSearchQuery} placeholder={t.searchPlaceholder} />
+          <FilterBar onFilterPress={handleFilterPress} activeFilters={activeFilters} t={t} />
           <CategoryList
             selectedCategory={selectedCategory}
             onSelectCategory={(id) => setSelectedCategory(selectedCategory === id ? null : id)}
+            t={t}
           />
 
           <View style={styles.carList}>
@@ -135,13 +182,21 @@ export const HomeScreen = () => {
               ))
             )}
             {!loading && filteredCars.length === 0 && (
-              <Text style={styles.emptyText}>Нет автомобилей</Text>
+              <Text style={styles.emptyText}>{t.noCars}</Text>
             )}
           </View>
         </ScrollView>
 
-        <BottomBar />
+        <BottomBar t={t} />
       </View>
+      <FilterModal
+        visible={modalVisible}
+        type={currentFilterType}
+        onClose={() => setModalVisible(false)}
+        onApply={handleApplyFilter}
+        currentValue={currentFilterType ? activeFilters[currentFilterType] : null}
+        t={t}
+      />
     </SafeAreaView>
   );
 };
@@ -178,16 +233,34 @@ const styles = StyleSheet.create({
   },
   langSwitch: {
     backgroundColor: COLORS.cardBackground,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   langText: {
-    color: COLORS.textPrimary,
+    color: COLORS.textSecondary,
     fontSize: 12,
     fontWeight: 'bold',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  activeLang: {
+    backgroundColor: COLORS.accent,
+    color: '#000', // Black text on active blue background
+  },
+  divider: {
+    width: 1,
+    height: 12,
+    backgroundColor: COLORS.border,
+    marginHorizontal: 2,
   },
   langTextInactive: {
+    // Deprecated, keeping for safety if referenced elsewhere, but new logic handles this
     color: COLORS.textSecondary,
     fontWeight: 'normal',
   },

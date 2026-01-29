@@ -6,10 +6,12 @@ import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Heart, Phone, AlertTriangle } from 'lucide-react-native';
+import { useLanguage } from '../context/LanguageContext';
 
 const { width } = Dimensions.get('window');
 
 export const CarDetailsScreen = () => {
+  const { t } = useLanguage();
   const navigation = useNavigation();
   const route = useRoute();
   const { carId } = route.params as { carId: string };
@@ -198,25 +200,25 @@ export const CarDetailsScreen = () => {
           </View>
 
           <View style={styles.specsContainer}>
-            <Text style={styles.sectionTitle}>Характеристики</Text>
+            <Text style={styles.sectionTitle}>{t.specs}</Text>
             <View style={styles.specsGrid}>
-              {renderSpecItem('Кузов', car.bodyType)}
-              {renderSpecItem('Двигатель', car.engine || '-')}
-              {renderSpecItem('Трансмиссия', car.transmission)}
-              {renderSpecItem('Привод', car.drivetrain)}
-              {renderSpecItem('Топливо', car.fuel)}
-              {renderSpecItem('MPG/Запас', car.mpg)}
-              {renderSpecItem('Владельцы', car.owners || '1')}
+              {renderSpecItem(t.bodyType, car.bodyType)}
+              {renderSpecItem(t.engine, car.engine || '-')}
+              {renderSpecItem(t.transmission, car.transmission)}
+              {renderSpecItem(t.drivetrain, car.drivetrain)}
+              {renderSpecItem(t.fuelLabel, car.fuel)}
+              {renderSpecItem(t.mpgRange, car.mpg)}
+              {renderSpecItem(t.owners, car.owners || '1')}
               {/* Note: 'owners' wasn't in upload form, defaulting to 1 or add to schema if needed */}
             </View>
           </View>
 
           <View style={styles.specsContainer}>
-            <Text style={styles.sectionTitle}>Состояние</Text>
+            <Text style={styles.sectionTitle}>{t.condition}</Text>
             <View style={styles.specsGrid}>
-              {renderSpecItem('Состояние', car.condition)}
+              {renderSpecItem(t.condition, car.condition)}
               <View style={styles.fullWidthItem}>
-                <Text style={styles.specLabel}>Известные проблемы</Text>
+                <Text style={styles.specLabel}>{t.knownIssues}</Text>
                 <Text style={styles.specValue}>
                   {car.knownIssues && car.knownIssues.length > 0 ? car.knownIssues.join(', ') : 'Нет'}
                 </Text>
@@ -225,20 +227,20 @@ export const CarDetailsScreen = () => {
           </View>
 
           <View style={styles.specsContainer}>
-            <Text style={styles.sectionTitle}>Экстерьер / Интерьер</Text>
+            <Text style={styles.sectionTitle}>{t.extInt}</Text>
             <View style={styles.specsGrid}>
-              {renderSpecItem('Цвет кузова', car.exteriorColor)}
-              {renderSpecItem('Цвет салона', car.interiorColor)}
-              {renderSpecItem('Материал', car.interiorMaterial)}
-              {renderSpecItem('Мест', car.seats)}
-              {renderSpecItem('Дверей', car.doors)}
+              {renderSpecItem(t.exteriorColor, car.exteriorColor)}
+              {renderSpecItem(t.interiorColor, car.interiorColor)}
+              {renderSpecItem(t.interiorMaterial, car.interiorMaterial)}
+              {renderSpecItem(t.seats, car.seats)}
+              {renderSpecItem(t.doors, car.doors)}
             </View>
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Описание</Text>
+            <Text style={styles.sectionTitle}>{t.description}</Text>
             <Text style={styles.description}>
-              {car.description || 'Описание отсутствует.'}
+              {car.description || t.noDescription}
             </Text>
           </View>
         </View>
@@ -247,7 +249,7 @@ export const CarDetailsScreen = () => {
       <View style={styles.footer}>
         <TouchableOpacity style={styles.contactButton} onPress={handleCallSeller}>
           <Phone size={20} color="#000" style={{ marginRight: 8 }} />
-          <Text style={styles.contactButtonText}>Позвонить продавцу</Text>
+          <Text style={styles.contactButtonText}>{t.callSeller}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
