@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../constants/theme';
+import { Search } from 'lucide-react-native';
 
 export const SearchBar = ({ value, onChangeText }: { value?: string; onChangeText?: (text: string) => void }) => {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        {/* Placeholder for Search Icon */}
-        <View style={styles.searchIcon} />
+        <Search size={20} color={COLORS.textSecondary} />
       </View>
       <TextInput
         style={styles.input}
@@ -34,13 +34,6 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginRight: 10,
-  },
-  searchIcon: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: COLORS.textSecondary,
   },
   input: {
     flex: 1,

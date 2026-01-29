@@ -1,11 +1,11 @@
 export const COLORS = {
-  background: '#1A1A1A',
-  cardBackground: '#262626',
+  background: '#0F1115', // Very dark blue-grey, sleek
+  cardBackground: '#181B21', // Slightly lighter blue-grey
   textPrimary: '#FFFFFF',
-  textSecondary: '#B0B0B0', // Slightly lighter text for better contrast
-  accent: '#D4AF37', // Slightly brighter gold
-  border: '#404040',
-  searchBackground: '#333333',
+  textSecondary: '#9CA3AF', // Cool grey
+  accent: '#3B82F6', // Corporate Blue (Business-like, Trustworthy)
+  border: '#2A2F3A',
+  searchBackground: '#232730',
 };
 
 export const SIZES = {

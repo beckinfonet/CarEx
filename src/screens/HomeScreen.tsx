@@ -11,6 +11,7 @@ import { CategoryList } from '../components/CategoryList';
 import { CarCard } from '../components/CarCard';
 import { BottomBar } from '../components/BottomBar';
 import { RootStackParamList } from '../types/navigation';
+import { ArrowLeft } from 'lucide-react-native';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -75,7 +76,7 @@ export const HomeScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.backButton}>
-            {/* <Text style={styles.headerIcon}>←</Text> */}
+            <ArrowLeft size={24} color={COLORS.accent} />
           </View>
           <Text style={styles.headerTitle}>CarEx</Text>
           <View style={styles.langSwitch}>

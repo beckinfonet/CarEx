@@ -4,11 +4,24 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
+import { Car, Wrench, Banknote, Shield, ClipboardList, HelpCircle, X } from 'lucide-react-native';
 
 interface MoreMenuProps {
   visible: boolean;
   onClose: () => void;
 }
+
+const getIcon = (id: number) => {
+  switch (id) {
+    case 1: return <Car size={24} color={COLORS.accent} />;
+    case 2: return <Wrench size={24} color={COLORS.accent} />;
+    case 3: return <Banknote size={24} color={COLORS.accent} />;
+    case 4: return <Shield size={24} color={COLORS.accent} />;
+    case 5: return <ClipboardList size={24} color={COLORS.accent} />;
+    case 6: return <HelpCircle size={24} color={COLORS.accent} />;
+    default: return <Car size={24} color={COLORS.accent} />;
+  }
+};
 
 const MENU_ITEMS = [
   { id: 1, name: 'Продать авто', icon: '🚘', route: 'SellCar' },
@@ -45,7 +58,7 @@ export const MoreMenu = ({ visible, onClose }: MoreMenuProps) => {
               <View style={styles.header}>
                 <Text style={styles.title}>Все сервисы</Text>
                 <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                  <Text style={styles.closeButtonText}>✕</Text>
+                  <X size={20} color={COLORS.textSecondary} />
                 </TouchableOpacity>
               </View>
               
@@ -57,7 +70,7 @@ export const MoreMenu = ({ visible, onClose }: MoreMenuProps) => {
                     onPress={() => handlePress(item)}
                   >
                     <View style={styles.iconContainer}>
-                      <Text style={styles.icon}>{item.icon}</Text>
+                      {getIcon(item.id)}
                     </View>
                     <Text style={styles.menuText}>{item.name}</Text>
                   </TouchableOpacity>

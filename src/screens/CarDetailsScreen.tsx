@@ -4,6 +4,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ArrowLeft, Heart, Phone } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -46,11 +47,11 @@ export const CarDetailsScreen = () => {
       
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backIcon}>←</Text>
+          <ArrowLeft size={24} color={COLORS.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{car.make} {car.model}</Text>
         <TouchableOpacity style={styles.favoriteButton}>
-          <Text style={styles.favoriteIcon}>♡</Text>
+          <Heart size={24} color={COLORS.accent} />
         </TouchableOpacity>
       </View>
 
@@ -141,6 +142,7 @@ export const CarDetailsScreen = () => {
 
       <View style={styles.footer}>
         <TouchableOpacity style={styles.contactButton}>
+          <Phone size={20} color="#000" style={{ marginRight: 8 }} />
           <Text style={styles.contactButtonText}>Позвонить продавцу</Text>
         </TouchableOpacity>
       </View>
@@ -300,6 +302,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: SIZES.borderRadius,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   contactButtonText: {
     color: '#000000',

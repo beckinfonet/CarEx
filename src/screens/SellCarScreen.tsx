@@ -5,6 +5,7 @@ import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../constants/theme';
+import { ArrowLeft, Camera, X } from 'lucide-react-native';
 
 export const SellCarScreen = () => {
   const navigation = useNavigation();
@@ -161,7 +162,7 @@ export const SellCarScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.headerIcon}>←</Text>
+          <ArrowLeft size={24} color={COLORS.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Продать авто</Text>
         <View style={{ width: 40 }} />
@@ -174,13 +175,13 @@ export const SellCarScreen = () => {
                     <View key={index} style={styles.imagePreviewContainer}>
                         <Image source={{ uri: img.uri }} style={styles.uploadedImage} />
                         <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
-                            <Text style={styles.removeButtonText}>✕</Text>
+                            <X size={16} color="#FFF" />
                         </TouchableOpacity>
                     </View>
                 ))}
                 {images.length < 5 && (
                     <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
-                         <Text style={styles.uploadIcon}>📷</Text>
+                         <Camera size={32} color={COLORS.textSecondary} style={{ marginBottom: 4 }} />
                          <Text style={styles.uploadText}>Фото</Text>
                     </TouchableOpacity>
                 )}
@@ -479,7 +480,7 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.border,
   },
   selectedDropdownOption: {
-    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    backgroundColor: 'rgba(59, 130, 246, 0.1)', // Blue transparent
   },
   dropdownOptionText: {
     color: COLORS.textPrimary,

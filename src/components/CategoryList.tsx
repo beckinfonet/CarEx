@@ -2,6 +2,18 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { COLORS } from '../constants/theme';
 import { CATEGORIES } from '../constants/mockData';
+import { Car, Truck, Bus, Tractor } from 'lucide-react-native';
+
+const getIcon = (id: number) => {
+  switch (id) {
+    case 1: return <Car size={24} color={COLORS.accent} />; // Sedan
+    case 2: return <Car size={24} color={COLORS.accent} />; // SUV (using Car as placeholder)
+    case 3: return <Bus size={24} color={COLORS.accent} />; // Passenger
+    case 4: return <Truck size={24} color={COLORS.accent} />; // Truck
+    case 5: return <Tractor size={24} color={COLORS.accent} />; // Special
+    default: return <Car size={24} color={COLORS.accent} />;
+  }
+};
 
 export const CategoryList = () => {
   return (
@@ -10,7 +22,7 @@ export const CategoryList = () => {
         {CATEGORIES.map((category) => (
           <TouchableOpacity key={category.id} style={styles.categoryItem}>
             <View style={styles.iconContainer}>
-              <Text style={styles.icon}>{category.icon}</Text>
+              {getIcon(category.id)}
             </View>
             <Text style={styles.categoryName}>{category.name}</Text>
           </TouchableOpacity>

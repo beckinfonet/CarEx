@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { MoreMenu } from './MoreMenu';
+import { User, Truck, Menu } from 'lucide-react-native';
 
 export const BottomBar = () => {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -10,18 +11,18 @@ export const BottomBar = () => {
     <>
       <View style={styles.container}>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.icon}>👤</Text>
+          <User size={20} color={COLORS.accent} />
           <Text style={styles.text}>Регистрация</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.icon}>🚚</Text>
+          <Truck size={20} color={COLORS.accent} />
           <Text style={styles.text}>Логистика</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.button}
           onPress={() => setMenuVisible(true)}
         >
-          <Text style={styles.icon}>☰</Text>
+          <Menu size={20} color={COLORS.textPrimary} />
           <Text style={styles.text}>Ещё</Text>
         </TouchableOpacity>
       </View>
@@ -51,17 +52,16 @@ const styles = StyleSheet.create({
     borderColor: COLORS.accent,
   },
   activeButton: {
-    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    backgroundColor: 'rgba(59, 130, 246, 0.1)', // Blue transparent
   },
   icon: {
-    fontSize: 16,
     marginRight: 4,
-    color: COLORS.accent,
   },
   text: {
     color: COLORS.textPrimary,
     fontSize: 12,
     fontWeight: '500',
+    marginLeft: 6,
   },
 });
 
