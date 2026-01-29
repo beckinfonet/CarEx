@@ -35,6 +35,7 @@ export const SellCarScreen = () => {
     interiorMaterial: 'Leather',
     seats: '',
     doors: '',
+    phoneNumber: '82', // Default to KR country code
   });
 
   const [expandedField, setExpandedField] = useState<string | null>(null);
@@ -81,9 +82,16 @@ export const SellCarScreen = () => {
         return;
     }
 
-    if (images.length === 0 || !formData.make || !formData.model || !formData.price) {
-      Alert.alert('Error', 'Please fill in all required fields and upload at least one image.');
+    if (images.length === 0 || !formData.make || !formData.model || !formData.price || !formData.phoneNumber) {
+      Alert.alert('Error', 'Please fill in all required fields (including phone number) and upload at least one image.');
       return;
+    }
+
+    // Basic phone validation (ensure it has digits and length is reasonable)
+    const cleanPhone = formData.phoneNumber.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+        Alert.alert('Invalid Phone', 'Please enter a valid phone number with country code (e.g. 821012345678).');
+        return;
     }
 
     setLoading(true);
@@ -198,6 +206,14 @@ export const SellCarScreen = () => {
 
         <View style={styles.form}>
             <Text style={styles.sectionHeader}>Основная информация</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Номер телефона (например, 821012345678)"
+                placeholderTextColor={COLORS.textSecondary}
+                keyboardType="phone-pad"
+                value={formData.phoneNumber}
+                onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
+            />
             <TextInput
                 style={styles.input}
                 placeholder="Марка (например, BMW)"
