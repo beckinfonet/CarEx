@@ -10,7 +10,6 @@ import { FilterBar } from '../components/FilterBar';
 import { CategoryList } from '../components/CategoryList';
 import { CarCard } from '../components/CarCard';
 import { BottomBar } from '../components/BottomBar';
-import { CARS as MOCK_CARS } from '../constants/mockData';
 import { RootStackParamList } from '../types/navigation';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -21,13 +20,11 @@ export const HomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [cars, setCars] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchCars = async () => {
     try {
-      // Use localhost for iOS, for Android use 10.0.2.2
       const response = await axios.get('http://localhost:5001/api/cars');
-
-      // Transform API data to match UI component needs if necessary
       const apiCars = response.data.map((car: any) => ({
         id: car._id,
         make: car.make,
@@ -37,21 +34,24 @@ export const HomeScreen = () => {
         mileage: car.mileage,
         fuel: car.fuel,
         currency: car.currency,
-        // Use first image from imageUrls array, or single imageUrl, or fallback
         image: (car.imageUrls && car.imageUrls.length > 0) ? car.imageUrls[0] : (car.imageUrl || 'https://via.placeholder.com/400x300'),
-        // Keep full data for details
+        imageUrls: car.imageUrls || (car.imageUrl ? [car.imageUrl] : []),
         ...car
       }));
-
       setCars(apiCars);
     } catch (error) {
       console.error('Failed to fetch cars:', error);
-      // Fallback to mock data if API fails
-      setCars(MOCK_CARS);
+      Alert.alert('Error', 'Failed to load cars from server.');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    fetchCars();
+  }, []);
 
   useEffect(() => {
     if (isFocused) {
@@ -75,7 +75,7 @@ export const HomeScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.backButton}>
-            <Text style={styles.headerIcon}>←</Text>
+            {/* <Text style={styles.headerIcon}>←</Text> */}
           </View>
           <Text style={styles.headerTitle}>CarEx</Text>
           <View style={styles.langSwitch}>
@@ -87,7 +87,7 @@ export const HomeScreen = () => {
           style={styles.content}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={fetchCars} tintColor={COLORS.accent} />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.accent} />
           }
         >
           <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
