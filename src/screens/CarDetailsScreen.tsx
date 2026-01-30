@@ -279,9 +279,9 @@ export const CarDetailsScreen = () => {
             <Text style={[styles.contactButtonText, { color: '#FFF' }]}>Telegram</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={[styles.contactButton, car.telegramUsername ? { flex: 1, marginLeft: 8 } : { width: '100%' }]} onPress={handleCallSeller}>
-          <MessageCircle size={20} color="#000" style={{ marginRight: 8 }} />
-          <Text style={styles.contactButtonText}>{t.callSeller}</Text>
+        <TouchableOpacity style={[styles.contactButton, styles.whatsappButton, car.telegramUsername ? { flex: 1, marginLeft: 8 } : { width: '100%' }]} onPress={handleCallSeller}>
+          <MessageCircle size={20} color="#FFF" style={{ marginRight: 8 }} />
+          <Text style={[styles.contactButtonText, { color: '#FFF' }]}>{t.callSeller}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -453,7 +453,8 @@ const styles = StyleSheet.create({
   },
   contactButton: {
     backgroundColor: COLORS.accent,
-    paddingVertical: 16,
+    paddingVertical: 12, // Reduced padding
+    paddingHorizontal: 4, // Added horizontal padding control
     borderRadius: SIZES.borderRadius,
     alignItems: 'center',
     flexDirection: 'row',
@@ -464,9 +465,14 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 8,
   },
+  whatsappButton: {
+    backgroundColor: '#25D366', // WhatsApp Green
+  },
   contactButtonText: {
     color: '#000000',
-    fontSize: 16,
+    fontSize: 14, // Reduced from 16 to fit better
     fontWeight: 'bold',
+    flexShrink: 1, // Allow text to shrink if needed
+    textAlign: 'center',
   },
 });
