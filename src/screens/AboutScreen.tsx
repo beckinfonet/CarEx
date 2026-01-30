@@ -37,7 +37,7 @@ export const AboutScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Правовая информация</Text>
 
-          <TouchableOpacity style={styles.linkItem} onPress={() => openLink('https://www.carexmarket.com/t&c')}>
+          <TouchableOpacity style={styles.linkItem} onPress={() => openLink('https://www.carexmarket.com/terms')}>
             <View>
               <Text style={styles.linkText}>Условия использования</Text>
               <Text style={styles.linkSubtext}>Terms of Service</Text>
@@ -47,7 +47,7 @@ export const AboutScreen = () => {
 
           <View style={styles.separator} />
 
-          <TouchableOpacity style={styles.linkItem} onPress={() => openLink('https://www.carexmarket.com/privacy')}>
+          <TouchableOpacity style={styles.linkItem} onPress={() => openLink('https://www.carexmarket.com/privacy-policy')}>
             <View>
               <Text style={styles.linkText}>Политика конфиденциальности</Text>
               <Text style={styles.linkSubtext}>Privacy Policy</Text>
