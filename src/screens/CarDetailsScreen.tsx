@@ -115,8 +115,15 @@ export const CarDetailsScreen = () => {
       return;
     }
 
-    // Clean username (remove @ if present)
-    const username = car.telegramUsername.replace('@', '').trim();
+    // Clean username: remove URL parts, @, and whitespace
+    let username = car.telegramUsername.trim();
+    username = username.replace(/(https?:\/\/)?(t\.me|telegram\.me)\//i, '');
+    username = username.replace('@', '');
+    
+    if (!username) {
+         Alert.alert('Invalid Telegram', 'The provided Telegram username is invalid.');
+         return;
+    }
 
     // @ts-ignore
     const messageTemplate = t.contactMessage || `Hi, I'm interested in your {car} (ID: {id})`;
