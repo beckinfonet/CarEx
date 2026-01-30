@@ -33,8 +33,6 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>CarEx uses your location to find nearby cars and services.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>CarEx needs access to your photos to let you select vehicle images for your sales listing.</string>
 	<key>NSCameraUsageDescription</key>
