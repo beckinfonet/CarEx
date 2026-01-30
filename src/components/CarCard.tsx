@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { Gauge, Fuel, ChevronRight } from 'lucide-react-native';
+import { useLanguage } from '../context/LanguageContext';
 
 interface CarProps {
   make: string;
@@ -15,6 +16,8 @@ interface CarProps {
 }
 
 export const CarCard = ({ data }: { data: CarProps }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.card}>
       <Image source={{ uri: data.image }} style={styles.image} resizeMode="cover" />
@@ -27,11 +30,11 @@ export const CarCard = ({ data }: { data: CarProps }) => {
         <Text style={styles.price}>{data.currency}{data.price.toLocaleString()}</Text>
         <View style={styles.infoRow}>
           <Gauge size={14} color={COLORS.textSecondary} style={styles.icon} />
-          <Text style={styles.infoText}>Пробег: {data.mileage.toLocaleString()} км</Text>
+          <Text style={styles.infoText}>{t.mileageLabel}: {data.mileage.toLocaleString()} км</Text>
         </View>
         <View style={styles.infoRow}>
           <Fuel size={14} color={COLORS.textSecondary} style={styles.icon} />
-          <Text style={styles.infoText}>Топливо: {data.fuel}</Text>
+          <Text style={styles.infoText}>{t.fuelLabel}: {data.fuel}</Text>
         </View>
       </View>
     </View>
