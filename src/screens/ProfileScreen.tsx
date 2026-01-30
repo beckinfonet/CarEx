@@ -35,17 +35,17 @@ export const ProfileScreen = () => {
   };
 
   const menuItems = [
-    {
-      id: 'listings',
-      title: t.myListings,
-      icon: <List size={24} color={COLORS.accent} />,
-      onPress: () => Alert.alert(t.myListings, t.comingSoon || 'Coming Soon')
-    },
+    // {
+    //   id: 'listings',
+    //   title: t.myListings,
+    //   icon: <List size={24} color={COLORS.accent} />,
+    //   onPress: () => Alert.alert(t.myListings, t.comingSoon || 'Coming Soon')
+    // },
     {
       id: 'favorites',
       title: t.myFavorites,
       icon: <Heart size={24} color={COLORS.accent} />,
-      onPress: () => Alert.alert(t.myFavorites, t.comingSoon || 'Coming Soon')
+      onPress: () => navigation.navigate('Favorites')
     },
   ];
 

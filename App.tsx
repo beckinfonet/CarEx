@@ -16,6 +16,7 @@ import { AboutScreen } from './src/screens/AboutScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { SignupScreen } from './src/screens/SignupScreen';
 import { ProfileScreen } from './src/screens/ProfileScreen';
+import { FavoritesScreen } from './src/screens/FavoritesScreen';
 import { OfflineNotice } from './src/components/OfflineNotice';
 import { RootStackParamList } from './src/types/navigation';
 import { LanguageProvider } from './src/context/LanguageContext';
@@ -43,6 +44,7 @@ function App() {
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Signup" component={SignupScreen} />
               <Stack.Screen name="Profile" component={ProfileScreen} />
+              <Stack.Screen name="Favorites" component={FavoritesScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </LanguageProvider>

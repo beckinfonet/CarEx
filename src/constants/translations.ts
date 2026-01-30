@@ -2,6 +2,7 @@ export const TRANSLATIONS = {
   RU: {
     // Header & Navigation
     appName: 'CarEx',
+    home: 'Главная',
     registration: 'Регистрация',
     logistics: 'Логистика',
     more: 'Ещё',
@@ -157,6 +158,7 @@ export const TRANSLATIONS = {
   EN: {
     // Header & Navigation
     appName: 'CarEx',
+    home: 'Home',
     registration: 'Registration',
     logistics: 'Logistics',
     more: 'More',

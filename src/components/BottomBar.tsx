@@ -1,30 +1,30 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { COLORS, SIZES } from '../constants/theme';
 import { MoreMenu } from './MoreMenu';
-import { User, Truck, Menu } from 'lucide-react-native';
+import { User, Truck, Menu, Home, PlusCircle } from 'lucide-react-native';
+import { RootStackParamList } from '../types/navigation';
 
 interface BottomBarProps {
   t: any;
 }
 
 export const BottomBar = ({ t }: BottomBarProps) => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [menuVisible, setMenuVisible] = useState(false);
-
-  const handleComingSoon = (feature: string) => {
-    Alert.alert(t.comingSoon, `${feature}`);
-  };
 
   return (
     <>
       <View style={styles.container}>
-        <TouchableOpacity style={styles.button} onPress={() => handleComingSoon(t.registration)}>
-          <User size={20} color={COLORS.accent} />
-          <Text style={styles.text}>{t.registration}</Text>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
+          <Home size={20} color={COLORS.textPrimary} />
+          <Text style={styles.text}>{t.home}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handleComingSoon(t.logistics)}>
-          <Truck size={20} color={COLORS.accent} />
-          <Text style={styles.text}>{t.logistics}</Text>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SellCar')}>
+          <PlusCircle size={20} color={COLORS.accent} />
+          <Text style={styles.text}>{t.sellCar}</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.button}

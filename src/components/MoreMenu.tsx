@@ -16,11 +16,6 @@ interface MoreMenuProps {
 const getIcon = (id: number) => {
   switch (id) {
     case 1: return <Car size={24} color={COLORS.accent} />;
-    case 2: return <Wrench size={24} color={COLORS.accent} />;
-    case 3: return <Banknote size={24} color={COLORS.accent} />;
-    case 4: return <Shield size={24} color={COLORS.accent} />;
-    case 5: return <ClipboardList size={24} color={COLORS.accent} />;
-    case 6: return <HelpCircle size={24} color={COLORS.accent} />;
     case 7: return <Info size={24} color={COLORS.accent} />;
     case 8: return <LogIn size={24} color={COLORS.accent} />;
     case 9: return <User size={24} color={COLORS.accent} />;
@@ -34,11 +29,6 @@ export const MoreMenu = ({ visible, onClose, t }: MoreMenuProps) => {
 
   const MENU_ITEMS = [
     { id: 1, name: t.sellCar, icon: '🚘', route: 'SellCar' },
-    { id: 2, name: t.carService, icon: '🔧' },
-    { id: 3, name: t.finance, icon: '💰' },
-    { id: 4, name: t.insurance, icon: '🛡️' },
-    { id: 5, name: t.carHistory, icon: '📋' },
-    { id: 6, name: t.help, icon: '❓' },
     { id: 7, name: t.about, icon: 'ℹ️', route: 'About' },
   ];
 
@@ -52,10 +42,6 @@ export const MoreMenu = ({ visible, onClose, t }: MoreMenuProps) => {
     onClose();
     if (item.action) {
         await item.action();
-        return;
-    }
-    if (item.id === 6) { // Help
-        Linking.openURL('https://www.carexmarket.com/help').catch(err => console.error("Couldn't load page", err));
         return;
     }
     if (item.route) {
