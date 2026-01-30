@@ -14,10 +14,27 @@ export const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const mapAuthError = (errorCode: string) => {
+    switch (errorCode) {
+      case 'INVALID_LOGIN_CREDENTIALS':
+      case 'EMAIL_NOT_FOUND':
+      case 'INVALID_PASSWORD':
+        return t.invalidCredentials;
+      case 'USER_DISABLED':
+        return t.userDisabled;
+      case 'TOO_MANY_ATTEMPTS_TRY_LATER':
+        return t.tooManyAttempts;
+      default:
+        return t.authError;
+    }
+  };
 
   const handleLogin = async () => {
+    setErrorMessage('');
     if (!email || !password) {
-      Alert.alert(t.error, t.fillAllFields || 'Please fill all fields');
+      setErrorMessage(t.fillAllFields || 'Please fill all fields');
       return;
     }
 
@@ -27,7 +44,8 @@ export const LoginScreen = () => {
       // @ts-ignore
       navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
     } catch (error: any) {
-      Alert.alert(t.authError, error.message || 'Login failed');
+      const code = error.message || 'UNKNOWN_ERROR';
+      setErrorMessage(mapAuthError(code));
     } finally {
       setLoading(false);
     }
@@ -44,6 +62,12 @@ export const LoginScreen = () => {
       </View>
 
       <View style={styles.content}>
+        {errorMessage ? (
+            <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{errorMessage}</Text>
+            </View>
+        ) : null}
+
         <TextInput
           style={styles.input}
           placeholder={t.email}
@@ -125,6 +149,19 @@ const styles = StyleSheet.create({
   linkText: {
     color: COLORS.accent,
     fontSize: 14,
+  },
+  errorContainer: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)', // Light red background
+    padding: 12,
+    borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: '#EF4444',
+    marginBottom: 8,
+  },
+  errorText: {
+    color: '#EF4444', // Red text
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
 
