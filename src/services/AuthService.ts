@@ -81,6 +81,36 @@ export const AuthService = {
       console.error('Failed to update backend user', error);
       throw error;
     }
+  },
+
+  requestSellerStatus: async (firebaseUid: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/users/${firebaseUid}/request-seller`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to request seller status', error);
+      throw error;
+    }
+  },
+
+  sendOtp: async (phoneNumber: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/otp/send`, { phoneNumber });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to send OTP', error);
+      throw error;
+    }
+  },
+
+  verifyOtp: async (phoneNumber: string, code: string, firebaseUid: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/otp/verify`, { phoneNumber, code, firebaseUid });
+      return response.data;
+    } catch (error: any) {
+      console.error('Failed to verify OTP', error);
+      throw new Error(error.response?.data?.message || 'Verification failed');
+    }
   }
 };
 

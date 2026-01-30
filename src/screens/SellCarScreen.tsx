@@ -8,7 +8,7 @@ import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
-import { ArrowLeft, Camera, X, ChevronDown } from 'lucide-react-native';
+import { ArrowLeft, Camera, X, ChevronDown, AlertTriangle, CheckCircle, Clock, Smartphone } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -23,12 +23,18 @@ const COUNTRIES = [
 
 export const SellCarScreen = () => {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, requestSeller, sendPhoneOtp, verifyPhone } = useAuth();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
+  const [requesting, setRequesting] = useState(false);
   const [images, setImages] = useState<Asset[]>([]);
   const [countryModalVisible, setCountryModalVisible] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]); // Default KR
+
+  // OTP State
+  const [otpModalVisible, setOtpModalVisible] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
 
   const [formData, setFormData] = useState({
     make: '',
@@ -56,11 +62,71 @@ export const SellCarScreen = () => {
   });
 
   useEffect(() => {
-    checkProfileAndAutofill();
+    if (user && user.sellerStatus === 'APPROVED') {
+      checkProfileAndAutofill();
+    }
   }, [user]);
 
+  const handleRequestSeller = async () => {
+    // Check mandatory fields first
+    if (!user.firstName || !user.lastName || !user.phoneNumber) {
+      Alert.alert(
+        t.error,
+        t.profileRequiredForSelling,
+        [
+          { text: t.goToProfile, onPress: () => navigation.navigate('Profile' as never) },
+          { text: t.cancel, style: 'cancel' }
+        ]
+      );
+      return;
+    }
+
+    setRequesting(true);
+    try {
+      await requestSeller();
+      Alert.alert(t.requestSent, t.requestSentDesc);
+    } catch (error) {
+      Alert.alert(t.error, 'Failed to send request.');
+    } finally {
+      setRequesting(false);
+    }
+  };
+
+  const handleVerifyPhone = async () => {
+    if (!user.phoneNumber) {
+      Alert.alert(t.error, t.profileRequiredForSelling);
+      return;
+    }
+    setLoading(true);
+    try {
+      await sendPhoneOtp();
+      setOtpModalVisible(true);
+    } catch (error) {
+      Alert.alert(t.error, 'Failed to send verification code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitOtp = async () => {
+    if (!otpCode || otpCode.length !== 6) {
+      Alert.alert(t.error, t.wrongCode);
+      return;
+    }
+    setVerifying(true);
+    try {
+      await verifyPhone(otpCode);
+      setOtpModalVisible(false);
+      Alert.alert(t.success, t.phoneVerified);
+    } catch (error) {
+      Alert.alert(t.error, t.wrongCode);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   const checkProfileAndAutofill = () => {
-    if (!user) return; // Should be handled by Auth protection usually
+    if (!user) return;
 
     // Check mandatory fields
     if (!user.firstName || !user.lastName || !user.phoneNumber) {
@@ -262,248 +328,327 @@ export const SellCarScreen = () => {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.imageSection}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageList}>
-            {images.map((img, index) => (
-              <View key={index} style={styles.imagePreviewContainer}>
-                <Image source={{ uri: img.uri }} style={styles.uploadedImage} />
-                <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
-                  <X size={16} color="#FFF" />
-                </TouchableOpacity>
-              </View>
-            ))}
-            {images.length < 25 && (
-              <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
-                <Camera size={32} color={COLORS.textSecondary} style={{ marginBottom: 4 }} />
-                <Text style={styles.uploadText}>{t.photo}</Text>
+      {/* Country Selection Modal */}
+      <Modal
+        visible={countryModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setCountryModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Country</Text>
+              <TouchableOpacity onPress={() => setCountryModalVisible(false)}>
+                <X size={24} color={COLORS.textPrimary} />
               </TouchableOpacity>
-            )}
-          </ScrollView>
-        </View>
-
-        {/* Country Selection Modal */}
-        <Modal
-          visible={countryModalVisible}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={() => setCountryModalVisible(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Select Country</Text>
-                <TouchableOpacity onPress={() => setCountryModalVisible(false)}>
-                  <X size={24} color={COLORS.textPrimary} />
+            </View>
+            <FlatList
+              data={COUNTRIES}
+              keyExtractor={(item) => item.code}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.countryItem}
+                  onPress={() => {
+                    setSelectedCountry(item);
+                    setCountryModalVisible(false);
+                  }}
+                >
+                  <Text style={styles.countryItemFlag}>{item.flag}</Text>
+                  <Text style={styles.countryItemName}>{item.name}</Text>
+                  <Text style={styles.countryItemCode}>{item.dial_code}</Text>
                 </TouchableOpacity>
-              </View>
-              <FlatList
-                data={COUNTRIES}
-                keyExtractor={(item) => item.code}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.countryItem}
-                    onPress={() => {
-                      setSelectedCountry(item);
-                      setCountryModalVisible(false);
-                    }}
-                  >
-                    <Text style={styles.countryItemFlag}>{item.flag}</Text>
-                    <Text style={styles.countryItemName}>{item.name}</Text>
-                    <Text style={styles.countryItemCode}>{item.dial_code}</Text>
-                  </TouchableOpacity>
-                )}
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* OTP Modal */}
+      <Modal
+        visible={otpModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setOtpModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { maxHeight: 'auto' }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t.enterCode}</Text>
+              <TouchableOpacity onPress={() => setOtpModalVisible(false)}>
+                <X size={24} color={COLORS.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <View style={{ padding: 24 }}>
+              <Text style={{ color: COLORS.textSecondary, marginBottom: 16 }}>
+                {t.verifyPhoneDesc}
+              </Text>
+              <TextInput
+                style={[styles.input, { textAlign: 'center', fontSize: 24, letterSpacing: 8 }]}
+                placeholder="000000"
+                placeholderTextColor={COLORS.textSecondary}
+                keyboardType="number-pad"
+                maxLength={6}
+                value={otpCode}
+                onChangeText={setOtpCode}
               />
+              <TouchableOpacity style={styles.submitButton} onPress={submitOtp} disabled={verifying}>
+                {verifying ? <ActivityIndicator color="#000" /> : <Text style={styles.submitButtonText}>{t.verify}</Text>}
+              </TouchableOpacity>
             </View>
           </View>
-        </Modal>
+        </View>
+      </Modal>
 
-        <View style={styles.form}>
-          <Text style={styles.sectionHeader}>{t.mainInfo}</Text>
-
-          <View style={styles.phoneContainer}>
-            <TouchableOpacity style={styles.countryButton} onPress={() => setCountryModalVisible(true)}>
-              <Text style={styles.countryFlag}>{selectedCountry.flag}</Text>
-              <Text style={styles.countryCode}>{selectedCountry.dial_code}</Text>
-              <ChevronDown size={16} color={COLORS.textSecondary} />
-            </TouchableOpacity>
-            <TextInput
-              style={[styles.input, styles.phoneInput]}
-              placeholder={selectedCountry.placeholder}
-              placeholderTextColor={COLORS.textSecondary}
-              keyboardType="phone-pad"
-              value={formData.phoneNumber}
-              onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
-            />
-          </View>
-
-          <TextInput
-            style={styles.input}
-            placeholder={t.telegramUsername}
-            placeholderTextColor={COLORS.textSecondary}
-            autoCapitalize="none"
-            value={formData.telegramUsername}
-            onChangeText={(text) => setFormData({ ...formData, telegramUsername: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder={t.brand}
-            placeholderTextColor={COLORS.textSecondary}
-            value={formData.make}
-            onChangeText={(text) => setFormData({ ...formData, make: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder={t.model}
-            placeholderTextColor={COLORS.textSecondary}
-            value={formData.model}
-            onChangeText={(text) => setFormData({ ...formData, model: text })}
-          />
-
-          {renderDropdown(t.typeBody, formData.bodyType, 'bodyType', [t.sedan, t.suv, t.passenger, t.truck, t.special])}
-
-          <View style={styles.row}>
-            <TextInput
-              style={[styles.input, styles.halfInput]}
-              placeholder={t.enterYear}
-              placeholderTextColor={COLORS.textSecondary}
-              keyboardType="numeric"
-              value={formData.year}
-              onChangeText={(text) => setFormData({ ...formData, year: text })}
-            />
-            <TextInput
-              style={[styles.input, styles.halfInput]}
-              placeholder={t.enterPrice}
-              placeholderTextColor={COLORS.textSecondary}
-              keyboardType="numeric"
-              value={formData.price}
-              onChangeText={(text) => setFormData({ ...formData, price: text })}
-            />
-          </View>
-
-          <Text style={styles.sectionHeader}>{t.specs}</Text>
-          <TextInput
-            style={styles.input}
-            placeholder={t.enterEngine}
-            placeholderTextColor={COLORS.textSecondary}
-            value={formData.engine}
-            onChangeText={(text) => setFormData({ ...formData, engine: text })}
-          />
-
-          {renderDropdown(t.transmission, formData.transmission, 'transmission', [t.automatic, t.manual, t.cvt, t.robot])}
-          {renderDropdown(t.drivetrain, formData.drivetrain, 'drivetrain', [t.fwd, t.rwd, t.awd, t.fourwd])}
-          {renderDropdown(t.fuel, formData.fuel, 'fuel', [t.gasoline, t.diesel, t.hybrid, t.pluginHybrid, t.electric])}
-
-          <TextInput
-            style={styles.input}
-            placeholder={t.mpgRange}
-            placeholderTextColor={COLORS.textSecondary}
-            value={formData.mpg}
-            onChangeText={(text) => setFormData({ ...formData, mpg: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder={t.enterMileage}
-            placeholderTextColor={COLORS.textSecondary}
-            keyboardType="numeric"
-            value={formData.mileage}
-            onChangeText={(text) => setFormData({ ...formData, mileage: text })}
-          />
-
-          <Text style={styles.sectionHeader}>{t.conditionLabel}</Text>
-          {renderDropdown(t.conditionLabel, formData.condition, 'condition', [t.excellent, t.good, t.fair, t.needsWork])}
-
-          {renderDropdown(t.issuesLabel, formData.knownIssues, 'knownIssues', [t.issueEngine, t.issueTransmission, t.issueSuspension, t.issueElectrical, t.issueInterior, t.issueBody])}
-
-          {/* Custom Issue Input */}
-          <View style={styles.customIssueContainer}>
-            <TextInput
-              style={[styles.input, styles.customIssueInput]}
-              placeholder={t.otherIssue}
-              placeholderTextColor={COLORS.textSecondary}
-              value={customIssue}
-              onChangeText={setCustomIssue}
-            />
-            <TouchableOpacity style={styles.addButton} onPress={addCustomIssue}>
-              <Text style={styles.addButtonText}>{t.add}</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Selected Issues Chips */}
-          {formData.knownIssues.length > 0 && (
-            <View style={styles.issuesContainer}>
-              {formData.knownIssues.map((issue, index) => (
-                <View key={index} style={styles.issueChip}>
-                  <Text style={styles.issueText}>{issue}</Text>
-                  <TouchableOpacity onPress={() => removeIssue(issue)}>
-                    <X size={14} color="#FFF" style={{ marginLeft: 6 }} />
+      {(!user) ? (
+        <View style={styles.statusContainer}>
+          <Text style={styles.statusDescription}>{t.profileRequiredForSelling}</Text>
+          <TouchableOpacity style={styles.requestButton} onPress={() => navigation.navigate('Login' as never)}>
+            <Text style={styles.requestButtonText}>{t.login}</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (user.sellerStatus === 'PENDING') ? (
+        <View style={styles.statusContainer}>
+          <Clock size={64} color={COLORS.accent} />
+          <Text style={styles.statusTitle}>{t.requestSent}</Text>
+          <Text style={styles.statusDescription}>{t.sellerStatusPending}</Text>
+        </View>
+      ) : (user.sellerStatus === 'NONE' || !user.sellerStatus) ? (
+        <View style={styles.statusContainer}>
+          {!user.isPhoneVerified ? (
+            <>
+              <Smartphone size={64} color={COLORS.accent} />
+              <Text style={styles.statusTitle}>{t.verifyPhone}</Text>
+              <Text style={styles.statusDescription}>{t.verifyPhoneDesc}</Text>
+              <TouchableOpacity style={styles.requestButton} onPress={handleVerifyPhone} disabled={loading}>
+                {loading ? <ActivityIndicator color="#000" /> : <Text style={styles.requestButtonText}>{t.verifyPhone}</Text>}
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <CheckCircle size={64} color={COLORS.textSecondary} />
+              <Text style={styles.statusTitle}>{t.becomeSeller}</Text>
+              <Text style={styles.statusDescription}>{t.sellerStatusNone}</Text>
+              <TouchableOpacity style={styles.requestButton} onPress={handleRequestSeller} disabled={requesting}>
+                {requesting ? <ActivityIndicator color="#000" /> : <Text style={styles.requestButtonText}>{t.becomeSeller}</Text>}
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      ) : (user.sellerStatus === 'REJECTED') ? (
+        <View style={styles.statusContainer}>
+          <AlertTriangle size={64} color="#EF4444" />
+          <Text style={styles.statusTitle}>{t.error}</Text>
+          <Text style={styles.statusDescription}>{t.sellerStatusRejected}</Text>
+        </View>
+      ) : (
+        <ScrollView style={styles.content}>
+          <View style={styles.imageSection}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageList}>
+              {images.map((img, index) => (
+                <View key={index} style={styles.imagePreviewContainer}>
+                  <Image source={{ uri: img.uri }} style={styles.uploadedImage} />
+                  <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
+                    <X size={16} color="#FFF" />
                   </TouchableOpacity>
                 </View>
               ))}
+              {images.length < 25 && (
+                <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
+                  <Camera size={32} color={COLORS.textSecondary} style={{ marginBottom: 4 }} />
+                  <Text style={styles.uploadText}>{t.photo}</Text>
+                </TouchableOpacity>
+              )}
+            </ScrollView>
+          </View>
+
+          <View style={styles.form}>
+            <Text style={styles.sectionHeader}>{t.mainInfo}</Text>
+
+            <View style={styles.phoneContainer}>
+              <TouchableOpacity style={styles.countryButton} onPress={() => setCountryModalVisible(true)}>
+                <Text style={styles.countryFlag}>{selectedCountry.flag}</Text>
+                <Text style={styles.countryCode}>{selectedCountry.dial_code}</Text>
+                <ChevronDown size={16} color={COLORS.textSecondary} />
+              </TouchableOpacity>
+              <TextInput
+                style={[styles.input, styles.phoneInput]}
+                placeholder={selectedCountry.placeholder}
+                placeholderTextColor={COLORS.textSecondary}
+                keyboardType="phone-pad"
+                value={formData.phoneNumber}
+                onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
+              />
             </View>
-          )}
 
-          <Text style={styles.sectionHeader}>{t.extInt}</Text>
-          <View style={styles.row}>
             <TextInput
-              style={[styles.input, styles.halfInput]}
-              placeholder={t.bodyColor}
+              style={styles.input}
+              placeholder={t.telegramUsername}
               placeholderTextColor={COLORS.textSecondary}
-              value={formData.exteriorColor}
-              onChangeText={(text) => setFormData({ ...formData, exteriorColor: text })}
+              autoCapitalize="none"
+              value={formData.telegramUsername}
+              onChangeText={(text) => setFormData({ ...formData, telegramUsername: text })}
             />
             <TextInput
-              style={[styles.input, styles.halfInput]}
-              placeholder={t.interiorColorInput}
+              style={styles.input}
+              placeholder={t.brand}
               placeholderTextColor={COLORS.textSecondary}
-              value={formData.interiorColor}
-              onChangeText={(text) => setFormData({ ...formData, interiorColor: text })}
+              value={formData.make}
+              onChangeText={(text) => setFormData({ ...formData, make: text })}
             />
-          </View>
-          {renderDropdown(t.interiorMatLabel, formData.interiorMaterial, 'interiorMaterial', [t.cloth, t.leather, t.veganLeather, t.alcantara])}
-
-          <View style={styles.row}>
             <TextInput
-              style={[styles.input, styles.halfInput]}
-              placeholder={t.enterSeats}
+              style={styles.input}
+              placeholder={t.model}
+              placeholderTextColor={COLORS.textSecondary}
+              value={formData.model}
+              onChangeText={(text) => setFormData({ ...formData, model: text })}
+            />
+
+            {renderDropdown(t.typeBody, formData.bodyType, 'bodyType', [t.sedan, t.suv, t.passenger, t.truck, t.special])}
+
+            <View style={styles.row}>
+              <TextInput
+                style={[styles.input, styles.halfInput]}
+                placeholder={t.enterYear}
+                placeholderTextColor={COLORS.textSecondary}
+                keyboardType="numeric"
+                value={formData.year}
+                onChangeText={(text) => setFormData({ ...formData, year: text })}
+              />
+              <TextInput
+                style={[styles.input, styles.halfInput]}
+                placeholder={t.enterPrice}
+                placeholderTextColor={COLORS.textSecondary}
+                keyboardType="numeric"
+                value={formData.price}
+                onChangeText={(text) => setFormData({ ...formData, price: text })}
+              />
+            </View>
+
+            <Text style={styles.sectionHeader}>{t.specs}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder={t.enterEngine}
+              placeholderTextColor={COLORS.textSecondary}
+              value={formData.engine}
+              onChangeText={(text) => setFormData({ ...formData, engine: text })}
+            />
+
+            {renderDropdown(t.transmission, formData.transmission, 'transmission', [t.automatic, t.manual, t.cvt, t.robot])}
+            {renderDropdown(t.drivetrain, formData.drivetrain, 'drivetrain', [t.fwd, t.rwd, t.awd, t.fourwd])}
+            {renderDropdown(t.fuel, formData.fuel, 'fuel', [t.gasoline, t.diesel, t.hybrid, t.pluginHybrid, t.electric])}
+
+            <TextInput
+              style={styles.input}
+              placeholder={t.mpgRange}
+              placeholderTextColor={COLORS.textSecondary}
+              value={formData.mpg}
+              onChangeText={(text) => setFormData({ ...formData, mpg: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder={t.enterMileage}
               placeholderTextColor={COLORS.textSecondary}
               keyboardType="numeric"
-              value={formData.seats}
-              onChangeText={(text) => setFormData({ ...formData, seats: text })}
+              value={formData.mileage}
+              onChangeText={(text) => setFormData({ ...formData, mileage: text })}
             />
-            <TextInput
-              style={[styles.input, styles.halfInput]}
-              placeholder={t.enterDoors}
-              placeholderTextColor={COLORS.textSecondary}
-              keyboardType="numeric"
-              value={formData.doors}
-              onChangeText={(text) => setFormData({ ...formData, doors: text })}
-            />
-          </View>
 
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder={t.addDesc}
-            placeholderTextColor={COLORS.textSecondary}
-            multiline
-            numberOfLines={4}
-            value={formData.description}
-            onChangeText={(text) => setFormData({ ...formData, description: text })}
-          />
+            <Text style={styles.sectionHeader}>{t.conditionLabel}</Text>
+            {renderDropdown(t.conditionLabel, formData.condition, 'condition', [t.excellent, t.good, t.fair, t.needsWork])}
 
-          <TouchableOpacity
-            style={[styles.submitButton, loading && styles.disabledButton]}
-            onPress={handleSubmit}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#000" />
-            ) : (
-              <Text style={styles.submitButtonText}>{t.submitListing}</Text>
+            {renderDropdown(t.issuesLabel, formData.knownIssues, 'knownIssues', [t.issueEngine, t.issueTransmission, t.issueSuspension, t.issueElectrical, t.issueInterior, t.issueBody])}
+
+            {/* Custom Issue Input */}
+            <View style={styles.customIssueContainer}>
+              <TextInput
+                style={[styles.input, styles.customIssueInput]}
+                placeholder={t.otherIssue}
+                placeholderTextColor={COLORS.textSecondary}
+                value={customIssue}
+                onChangeText={setCustomIssue}
+              />
+              <TouchableOpacity style={styles.addButton} onPress={addCustomIssue}>
+                <Text style={styles.addButtonText}>{t.add}</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Selected Issues Chips */}
+            {formData.knownIssues.length > 0 && (
+              <View style={styles.issuesContainer}>
+                {formData.knownIssues.map((issue, index) => (
+                  <View key={index} style={styles.issueChip}>
+                    <Text style={styles.issueText}>{issue}</Text>
+                    <TouchableOpacity onPress={() => removeIssue(issue)}>
+                      <X size={14} color="#FFF" style={{ marginLeft: 6 }} />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
             )}
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+
+            <Text style={styles.sectionHeader}>{t.extInt}</Text>
+            <View style={styles.row}>
+              <TextInput
+                style={[styles.input, styles.halfInput]}
+                placeholder={t.bodyColor}
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.exteriorColor}
+                onChangeText={(text) => setFormData({ ...formData, exteriorColor: text })}
+              />
+              <TextInput
+                style={[styles.input, styles.halfInput]}
+                placeholder={t.interiorColorInput}
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.interiorColor}
+                onChangeText={(text) => setFormData({ ...formData, interiorColor: text })}
+              />
+            </View>
+            {renderDropdown(t.interiorMatLabel, formData.interiorMaterial, 'interiorMaterial', [t.cloth, t.leather, t.veganLeather, t.alcantara])}
+
+            <View style={styles.row}>
+              <TextInput
+                style={[styles.input, styles.halfInput]}
+                placeholder={t.enterSeats}
+                placeholderTextColor={COLORS.textSecondary}
+                keyboardType="numeric"
+                value={formData.seats}
+                onChangeText={(text) => setFormData({ ...formData, seats: text })}
+              />
+              <TextInput
+                style={[styles.input, styles.halfInput]}
+                placeholder={t.enterDoors}
+                placeholderTextColor={COLORS.textSecondary}
+                keyboardType="numeric"
+                value={formData.doors}
+                onChangeText={(text) => setFormData({ ...formData, doors: text })}
+              />
+            </View>
+
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder={t.addDesc}
+              placeholderTextColor={COLORS.textSecondary}
+              multiline
+              numberOfLines={4}
+              value={formData.description}
+              onChangeText={(text) => setFormData({ ...formData, description: text })}
+            />
+
+            <TouchableOpacity
+              style={[styles.submitButton, loading && styles.disabledButton]}
+              onPress={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#000" />
+              ) : (
+                <Text style={styles.submitButtonText}>{t.submitListing}</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -800,5 +945,39 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 14,
     fontWeight: '500',
+  },
+  statusContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  statusTitle: {
+    color: COLORS.textPrimary,
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 24,
+    marginBottom: 12,
+  },
+  statusDescription: {
+    color: COLORS.textSecondary,
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  requestButton: {
+    backgroundColor: COLORS.accent,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: SIZES.borderRadius,
+    width: '100%',
+    alignItems: 'center',
+  },
+  requestButtonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

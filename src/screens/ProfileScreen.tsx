@@ -162,6 +162,11 @@ export const ProfileScreen = () => {
                 </View>
                 <View style={styles.userDetails}>
                     <Text style={styles.userEmail}>{user.email}</Text>
+                    <Text style={[styles.userLabel, { color: COLORS.accent }]}>
+                      {user.sellerStatus === 'APPROVED' ? 'Verified Seller' : 
+                       user.sellerStatus === 'PENDING' ? 'Verification Pending' :
+                       user.sellerStatus === 'REJECTED' ? 'Verification Rejected' : 'Buyer Account'}
+                    </Text>
                     <Text style={styles.userLabel}>{t.accountSettings}</Text>
                 </View>
             </View>
@@ -549,20 +554,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom: 0,
   },
-  saveButton: {
-    backgroundColor: COLORS.accent,
-    padding: 16,
-    borderRadius: SIZES.borderRadius,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  saveButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  // Removed duplicate saveButton
+  // Removed duplicate saveButtonText
   disabledButton: {
     opacity: 0.7,
   },

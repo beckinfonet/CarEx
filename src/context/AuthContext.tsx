@@ -8,6 +8,9 @@ import { AuthService } from '../services/AuthService';
     signup: (email, password) => Promise<void>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>; // Added to manually refresh user data
+    requestSeller: () => Promise<void>;
+    verifyPhone: (code: string) => Promise<void>;
+    sendPhoneOtp: () => Promise<void>;
   }
 
   const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -76,8 +79,28 @@ import { AuthService } from '../services/AuthService';
       setUser(null);
     };
 
+    const requestSeller = async () => {
+      if (user && user.localId) {
+        await AuthService.requestSellerStatus(user.localId);
+        await refreshUser();
+      }
+    };
+
+    const sendPhoneOtp = async () => {
+      if (user && user.phoneNumber) {
+        await AuthService.sendOtp(user.phoneNumber);
+      }
+    };
+
+    const verifyPhone = async (code: string) => {
+      if (user && user.phoneNumber && user.localId) {
+        await AuthService.verifyOtp(user.phoneNumber, code, user.localId);
+        await refreshUser();
+      }
+    };
+
     return (
-      <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshUser }}>
+      <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshUser, requestSeller, sendPhoneOtp, verifyPhone }}>
         {children}
       </AuthContext.Provider>
     );
