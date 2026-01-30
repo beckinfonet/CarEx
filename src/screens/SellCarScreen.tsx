@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Alert, ActivityIndicator, Modal, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import axios from 'axios';
@@ -7,14 +7,25 @@ import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
 import NetInfo from '@react-native-community/netinfo';
-import { ArrowLeft, Camera, X } from 'lucide-react-native';
+import { ArrowLeft, Camera, X, ChevronDown } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
+
+const COUNTRIES = [
+  { code: 'KR', name: 'South Korea', dial_code: '+82', flag: '🇰🇷', placeholder: '10-1234-5678' },
+  { code: 'KG', name: 'Kyrgyzstan', dial_code: '+996', flag: '🇰🇬', placeholder: '555-123-456' },
+  { code: 'KZ', name: 'Kazakhstan', dial_code: '+7', flag: '🇰🇿', placeholder: '777-123-45-67' },
+  { code: 'UZ', name: 'Uzbekistan', dial_code: '+998', flag: '🇺🇿', placeholder: '90-123-45-67' },
+  { code: 'CN', name: 'China', dial_code: '+86', flag: '🇨🇳', placeholder: '138-0013-8000' },
+  { code: 'RU', name: 'Russia', dial_code: '+7', flag: '🇷🇺', placeholder: '912-345-67-89' },
+];
 
 export const SellCarScreen = () => {
   const { t } = useLanguage();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<Asset[]>([]);
+  const [countryModalVisible, setCountryModalVisible] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]); // Default KR
   
   const [formData, setFormData] = useState({
     make: '',
@@ -22,31 +33,32 @@ export const SellCarScreen = () => {
     year: '',
     price: '',
     mileage: '',
-    fuel: 'Бензин',
-    bodyType: 'Седан',
+    fuel: t.gasoline,
+    bodyType: t.sedan,
     description: '',
     // New Fields
     engine: '',
     transmission: 'Automatic',
-    drivetrain: 'FWD',
+    drivetrain: t.fwd,
     mpg: '',
-    condition: 'Excellent',
+    condition: t.excellent,
     knownIssues: [] as string[],
     exteriorColor: '',
     interiorColor: '',
-    interiorMaterial: 'Leather',
+    interiorMaterial: t.leather,
     seats: '',
     doors: '',
-    phoneNumber: '82', // Default to KR country code
+    phoneNumber: '', // Stores only local part
     telegramUsername: '',
   });
 
   const [expandedField, setExpandedField] = useState<string | null>(null);
+  const [customIssue, setCustomIssue] = useState('');
 
   const handleChoosePhoto = async () => {
     const result = await launchImageLibrary({
       mediaType: 'photo',
-      selectionLimit: 5 - images.length,
+      selectionLimit: 25 - images.length,
     });
 
     if (result.assets && result.assets.length > 0) {
@@ -78,6 +90,21 @@ export const SellCarScreen = () => {
     }
   };
 
+  const addCustomIssue = () => {
+    if (customIssue.trim().length > 0) {
+      const currentIssues = formData.knownIssues;
+      if (!currentIssues.includes(customIssue.trim())) {
+        setFormData({ ...formData, knownIssues: [...currentIssues, customIssue.trim()] });
+      }
+      setCustomIssue('');
+    }
+  };
+
+  const removeIssue = (issue: string) => {
+    const currentIssues = formData.knownIssues;
+    setFormData({ ...formData, knownIssues: currentIssues.filter(i => i !== issue) });
+  };
+
   const handleSubmit = async () => {
     const netState = await NetInfo.fetch();
     if (!netState.isConnected) {
@@ -90,10 +117,13 @@ export const SellCarScreen = () => {
       return;
     }
 
+    // Combine country code and phone number
+    const fullPhoneNumber = `${selectedCountry.dial_code}${formData.phoneNumber.replace(/^0+/, '')}`; // Remove leading zeros if any
+
     // Basic phone validation (ensure it has digits and length is reasonable)
-    const cleanPhone = formData.phoneNumber.replace(/\D/g, '');
+    const cleanPhone = fullPhoneNumber.replace(/\D/g, '');
     if (cleanPhone.length < 10) {
-        Alert.alert('Invalid Phone', 'Please enter a valid phone number with country code (e.g. 821012345678).');
+        Alert.alert('Invalid Phone', 'Please enter a valid phone number.');
         return;
     }
 
@@ -103,6 +133,8 @@ export const SellCarScreen = () => {
     Object.keys(formData).forEach(key => {
         if (key === 'knownIssues') {
             data.append(key, JSON.stringify(formData[key]));
+        } else if (key === 'phoneNumber') {
+            data.append(key, fullPhoneNumber);
         } else {
             // @ts-ignore
             data.append(key, formData[key]);
@@ -142,7 +174,7 @@ export const SellCarScreen = () => {
   const renderDropdown = (label: string, value: string | string[], field: string, options: string[]) => {
     const isExpanded = expandedField === field;
     const displayValue = Array.isArray(value) 
-        ? (value.length > 0 ? value.join(', ') : 'Нет') 
+        ? (value.length > 0 ? value.join(', ') : t.none) 
         : value;
 
     return (
@@ -198,7 +230,7 @@ export const SellCarScreen = () => {
                         </TouchableOpacity>
                     </View>
                 ))}
-                {images.length < 5 && (
+                {images.length < 25 && (
                     <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
                          <Camera size={32} color={COLORS.textSecondary} style={{ marginBottom: 4 }} />
                          <Text style={styles.uploadText}>{t.photo}</Text>
@@ -207,16 +239,61 @@ export const SellCarScreen = () => {
             </ScrollView>
         </View>
 
+        {/* Country Selection Modal */}
+        <Modal
+          visible={countryModalVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setCountryModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Select Country</Text>
+                <TouchableOpacity onPress={() => setCountryModalVisible(false)}>
+                  <X size={24} color={COLORS.textPrimary} />
+                </TouchableOpacity>
+              </View>
+              <FlatList
+                data={COUNTRIES}
+                keyExtractor={(item) => item.code}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.countryItem}
+                    onPress={() => {
+                      setSelectedCountry(item);
+                      setCountryModalVisible(false);
+                    }}
+                  >
+                    <Text style={styles.countryItemFlag}>{item.flag}</Text>
+                    <Text style={styles.countryItemName}>{item.name}</Text>
+                    <Text style={styles.countryItemCode}>{item.dial_code}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          </View>
+        </Modal>
+
         <View style={styles.form}>
             <Text style={styles.sectionHeader}>{t.mainInfo}</Text>
-            <TextInput
-                style={styles.input}
-                placeholder={t.phoneNumber}
-                placeholderTextColor={COLORS.textSecondary}
-                keyboardType="phone-pad"
-                value={formData.phoneNumber}
-                onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
-            />
+            
+            <View style={styles.phoneContainer}>
+              <TouchableOpacity style={styles.countryButton} onPress={() => setCountryModalVisible(true)}>
+                <Text style={styles.countryFlag}>{selectedCountry.flag}</Text>
+                <Text style={styles.countryCode}>{selectedCountry.dial_code}</Text>
+                <ChevronDown size={16} color={COLORS.textSecondary} />
+              </TouchableOpacity>
+              <TextInput
+                  style={[styles.input, styles.phoneInput]}
+                  placeholder={selectedCountry.placeholder}
+                  placeholderTextColor={COLORS.textSecondary}
+                  keyboardType="phone-pad"
+                  value={formData.phoneNumber}
+                  onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
+              />
+            </View>
+
             <TextInput
                 style={styles.input}
                 placeholder={t.telegramUsername}
@@ -239,13 +316,9 @@ export const SellCarScreen = () => {
                 value={formData.model}
                 onChangeText={(text) => setFormData({ ...formData, model: text })}
             />
-            <TextInput
-                style={styles.input}
-                placeholder={t.typeBody}
-                placeholderTextColor={COLORS.textSecondary}
-                value={formData.bodyType}
-                onChangeText={(text) => setFormData({ ...formData, bodyType: text })}
-            />
+            
+            {renderDropdown(t.typeBody, formData.bodyType, 'bodyType', [t.sedan, t.suv, t.passenger, t.truck, t.special])}
+
             <View style={styles.row}>
                 <TextInput
                 style={[styles.input, styles.halfInput]}
@@ -275,7 +348,7 @@ export const SellCarScreen = () => {
             />
             
             {renderDropdown(t.transmission, formData.transmission, 'transmission', [t.automatic, t.manual, t.cvt, t.robot])}
-            {renderDropdown(t.drivetrain, formData.drivetrain, 'drivetrain', ['FWD', 'RWD', 'AWD', '4WD'])}
+            {renderDropdown(t.drivetrain, formData.drivetrain, 'drivetrain', [t.fwd, t.rwd, t.awd, t.fourwd])}
             {renderDropdown(t.fuel, formData.fuel, 'fuel', [t.gasoline, t.diesel, t.hybrid, t.pluginHybrid, t.electric])}
             
             <TextInput
@@ -295,9 +368,37 @@ export const SellCarScreen = () => {
             />
 
             <Text style={styles.sectionHeader}>{t.conditionLabel}</Text>
-            {renderDropdown(t.conditionLabel, formData.condition, 'condition', ['Excellent', 'Good', 'Fair', 'Needs Work'])}
+            {renderDropdown(t.conditionLabel, formData.condition, 'condition', [t.excellent, t.good, t.fair, t.needsWork])}
             
-            {renderDropdown(t.issuesLabel, formData.knownIssues, 'knownIssues', ['Engine', 'Transmission', 'Suspension', 'Electrical', 'Interior', 'Body/Cosmetic'])}
+            {renderDropdown(t.issuesLabel, formData.knownIssues, 'knownIssues', [t.issueEngine, t.issueTransmission, t.issueSuspension, t.issueElectrical, t.issueInterior, t.issueBody])}
+
+            {/* Custom Issue Input */}
+            <View style={styles.customIssueContainer}>
+              <TextInput
+                style={[styles.input, styles.customIssueInput]}
+                placeholder={t.otherIssue}
+                placeholderTextColor={COLORS.textSecondary}
+                value={customIssue}
+                onChangeText={setCustomIssue}
+              />
+              <TouchableOpacity style={styles.addButton} onPress={addCustomIssue}>
+                <Text style={styles.addButtonText}>{t.add}</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Selected Issues Chips */}
+            {formData.knownIssues.length > 0 && (
+              <View style={styles.issuesContainer}>
+                {formData.knownIssues.map((issue, index) => (
+                  <View key={index} style={styles.issueChip}>
+                    <Text style={styles.issueText}>{issue}</Text>
+                    <TouchableOpacity onPress={() => removeIssue(issue)}>
+                      <X size={14} color="#FFF" style={{ marginLeft: 6 }} />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            )}
 
             <Text style={styles.sectionHeader}>{t.extInt}</Text>
             <View style={styles.row}>
@@ -316,7 +417,7 @@ export const SellCarScreen = () => {
                     onChangeText={(text) => setFormData({ ...formData, interiorColor: text })}
                 />
             </View>
-            {renderDropdown(t.interiorMatLabel, formData.interiorMaterial, 'interiorMaterial', ['Cloth', 'Leather', 'Vegan Leather', 'Alcantara'])}
+            {renderDropdown(t.interiorMatLabel, formData.interiorMaterial, 'interiorMaterial', [t.cloth, t.leather, t.veganLeather, t.alcantara])}
             
             <View style={styles.row}>
                 <TextInput
@@ -544,5 +645,117 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  phoneContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  countryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.searchBackground,
+    borderRadius: SIZES.borderRadius,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    width: 100,
+    justifyContent: 'space-between',
+  },
+  countryFlag: {
+    fontSize: 20,
+  },
+  countryCode: {
+    color: COLORS.textPrimary,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  phoneInput: {
+    flex: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: COLORS.cardBackground,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '50%',
+    paddingBottom: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  modalTitle: {
+    color: COLORS.textPrimary,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  countryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  countryItemFlag: {
+    fontSize: 24,
+    marginRight: 16,
+  },
+  countryItemName: {
+    color: COLORS.textPrimary,
+    fontSize: 16,
+    flex: 1,
+  },
+  countryItemCode: {
+    color: COLORS.textSecondary,
+    fontSize: 16,
+  },
+  customIssueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  customIssueInput: {
+    flex: 1,
+  },
+  addButton: {
+    backgroundColor: COLORS.cardBackground,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: COLORS.accent,
+    fontWeight: 'bold',
+  },
+  issuesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 4,
+  },
+  issueChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.accent,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+  },
+  issueText: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });

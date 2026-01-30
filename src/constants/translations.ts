@@ -65,6 +65,8 @@ export const TRANSLATIONS = {
     description: 'Описание',
     noDescription: 'Описание отсутствует.',
     callSeller: 'Связаться с продавцом',
+    contactVia: 'Связаться через:',
+    whatsapp: 'WhatsApp',
     reportListing: 'Пожаловаться',
 
     // Sell Car
@@ -92,6 +94,35 @@ export const TRANSLATIONS = {
     phoneNumber: 'Номер телефона (например, 821012345678)',
     telegramUsername: 'Telegram (username без @)',
     photo: 'Фото',
+    contactMessage: 'Здравствуйте, меня интересует ваш {car} (ID: {id})',
+
+    // Drivetrain
+    fwd: 'Передний (FWD)',
+    rwd: 'Задний (RWD)',
+    awd: 'Полный (AWD)',
+    fourwd: 'Полный (4WD)',
+
+    // Condition Options
+    excellent: 'Отличное',
+    good: 'Хорошее',
+    fair: 'Среднее',
+    needsWork: 'Требует ремонта',
+
+    // Known Issues Options
+    issueEngine: 'Двигатель',
+    issueTransmission: 'Трансмиссия',
+    issueSuspension: 'Подвеска',
+    issueElectrical: 'Электрика',
+    issueInterior: 'Салон',
+    issueBody: 'Кузов',
+    otherIssue: 'Другая проблема (введите и добавьте)',
+    add: 'Добавить',
+
+    // Interior Material Options
+    cloth: 'Ткань',
+    leather: 'Кожа',
+    veganLeather: 'Экокожа',
+    alcantara: 'Алькантара',
 
     // Common
     error: 'Ошибка',
@@ -99,6 +130,7 @@ export const TRANSLATIONS = {
     loading: 'Загрузка...',
     comingSoon: 'Скоро будет доступно!',
     noInternet: 'Нет подключения к интернету',
+    none: 'Нет',
   },
   EN: {
     // Header & Navigation
@@ -115,7 +147,7 @@ export const TRANSLATIONS = {
     about: 'About',
 
     // Home Screen
-    searchPlaceholder: 'Search by make, Model or VIN',
+    searchPlaceholder: 'Search by make, model or VIN',
     noCars: 'No cars found',
 
     // Categories
@@ -166,6 +198,8 @@ export const TRANSLATIONS = {
     description: 'Description',
     noDescription: 'No description available.',
     callSeller: 'Contact Seller',
+    contactVia: 'Contact seller via:',
+    whatsapp: 'WhatsApp',
     reportListing: 'Report Listing',
 
     // Sell Car
@@ -193,6 +227,35 @@ export const TRANSLATIONS = {
     phoneNumber: 'Phone Number (e.g., 821012345678)',
     telegramUsername: 'Telegram (username without @)',
     photo: 'Photo',
+    contactMessage: 'Hi, I\'m interested in your {car} (ID: {id})',
+
+    // Drivetrain
+    fwd: 'FWD',
+    rwd: 'RWD',
+    awd: 'AWD',
+    fourwd: '4WD',
+
+    // Condition Options
+    excellent: 'Excellent',
+    good: 'Good',
+    fair: 'Fair',
+    needsWork: 'Needs Work',
+
+    // Known Issues Options
+    issueEngine: 'Engine',
+    issueTransmission: 'Transmission',
+    issueSuspension: 'Suspension',
+    issueElectrical: 'Electrical',
+    issueInterior: 'Interior',
+    issueBody: 'Body/Cosmetic',
+    otherIssue: 'Other issue (type and add)',
+    add: 'Add',
+
+    // Interior Material Options
+    cloth: 'Cloth',
+    leather: 'Leather',
+    veganLeather: 'Vegan Leather',
+    alcantara: 'Alcantara',
 
     // Common
     error: 'Error',
@@ -200,6 +263,7 @@ export const TRANSLATIONS = {
     loading: 'Loading...',
     comingSoon: 'Coming soon in the next update!',
     noInternet: 'No Internet Connection',
+    none: 'None',
   }
 };
 

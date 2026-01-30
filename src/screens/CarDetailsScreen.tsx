@@ -81,11 +81,17 @@ export const CarDetailsScreen = () => {
 
   const handleCallSeller = () => {
     // Phone number from car object or fallback
-    const phoneNumber = car.phoneNumber || '821044879094';
+    const phoneNumber = car.phoneNumber || '821012345678';
 
     // Clean phone number for WhatsApp: remove all non-numeric characters
     const cleanPhone = phoneNumber.replace(/\D/g, '');
-    const message = `Hi, I'm interested in your ${car.make} ${car.model} ${car.listingId ? `(ID: ${car.listingId})` : ''}`;
+
+    // @ts-ignore
+    const messageTemplate = t.contactMessage || `Hi, I'm interested in your {car} (ID: {id})`;
+    const message = messageTemplate
+      .replace('{car}', `${car.make} ${car.model}`)
+      .replace('{id}', car.listingId || '');
+
     const whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
 
     Linking.canOpenURL(whatsappUrl)
@@ -99,8 +105,6 @@ export const CarDetailsScreen = () => {
       })
       .catch((err) => {
         console.error('An error occurred', err);
-        // Only fallback if error implies unsupported scheme (though canOpenURL should catch that)
-        // But sometimes canOpenURL throws on iOS if scheme not in Info.plist
         Linking.openURL(`tel:${phoneNumber}`).catch(e => console.error("Call failed", e));
       });
   };
@@ -113,18 +117,22 @@ export const CarDetailsScreen = () => {
 
     // Clean username (remove @ if present)
     const username = car.telegramUsername.replace('@', '').trim();
-    const telegramUrl = `tg://resolve?domain=${username}`;
-    const webUrl = `https://t.me/${username}`;
 
-    Linking.canOpenURL(telegramUrl)
-      .then((supported) => {
-        if (supported) {
-          return Linking.openURL(telegramUrl);
-        } else {
-          return Linking.openURL(webUrl);
-        }
-      })
-      .catch(() => Linking.openURL(webUrl));
+    // @ts-ignore
+    const messageTemplate = t.contactMessage || `Hi, I'm interested in your {car} (ID: {id})`;
+    const message = messageTemplate
+      .replace('{car}', `${car.make} ${car.model}`)
+      .replace('{id}', car.listingId || '');
+
+    // Telegram requires the "text" parameter for web links (t.me)
+    const webUrl = `https://t.me/${username}?text=${encodeURIComponent(message)}`;
+
+    // Try opening web URL directly as it handles redirection well
+    Linking.openURL(webUrl).catch(err => {
+      console.error("Failed to open Telegram", err);
+      // Fallback to deep link (note: tg:// usually doesn't support pre-filled text reliably across all platforms)
+      Linking.openURL(`tg://resolve?domain=${username}`);
+    });
   };
 
   const handleReport = () => {
@@ -273,16 +281,19 @@ export const CarDetailsScreen = () => {
       </ScrollView>
 
       <View style={styles.footer}>
-        {car.telegramUsername && (
-          <TouchableOpacity style={[styles.contactButton, styles.telegramButton]} onPress={handleTelegram}>
-            <Send size={20} color="#FFF" style={{ marginRight: 8 }} />
-            <Text style={[styles.contactButtonText, { color: '#FFF' }]}>Telegram</Text>
+        <Text style={styles.contactLabel}>{t.contactVia}</Text>
+        <View style={styles.contactButtonsRow}>
+          {car.telegramUsername && (
+            <TouchableOpacity style={[styles.contactButton, styles.telegramButton]} onPress={handleTelegram}>
+              <Send size={20} color="#FFF" />
+              <Text style={[styles.contactButtonText, { color: '#FFF' }]}>Telegram</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={[styles.contactButton, styles.whatsappButton, car.telegramUsername ? { flex: 1, marginLeft: 2 } : { width: '100%' }]} onPress={handleCallSeller}>
+            <MessageCircle size={20} color="#FFF" />
+            <Text style={[styles.contactButtonText, { color: '#FFF' }]}>{t.whatsapp}</Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity style={[styles.contactButton, styles.whatsappButton, car.telegramUsername ? { flex: 1, marginLeft: 8 } : { width: '100%' }]} onPress={handleCallSeller}>
-          <MessageCircle size={20} color="#FFF" style={{ marginRight: 8 }} />
-          <Text style={[styles.contactButtonText, { color: '#FFF' }]}>{t.callSeller}</Text>
-        </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -448,31 +459,40 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
     backgroundColor: COLORS.background,
+  },
+  contactLabel: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+    marginBottom: 12,
+    fontWeight: '500',
+  },
+  contactButtonsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
   contactButton: {
     backgroundColor: COLORS.accent,
-    paddingVertical: 12, // Reduced padding
-    paddingHorizontal: 4, // Added horizontal padding control
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     borderRadius: SIZES.borderRadius,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
+    gap: 8,
   },
   telegramButton: {
     backgroundColor: '#229ED9', // Telegram Blue
     flex: 1,
-    marginRight: 8,
+    marginRight: 2,
   },
   whatsappButton: {
     backgroundColor: '#25D366', // WhatsApp Green
   },
   contactButtonText: {
     color: '#000000',
-    fontSize: 14, // Reduced from 16 to fit better
+    fontSize: 14,
     fontWeight: 'bold',
-    flexShrink: 1, // Allow text to shrink if needed
+    // flex: 1, // Removed to allow centering of content group
     textAlign: 'center',
   },
 });
