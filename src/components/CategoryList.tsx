@@ -49,7 +49,10 @@ export const CategoryList = ({ selectedCategory, onSelectCategory, t }: Category
               <View style={[styles.iconContainer, isActive && styles.activeIconContainer]}>
                 {getIcon(category.id, isActive)}
               </View>
-              <Text style={[styles.categoryName, isActive && styles.activeCategoryName]}>
+              <Text 
+                style={[styles.categoryName, isActive && styles.activeCategoryName]}
+                numberOfLines={1}
+              >
                 {getCategoryName(category.id)}
               </Text>
             </TouchableOpacity>
@@ -66,8 +69,8 @@ const styles = StyleSheet.create({
   },
   categoryItem: {
     alignItems: 'center',
-    marginRight: 20,
-    width: 80,
+    marginRight: 16,
+    minWidth: 80, // Use minWidth instead of fixed width
   },
   iconContainer: {
     width: 60,
