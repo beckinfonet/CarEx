@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback, Linking } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback, Linking, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
-import { Car, Wrench, Banknote, Shield, ClipboardList, HelpCircle, X, Info } from 'lucide-react-native';
+import { Car, Wrench, Banknote, Shield, ClipboardList, HelpCircle, X, Info, LogIn, LogOut, User } from 'lucide-react-native';
+import { useAuth } from '../context/AuthContext';
 
 interface MoreMenuProps {
   visible: boolean;
@@ -21,12 +22,15 @@ const getIcon = (id: number) => {
     case 5: return <ClipboardList size={24} color={COLORS.accent} />;
     case 6: return <HelpCircle size={24} color={COLORS.accent} />;
     case 7: return <Info size={24} color={COLORS.accent} />;
+    case 8: return <LogIn size={24} color={COLORS.accent} />;
+    case 9: return <User size={24} color={COLORS.accent} />;
     default: return <Car size={24} color={COLORS.accent} />;
   }
 };
 
 export const MoreMenu = ({ visible, onClose, t }: MoreMenuProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { user, logout } = useAuth();
 
   const MENU_ITEMS = [
     { id: 1, name: t.sellCar, icon: '🚘', route: 'SellCar' },
@@ -38,8 +42,18 @@ export const MoreMenu = ({ visible, onClose, t }: MoreMenuProps) => {
     { id: 7, name: t.about, icon: 'ℹ️', route: 'About' },
   ];
 
-  const handlePress = (item: typeof MENU_ITEMS[0]) => {
+  if (user) {
+    MENU_ITEMS.push({ id: 9, name: t.myProfile, icon: '👤', route: 'Profile' });
+  } else {
+    MENU_ITEMS.push({ id: 8, name: t.login, icon: '🔑', route: 'Login' });
+  }
+
+  const handlePress = async (item: any) => {
     onClose();
+    if (item.action) {
+        await item.action();
+        return;
+    }
     if (item.id === 6) { // Help
         Linking.openURL('https://www.carexmarket.com/help').catch(err => console.error("Couldn't load page", err));
         return;
@@ -47,6 +61,8 @@ export const MoreMenu = ({ visible, onClose, t }: MoreMenuProps) => {
     if (item.route) {
         // @ts-ignore
         navigation.navigate(item.route);
+    } else {
+        Alert.alert(t.appName, t.comingSoon);
     }
   };
 

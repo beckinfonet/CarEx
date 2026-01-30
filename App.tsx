@@ -13,31 +13,40 @@ import { HomeScreen } from './src/screens/HomeScreen';
 import { CarDetailsScreen } from './src/screens/CarDetailsScreen';
 import { SellCarScreen } from './src/screens/SellCarScreen';
 import { AboutScreen } from './src/screens/AboutScreen';
+import { LoginScreen } from './src/screens/LoginScreen';
+import { SignupScreen } from './src/screens/SignupScreen';
+import { ProfileScreen } from './src/screens/ProfileScreen';
 import { OfflineNotice } from './src/components/OfflineNotice';
 import { RootStackParamList } from './src/types/navigation';
 import { LanguageProvider } from './src/context/LanguageContext';
+import { AuthProvider } from './src/context/AuthContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
   return (
     <SafeAreaProvider>
-      <LanguageProvider>
-        <NavigationContainer>
-          <OfflineNotice />
-          <Stack.Navigator 
-            screenOptions={{ 
-              headerShown: false,
-              animation: 'slide_from_right'
-            }}
-          >
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
-            <Stack.Screen name="SellCar" component={SellCarScreen} />
-            <Stack.Screen name="About" component={AboutScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <NavigationContainer>
+            <OfflineNotice />
+            <Stack.Navigator 
+              screenOptions={{ 
+                headerShown: false,
+                animation: 'slide_from_right'
+              }}
+            >
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
+              <Stack.Screen name="SellCar" component={SellCarScreen} />
+              <Stack.Screen name="About" component={AboutScreen} />
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="Signup" component={SignupScreen} />
+              <Stack.Screen name="Profile" component={ProfileScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </LanguageProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

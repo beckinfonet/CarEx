@@ -13,14 +13,16 @@ import { CarCard } from '../components/CarCard';
 import { BottomBar } from '../components/BottomBar';
 import { CATEGORIES } from '../constants/mockData';
 import { RootStackParamList } from '../types/navigation';
-import { ArrowLeft } from 'lucide-react-native';
+import { ArrowLeft, User } from 'lucide-react-native';
 import { FilterModal } from '../components/FilterModal';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 export const HomeScreen = () => {
   const { t, language, setLanguage } = useLanguage();
+  const { user } = useAuth();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const isFocused = useIsFocused();
   const [searchQuery, setSearchQuery] = useState('');
@@ -125,15 +127,26 @@ export const HomeScreen = () => {
     setActiveFilters(newFilters);
   };
 
+  const handleProfilePress = () => {
+    if (user) {
+        navigation.navigate('Profile');
+    } else {
+        navigation.navigate('Login');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.backButton}>
-            {/* <ArrowLeft size={24} color={COLORS.accent} /> */}
-          </View>
+          <TouchableOpacity 
+            style={[styles.profileButton, user && styles.profileButtonActive]} 
+            onPress={handleProfilePress}
+          >
+            <User size={24} color={user ? '#FFF' : COLORS.textSecondary} />
+          </TouchableOpacity>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image
               source={require('../assets/CarExWord.png')}
@@ -217,7 +230,22 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 0,
   },
+  profileButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center', // Center the icon
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  profileButtonActive: {
+    backgroundColor: COLORS.accent,
+    borderColor: COLORS.accent,
+  },
   backButton: {
+    // Keeping styles just in case, but unused in Home
     width: 40,
     height: 40,
     justifyContent: 'center',
