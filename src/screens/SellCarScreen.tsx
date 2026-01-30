@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import NetInfo from '@react-native-community/netinfo';
+import axios from 'axios';
+
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Alert, ActivityIndicator, Modal, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
-import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
-import NetInfo from '@react-native-community/netinfo';
 import { ArrowLeft, Camera, X, ChevronDown } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const COUNTRIES = [
   { code: 'KR', name: 'South Korea', dial_code: '+82', flag: '🇰🇷', placeholder: '10-1234-5678' },
@@ -21,12 +23,13 @@ const COUNTRIES = [
 
 export const SellCarScreen = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<Asset[]>([]);
   const [countryModalVisible, setCountryModalVisible] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]); // Default KR
-  
+
   const [formData, setFormData] = useState({
     make: '',
     model: '',
@@ -51,6 +54,46 @@ export const SellCarScreen = () => {
     phoneNumber: '', // Stores only local part
     telegramUsername: '',
   });
+
+  useEffect(() => {
+    checkProfileAndAutofill();
+  }, [user]);
+
+  const checkProfileAndAutofill = () => {
+    if (!user) return; // Should be handled by Auth protection usually
+
+    // Check mandatory fields
+    if (!user.firstName || !user.lastName || !user.phoneNumber) {
+      Alert.alert(
+        t.error,
+        'Please complete your profile (Name, Phone) before selling a car.',
+        [
+          { text: 'Go to Profile', onPress: () => navigation.navigate('Profile' as never) },
+          { text: 'Cancel', onPress: () => navigation.goBack(), style: 'cancel' }
+        ]
+      );
+      return;
+    }
+
+    // Auto-fill
+    let phone = user.phoneNumber || '';
+    let country = COUNTRIES[0];
+
+    // Try to detect country code
+    const foundCountry = COUNTRIES.find(c => phone.startsWith(c.dial_code));
+    if (foundCountry) {
+      country = foundCountry;
+      phone = phone.replace(foundCountry.dial_code, '');
+    }
+
+    setSelectedCountry(country);
+
+    setFormData(prev => ({
+      ...prev,
+      phoneNumber: phone,
+      telegramUsername: user.telegramUsername || prev.telegramUsername
+    }));
+  };
 
   const [expandedField, setExpandedField] = useState<string | null>(null);
   const [customIssue, setCustomIssue] = useState('');
@@ -108,8 +151,8 @@ export const SellCarScreen = () => {
   const handleSubmit = async () => {
     const netState = await NetInfo.fetch();
     if (!netState.isConnected) {
-        Alert.alert('No Internet', 'Please check your internet connection and try again.');
-        return;
+      Alert.alert('No Internet', 'Please check your internet connection and try again.');
+      return;
     }
 
     if (images.length === 0 || !formData.make || !formData.model || !formData.price || !formData.phoneNumber) {
@@ -123,22 +166,22 @@ export const SellCarScreen = () => {
     // Basic phone validation (ensure it has digits and length is reasonable)
     const cleanPhone = fullPhoneNumber.replace(/\D/g, '');
     if (cleanPhone.length < 10) {
-        Alert.alert('Invalid Phone', 'Please enter a valid phone number.');
-        return;
+      Alert.alert('Invalid Phone', 'Please enter a valid phone number.');
+      return;
     }
 
     setLoading(true);
 
     const data = new FormData();
     Object.keys(formData).forEach(key => {
-        if (key === 'knownIssues') {
-            data.append(key, JSON.stringify(formData[key]));
-        } else if (key === 'phoneNumber') {
-            data.append(key, fullPhoneNumber);
-        } else {
-            // @ts-ignore
-            data.append(key, formData[key]);
-        }
+      if (key === 'knownIssues') {
+        data.append(key, JSON.stringify(formData[key]));
+      } else if (key === 'phoneNumber') {
+        data.append(key, fullPhoneNumber);
+      } else {
+        // @ts-ignore
+        data.append(key, formData[key]);
+      }
     });
 
     images.forEach((img, index) => {
@@ -159,7 +202,7 @@ export const SellCarScreen = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      
+
       Alert.alert('Success', 'Car listed successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
@@ -173,39 +216,39 @@ export const SellCarScreen = () => {
 
   const renderDropdown = (label: string, value: string | string[], field: string, options: string[]) => {
     const isExpanded = expandedField === field;
-    const displayValue = Array.isArray(value) 
-        ? (value.length > 0 ? value.join(', ') : t.none) 
-        : value;
+    const displayValue = Array.isArray(value)
+      ? (value.length > 0 ? value.join(', ') : t.none)
+      : value;
 
     return (
-        <View style={styles.dropdownContainer}>
-            <TouchableOpacity 
-                style={[styles.selectButton, isExpanded && styles.selectButtonExpanded]} 
-                onPress={() => toggleDropdown(field)}
-            >
-                <Text style={styles.selectLabel}>{label}</Text>
-                <Text style={styles.selectValue}>{displayValue} {isExpanded ? '▲' : '▼'}</Text>
-            </TouchableOpacity>
-            
-            {isExpanded && (
-                <View style={styles.dropdownOptions}>
-                    {options.map((option, index) => {
-                        const isSelected = Array.isArray(value) ? value.includes(option) : value === option;
-                        return (
-                            <TouchableOpacity 
-                                key={index} 
-                                style={[styles.dropdownOption, isSelected && styles.selectedDropdownOption]} 
-                                onPress={() => handleSelect(field, option)}
-                            >
-                                <Text style={[styles.dropdownOptionText, isSelected && styles.selectedOptionText]}>
-                                    {option} {isSelected && '✓'}
-                                </Text>
-                            </TouchableOpacity>
-                        );
-                    })}
-                </View>
-            )}
-        </View>
+      <View style={styles.dropdownContainer}>
+        <TouchableOpacity
+          style={[styles.selectButton, isExpanded && styles.selectButtonExpanded]}
+          onPress={() => toggleDropdown(field)}
+        >
+          <Text style={styles.selectLabel}>{label}</Text>
+          <Text style={styles.selectValue}>{displayValue} {isExpanded ? '▲' : '▼'}</Text>
+        </TouchableOpacity>
+
+        {isExpanded && (
+          <View style={styles.dropdownOptions}>
+            {options.map((option, index) => {
+              const isSelected = Array.isArray(value) ? value.includes(option) : value === option;
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[styles.dropdownOption, isSelected && styles.selectedDropdownOption]}
+                  onPress={() => handleSelect(field, option)}
+                >
+                  <Text style={[styles.dropdownOptionText, isSelected && styles.selectedOptionText]}>
+                    {option} {isSelected && '✓'}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
+      </View>
     );
   };
 
@@ -221,22 +264,22 @@ export const SellCarScreen = () => {
 
       <ScrollView style={styles.content}>
         <View style={styles.imageSection}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageList}>
-                {images.map((img, index) => (
-                    <View key={index} style={styles.imagePreviewContainer}>
-                        <Image source={{ uri: img.uri }} style={styles.uploadedImage} />
-                        <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
-                            <X size={16} color="#FFF" />
-                        </TouchableOpacity>
-                    </View>
-                ))}
-                {images.length < 25 && (
-                    <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
-                         <Camera size={32} color={COLORS.textSecondary} style={{ marginBottom: 4 }} />
-                         <Text style={styles.uploadText}>{t.photo}</Text>
-                    </TouchableOpacity>
-                )}
-            </ScrollView>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageList}>
+            {images.map((img, index) => (
+              <View key={index} style={styles.imagePreviewContainer}>
+                <Image source={{ uri: img.uri }} style={styles.uploadedImage} />
+                <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
+                  <X size={16} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {images.length < 25 && (
+              <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
+                <Camera size={32} color={COLORS.textSecondary} style={{ marginBottom: 4 }} />
+                <Text style={styles.uploadText}>{t.photo}</Text>
+              </TouchableOpacity>
+            )}
+          </ScrollView>
         </View>
 
         {/* Country Selection Modal */}
@@ -276,189 +319,189 @@ export const SellCarScreen = () => {
         </Modal>
 
         <View style={styles.form}>
-            <Text style={styles.sectionHeader}>{t.mainInfo}</Text>
-            
-            <View style={styles.phoneContainer}>
-              <TouchableOpacity style={styles.countryButton} onPress={() => setCountryModalVisible(true)}>
-                <Text style={styles.countryFlag}>{selectedCountry.flag}</Text>
-                <Text style={styles.countryCode}>{selectedCountry.dial_code}</Text>
-                <ChevronDown size={16} color={COLORS.textSecondary} />
-              </TouchableOpacity>
-              <TextInput
-                  style={[styles.input, styles.phoneInput]}
-                  placeholder={selectedCountry.placeholder}
-                  placeholderTextColor={COLORS.textSecondary}
-                  keyboardType="phone-pad"
-                  value={formData.phoneNumber}
-                  onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
-              />
-            </View>
+          <Text style={styles.sectionHeader}>{t.mainInfo}</Text>
 
-            <TextInput
-                style={styles.input}
-                placeholder={t.telegramUsername}
-                placeholderTextColor={COLORS.textSecondary}
-                autoCapitalize="none"
-                value={formData.telegramUsername}
-                onChangeText={(text) => setFormData({ ...formData, telegramUsername: text })}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder={t.brand}
-                placeholderTextColor={COLORS.textSecondary}
-                value={formData.make}
-                onChangeText={(text) => setFormData({ ...formData, make: text })}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder={t.model}
-                placeholderTextColor={COLORS.textSecondary}
-                value={formData.model}
-                onChangeText={(text) => setFormData({ ...formData, model: text })}
-            />
-            
-            {renderDropdown(t.typeBody, formData.bodyType, 'bodyType', [t.sedan, t.suv, t.passenger, t.truck, t.special])}
-
-            <View style={styles.row}>
-                <TextInput
-                style={[styles.input, styles.halfInput]}
-                placeholder={t.enterYear}
-                placeholderTextColor={COLORS.textSecondary}
-                keyboardType="numeric"
-                value={formData.year}
-                onChangeText={(text) => setFormData({ ...formData, year: text })}
-                />
-                <TextInput
-                style={[styles.input, styles.halfInput]}
-                placeholder={t.enterPrice}
-                placeholderTextColor={COLORS.textSecondary}
-                keyboardType="numeric"
-                value={formData.price}
-                onChangeText={(text) => setFormData({ ...formData, price: text })}
-                />
-            </View>
-
-            <Text style={styles.sectionHeader}>{t.specs}</Text>
-            <TextInput
-                style={styles.input}
-                placeholder={t.enterEngine}
-                placeholderTextColor={COLORS.textSecondary}
-                value={formData.engine}
-                onChangeText={(text) => setFormData({ ...formData, engine: text })}
-            />
-            
-            {renderDropdown(t.transmission, formData.transmission, 'transmission', [t.automatic, t.manual, t.cvt, t.robot])}
-            {renderDropdown(t.drivetrain, formData.drivetrain, 'drivetrain', [t.fwd, t.rwd, t.awd, t.fourwd])}
-            {renderDropdown(t.fuel, formData.fuel, 'fuel', [t.gasoline, t.diesel, t.hybrid, t.pluginHybrid, t.electric])}
-            
-            <TextInput
-                style={styles.input}
-                placeholder={t.mpgRange}
-                placeholderTextColor={COLORS.textSecondary}
-                value={formData.mpg}
-                onChangeText={(text) => setFormData({ ...formData, mpg: text })}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder={t.enterMileage}
-                placeholderTextColor={COLORS.textSecondary}
-                keyboardType="numeric"
-                value={formData.mileage}
-                onChangeText={(text) => setFormData({ ...formData, mileage: text })}
-            />
-
-            <Text style={styles.sectionHeader}>{t.conditionLabel}</Text>
-            {renderDropdown(t.conditionLabel, formData.condition, 'condition', [t.excellent, t.good, t.fair, t.needsWork])}
-            
-            {renderDropdown(t.issuesLabel, formData.knownIssues, 'knownIssues', [t.issueEngine, t.issueTransmission, t.issueSuspension, t.issueElectrical, t.issueInterior, t.issueBody])}
-
-            {/* Custom Issue Input */}
-            <View style={styles.customIssueContainer}>
-              <TextInput
-                style={[styles.input, styles.customIssueInput]}
-                placeholder={t.otherIssue}
-                placeholderTextColor={COLORS.textSecondary}
-                value={customIssue}
-                onChangeText={setCustomIssue}
-              />
-              <TouchableOpacity style={styles.addButton} onPress={addCustomIssue}>
-                <Text style={styles.addButtonText}>{t.add}</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Selected Issues Chips */}
-            {formData.knownIssues.length > 0 && (
-              <View style={styles.issuesContainer}>
-                {formData.knownIssues.map((issue, index) => (
-                  <View key={index} style={styles.issueChip}>
-                    <Text style={styles.issueText}>{issue}</Text>
-                    <TouchableOpacity onPress={() => removeIssue(issue)}>
-                      <X size={14} color="#FFF" style={{ marginLeft: 6 }} />
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </View>
-            )}
-
-            <Text style={styles.sectionHeader}>{t.extInt}</Text>
-            <View style={styles.row}>
-                <TextInput
-                    style={[styles.input, styles.halfInput]}
-                    placeholder={t.bodyColor}
-                    placeholderTextColor={COLORS.textSecondary}
-                    value={formData.exteriorColor}
-                    onChangeText={(text) => setFormData({ ...formData, exteriorColor: text })}
-                />
-                <TextInput
-                    style={[styles.input, styles.halfInput]}
-                    placeholder={t.interiorColorInput}
-                    placeholderTextColor={COLORS.textSecondary}
-                    value={formData.interiorColor}
-                    onChangeText={(text) => setFormData({ ...formData, interiorColor: text })}
-                />
-            </View>
-            {renderDropdown(t.interiorMatLabel, formData.interiorMaterial, 'interiorMaterial', [t.cloth, t.leather, t.veganLeather, t.alcantara])}
-            
-            <View style={styles.row}>
-                <TextInput
-                    style={[styles.input, styles.halfInput]}
-                    placeholder={t.enterSeats}
-                    placeholderTextColor={COLORS.textSecondary}
-                    keyboardType="numeric"
-                    value={formData.seats}
-                    onChangeText={(text) => setFormData({ ...formData, seats: text })}
-                />
-                <TextInput
-                    style={[styles.input, styles.halfInput]}
-                    placeholder={t.enterDoors}
-                    placeholderTextColor={COLORS.textSecondary}
-                    keyboardType="numeric"
-                    value={formData.doors}
-                    onChangeText={(text) => setFormData({ ...formData, doors: text })}
-                />
-            </View>
-
-            <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder={t.addDesc}
-                placeholderTextColor={COLORS.textSecondary}
-                multiline
-                numberOfLines={4}
-                value={formData.description}
-                onChangeText={(text) => setFormData({ ...formData, description: text })}
-            />
-
-            <TouchableOpacity 
-                style={[styles.submitButton, loading && styles.disabledButton]} 
-                onPress={handleSubmit}
-                disabled={loading}
-            >
-                {loading ? (
-                    <ActivityIndicator color="#000" />
-                ) : (
-                    <Text style={styles.submitButtonText}>{t.submitListing}</Text>
-                )}
+          <View style={styles.phoneContainer}>
+            <TouchableOpacity style={styles.countryButton} onPress={() => setCountryModalVisible(true)}>
+              <Text style={styles.countryFlag}>{selectedCountry.flag}</Text>
+              <Text style={styles.countryCode}>{selectedCountry.dial_code}</Text>
+              <ChevronDown size={16} color={COLORS.textSecondary} />
             </TouchableOpacity>
+            <TextInput
+              style={[styles.input, styles.phoneInput]}
+              placeholder={selectedCountry.placeholder}
+              placeholderTextColor={COLORS.textSecondary}
+              keyboardType="phone-pad"
+              value={formData.phoneNumber}
+              onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
+            />
+          </View>
+
+          <TextInput
+            style={styles.input}
+            placeholder={t.telegramUsername}
+            placeholderTextColor={COLORS.textSecondary}
+            autoCapitalize="none"
+            value={formData.telegramUsername}
+            onChangeText={(text) => setFormData({ ...formData, telegramUsername: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder={t.brand}
+            placeholderTextColor={COLORS.textSecondary}
+            value={formData.make}
+            onChangeText={(text) => setFormData({ ...formData, make: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder={t.model}
+            placeholderTextColor={COLORS.textSecondary}
+            value={formData.model}
+            onChangeText={(text) => setFormData({ ...formData, model: text })}
+          />
+
+          {renderDropdown(t.typeBody, formData.bodyType, 'bodyType', [t.sedan, t.suv, t.passenger, t.truck, t.special])}
+
+          <View style={styles.row}>
+            <TextInput
+              style={[styles.input, styles.halfInput]}
+              placeholder={t.enterYear}
+              placeholderTextColor={COLORS.textSecondary}
+              keyboardType="numeric"
+              value={formData.year}
+              onChangeText={(text) => setFormData({ ...formData, year: text })}
+            />
+            <TextInput
+              style={[styles.input, styles.halfInput]}
+              placeholder={t.enterPrice}
+              placeholderTextColor={COLORS.textSecondary}
+              keyboardType="numeric"
+              value={formData.price}
+              onChangeText={(text) => setFormData({ ...formData, price: text })}
+            />
+          </View>
+
+          <Text style={styles.sectionHeader}>{t.specs}</Text>
+          <TextInput
+            style={styles.input}
+            placeholder={t.enterEngine}
+            placeholderTextColor={COLORS.textSecondary}
+            value={formData.engine}
+            onChangeText={(text) => setFormData({ ...formData, engine: text })}
+          />
+
+          {renderDropdown(t.transmission, formData.transmission, 'transmission', [t.automatic, t.manual, t.cvt, t.robot])}
+          {renderDropdown(t.drivetrain, formData.drivetrain, 'drivetrain', [t.fwd, t.rwd, t.awd, t.fourwd])}
+          {renderDropdown(t.fuel, formData.fuel, 'fuel', [t.gasoline, t.diesel, t.hybrid, t.pluginHybrid, t.electric])}
+
+          <TextInput
+            style={styles.input}
+            placeholder={t.mpgRange}
+            placeholderTextColor={COLORS.textSecondary}
+            value={formData.mpg}
+            onChangeText={(text) => setFormData({ ...formData, mpg: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder={t.enterMileage}
+            placeholderTextColor={COLORS.textSecondary}
+            keyboardType="numeric"
+            value={formData.mileage}
+            onChangeText={(text) => setFormData({ ...formData, mileage: text })}
+          />
+
+          <Text style={styles.sectionHeader}>{t.conditionLabel}</Text>
+          {renderDropdown(t.conditionLabel, formData.condition, 'condition', [t.excellent, t.good, t.fair, t.needsWork])}
+
+          {renderDropdown(t.issuesLabel, formData.knownIssues, 'knownIssues', [t.issueEngine, t.issueTransmission, t.issueSuspension, t.issueElectrical, t.issueInterior, t.issueBody])}
+
+          {/* Custom Issue Input */}
+          <View style={styles.customIssueContainer}>
+            <TextInput
+              style={[styles.input, styles.customIssueInput]}
+              placeholder={t.otherIssue}
+              placeholderTextColor={COLORS.textSecondary}
+              value={customIssue}
+              onChangeText={setCustomIssue}
+            />
+            <TouchableOpacity style={styles.addButton} onPress={addCustomIssue}>
+              <Text style={styles.addButtonText}>{t.add}</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Selected Issues Chips */}
+          {formData.knownIssues.length > 0 && (
+            <View style={styles.issuesContainer}>
+              {formData.knownIssues.map((issue, index) => (
+                <View key={index} style={styles.issueChip}>
+                  <Text style={styles.issueText}>{issue}</Text>
+                  <TouchableOpacity onPress={() => removeIssue(issue)}>
+                    <X size={14} color="#FFF" style={{ marginLeft: 6 }} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+
+          <Text style={styles.sectionHeader}>{t.extInt}</Text>
+          <View style={styles.row}>
+            <TextInput
+              style={[styles.input, styles.halfInput]}
+              placeholder={t.bodyColor}
+              placeholderTextColor={COLORS.textSecondary}
+              value={formData.exteriorColor}
+              onChangeText={(text) => setFormData({ ...formData, exteriorColor: text })}
+            />
+            <TextInput
+              style={[styles.input, styles.halfInput]}
+              placeholder={t.interiorColorInput}
+              placeholderTextColor={COLORS.textSecondary}
+              value={formData.interiorColor}
+              onChangeText={(text) => setFormData({ ...formData, interiorColor: text })}
+            />
+          </View>
+          {renderDropdown(t.interiorMatLabel, formData.interiorMaterial, 'interiorMaterial', [t.cloth, t.leather, t.veganLeather, t.alcantara])}
+
+          <View style={styles.row}>
+            <TextInput
+              style={[styles.input, styles.halfInput]}
+              placeholder={t.enterSeats}
+              placeholderTextColor={COLORS.textSecondary}
+              keyboardType="numeric"
+              value={formData.seats}
+              onChangeText={(text) => setFormData({ ...formData, seats: text })}
+            />
+            <TextInput
+              style={[styles.input, styles.halfInput]}
+              placeholder={t.enterDoors}
+              placeholderTextColor={COLORS.textSecondary}
+              keyboardType="numeric"
+              value={formData.doors}
+              onChangeText={(text) => setFormData({ ...formData, doors: text })}
+            />
+          </View>
+
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder={t.addDesc}
+            placeholderTextColor={COLORS.textSecondary}
+            multiline
+            numberOfLines={4}
+            value={formData.description}
+            onChangeText={(text) => setFormData({ ...formData, description: text })}
+          />
+
+          <TouchableOpacity
+            style={[styles.submitButton, loading && styles.disabledButton]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#000" />
+            ) : (
+              <Text style={styles.submitButtonText}>{t.submitListing}</Text>
+            )}
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>

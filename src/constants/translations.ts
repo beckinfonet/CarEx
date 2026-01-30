@@ -95,6 +95,11 @@ export const TRANSLATIONS = {
     accountSettings: 'Настройки аккаунта',
     myListings: 'Мои объявления',
     myFavorites: 'Избранное',
+    firstName: 'Имя',
+    lastName: 'Фамилия',
+    saveProfile: 'Сохранить профиль',
+    profileSaved: 'Профиль сохранен',
+    profileSaveError: 'Не удалось сохранить профиль',
 
     // About Screen
     version: 'Версия',
@@ -127,7 +132,7 @@ export const TRANSLATIONS = {
     enterDoors: 'Дверей',
     addDesc: 'Дополнительное описание',
     submitListing: 'Разместить объявление',
-    phoneNumber: 'Номер телефона (например, 821012345678)',
+    phoneNumber: 'Номер телефона',
     telegramUsername: 'Telegram (username без @)',
     photo: 'Фото',
     contactMessage: 'Здравствуйте, меня интересует ваш {car} (ID: {id})',
@@ -264,6 +269,11 @@ export const TRANSLATIONS = {
     accountSettings: 'Account Settings',
     myListings: 'My Listings',
     myFavorites: 'Favorites',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    saveProfile: 'Save Profile',
+    profileSaved: 'Profile Saved',
+    profileSaveError: 'Failed to save profile',
 
     // About Screen
     version: 'Version',
@@ -296,7 +306,7 @@ export const TRANSLATIONS = {
     enterDoors: 'Doors',
     addDesc: 'Additional Description',
     submitListing: 'List Car',
-    phoneNumber: 'Phone Number (e.g., 821012345678)',
+    phoneNumber: 'Phone Number',
     telegramUsername: 'Telegram (username without @)',
     photo: 'Photo',
     contactMessage: 'Hi, I\'m interested in your {car} (ID: {id})',

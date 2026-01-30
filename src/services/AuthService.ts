@@ -1,5 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../constants/config';
 
 // Get API Key from your environment or hardcode for now if needed, 
 // but using the one from the plist you provided:
@@ -52,5 +53,34 @@ export const AuthService = {
     await AsyncStorage.removeItem('userToken');
     await AsyncStorage.removeItem('userData');
   },
+
+  // Backend User Methods
+  createBackendUser: async (firebaseUid: string, email: string) => {
+    try {
+      await axios.post(`${API_URL}/api/users`, { firebaseUid, email });
+    } catch (error) {
+      console.error('Failed to create backend user', error);
+    }
+  },
+
+  getBackendUser: async (firebaseUid: string) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/users/${firebaseUid}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get backend user', error);
+      return null;
+    }
+  },
+
+  updateBackendUser: async (firebaseUid: string, data: any) => {
+    try {
+      const response = await axios.put(`${API_URL}/api/users/${firebaseUid}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update backend user', error);
+      throw error;
+    }
+  }
 };
 
