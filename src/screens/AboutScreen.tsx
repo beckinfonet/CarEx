@@ -30,16 +30,15 @@ export const AboutScreen = () => {
       <ScrollView style={styles.content}>
         <View style={styles.logoContainer}>
           <Logo size={120} color={COLORS.accent} />
-          <Text style={styles.appName}>CarEx</Text>
-          <Text style={styles.version}>Версия 1.0.0</Text>
+          <Text style={styles.appName}>{t.appName}</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Правовая информация</Text>
+          <Text style={styles.sectionTitle}>{t.legalInfo}</Text>
 
           <TouchableOpacity style={styles.linkItem} onPress={() => openLink('https://www.carexmarket.com/terms')}>
             <View>
-              <Text style={styles.linkText}>Условия использования</Text>
+              <Text style={styles.linkText}>{t.termsOfService}</Text>
               <Text style={styles.linkSubtext}>Terms of Service</Text>
             </View>
             <ExternalLink size={20} color={COLORS.textSecondary} />
@@ -49,7 +48,7 @@ export const AboutScreen = () => {
 
           <TouchableOpacity style={styles.linkItem} onPress={() => openLink('https://www.carexmarket.com/privacy-policy')}>
             <View>
-              <Text style={styles.linkText}>Политика конфиденциальности</Text>
+              <Text style={styles.linkText}>{t.privacyPolicy}</Text>
               <Text style={styles.linkSubtext}>Privacy Policy</Text>
             </View>
             <ExternalLink size={20} color={COLORS.textSecondary} />
@@ -57,16 +56,16 @@ export const AboutScreen = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Контакты</Text>
+          <Text style={styles.sectionTitle}>{t.contacts}</Text>
           <Text style={styles.contactText}>
-            Если у вас есть вопросы или предложения, свяжитесь с нами:
+            {t.contactText}
           </Text>
           <TouchableOpacity onPress={() => openLink('mailto:support@carexmarket.com')}>
             <Text style={styles.emailText}>support@carexmarket.com</Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.copyright}>© 2024 CarEx Inc. All rights reserved.</Text>
+        <Text style={styles.copyright}>{t.copyright}</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -106,11 +105,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     marginTop: 16,
-  },
-  version: {
-    color: COLORS.textSecondary,
-    fontSize: 16,
-    marginTop: 8,
   },
   section: {
     marginBottom: 32,

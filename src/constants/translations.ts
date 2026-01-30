@@ -96,6 +96,15 @@ export const TRANSLATIONS = {
     myListings: 'Мои объявления',
     myFavorites: 'Избранное',
 
+    // About Screen
+    version: 'Версия',
+    legalInfo: 'Правовая информация',
+    termsOfService: 'Условия использования',
+    privacyPolicy: 'Политика конфиденциальности',
+    contacts: 'Контакты',
+    contactText: 'Если у вас есть вопросы или предложения, свяжитесь с нами:',
+    copyright: '© 2026 CarEx. Все права защищены.',
+
     // Sell Car
     sellHeader: 'Продать авто',
     mainInfo: 'Основная информация',
@@ -255,6 +264,15 @@ export const TRANSLATIONS = {
     accountSettings: 'Account Settings',
     myListings: 'My Listings',
     myFavorites: 'Favorites',
+
+    // About Screen
+    version: 'Version',
+    legalInfo: 'Legal Information',
+    termsOfService: 'Terms of Service',
+    privacyPolicy: 'Privacy Policy',
+    contacts: 'Contact Us',
+    contactText: 'If you have any questions or suggestions, please contact us:',
+    copyright: '© 2026 CarEx. All rights reserved.',
 
     // Sell Car
     sellHeader: 'Sell Car',
