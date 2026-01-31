@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import NetInfo from '@react-native-community/netinfo';
 import axios from 'axios';
 
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Alert, ActivityIndicator, Modal, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Alert, ActivityIndicator, Modal, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
@@ -47,7 +47,7 @@ export const SellCarScreen = () => {
     description: '',
     // New Fields
     engine: '',
-    transmission: 'Automatic',
+    transmission: t.automatic,
     drivetrain: t.fwd,
     mpg: '',
     condition: t.excellent,
@@ -442,212 +442,217 @@ export const SellCarScreen = () => {
           <Text style={styles.statusDescription}>{t.sellerStatusRejected}</Text>
         </View>
       ) : (
-        <ScrollView style={styles.content}>
-          <View style={styles.imageSection}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageList}>
-              {images.map((img, index) => (
-                <View key={index} style={styles.imagePreviewContainer}>
-                  <Image source={{ uri: img.uri }} style={styles.uploadedImage} />
-                  <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
-                    <X size={16} color="#FFF" />
-                  </TouchableOpacity>
-                </View>
-              ))}
-              {images.length < 25 && (
-                <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
-                  <Camera size={32} color={COLORS.textSecondary} style={{ marginBottom: 4 }} />
-                  <Text style={styles.uploadText}>{t.photo}</Text>
-                </TouchableOpacity>
-              )}
-            </ScrollView>
-          </View>
-
-          <View style={styles.form}>
-            <Text style={styles.sectionHeader}>{t.mainInfo}</Text>
-
-            <View style={styles.phoneContainer}>
-              <TouchableOpacity style={styles.countryButton} onPress={() => setCountryModalVisible(true)}>
-                <Text style={styles.countryFlag}>{selectedCountry.flag}</Text>
-                <Text style={styles.countryCode}>{selectedCountry.dial_code}</Text>
-                <ChevronDown size={16} color={COLORS.textSecondary} />
-              </TouchableOpacity>
-              <TextInput
-                style={[styles.input, styles.phoneInput]}
-                placeholder={selectedCountry.placeholder}
-                placeholderTextColor={COLORS.textSecondary}
-                keyboardType="phone-pad"
-                value={formData.phoneNumber}
-                onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
-              />
-            </View>
-
-            <TextInput
-              style={styles.input}
-              placeholder={t.telegramUsername}
-              placeholderTextColor={COLORS.textSecondary}
-              autoCapitalize="none"
-              value={formData.telegramUsername}
-              onChangeText={(text) => setFormData({ ...formData, telegramUsername: text })}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder={t.brand}
-              placeholderTextColor={COLORS.textSecondary}
-              value={formData.make}
-              onChangeText={(text) => setFormData({ ...formData, make: text })}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder={t.model}
-              placeholderTextColor={COLORS.textSecondary}
-              value={formData.model}
-              onChangeText={(text) => setFormData({ ...formData, model: text })}
-            />
-
-            {renderDropdown(t.typeBody, formData.bodyType, 'bodyType', [t.sedan, t.suv, t.passenger, t.truck, t.special])}
-
-            <View style={styles.row}>
-              <TextInput
-                style={[styles.input, styles.halfInput]}
-                placeholder={t.enterYear}
-                placeholderTextColor={COLORS.textSecondary}
-                keyboardType="numeric"
-                value={formData.year}
-                onChangeText={(text) => setFormData({ ...formData, year: text })}
-              />
-              <TextInput
-                style={[styles.input, styles.halfInput]}
-                placeholder={t.enterPrice}
-                placeholderTextColor={COLORS.textSecondary}
-                keyboardType="numeric"
-                value={formData.price}
-                onChangeText={(text) => setFormData({ ...formData, price: text })}
-              />
-            </View>
-
-            <Text style={styles.sectionHeader}>{t.specs}</Text>
-            <TextInput
-              style={styles.input}
-              placeholder={t.enterEngine}
-              placeholderTextColor={COLORS.textSecondary}
-              value={formData.engine}
-              onChangeText={(text) => setFormData({ ...formData, engine: text })}
-            />
-
-            {renderDropdown(t.transmission, formData.transmission, 'transmission', [t.automatic, t.manual, t.cvt, t.robot])}
-            {renderDropdown(t.drivetrain, formData.drivetrain, 'drivetrain', [t.fwd, t.rwd, t.awd, t.fourwd])}
-            {renderDropdown(t.fuel, formData.fuel, 'fuel', [t.gasoline, t.diesel, t.hybrid, t.pluginHybrid, t.electric])}
-
-            <TextInput
-              style={styles.input}
-              placeholder={t.mpgRange}
-              placeholderTextColor={COLORS.textSecondary}
-              value={formData.mpg}
-              onChangeText={(text) => setFormData({ ...formData, mpg: text })}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder={t.enterMileage}
-              placeholderTextColor={COLORS.textSecondary}
-              keyboardType="numeric"
-              value={formData.mileage}
-              onChangeText={(text) => setFormData({ ...formData, mileage: text })}
-            />
-
-            <Text style={styles.sectionHeader}>{t.conditionLabel}</Text>
-            {renderDropdown(t.conditionLabel, formData.condition, 'condition', [t.excellent, t.good, t.fair, t.needsWork])}
-
-            {renderDropdown(t.issuesLabel, formData.knownIssues, 'knownIssues', [t.issueEngine, t.issueTransmission, t.issueSuspension, t.issueElectrical, t.issueInterior, t.issueBody])}
-
-            {/* Custom Issue Input */}
-            <View style={styles.customIssueContainer}>
-              <TextInput
-                style={[styles.input, styles.customIssueInput]}
-                placeholder={t.otherIssue}
-                placeholderTextColor={COLORS.textSecondary}
-                value={customIssue}
-                onChangeText={setCustomIssue}
-              />
-              <TouchableOpacity style={styles.addButton} onPress={addCustomIssue}>
-                <Text style={styles.addButtonText}>{t.add}</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Selected Issues Chips */}
-            {formData.knownIssues.length > 0 && (
-              <View style={styles.issuesContainer}>
-                {formData.knownIssues.map((issue, index) => (
-                  <View key={index} style={styles.issueChip}>
-                    <Text style={styles.issueText}>{issue}</Text>
-                    <TouchableOpacity onPress={() => removeIssue(issue)}>
-                      <X size={14} color="#FFF" style={{ marginLeft: 6 }} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <ScrollView style={styles.content}>
+            <View style={styles.imageSection}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageList}>
+                {images.map((img, index) => (
+                  <View key={index} style={styles.imagePreviewContainer}>
+                    <Image source={{ uri: img.uri }} style={styles.uploadedImage} />
+                    <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
+                      <X size={16} color="#FFF" />
                     </TouchableOpacity>
                   </View>
                 ))}
+                {images.length < 25 && (
+                  <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
+                    <Camera size={32} color={COLORS.textSecondary} style={{ marginBottom: 4 }} />
+                    <Text style={styles.uploadText}>{t.photo}</Text>
+                  </TouchableOpacity>
+                )}
+              </ScrollView>
+            </View>
+
+            <View style={styles.form}>
+              <Text style={styles.sectionHeader}>{t.mainInfo}</Text>
+
+              <View style={styles.phoneContainer}>
+                <TouchableOpacity style={styles.countryButton} onPress={() => setCountryModalVisible(true)}>
+                  <Text style={styles.countryFlag}>{selectedCountry.flag}</Text>
+                  <Text style={styles.countryCode}>{selectedCountry.dial_code}</Text>
+                  <ChevronDown size={16} color={COLORS.textSecondary} />
+                </TouchableOpacity>
+                <TextInput
+                  style={[styles.input, styles.phoneInput]}
+                  placeholder={selectedCountry.placeholder}
+                  placeholderTextColor={COLORS.textSecondary}
+                  keyboardType="phone-pad"
+                  value={formData.phoneNumber}
+                  onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
+                />
               </View>
-            )}
 
-            <Text style={styles.sectionHeader}>{t.extInt}</Text>
-            <View style={styles.row}>
               <TextInput
-                style={[styles.input, styles.halfInput]}
-                placeholder={t.bodyColor}
+                style={styles.input}
+                placeholder={t.telegramUsername}
                 placeholderTextColor={COLORS.textSecondary}
-                value={formData.exteriorColor}
-                onChangeText={(text) => setFormData({ ...formData, exteriorColor: text })}
+                autoCapitalize="none"
+                value={formData.telegramUsername}
+                onChangeText={(text) => setFormData({ ...formData, telegramUsername: text })}
               />
               <TextInput
-                style={[styles.input, styles.halfInput]}
-                placeholder={t.interiorColorInput}
+                style={styles.input}
+                placeholder={t.brand}
                 placeholderTextColor={COLORS.textSecondary}
-                value={formData.interiorColor}
-                onChangeText={(text) => setFormData({ ...formData, interiorColor: text })}
+                value={formData.make}
+                onChangeText={(text) => setFormData({ ...formData, make: text })}
               />
-            </View>
-            {renderDropdown(t.interiorMatLabel, formData.interiorMaterial, 'interiorMaterial', [t.cloth, t.leather, t.veganLeather, t.alcantara])}
-
-            <View style={styles.row}>
               <TextInput
-                style={[styles.input, styles.halfInput]}
-                placeholder={t.enterSeats}
+                style={styles.input}
+                placeholder={t.model}
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.model}
+                onChangeText={(text) => setFormData({ ...formData, model: text })}
+              />
+
+              {renderDropdown(t.typeBody, formData.bodyType, 'bodyType', [t.sedan, t.suv, t.passenger, t.truck, t.special])}
+
+              <View style={styles.row}>
+                <TextInput
+                  style={[styles.input, styles.halfInput]}
+                  placeholder={t.enterYear}
+                  placeholderTextColor={COLORS.textSecondary}
+                  keyboardType="numeric"
+                  value={formData.year}
+                  onChangeText={(text) => setFormData({ ...formData, year: text })}
+                />
+                <TextInput
+                  style={[styles.input, styles.halfInput]}
+                  placeholder={t.enterPrice}
+                  placeholderTextColor={COLORS.textSecondary}
+                  keyboardType="numeric"
+                  value={formData.price}
+                  onChangeText={(text) => setFormData({ ...formData, price: text })}
+                />
+              </View>
+
+              <Text style={styles.sectionHeader}>{t.specs}</Text>
+              <TextInput
+                style={styles.input}
+                placeholder={t.enterEngine}
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.engine}
+                onChangeText={(text) => setFormData({ ...formData, engine: text })}
+              />
+
+              {renderDropdown(t.transmission, formData.transmission, 'transmission', [t.automatic, t.manual, t.cvt, t.robot])}
+              {renderDropdown(t.drivetrain, formData.drivetrain, 'drivetrain', [t.fwd, t.rwd, t.awd, t.fourwd])}
+              {renderDropdown(t.fuel, formData.fuel, 'fuel', [t.gasoline, t.diesel, t.hybrid, t.pluginHybrid, t.electric])}
+
+              <TextInput
+                style={styles.input}
+                placeholder={t.mpgRange}
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.mpg}
+                onChangeText={(text) => setFormData({ ...formData, mpg: text })}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder={t.enterMileage}
                 placeholderTextColor={COLORS.textSecondary}
                 keyboardType="numeric"
-                value={formData.seats}
-                onChangeText={(text) => setFormData({ ...formData, seats: text })}
+                value={formData.mileage}
+                onChangeText={(text) => setFormData({ ...formData, mileage: text })}
               />
-              <TextInput
-                style={[styles.input, styles.halfInput]}
-                placeholder={t.enterDoors}
-                placeholderTextColor={COLORS.textSecondary}
-                keyboardType="numeric"
-                value={formData.doors}
-                onChangeText={(text) => setFormData({ ...formData, doors: text })}
-              />
-            </View>
 
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder={t.addDesc}
-              placeholderTextColor={COLORS.textSecondary}
-              multiline
-              numberOfLines={4}
-              value={formData.description}
-              onChangeText={(text) => setFormData({ ...formData, description: text })}
-            />
+              <Text style={styles.sectionHeader}>{t.conditionLabel}</Text>
+              {renderDropdown(t.conditionLabel, formData.condition, 'condition', [t.excellent, t.good, t.fair, t.needsWork])}
 
-            <TouchableOpacity
-              style={[styles.submitButton, loading && styles.disabledButton]}
-              onPress={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#000" />
-              ) : (
-                <Text style={styles.submitButtonText}>{t.submitListing}</Text>
+              {renderDropdown(t.issuesLabel, formData.knownIssues, 'knownIssues', [t.issueEngine, t.issueTransmission, t.issueSuspension, t.issueElectrical, t.issueInterior, t.issueBody])}
+
+              {/* Custom Issue Input */}
+              <View style={styles.customIssueContainer}>
+                <TextInput
+                  style={[styles.input, styles.customIssueInput]}
+                  placeholder={t.otherIssue}
+                  placeholderTextColor={COLORS.textSecondary}
+                  value={customIssue}
+                  onChangeText={setCustomIssue}
+                />
+                <TouchableOpacity style={styles.addButton} onPress={addCustomIssue}>
+                  <Text style={styles.addButtonText}>{t.add}</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Selected Issues Chips */}
+              {formData.knownIssues.length > 0 && (
+                <View style={styles.issuesContainer}>
+                  {formData.knownIssues.map((issue, index) => (
+                    <View key={index} style={styles.issueChip}>
+                      <Text style={styles.issueText}>{issue}</Text>
+                      <TouchableOpacity onPress={() => removeIssue(issue)}>
+                        <X size={14} color="#FFF" style={{ marginLeft: 6 }} />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
               )}
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+
+              <Text style={styles.sectionHeader}>{t.extInt}</Text>
+              <View style={styles.row}>
+                <TextInput
+                  style={[styles.input, styles.halfInput]}
+                  placeholder={t.bodyColor}
+                  placeholderTextColor={COLORS.textSecondary}
+                  value={formData.exteriorColor}
+                  onChangeText={(text) => setFormData({ ...formData, exteriorColor: text })}
+                />
+                <TextInput
+                  style={[styles.input, styles.halfInput]}
+                  placeholder={t.interiorColorInput}
+                  placeholderTextColor={COLORS.textSecondary}
+                  value={formData.interiorColor}
+                  onChangeText={(text) => setFormData({ ...formData, interiorColor: text })}
+                />
+              </View>
+              {renderDropdown(t.interiorMatLabel, formData.interiorMaterial, 'interiorMaterial', [t.cloth, t.leather, t.veganLeather, t.alcantara])}
+
+              <View style={styles.row}>
+                <TextInput
+                  style={[styles.input, styles.halfInput]}
+                  placeholder={t.enterSeats}
+                  placeholderTextColor={COLORS.textSecondary}
+                  keyboardType="numeric"
+                  value={formData.seats}
+                  onChangeText={(text) => setFormData({ ...formData, seats: text })}
+                />
+                <TextInput
+                  style={[styles.input, styles.halfInput]}
+                  placeholder={t.enterDoors}
+                  placeholderTextColor={COLORS.textSecondary}
+                  keyboardType="numeric"
+                  value={formData.doors}
+                  onChangeText={(text) => setFormData({ ...formData, doors: text })}
+                />
+              </View>
+
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder={t.addDesc}
+                placeholderTextColor={COLORS.textSecondary}
+                multiline
+                numberOfLines={4}
+                value={formData.description}
+                onChangeText={(text) => setFormData({ ...formData, description: text })}
+              />
+
+              <TouchableOpacity
+                style={[styles.submitButton, loading && styles.disabledButton]}
+                onPress={handleSubmit}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#000" />
+                ) : (
+                  <Text style={styles.submitButtonText}>{t.submitListing}</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       )}
     </SafeAreaView>
   );

@@ -44,10 +44,10 @@ export const TRANSLATIONS = {
     pluginHybrid: 'Plug-in Hybrid',
 
     // Transmission Types
-    automatic: 'Automatic',
-    manual: 'Manual',
-    cvt: 'CVT',
-    robot: 'Robot',
+    automatic: 'Автомат',
+    manual: 'Механика',
+    cvt: 'Вариатор',
+    robot: 'Робот',
 
     // Car Details
     mileageLabel: 'Пробег',
