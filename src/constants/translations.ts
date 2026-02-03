@@ -100,6 +100,9 @@ export const TRANSLATIONS = {
     saveProfile: 'Сохранить профиль',
     profileSaved: 'Профиль сохранен',
     profileSaveError: 'Не удалось сохранить профиль',
+    deleteAccount: 'Удалить аккаунт',
+    deleteAccountConfirm: 'Вы уверены, что хотите удалить аккаунт? Это действие нельзя отменить.',
+    delete: 'Удалить',
 
     // About Screen
     version: 'Версия',
@@ -291,6 +294,9 @@ export const TRANSLATIONS = {
     saveProfile: 'Save Profile',
     profileSaved: 'Profile Saved',
     profileSaveError: 'Failed to save profile',
+    deleteAccount: 'Delete Account',
+    deleteAccountConfirm: 'Are you sure you want to delete your account? This action cannot be undone.',
+    delete: 'Delete',
 
     // About Screen
     version: 'Version',

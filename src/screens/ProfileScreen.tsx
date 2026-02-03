@@ -24,7 +24,7 @@ const COUNTRIES = [
 export const ProfileScreen = () => {
   const { t } = useLanguage();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-  const { user, logout, refreshUser } = useAuth();
+  const { user, logout, refreshUser, deleteAccount } = useAuth();
   
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -100,13 +100,35 @@ export const ProfileScreen = () => {
       t.logout,
       t.logoutConfirm,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t.cancel, style: 'cancel' },
         { 
           text: t.logout, 
           style: 'destructive', 
           onPress: async () => {
             await logout();
             navigation.navigate('Home');
+          } 
+        }
+      ]
+    );
+  };
+
+  const handleDeleteAccount = async () => {
+    Alert.alert(
+      t.deleteAccount,
+      t.deleteAccountConfirm,
+      [
+        { text: t.cancel, style: 'cancel' },
+        { 
+          text: t.delete, 
+          style: 'destructive', 
+          onPress: async () => {
+            try {
+                await deleteAccount();
+                navigation.navigate('Home');
+            } catch (error) {
+                Alert.alert(t.error, 'Failed to delete account');
+            }
           } 
         }
       ]
@@ -260,6 +282,10 @@ export const ProfileScreen = () => {
                                 )}
                             </TouchableOpacity>
                         </View>
+
+                        <TouchableOpacity style={styles.deleteLinkButton} onPress={handleDeleteAccount}>
+                            <Text style={styles.deleteLinkText}>{t.deleteAccount}</Text>
+                        </TouchableOpacity>
                     </>
                 ) : (
                     <>
@@ -445,6 +471,16 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  deleteLinkButton: {
+    alignItems: 'center',
+    marginTop: 24,
+    padding: 12,
+  },
+  deleteLinkText: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+    textDecorationLine: 'underline',
   },
   formContainer: {
     marginBottom: 24,

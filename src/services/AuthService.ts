@@ -111,6 +111,23 @@ export const AuthService = {
       console.error('Failed to verify OTP', error);
       throw new Error(error.response?.data?.message || 'Verification failed');
     }
+  },
+
+  deleteAccount: async (idToken: string, firebaseUid: string) => {
+    try {
+      // 1. Delete from Backend (MongoDB)
+      await axios.delete(`${API_URL}/api/users/${firebaseUid}`);
+
+      // 2. Delete from Firebase
+      await axios.post(`${AUTH_URL}:delete?key=${API_KEY}`, {
+        idToken,
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('Delete Account Error:', error.response?.data || error.message);
+      throw new Error('Failed to delete account');
+    }
   }
 };
 

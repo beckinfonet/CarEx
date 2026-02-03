@@ -11,6 +11,7 @@ import { AuthService } from '../services/AuthService';
     requestSeller: () => Promise<void>;
     verifyPhone: (code: string) => Promise<void>;
     sendPhoneOtp: () => Promise<void>;
+    deleteAccount: () => Promise<void>;
   }
 
   const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -99,8 +100,18 @@ import { AuthService } from '../services/AuthService';
       }
     };
 
+    const deleteAccount = async () => {
+        if (user && user.localId) {
+            const token = await AuthService.getToken();
+            if (token) {
+                await AuthService.deleteAccount(token, user.localId);
+                await logout();
+            }
+        }
+    };
+
     return (
-      <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshUser, requestSeller, sendPhoneOtp, verifyPhone }}>
+      <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshUser, requestSeller, sendPhoneOtp, verifyPhone, deleteAccount }}>
         {children}
       </AuthContext.Provider>
     );
