@@ -50,6 +50,11 @@ echo "Version: $NEW_VERSION_NAME (versionCode: $NEW_VERSION_CODE)"
 echo "Previous: $VERSION_NAME (versionCode: $VERSION_CODE)"
 echo "=========================================="
 
+# Remove autolinking cache to force regeneration with current package name
+# (fixes stale com.carex reference in generated ReactNativeApplicationEntryPoint.java)
+rm -rf "$SCRIPT_DIR/android/build/generated/autolinking"
+rm -rf "$SCRIPT_DIR/android/app/build/generated/autolinking"
+
 # Clean and build AAB
 cd "$SCRIPT_DIR/android"
 ./gradlew clean bundleRelease
