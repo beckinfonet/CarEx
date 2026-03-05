@@ -95,9 +95,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.carex"
+    namespace "com.carex.marketplace"
     defaultConfig {
-        applicationId "com.carex"
+        applicationId "com.carex.marketplace"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode appVersionCode
