@@ -25,7 +25,7 @@ react {
 
     /* Bundling */
     //   A list containing the node command and its flags. Default is just 'node'.
-    // nodeExecutableAndArgs = ["node"]
+    nodeExecutableAndArgs = ["/usr/local/bin/node"]
     //
     //   The command to run when bundling. By default is 'bundle'
     // bundleCommand = "ram-bundle"
@@ -72,6 +72,24 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+/**
+ * Load version from version.properties for build versioning.
+ * The build-android-release.sh script auto-increments these values before each release build.
+ */
+def getVersionProperties() {
+    def versionPropertiesFile = file('../version.properties')
+    if (versionPropertiesFile.exists()) {
+        def versionProperties = new Properties()
+        versionProperties.load(new FileInputStream(versionPropertiesFile))
+        return versionProperties
+    }
+    return null
+}
+
+def versionProperties = getVersionProperties()
+def appVersionCode = versionProperties ? versionProperties['VERSION_CODE'].toInteger() : 1
+def appVersionName = versionProperties ? versionProperties['VERSION_NAME'] : "1.0"
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -82,8 +100,8 @@ android {
         applicationId "com.carex"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode appVersionCode
+        versionName appVersionName
     }
     signingConfigs {
         debug {
