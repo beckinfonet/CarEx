@@ -6,7 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
-import { SearchBar } from '../components/SearchBar';
+import { MakeModelSearchBar } from '../components/MakeModelSearchBar';
 import { FilterBar } from '../components/FilterBar';
 import { CategoryList } from '../components/CategoryList';
 import { CarCard } from '../components/CarCard';
@@ -25,7 +25,8 @@ export const HomeScreen = () => {
   const { user } = useAuth();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const isFocused = useIsFocused();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedMake, setSelectedMake] = useState<{ id: string; name: string } | null>(null);
+  const [selectedModel, setSelectedModel] = useState<{ id: string; name: string } | null>(null);
   const [cars, setCars] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -39,8 +40,10 @@ export const HomeScreen = () => {
       const response = await axios.get(`${API_URL}/api/cars`);
       const apiCars = response.data.map((car: any) => ({
         id: car._id,
-        make: car.make,
-        model: car.model,
+        makeId: car.makeId,
+        modelId: car.modelId,
+        make: car.make || car.makeName,
+        model: car.model || car.modelName,
         year: car.year,
         price: car.price,
         mileage: car.mileage,
@@ -72,8 +75,16 @@ export const HomeScreen = () => {
   }, [isFocused]);
 
   const filteredCars = cars.filter(car => {
-    const matchesSearch = car.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      car.model.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      (!selectedMake && !selectedModel) ||
+      (selectedMake && !selectedModel && (
+        car.makeId === selectedMake.id ||
+        (!car.makeId && car.make?.toLowerCase() === selectedMake.name?.toLowerCase())
+      )) ||
+      (selectedMake && selectedModel && (
+        (car.makeId === selectedMake.id && car.modelId === selectedModel.id) ||
+        (!car.makeId && car.make?.toLowerCase() === selectedMake.name?.toLowerCase() && car.model?.toLowerCase() === selectedModel.name?.toLowerCase())
+      ));
 
     // Filter Logic
     let matchesFilters = true;
@@ -176,7 +187,16 @@ export const HomeScreen = () => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.accent} />
           }
         >
-          <SearchBar value={searchQuery} onChangeText={setSearchQuery} placeholder={t.searchPlaceholder} />
+          <MakeModelSearchBar
+            selectedMake={selectedMake}
+            selectedModel={selectedModel}
+            onSelect={(make, model) => {
+              setSelectedMake(make);
+              setSelectedModel(model);
+            }}
+            placeholder={t.searchPlaceholder}
+            t={t}
+          />
           <FilterBar onFilterPress={handleFilterPress} activeFilters={activeFilters} t={t} />
           <CategoryList
             selectedCategory={selectedCategory}

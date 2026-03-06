@@ -15,7 +15,14 @@ export const TRANSLATIONS = {
     about: 'О приложении',
 
     // Home Screen
-    searchPlaceholder: 'Поиск по марке, модели или VIN',
+    searchPlaceholder: 'Поиск по марке и модели',
+    selectMake: 'Выберите марку',
+    selectModel: 'Выберите модель',
+    clear: 'Сбросить',
+    done: 'Готово',
+    other: 'Другое',
+    enterMake: 'Введите марку',
+    enterModel: 'Введите модель',
     noCars: 'Нет автомобилей',
 
     // Categories
@@ -209,7 +216,14 @@ export const TRANSLATIONS = {
     about: 'About',
 
     // Home Screen
-    searchPlaceholder: 'Search by make, model or VIN',
+    searchPlaceholder: 'Search by make and model',
+    selectMake: 'Select Make',
+    selectModel: 'Select Model',
+    clear: 'Clear',
+    done: 'Done',
+    other: 'Other',
+    enterMake: 'Enter make',
+    enterModel: 'Enter model',
     noCars: 'No cars found',
 
     // Categories

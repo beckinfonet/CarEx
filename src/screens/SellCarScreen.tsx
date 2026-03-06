@@ -11,6 +11,7 @@ import { API_URL } from '../constants/config';
 import { ArrowLeft, Camera, X, ChevronDown, AlertTriangle, CheckCircle, Clock, Smartphone } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { MakeModelFormField } from '../components/MakeModelFormField';
 
 const COUNTRIES = [
   { code: 'KR', name: 'South Korea', dial_code: '+82', flag: '🇰🇷', placeholder: '10-1234-5678' },
@@ -37,8 +38,8 @@ export const SellCarScreen = () => {
   const [verifying, setVerifying] = useState(false);
 
   const [formData, setFormData] = useState({
-    make: '',
-    model: '',
+    makeId: '',
+    modelId: '',
     year: '',
     price: '',
     mileage: '',
@@ -221,7 +222,7 @@ export const SellCarScreen = () => {
       return;
     }
 
-    if (images.length === 0 || !formData.make || !formData.model || !formData.price || !formData.phoneNumber) {
+    if (images.length === 0 || !formData.makeId || !formData.modelId || !formData.price || !formData.phoneNumber) {
       Alert.alert('Error', 'Please fill in all required fields (including phone number) and upload at least one image.');
       return;
     }
@@ -493,19 +494,20 @@ export const SellCarScreen = () => {
                 value={formData.telegramUsername}
                 onChangeText={(text) => setFormData({ ...formData, telegramUsername: text })}
               />
-              <TextInput
-                style={styles.input}
+              <MakeModelFormField
+                type="make"
+                value={formData.makeId}
+                onChange={(id) => setFormData({ ...formData, makeId: id, modelId: '' })}
                 placeholder={t.brand}
-                placeholderTextColor={COLORS.textSecondary}
-                value={formData.make}
-                onChangeText={(text) => setFormData({ ...formData, make: text })}
+                t={t}
               />
-              <TextInput
-                style={styles.input}
+              <MakeModelFormField
+                type="model"
+                value={formData.modelId}
+                onChange={(id) => setFormData({ ...formData, modelId: id })}
+                selectedMakeId={formData.makeId}
                 placeholder={t.model}
-                placeholderTextColor={COLORS.textSecondary}
-                value={formData.model}
-                onChangeText={(text) => setFormData({ ...formData, model: text })}
+                t={t}
               />
 
               {renderDropdown(t.typeBody, formData.bodyType, 'bodyType', [t.sedan, t.suv, t.passenger, t.truck, t.special])}

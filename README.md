@@ -71,7 +71,11 @@ cd backend-services/carEx-services
 
 npm install
 node server.js
+
+# Seed vehicle taxonomy (required for search dropdown):
+npm run seed-taxonomy
 ```
+Drop old collections first if migrating: `db.vehicle_makes.drop()` and `db.vehicle_models.drop()` (or `db.vehiclemakes.drop()` / `db.vehiclemodels.drop()` if using old names).
 
 ### 3. Frontend Setup
 ```bash
