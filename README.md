@@ -102,5 +102,17 @@ npm run ios:archive
 
 The archive is saved to `ios/build/carEx.xcarchive`. Open Xcode → Window → Organizer to export for App Store Connect or Ad Hoc distribution.
 
+
+### 4. Android Release Archive (Google Play Market)
+
+To create an archive for Google Play Market or Ad Hoc distribution:
+
+```bash
+./build-android-release.sh
+# or
+npm run android:archive
+```
+
+
 ## 🎨 Asset Generation
 The source logo is available at `assets/logo.svg`. Use this to generate your App Icons and Splash Screen.
