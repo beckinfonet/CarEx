@@ -6,6 +6,7 @@
     "android": "react-native run-android",
     "android:clean": "cd android && ./gradlew clean && cd ..",
     "ios": "react-native run-ios",
+    "ios:archive": "./build-ios-release.sh",
     "lint": "eslint .",
     "start": "react-native start",
     "start:reset": "react-native start --reset-cache",

@@ -90,5 +90,17 @@ npm run ios
 npm run android
 ```
 
+### 4. iOS Release Archive (App Store)
+
+To create an archive for App Store or Ad Hoc distribution:
+
+```bash
+./build-ios-release.sh
+# or
+npm run ios:archive
+```
+
+The archive is saved to `ios/build/carEx.xcarchive`. Open Xcode → Window → Organizer to export for App Store Connect or Ad Hoc distribution.
+
 ## 🎨 Asset Generation
 The source logo is available at `assets/logo.svg`. Use this to generate your App Icons and Splash Screen.
