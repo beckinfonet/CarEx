@@ -1,24 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, Dimensions, Linking, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, Dimensions, Linking, Alert, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send } from 'lucide-react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 export const CarDetailsScreen = () => {
   const { t } = useLanguage();
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute();
   const { carId } = route.params as { carId: string };
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [fullScreenVisible, setFullScreenVisible] = useState(false);
+  const fullScreenScrollRef = useRef<ScrollView>(null);
 
   const car = CARS.find(c => c.id === carId) || (route.params as any).carData;
+
+  useEffect(() => {
+    if (fullScreenVisible && fullScreenScrollRef.current) {
+      setTimeout(() => {
+        fullScreenScrollRef.current?.scrollTo({
+          x: activeImageIndex * width,
+          animated: false,
+        });
+      }, 50);
+    }
+  }, [fullScreenVisible]);
 
   useEffect(() => {
     checkFavoriteStatus();
@@ -200,7 +214,11 @@ export const CarDetailsScreen = () => {
       </View>
 
       <ScrollView style={styles.content}>
-        <View style={styles.imageCarousel}>
+        <TouchableOpacity
+          style={styles.imageCarousel}
+          activeOpacity={1}
+          onPress={() => setFullScreenVisible(true)}
+        >
           <ScrollView
             horizontal
             pagingEnabled
@@ -226,7 +244,7 @@ export const CarDetailsScreen = () => {
               ))}
             </View>
           )}
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.detailsContainer}>
           <View style={styles.titleRow}>
@@ -302,6 +320,58 @@ export const CarDetailsScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      <Modal
+        visible={fullScreenVisible}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setFullScreenVisible(false)}
+      >
+        <StatusBar barStyle="light-content" backgroundColor="transparent" />
+        <View style={styles.fullScreenOverlay}>
+          <TouchableOpacity
+            style={[styles.fullScreenCloseButton, { top: insets.top + 16 }]}
+            onPress={() => setFullScreenVisible(false)}
+            hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+          >
+            <X size={28} color="#FFF" />
+          </TouchableOpacity>
+
+          <ScrollView
+            ref={fullScreenScrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            style={styles.fullScreenScroll}
+          >
+            {images.map((img: string, index: number) => (
+              <Image
+                key={index}
+                source={{ uri: img }}
+                style={[styles.fullScreenImage, { width, height }]}
+                resizeMode="contain"
+              />
+            ))}
+          </ScrollView>
+
+          {images.length > 1 && (
+            <View style={[styles.fullScreenPagination, { bottom: insets.bottom + 24 }]}>
+              {images.map((_: any, index: number) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.paginationDot,
+                    index === activeImageIndex && styles.activeDot
+                  ]}
+                />
+              ))}
+            </View>
+          )}
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -388,6 +458,31 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
+  },
+  fullScreenOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.98)',
+    justifyContent: 'center',
+  },
+  fullScreenCloseButton: {
+    position: 'absolute',
+    right: 20,
+    zIndex: 10,
+    padding: 8,
+  },
+  fullScreenScroll: {
+    flex: 1,
+  },
+  fullScreenImage: {
+    width: width,
+    height: height,
+  },
+  fullScreenPagination: {
+    position: 'absolute',
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   detailsContainer: {
     padding: SIZES.padding,
