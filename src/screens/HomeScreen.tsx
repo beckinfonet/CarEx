@@ -13,7 +13,7 @@ import { CarCard } from '../components/CarCard';
 import { BottomBar } from '../components/BottomBar';
 import { CATEGORIES } from '../constants/mockData';
 import { RootStackParamList } from '../types/navigation';
-import { ArrowLeft, User } from 'lucide-react-native';
+import { ArrowLeft, User, SlidersHorizontal } from 'lucide-react-native';
 import { FilterModal } from '../components/FilterModal';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -34,6 +34,7 @@ export const HomeScreen = () => {
   const [activeFilters, setActiveFilters] = useState<{ [key: string]: any }>({});
   const [modalVisible, setModalVisible] = useState(false);
   const [currentFilterType, setCurrentFilterType] = useState<string | null>(null);
+  const [filtersVisible, setFiltersVisible] = useState(false);
 
   const fetchCars = async () => {
     try {
@@ -187,22 +188,38 @@ export const HomeScreen = () => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.accent} />
           }
         >
-          <MakeModelSearchBar
-            selectedMake={selectedMake}
-            selectedModel={selectedModel}
-            onSelect={(make, model) => {
-              setSelectedMake(make);
-              setSelectedModel(model);
-            }}
-            placeholder={t.searchPlaceholder}
-            t={t}
-          />
-          <FilterBar onFilterPress={handleFilterPress} activeFilters={activeFilters} t={t} />
-          <CategoryList
-            selectedCategory={selectedCategory}
-            onSelectCategory={(id) => setSelectedCategory(selectedCategory === id ? null : id)}
-            t={t}
-          />
+          <View style={styles.searchRow}>
+            <View style={styles.searchBarWrapper}>
+              <MakeModelSearchBar
+                selectedMake={selectedMake}
+                selectedModel={selectedModel}
+                onSelect={(make, model) => {
+                  setSelectedMake(make);
+                  setSelectedModel(model);
+                }}
+                placeholder={t.searchPlaceholder}
+                t={t}
+                containerStyle={styles.searchBarContainer}
+              />
+            </View>
+            <TouchableOpacity
+              style={[styles.filterToggleButton, filtersVisible && styles.filterToggleButtonActive]}
+              onPress={() => setFiltersVisible(!filtersVisible)}
+              activeOpacity={0.7}
+            >
+              <SlidersHorizontal size={20} color={filtersVisible ? COLORS.accent : COLORS.textPrimary} />
+            </TouchableOpacity>
+          </View>
+          {filtersVisible && (
+            <>
+              <FilterBar onFilterPress={handleFilterPress} activeFilters={activeFilters} t={t} />
+              <CategoryList
+                selectedCategory={selectedCategory}
+                onSelectCategory={(id) => setSelectedCategory(selectedCategory === id ? null : id)}
+                t={t}
+              />
+            </>
+          )}
 
           <View style={styles.carList}>
             {loading && cars.length === 0 ? (
@@ -311,6 +328,32 @@ const styles = StyleSheet.create({
     // Deprecated, keeping for safety if referenced elsewhere, but new logic handles this
     color: COLORS.textSecondary,
     fontWeight: 'normal',
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    marginBottom: 8,
+    gap: 8,
+  },
+  searchBarWrapper: {
+    flex: 1,
+  },
+  searchBarContainer: {
+    marginBottom: 0,
+  },
+  filterToggleButton: {
+    width: 44,
+    minWidth: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.searchBackground,
+    borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  filterToggleButtonActive: {
+    borderColor: COLORS.accent,
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
   },
   content: {
     flex: 1,

@@ -22,6 +22,7 @@ interface MakeModelSearchBarProps {
   onSelect: (make: VehicleMake | null, model: VehicleModel | null) => void;
   placeholder?: string;
   t?: { selectMake: string; selectModel: string; clear: string };
+  containerStyle?: object;
 }
 
 export const MakeModelSearchBar = ({
@@ -30,6 +31,7 @@ export const MakeModelSearchBar = ({
   onSelect,
   placeholder = 'Search by make and model',
   t,
+  containerStyle,
 }: MakeModelSearchBarProps) => {
   const _t = t || { selectMake: 'Select Make', selectModel: 'Select Model', clear: 'Clear' };
   const { makes, models, loadingMakes, loadingModels, fetchModels } = useVehicleCatalog();
@@ -80,7 +82,7 @@ export const MakeModelSearchBar = ({
   const title = step === 'make' ? _t.selectMake : `${_t.selectModel}${tempMake ? ` (${tempMake.name})` : ''}`;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       <TouchableOpacity style={styles.touchable} onPress={openModal} activeOpacity={0.8}>
         <View style={styles.iconContainer}>
           <Search size={20} color={COLORS.textSecondary} />
