@@ -97,7 +97,7 @@ export const CarDetailsScreen = () => {
     // Phone number from car object or fallback
     const phoneNumber = car.phoneNumber || '821012345678';
 
-    // Clean phone number for WhatsApp: remove all non-numeric characters
+    // Clean phone number for WhatsApp: remove all non-numeric characters, include country code
     const cleanPhone = phoneNumber.replace(/\D/g, '');
 
     // @ts-ignore
@@ -106,21 +106,22 @@ export const CarDetailsScreen = () => {
       .replace('{car}', `${car.make} ${car.model}`)
       .replace('{id}', car.listingId || '');
 
-    const whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
+    const encodedText = encodeURIComponent(message);
+    const whatsappDeepLink = `whatsapp://send?phone=${cleanPhone}&text=${encodedText}`;
+    const whatsappWebUrl = `https://wa.me/${cleanPhone}?text=${encodedText}`;
 
-    Linking.canOpenURL(whatsappUrl)
-      .then((supported) => {
-        if (supported) {
-          return Linking.openURL(whatsappUrl);
-        } else {
-          // Fallback to regular phone call if WhatsApp is not installed
-          return Linking.openURL(`tel:${phoneNumber}`);
-        }
-      })
-      .catch((err) => {
-        console.error('An error occurred', err);
-        Linking.openURL(`tel:${phoneNumber}`).catch(e => console.error("Call failed", e));
+    // Avoid canOpenURL - it returns false on some Android devices even when WhatsApp is installed,
+    // causing wrong fallback to tel: (phone dialer). Try opening WhatsApp directly instead.
+    Linking.openURL(whatsappDeepLink).catch(() => {
+      // Fallback to wa.me - works in browser and opens WhatsApp when installed
+      Linking.openURL(whatsappWebUrl).catch((err) => {
+        console.error('Failed to open WhatsApp', err);
+        Alert.alert(
+          'WhatsApp',
+          'Could not open WhatsApp. Please ensure it is installed or try again later.'
+        );
       });
+    });
   };
 
   const handleTelegram = () => {
