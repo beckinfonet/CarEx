@@ -10,6 +10,7 @@ import { MakeModelSearchBar } from '../components/MakeModelSearchBar';
 import { FilterBar } from '../components/FilterBar';
 import { CategoryList } from '../components/CategoryList';
 import { CarCard } from '../components/CarCard';
+import { LatestCarousel } from '../components/LatestCarousel';
 import { BottomBar } from '../components/BottomBar';
 import { CATEGORIES } from '../constants/mockData';
 import { RootStackParamList } from '../types/navigation';
@@ -184,42 +185,53 @@ export const HomeScreen = () => {
         <ScrollView
           style={styles.content}
           showsVerticalScrollIndicator={false}
+          stickyHeaderIndices={[1]}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.accent} />
           }
         >
-          <View style={styles.searchRow}>
-            <View style={styles.searchBarWrapper}>
-              <MakeModelSearchBar
-                selectedMake={selectedMake}
-                selectedModel={selectedModel}
-                onSelect={(make, model) => {
-                  setSelectedMake(make);
-                  setSelectedModel(model);
-                }}
-                placeholder={t.searchPlaceholder}
-                t={t}
-                containerStyle={styles.searchBarContainer}
-              />
+          <View style={styles.searchSection}>
+            <View style={styles.searchRow}>
+              <View style={styles.searchBarWrapper}>
+                <MakeModelSearchBar
+                  selectedMake={selectedMake}
+                  selectedModel={selectedModel}
+                  onSelect={(make, model) => {
+                    setSelectedMake(make);
+                    setSelectedModel(model);
+                  }}
+                  placeholder={t.searchPlaceholder}
+                  t={t}
+                  containerStyle={styles.searchBarContainer}
+                />
+              </View>
+              <TouchableOpacity
+                style={[styles.filterToggleButton, filtersVisible && styles.filterToggleButtonActive]}
+                onPress={() => setFiltersVisible(!filtersVisible)}
+                activeOpacity={0.7}
+              >
+                <SlidersHorizontal size={20} color={filtersVisible ? COLORS.accent : COLORS.textPrimary} />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              style={[styles.filterToggleButton, filtersVisible && styles.filterToggleButtonActive]}
-              onPress={() => setFiltersVisible(!filtersVisible)}
-              activeOpacity={0.7}
-            >
-              <SlidersHorizontal size={20} color={filtersVisible ? COLORS.accent : COLORS.textPrimary} />
-            </TouchableOpacity>
+            {filtersVisible && (
+              <>
+                <FilterBar onFilterPress={handleFilterPress} activeFilters={activeFilters} t={t} />
+                <CategoryList
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={(id) => setSelectedCategory(selectedCategory === id ? null : id)}
+                  t={t}
+                />
+              </>
+            )}
           </View>
-          {filtersVisible && (
-            <>
-              <FilterBar onFilterPress={handleFilterPress} activeFilters={activeFilters} t={t} />
-              <CategoryList
-                selectedCategory={selectedCategory}
-                onSelectCategory={(id) => setSelectedCategory(selectedCategory === id ? null : id)}
-                t={t}
-              />
-            </>
-          )}
+
+          <View style={styles.carouselSticky}>
+            <LatestCarousel
+              cars={cars}
+              onCarPress={handleCarPress}
+              t={t}
+            />
+          </View>
 
           <View style={styles.carList}>
             {loading && cars.length === 0 ? (
@@ -329,6 +341,9 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontWeight: 'normal',
   },
+  searchSection: {
+    marginBottom: 0,
+  },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'stretch',
@@ -354,6 +369,9 @@ const styles = StyleSheet.create({
   filterToggleButtonActive: {
     borderColor: COLORS.accent,
     backgroundColor: 'rgba(59, 130, 246, 0.15)',
+  },
+  carouselSticky: {
+    backgroundColor: COLORS.background,
   },
   content: {
     flex: 1,

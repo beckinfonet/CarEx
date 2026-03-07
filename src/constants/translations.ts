@@ -15,6 +15,10 @@ export const TRANSLATIONS = {
     about: 'О приложении',
 
     // Home Screen
+    freshListings: 'Последние обновления',
+    collapse: 'Свернуть',
+    expand: 'Развернуть',
+    newBadge: 'НОВОЕ',
     searchPlaceholder: 'Поиск по марке и модели',
     selectMake: 'Выберите марку',
     selectModel: 'Выберите модель',
@@ -217,6 +221,10 @@ export const TRANSLATIONS = {
     about: 'About',
 
     // Home Screen
+    freshListings: 'Fresh Listings',
+    collapse: 'Collapse',
+    expand: 'Expand',
+    newBadge: 'NEW',
     searchPlaceholder: 'Search by make and model',
     selectMake: 'Select Make',
     selectModel: 'Select Model',
