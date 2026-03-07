@@ -49,6 +49,7 @@ export const TRANSLATIONS = {
     electric: 'Электро',
     hybrid: 'Гибрид',
     pluginHybrid: 'Plug-in Hybrid',
+    gas: 'Газ',
 
     // Transmission Types
     automatic: 'Автомат',
@@ -250,6 +251,7 @@ export const TRANSLATIONS = {
     electric: 'Electric',
     hybrid: 'Hybrid',
     pluginHybrid: 'Plug-in Hybrid',
+    gas: 'Gas (LPG/CNG)',
 
     // Transmission Types
     automatic: 'Automatic',

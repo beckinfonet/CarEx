@@ -542,7 +542,7 @@ export const SellCarScreen = () => {
 
               {renderDropdown(t.transmission, formData.transmission, 'transmission', [t.automatic, t.manual, t.cvt, t.robot])}
               {renderDropdown(t.drivetrain, formData.drivetrain, 'drivetrain', [t.fwd, t.rwd, t.awd, t.fourwd])}
-              {renderDropdown(t.fuel, formData.fuel, 'fuel', [t.gasoline, t.diesel, t.hybrid, t.pluginHybrid, t.electric])}
+              {renderDropdown(t.fuel, formData.fuel, 'fuel', [t.gasoline, t.diesel, t.hybrid, t.pluginHybrid, t.electric, t.gas])}
 
               <TextInput
                 style={styles.input}

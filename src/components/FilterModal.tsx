@@ -88,7 +88,7 @@ export const FilterModal = ({ visible, type, onClose, onApply, currentValue, t }
       case 'Топливо':
         return (
           <View style={styles.optionsContainer}>
-            {[t.gasoline, t.diesel, t.electric, t.hybrid, t.pluginHybrid].map((opt) => (
+            {[t.gasoline, t.diesel, t.electric, t.hybrid, t.pluginHybrid, t.gas].map((opt) => (
               <TouchableOpacity
                 key={opt}
                 style={[styles.optionButton, selectedOption === opt && styles.selectedOption]}
