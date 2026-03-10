@@ -100,7 +100,7 @@ To create an archive for App Store or Ad Hoc distribution:
 npm run ios:archive
 ```
 
-The archive is saved to `ios/build/carEx.xcarchive`. Open Xcode → Window → Organizer to export for App Store Connect or Ad Hoc distribution.
+The script auto-increments the version (e.g., 1.0.1 → 1.0.2) and saves the archive to Xcode's default location so it appears in Organizer. Open Xcode → Window → Organizer → Archives, select the archive, and click "Distribute App" to send to App Store Connect.
 
 
 ### 4. Android Release Archive (Google Play Market)
