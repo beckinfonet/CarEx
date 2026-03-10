@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, StatusBar, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -81,6 +81,10 @@ export const FavoritesScreen = () => {
         <FlatList
           data={favorites}
           keyExtractor={(item) => item.id}
+          removeClippedSubviews={Platform.OS === 'android'}
+          maxToRenderPerBatch={10}
+          windowSize={11}
+          initialNumToRender={8}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => navigation.navigate('CarDetails', { carId: item.id, carData: item })}>
               <CarCard data={item} />

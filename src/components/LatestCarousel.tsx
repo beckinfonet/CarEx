@@ -5,11 +5,12 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   Dimensions,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  Platform,
 } from 'react-native';
+import { OptimizedImage } from './OptimizedImage';
 import { COLORS, SIZES } from '../constants/theme';
 import { ChevronDown } from 'lucide-react-native';
 
@@ -78,6 +79,7 @@ export const LatestCarousel = ({ cars, onCarPress, t }: LatestCarouselProps) => 
             contentContainerStyle={styles.scrollContent}
             onScroll={handleScroll}
             scrollEventThrottle={16}
+            removeClippedSubviews={Platform.OS === 'android'}
           >
             {latestCars.map((car) => (
               <TouchableOpacity
@@ -87,7 +89,7 @@ export const LatestCarousel = ({ cars, onCarPress, t }: LatestCarouselProps) => 
                 activeOpacity={0.8}
               >
                 <View style={styles.imageContainer}>
-                  <Image
+                  <OptimizedImage
                     source={{ uri: car.image }}
                     style={styles.cardImage}
                     resizeMode="cover"

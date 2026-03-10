@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, Dimensions, Linking, Alert, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Dimensions, Linking, Alert, Modal, Platform } from 'react-native';
+import { OptimizedImage } from '../components/OptimizedImage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
@@ -214,7 +215,7 @@ export const CarDetailsScreen = () => {
         </View>
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView style={styles.content} removeClippedSubviews={Platform.OS === 'android'}>
         <TouchableOpacity
           style={styles.imageCarousel}
           activeOpacity={1}
@@ -226,9 +227,10 @@ export const CarDetailsScreen = () => {
             showsHorizontalScrollIndicator={false}
             onScroll={handleScroll}
             scrollEventThrottle={16}
+            removeClippedSubviews={Platform.OS === 'android'}
           >
             {images.map((img: string, index: number) => (
-              <Image key={index} source={{ uri: img }} style={styles.mainImage} resizeMode="cover" />
+              <OptimizedImage key={index} source={{ uri: img }} style={styles.mainImage} resizeMode="cover" />
             ))}
           </ScrollView>
 
@@ -347,9 +349,10 @@ export const CarDetailsScreen = () => {
             onScroll={handleScroll}
             scrollEventThrottle={16}
             style={styles.fullScreenScroll}
+            removeClippedSubviews={Platform.OS === 'android'}
           >
             {images.map((img: string, index: number) => (
-              <Image
+              <OptimizedImage
                 key={index}
                 source={{ uri: img }}
                 style={[styles.fullScreenImage, { width, height }]}

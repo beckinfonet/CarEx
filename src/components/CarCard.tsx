@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { OptimizedImage } from './OptimizedImage';
 import { COLORS, SIZES } from '../constants/theme';
 import { Gauge, Fuel, ChevronRight } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
@@ -15,12 +16,12 @@ interface CarProps {
   image: string;
 }
 
-export const CarCard = ({ data }: { data: CarProps }) => {
+export const CarCard = React.memo(({ data }: { data: CarProps }) => {
   const { t } = useLanguage();
 
   return (
     <View style={styles.card}>
-      <Image source={{ uri: data.image }} style={styles.image} resizeMode="cover" />
+      <OptimizedImage source={{ uri: data.image }} style={styles.image} resizeMode="cover" />
       <View style={styles.details}>
         <View style={styles.header}>
           <Text style={styles.title}>{data.make} {data.model}</Text>
@@ -39,7 +40,7 @@ export const CarCard = ({ data }: { data: CarProps }) => {
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   card: {

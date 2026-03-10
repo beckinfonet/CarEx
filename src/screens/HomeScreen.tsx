@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, Alert, RefreshControl, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, FlatList, TouchableOpacity, StatusBar, ActivityIndicator, Alert, RefreshControl, Image, Platform } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -182,72 +182,77 @@ export const HomeScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <ScrollView
+        <FlatList
           style={styles.content}
           showsVerticalScrollIndicator={false}
-          stickyHeaderIndices={[1]}
+          data={loading && cars.length === 0 ? [] : filteredCars}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleCarPress(item)}>
+              <CarCard data={item} />
+            </TouchableOpacity>
+          )}
+          ListHeaderComponent={
+            <>
+              <View style={styles.searchSection}>
+                <View style={styles.searchRow}>
+                  <View style={styles.searchBarWrapper}>
+                    <MakeModelSearchBar
+                      selectedMake={selectedMake}
+                      selectedModel={selectedModel}
+                      onSelect={(make, model) => {
+                        setSelectedMake(make);
+                        setSelectedModel(model);
+                      }}
+                      placeholder={t.searchPlaceholder}
+                      t={t}
+                      containerStyle={styles.searchBarContainer}
+                    />
+                  </View>
+                  <TouchableOpacity
+                    style={[styles.filterToggleButton, filtersVisible && styles.filterToggleButtonActive]}
+                    onPress={() => setFiltersVisible(!filtersVisible)}
+                    activeOpacity={0.7}
+                  >
+                    <SlidersHorizontal size={20} color={filtersVisible ? COLORS.accent : COLORS.textPrimary} />
+                  </TouchableOpacity>
+                </View>
+                {filtersVisible && (
+                  <>
+                    <FilterBar onFilterPress={handleFilterPress} activeFilters={activeFilters} t={t} />
+                    <CategoryList
+                      selectedCategory={selectedCategory}
+                      onSelectCategory={(id) => setSelectedCategory(selectedCategory === id ? null : id)}
+                      t={t}
+                    />
+                  </>
+                )}
+              </View>
+              <View style={styles.carouselSticky}>
+                <LatestCarousel
+                  cars={cars}
+                  onCarPress={handleCarPress}
+                  t={t}
+                />
+              </View>
+            </>
+          }
+          ListEmptyComponent={
+            loading && cars.length === 0 ? (
+              <ActivityIndicator size="large" color={COLORS.accent} style={{ marginTop: 20 }} />
+            ) : !loading && filteredCars.length === 0 ? (
+              <Text style={styles.emptyText}>{t.noCars}</Text>
+            ) : null
+          }
+          contentContainerStyle={styles.carList}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.accent} />
           }
-        >
-          <View style={styles.searchSection}>
-            <View style={styles.searchRow}>
-              <View style={styles.searchBarWrapper}>
-                <MakeModelSearchBar
-                  selectedMake={selectedMake}
-                  selectedModel={selectedModel}
-                  onSelect={(make, model) => {
-                    setSelectedMake(make);
-                    setSelectedModel(model);
-                  }}
-                  placeholder={t.searchPlaceholder}
-                  t={t}
-                  containerStyle={styles.searchBarContainer}
-                />
-              </View>
-              <TouchableOpacity
-                style={[styles.filterToggleButton, filtersVisible && styles.filterToggleButtonActive]}
-                onPress={() => setFiltersVisible(!filtersVisible)}
-                activeOpacity={0.7}
-              >
-                <SlidersHorizontal size={20} color={filtersVisible ? COLORS.accent : COLORS.textPrimary} />
-              </TouchableOpacity>
-            </View>
-            {filtersVisible && (
-              <>
-                <FilterBar onFilterPress={handleFilterPress} activeFilters={activeFilters} t={t} />
-                <CategoryList
-                  selectedCategory={selectedCategory}
-                  onSelectCategory={(id) => setSelectedCategory(selectedCategory === id ? null : id)}
-                  t={t}
-                />
-              </>
-            )}
-          </View>
-
-          <View style={styles.carouselSticky}>
-            <LatestCarousel
-              cars={cars}
-              onCarPress={handleCarPress}
-              t={t}
-            />
-          </View>
-
-          <View style={styles.carList}>
-            {loading && cars.length === 0 ? (
-              <ActivityIndicator size="large" color={COLORS.accent} style={{ marginTop: 20 }} />
-            ) : (
-              filteredCars.map((car) => (
-                <TouchableOpacity key={car.id} onPress={() => handleCarPress(car)}>
-                  <CarCard data={car} />
-                </TouchableOpacity>
-              ))
-            )}
-            {!loading && filteredCars.length === 0 && (
-              <Text style={styles.emptyText}>{t.noCars}</Text>
-            )}
-          </View>
-        </ScrollView>
+          removeClippedSubviews={Platform.OS === 'android'}
+          maxToRenderPerBatch={10}
+          windowSize={11}
+          initialNumToRender={8}
+        />
 
         <BottomBar t={t} />
       </View>
@@ -378,6 +383,7 @@ const styles = StyleSheet.create({
   },
   carList: {
     paddingBottom: 16,
+    flexGrow: 1,
   },
   emptyText: {
     color: COLORS.textSecondary,
