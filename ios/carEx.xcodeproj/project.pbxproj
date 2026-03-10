@@ -111,6 +111,7 @@
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
+				A1B2C3D4E5F6012345678ABC /* [CP] Hermes dSYM */,
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
@@ -200,6 +201,21 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-carEx/Pods-carEx-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		A1B2C3D4E5F6012345678ABC /* [CP] Hermes dSYM */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Hermes dSYM";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Only run for Release/Archive builds\nif [ \"${CONFIGURATION}\" != \"Release\" ]; then\n  exit 0\nfi\n\nEMBEDDED_HERMES_BIN=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermesvm.framework/hermesvm\"\nif [ -f \"$EMBEDDED_HERMES_BIN\" ]; then\n  HERMES_BIN=\"$EMBEDDED_HERMES_BIN\"\nelse\n  HERMES_BIN=\"$(find \"${PODS_ROOT}/hermes-engine\" -path \"*hermesvm.framework/hermesvm\" -type f 2>/dev/null | head -n 1)\"\nfi\n\nDSYM_OUTPUT=\"${DWARF_DSYM_FOLDER_PATH}/hermesvm.framework.dSYM\"\n\nif [ -z \"$HERMES_BIN\" ]; then\n  exit 0\nfi\n\nif [ ! -d \"$DSYM_OUTPUT\" ]; then\n  dsymutil \"$HERMES_BIN\" -o \"$DSYM_OUTPUT\"\nfi\n";
+			showEnvVarsInLog = 0;
+		};
 		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -259,7 +275,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = M3W6Y259JR;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = carEx/Info.plist;
@@ -268,7 +284,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -288,7 +304,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = M3W6Y259JR;
 				INFOPLIST_FILE = carEx/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -296,7 +312,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
