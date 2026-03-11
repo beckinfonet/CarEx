@@ -40,6 +40,8 @@ export const SellCarScreen = () => {
   const [formData, setFormData] = useState({
     makeId: '',
     modelId: '',
+    trimLevel: '',
+    wheelbase: '',
     year: '',
     price: '',
     mileage: '',
@@ -508,6 +510,21 @@ export const SellCarScreen = () => {
                 selectedMakeId={formData.makeId}
                 placeholder={t.model}
                 t={t}
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder={t.trimLevel}
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.trimLevel}
+                onChangeText={(text) => setFormData({ ...formData, trimLevel: text })}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder={t.wheelbase}
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.wheelbase}
+                onChangeText={(text) => setFormData({ ...formData, wheelbase: text })}
               />
 
               {renderDropdown(t.typeBody, formData.bodyType, 'bodyType', [t.sedan, t.suv, t.passenger, t.truck, t.special])}

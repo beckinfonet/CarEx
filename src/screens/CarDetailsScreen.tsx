@@ -279,7 +279,7 @@ export const CarDetailsScreen = () => {
         <View style={styles.detailsContainer}>
           <View style={styles.titleRow}>
             <View>
-              <Text style={styles.title}>{car.make} {car.model} {car.year}</Text>
+              <Text style={styles.title}>{car.make} {car.model}{car.trimLevel ? ` ${car.trimLevel}` : ''} {car.year}</Text>
               <Text style={styles.subtitle}>{car.mileage.toLocaleString()} км • {car.fuel}</Text>
               {car.listingId && (
                 <Text style={styles.listingId}>ID: {car.listingId}</Text>
@@ -291,6 +291,12 @@ export const CarDetailsScreen = () => {
           <View style={styles.specsContainer}>
             <Text style={styles.sectionTitle}>{t.specs}</Text>
             <View style={styles.specsGrid}>
+              {(car.trimLevel || car.wheelbase) && (
+                <>
+                  {car.trimLevel && renderSpecItem(t.trimLevel, car.trimLevel)}
+                  {car.wheelbase && renderSpecItem(t.wheelbase, car.wheelbase)}
+                </>
+              )}
               {renderSpecItem(t.bodyType, car.bodyType)}
               {renderSpecItem(t.engine, car.engine || '-')}
               {renderSpecItem(t.transmission, car.transmission)}
