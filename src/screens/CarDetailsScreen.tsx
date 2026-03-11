@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Dimensions, Linking, Alert, Modal, Platform } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Zoomable } from '@likashefqet/react-native-image-zoom';
 import { OptimizedImage } from '../components/OptimizedImage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, SIZES } from '../constants/theme';
@@ -19,6 +21,7 @@ export const CarDetailsScreen = () => {
   const { carId } = route.params as { carId: string };
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [galleryVisible, setGalleryVisible] = useState(false);
   const [fullScreenVisible, setFullScreenVisible] = useState(false);
   const fullScreenScrollRef = useRef<ScrollView>(null);
 
@@ -33,7 +36,13 @@ export const CarDetailsScreen = () => {
         });
       }, 50);
     }
-  }, [fullScreenVisible]);
+  }, [fullScreenVisible, activeImageIndex]);
+
+  const openFullScreenFromGallery = (index: number) => {
+    setActiveImageIndex(index);
+    setFullScreenVisible(true);
+    setGalleryVisible(false);
+  };
 
   useEffect(() => {
     checkFavoriteStatus();
@@ -219,7 +228,7 @@ export const CarDetailsScreen = () => {
         <TouchableOpacity
           style={styles.imageCarousel}
           activeOpacity={1}
-          onPress={() => setFullScreenVisible(true)}
+          onPress={() => setGalleryVisible(true)}
         >
           <ScrollView
             horizontal
@@ -324,57 +333,102 @@ export const CarDetailsScreen = () => {
         </View>
       </View>
 
+      {/* Combined gallery + full-screen modal - single modal prevents iOS flash */}
       <Modal
-        visible={fullScreenVisible}
+        visible={galleryVisible || fullScreenVisible}
         transparent
         animationType="fade"
         statusBarTranslucent
-        onRequestClose={() => setFullScreenVisible(false)}
+        onRequestClose={() => {
+          setGalleryVisible(false);
+          setFullScreenVisible(false);
+        }}
       >
         <StatusBar barStyle="light-content" backgroundColor="transparent" />
-        <View style={styles.fullScreenOverlay}>
+        {fullScreenVisible ? (
+        <GestureHandlerRootView style={styles.fullScreenOverlay}>
+          <View style={styles.fullScreenOverlay}>
+            <TouchableOpacity
+              style={[styles.fullScreenCloseButton, { top: insets.top + 16 }]}
+              onPress={() => { setFullScreenVisible(false); setGalleryVisible(false); }}
+              hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+            >
+              <X size={28} color="#FFF" />
+            </TouchableOpacity>
+
+            <ScrollView
+              ref={fullScreenScrollRef}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+              style={styles.fullScreenScroll}
+              removeClippedSubviews={Platform.OS === 'android'}
+            >
+              {images.map((img: string, index: number) => (
+                <View key={index} style={[styles.fullScreenImage, { width, height }]}>
+                  <Zoomable
+                    minScale={1}
+                    maxScale={4}
+                    doubleTapScale={2.5}
+                    isDoubleTapEnabled
+                  >
+                    <OptimizedImage
+                      source={{ uri: img }}
+                      style={[styles.fullScreenImage, { width, height }]}
+                      resizeMode="contain"
+                    />
+                  </Zoomable>
+                </View>
+              ))}
+            </ScrollView>
+
+            {images.length > 1 && (
+              <View style={[styles.fullScreenPagination, { bottom: insets.bottom + 24 }]}>
+                {images.map((_: any, index: number) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.paginationDot,
+                      index === activeImageIndex && styles.activeDot
+                    ]}
+                  />
+                ))}
+              </View>
+            )}
+          </View>
+        </GestureHandlerRootView>
+        ) : (
+        <View style={styles.galleryOverlay}>
           <TouchableOpacity
             style={[styles.fullScreenCloseButton, { top: insets.top + 16 }]}
-            onPress={() => setFullScreenVisible(false)}
+            onPress={() => setGalleryVisible(false)}
             hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
           >
             <X size={28} color="#FFF" />
           </TouchableOpacity>
-
           <ScrollView
-            ref={fullScreenScrollRef}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-            style={styles.fullScreenScroll}
-            removeClippedSubviews={Platform.OS === 'android'}
+            style={styles.galleryScroll}
+            contentContainerStyle={styles.galleryScrollContent}
+            showsVerticalScrollIndicator={true}
           >
             {images.map((img: string, index: number) => (
-              <OptimizedImage
+              <TouchableOpacity
                 key={index}
-                source={{ uri: img }}
-                style={[styles.fullScreenImage, { width, height }]}
-                resizeMode="contain"
-              />
+                activeOpacity={0.9}
+                onPress={() => openFullScreenFromGallery(index)}
+              >
+                <OptimizedImage
+                  source={{ uri: img }}
+                  style={styles.galleryImage}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
             ))}
           </ScrollView>
-
-          {images.length > 1 && (
-            <View style={[styles.fullScreenPagination, { bottom: insets.bottom + 24 }]}>
-              {images.map((_: any, index: number) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.paginationDot,
-                    index === activeImageIndex && styles.activeDot
-                  ]}
-                />
-              ))}
-            </View>
-          )}
         </View>
+        )}
       </Modal>
     </SafeAreaView>
   );
@@ -462,6 +516,22 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
+  },
+  galleryOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.98)',
+  },
+  galleryScroll: {
+    flex: 1,
+    marginTop: 60,
+  },
+  galleryScrollContent: {
+    paddingBottom: 40,
+  },
+  galleryImage: {
+    width: width,
+    height: width * 0.75,
+    marginBottom: 8,
   },
   fullScreenOverlay: {
     flex: 1,

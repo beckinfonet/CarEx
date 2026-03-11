@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -26,30 +27,32 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <LanguageProvider>
-          <NavigationContainer>
-            <OfflineNotice />
-            <Stack.Navigator 
-              screenOptions={{ 
-                headerShown: false,
-                animation: 'slide_from_right'
-              }}
-            >
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
-              <Stack.Screen name="SellCar" component={SellCarScreen} />
-              <Stack.Screen name="About" component={AboutScreen} />
-              <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen name="Signup" component={SignupScreen} />
-              <Stack.Screen name="Profile" component={ProfileScreen} />
-              <Stack.Screen name="Favorites" component={FavoritesScreen} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </LanguageProvider>
-      </AuthProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <LanguageProvider>
+            <NavigationContainer>
+              <OfflineNotice />
+              <Stack.Navigator
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'slide_from_right'
+                }}
+              >
+                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
+                <Stack.Screen name="SellCar" component={SellCarScreen} />
+                <Stack.Screen name="About" component={AboutScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="Signup" component={SignupScreen} />
+                <Stack.Screen name="Profile" component={ProfileScreen} />
+                <Stack.Screen name="Favorites" component={FavoritesScreen} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </LanguageProvider>
+        </AuthProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
