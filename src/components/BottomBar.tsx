@@ -18,20 +18,20 @@ export const BottomBar = ({ t }: BottomBarProps) => {
   return (
     <>
       <View style={styles.container}>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home', { clearFilters: true })}>
+        <TouchableOpacity style={[styles.button, styles.sideButton]} onPress={() => navigation.navigate('Home', { clearFilters: true })}>
           <Home size={20} color={COLORS.textPrimary} />
-          <Text style={styles.text}>{t.home}</Text>
+          <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">{t.home}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SellCar')}>
+        <TouchableOpacity style={[styles.button, styles.centerButton]} onPress={() => navigation.navigate('SellCar')}>
           <PlusCircle size={20} color={COLORS.accent} />
-          <Text style={styles.text}>{t.sellCar}</Text>
+          <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">{t.sellCar}</Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          style={styles.button}
+          style={[styles.button, styles.sideButton]}
           onPress={() => setMenuVisible(true)}
         >
           <Menu size={20} color={COLORS.textPrimary} />
-          <Text style={styles.text}>{t.more}</Text>
+          <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">{t.more}</Text>
         </TouchableOpacity>
       </View>
       <MoreMenu visible={menuVisible} onClose={() => setMenuVisible(false)} t={t} />
@@ -49,7 +49,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   button: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -58,6 +57,13 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius,
     borderWidth: 1,
     borderColor: COLORS.accent,
+    minWidth: 0,
+  },
+  sideButton: {
+    flex: 1,
+  },
+  centerButton: {
+    flex: 1.5,
   },
   activeButton: {
     backgroundColor: 'rgba(59, 130, 246, 0.1)', // Blue transparent
@@ -70,6 +76,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     marginLeft: 6,
+    flexShrink: 1,
   },
 });
 
