@@ -31,8 +31,12 @@ export const CarDetailsScreen = () => {
   const animateFullScreenOpen = useRef(false);
   const [fetchedCar, setFetchedCar] = useState<any>(null);
   const [carLoading, setCarLoading] = useState(false);
+  const [statusUpdating, setStatusUpdating] = useState(false);
+  const [localListingStatus, setLocalListingStatus] = useState<string | null>(null);
 
   const car = CARS.find(c => c.id === carId) || (route.params as any).carData || fetchedCar;
+  const listingStatus = (localListingStatus ?? car?.listingStatus ?? 'active') as string;
+  const isOwner = car?.sellerId && user?.localId === car.sellerId;
 
   useEffect(() => {
     if (fullScreenVisible && fullScreenScrollRef.current) {
@@ -96,6 +100,7 @@ export const CarDetailsScreen = () => {
             phoneNumber: c.phoneNumber,
             telegramUsername: c.telegramUsername,
             listingId: c.listingId,
+            listingStatus: c.listingStatus || 'active',
             ...c,
           });
         })
@@ -261,6 +266,23 @@ export const CarDetailsScreen = () => {
     );
   };
 
+  const updateListingStatus = async (newStatus: 'active' | 'booked' | 'sold') => {
+    if (!user?.localId || !car?.id) return;
+    setStatusUpdating(true);
+    try {
+      await axios.patch(`${API_URL}/api/cars/${car.id}/status`, {
+        sellerId: user.localId,
+        listingStatus: newStatus,
+      });
+      setLocalListingStatus(newStatus);
+    } catch (err) {
+      console.error('Update status failed', err);
+      Alert.alert(t.error || 'Error', 'Failed to update listing status.');
+    } finally {
+      setStatusUpdating(false);
+    }
+  };
+
   const handleShare = async () => {
     const url = LISTING_URL(car.id);
     const title = `${car.make} ${car.model} ${car.year}`;
@@ -353,6 +375,45 @@ export const CarDetailsScreen = () => {
         </View>
 
         <View style={styles.detailsContainer}>
+          {(listingStatus === 'booked' || listingStatus === 'sold') && (
+            <View style={[styles.statusBadge, listingStatus === 'sold' && styles.statusBadgeSold]}>
+              <Text style={styles.statusBadgeText}>{listingStatus === 'sold' ? t.sold : t.booked}</Text>
+            </View>
+          )}
+          {isOwner && (
+            <View style={styles.statusActions}>
+              <Text style={styles.statusLabel}>{t.listingStatus || 'Status'}:</Text>
+              <View style={styles.statusButtons}>
+                {listingStatus !== 'active' && (
+                  <TouchableOpacity
+                    style={[styles.statusBtn, styles.statusBtnActive]}
+                    onPress={() => updateListingStatus('active')}
+                    disabled={statusUpdating}
+                  >
+                    <Text style={styles.statusBtnText}>{t.markAsAvailable}</Text>
+                  </TouchableOpacity>
+                )}
+                {listingStatus !== 'booked' && (
+                  <TouchableOpacity
+                    style={[styles.statusBtn, listingStatus === 'booked' && styles.statusBtnSelected]}
+                    onPress={() => updateListingStatus('booked')}
+                    disabled={statusUpdating}
+                  >
+                    <Text style={styles.statusBtnText}>{t.markAsBooked}</Text>
+                  </TouchableOpacity>
+                )}
+                {listingStatus !== 'sold' && (
+                  <TouchableOpacity
+                    style={[styles.statusBtn, styles.statusBtnSold, listingStatus === 'sold' && styles.statusBtnSelected]}
+                    onPress={() => updateListingStatus('sold')}
+                    disabled={statusUpdating}
+                  >
+                    <Text style={styles.statusBtnText}>{t.markAsSold}</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          )}
           <View style={styles.titleRow}>
             <View>
               <Text style={styles.title}>{car.make} {car.model}{car.trimLevel ? ` ${car.trimLevel}` : ''} {car.year}</Text>
@@ -418,19 +479,27 @@ export const CarDetailsScreen = () => {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Text style={styles.contactLabel}>{t.contactVia}</Text>
-        <View style={styles.contactButtonsRow}>
-          {car.telegramUsername && (
-            <TouchableOpacity style={[styles.contactButton, styles.telegramButton]} onPress={handleTelegram}>
-              <Send size={20} color="#FFF" />
-              <Text style={[styles.contactButtonText, { color: '#FFF' }]}>Telegram</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity style={[styles.contactButton, styles.whatsappButton, car.telegramUsername ? { flex: 1, marginLeft: 2 } : { width: '100%' }]} onPress={handleCallSeller}>
-            <MessageCircle size={20} color="#FFF" />
-            <Text style={[styles.contactButtonText, { color: '#FFF' }]}>{t.whatsapp}</Text>
-          </TouchableOpacity>
-        </View>
+        {listingStatus === 'sold' ? (
+          <View style={styles.soldMessage}>
+            <Text style={styles.soldMessageText}>{t.sold}</Text>
+          </View>
+        ) : (
+          <>
+            <Text style={styles.contactLabel}>{t.contactVia}</Text>
+            <View style={styles.contactButtonsRow}>
+              {car.telegramUsername && (
+                <TouchableOpacity style={[styles.contactButton, styles.telegramButton]} onPress={handleTelegram}>
+                  <Send size={20} color="#FFF" />
+                  <Text style={[styles.contactButtonText, { color: '#FFF' }]}>Telegram</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity style={[styles.contactButton, styles.whatsappButton, car.telegramUsername ? { flex: 1, marginLeft: 2 } : { width: '100%' }]} onPress={handleCallSeller}>
+                <MessageCircle size={20} color="#FFF" />
+                <Text style={[styles.contactButtonText, { color: '#FFF' }]}>{t.whatsapp}</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </View>
 
       {/* Combined gallery + full-screen modal - single modal prevents iOS flash */}
@@ -656,6 +725,68 @@ const styles = StyleSheet.create({
   },
   detailsContainer: {
     padding: SIZES.padding,
+  },
+  statusBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(245, 158, 11, 0.3)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: SIZES.borderRadius,
+    marginBottom: 12,
+  },
+  statusBadgeSold: {
+    backgroundColor: 'rgba(34, 197, 94, 0.3)',
+  },
+  statusBadgeText: {
+    color: COLORS.textPrimary,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  statusActions: {
+    marginBottom: 16,
+  },
+  statusLabel: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  statusButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  statusBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
+    backgroundColor: 'transparent',
+  },
+  statusBtnActive: {
+    borderColor: '#22c55e',
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+  },
+  statusBtnSold: {
+    borderColor: '#ef4444',
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+  },
+  statusBtnSelected: {
+    backgroundColor: COLORS.accent,
+  },
+  statusBtnText: {
+    color: COLORS.textPrimary,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  soldMessage: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  soldMessageText: {
+    color: COLORS.textSecondary,
+    fontSize: 18,
+    fontWeight: '600',
   },
   titleRow: {
     flexDirection: 'row',

@@ -85,6 +85,12 @@ export const TRANSLATIONS = {
     whatsapp: 'WhatsApp',
     reportListing: 'Пожаловаться',
     shareListing: 'Поделиться объявлением',
+    booked: 'Забронировано',
+    sold: 'Продано',
+    markAsBooked: 'Отметить забронированным',
+    markAsSold: 'Отметить проданным',
+    markAsAvailable: 'Сделать доступным',
+    listingStatus: 'Статус',
 
     // Auth
     login: 'Войти',
@@ -299,6 +305,12 @@ export const TRANSLATIONS = {
     whatsapp: 'WhatsApp',
     reportListing: 'Report Listing',
     shareListing: 'Share listing',
+    booked: 'Booked',
+    sold: 'Sold',
+    markAsBooked: 'Mark as booked',
+    markAsSold: 'Mark as sold',
+    markAsAvailable: 'Mark as available',
+    listingStatus: 'Status',
 
     // Auth
     login: 'Log In',

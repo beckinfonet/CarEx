@@ -9,6 +9,8 @@ const LOGO_CDN_BASE = 'https://vl.imgix.net/img';
 /** Override slugs that don't match CDN (e.g. seed typo "Mazerati" -> "maserati") */
 const SLUG_OVERRIDES: Record<string, string> = {
   mazerati: 'maserati',
+  'kg-mobility': 'ssangyong',      // KG Mobility rebranded from SsangYong
+  samsung: 'renault-samsung-motors', // Samsung Motors (Renault Samsung)
 };
 
 /** Logos with light/yellow colors that need dark background for visibility */

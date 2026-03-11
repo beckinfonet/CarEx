@@ -38,6 +38,7 @@ export const MyListingsScreen = () => {
         currency: car.currency,
         image: (car.imageUrls && car.imageUrls.length > 0) ? car.imageUrls[0] : (car.imageUrl || 'https://via.placeholder.com/400x300'),
         imageUrls: car.imageUrls || (car.imageUrl ? [car.imageUrl] : []),
+        listingStatus: car.listingStatus || 'active',
         ...car
       }));
       const myCars = allCars.filter((car: any) => car.sellerId === user.localId);

@@ -14,15 +14,22 @@ interface CarProps {
   fuel: string;
   currency: string;
   image: string;
+  listingStatus?: string;
 }
 
 export const CarCard = React.memo(({ data }: { data: CarProps }) => {
   const { t } = useLanguage();
+  const status = data.listingStatus || 'active';
 
   return (
     <View style={styles.card}>
       <OptimizedImage source={{ uri: data.image }} style={styles.image} resizeMode="cover" />
       <View style={styles.details}>
+        {(status === 'booked' || status === 'sold') && (
+          <View style={[styles.statusBadge, status === 'sold' && styles.statusBadgeSold]}>
+            <Text style={styles.statusBadgeText}>{status === 'sold' ? t.sold : t.booked}</Text>
+          </View>
+        )}
         <View style={styles.header}>
           <Text style={styles.title}>{data.make} {data.model}</Text>
           <ChevronRight size={20} color={COLORS.textSecondary} />
@@ -97,6 +104,22 @@ const styles = StyleSheet.create({
   infoText: {
     color: COLORS.textSecondary,
     fontSize: 12,
+  },
+  statusBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(245, 158, 11, 0.3)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    marginBottom: 6,
+  },
+  statusBadgeSold: {
+    backgroundColor: 'rgba(34, 197, 94, 0.3)',
+  },
+  statusBadgeText: {
+    color: COLORS.textPrimary,
+    fontSize: 11,
+    fontWeight: '600',
   },
 });
 
