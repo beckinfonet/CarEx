@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, useWindowDimensions, Linking, Alert, Modal, Platform, Animated } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, useWindowDimensions, Linking, Alert, Modal, Platform, Animated, Share } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Zoomable } from '@likashefqet/react-native-image-zoom';
 import { OptimizedImage } from '../components/OptimizedImage';
@@ -8,9 +8,11 @@ import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X, Edit2 } from 'lucide-react-native';
+import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X, Edit2, Share2 } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { LISTING_URL, API_URL } from '../constants/config';
+import axios from 'axios';
 
 export const CarDetailsScreen = () => {
   const { width, height } = useWindowDimensions();
@@ -27,8 +29,10 @@ export const CarDetailsScreen = () => {
   const fullScreenScrollRef = useRef<ScrollView>(null);
   const fullScreenOpacity = useRef(new Animated.Value(1)).current;
   const animateFullScreenOpen = useRef(false);
+  const [fetchedCar, setFetchedCar] = useState<any>(null);
+  const [carLoading, setCarLoading] = useState(false);
 
-  const car = CARS.find(c => c.id === carId) || (route.params as any).carData;
+  const car = CARS.find(c => c.id === carId) || (route.params as any).carData || fetchedCar;
 
   useEffect(() => {
     if (fullScreenVisible && fullScreenScrollRef.current) {
@@ -67,6 +71,39 @@ export const CarDetailsScreen = () => {
     checkFavoriteStatus();
   }, [carId]);
 
+  // Fetch car from API when opened via deep link (no carData)
+  useEffect(() => {
+    const existingCar = CARS.find(c => c.id === carId) || (route.params as any).carData;
+    if (carId && !existingCar) {
+      setCarLoading(true);
+      axios.get(`${API_URL}/api/cars/${carId}`)
+        .then(res => {
+          const c = res.data;
+          setFetchedCar({
+            id: c.id || c._id?.toString(),
+            makeId: c.makeId,
+            modelId: c.modelId,
+            make: c.make || c.makeName,
+            model: c.model || c.modelName,
+            year: c.year,
+            price: c.price,
+            mileage: c.mileage,
+            fuel: c.fuel,
+            currency: c.currency,
+            imageUrls: c.imageUrls || (c.imageUrl ? [c.imageUrl] : []),
+            image: (c.imageUrls?.[0]) || c.imageUrl,
+            sellerId: c.sellerId,
+            phoneNumber: c.phoneNumber,
+            telegramUsername: c.telegramUsername,
+            listingId: c.listingId,
+            ...c,
+          });
+        })
+        .catch(() => setFetchedCar(null))
+        .finally(() => setCarLoading(false));
+    }
+  }, [carId]);
+
   const checkFavoriteStatus = async () => {
     try {
       const favorites = await AsyncStorage.getItem('favorites');
@@ -103,7 +140,11 @@ export const CarDetailsScreen = () => {
   if (!car) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Автомобиль не найден</Text>
+        {carLoading ? (
+          <Text style={styles.errorText}>{t.loading || 'Loading...'}</Text>
+        ) : (
+          <Text style={styles.errorText}>{t.carNotFound || 'Car not found'}</Text>
+        )}
       </View>
     );
   }
@@ -220,6 +261,23 @@ export const CarDetailsScreen = () => {
     );
   };
 
+  const handleShare = async () => {
+    const url = LISTING_URL(car.id);
+    const title = `${car.make} ${car.model} ${car.year}`;
+    const message = `${title} - ${car.currency}${car.price?.toLocaleString()}\n${url}`;
+    try {
+      await Share.share({
+        message,
+        url: Platform.OS === 'ios' ? url : undefined,
+        title: t.shareListing || 'Share listing',
+      });
+    } catch (err) {
+      if ((err as any)?.message !== 'User did not share') {
+        console.error('Share failed', err);
+      }
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
@@ -230,15 +288,17 @@ export const CarDetailsScreen = () => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{car.make} {car.model}</Text>
         <View style={styles.headerRight}>
-          {car.sellerId && user?.localId === car.sellerId && (
+          <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
+            <Share2 size={24} color={COLORS.accent} />
+          </TouchableOpacity>
+          {car.sellerId && user?.localId === car.sellerId ? (
             <TouchableOpacity
               style={styles.iconButton}
               onPress={() => navigation.navigate('SellCar', { carId: car.id })}
             >
               <Edit2 size={24} color={COLORS.accent} />
             </TouchableOpacity>
-          )}
-          {!(car.sellerId && user?.localId === car.sellerId) && (
+          ) : (
             <>
               <TouchableOpacity style={styles.iconButton} onPress={handleReport}>
                 <AlertTriangle size={24} color={COLORS.textSecondary} />

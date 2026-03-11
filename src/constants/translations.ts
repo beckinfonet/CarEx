@@ -13,6 +13,7 @@ export const TRANSLATIONS = {
     carHistory: 'История авто',
     help: 'Помощь',
     about: 'О приложении',
+    pressBackAgainToExit: 'Нажмите ещё раз для выхода',
 
     // Home Screen
     freshListings: 'Последние обновления',
@@ -28,6 +29,7 @@ export const TRANSLATIONS = {
     enterMake: 'Введите марку',
     enterModel: 'Введите модель',
     noCars: 'Нет автомобилей',
+    carNotFound: 'Автомобиль не найден',
 
     // Categories
     sedan: 'Седан',
@@ -81,6 +83,7 @@ export const TRANSLATIONS = {
     contactVia: 'Связаться через:',
     whatsapp: 'WhatsApp',
     reportListing: 'Пожаловаться',
+    shareListing: 'Поделиться объявлением',
 
     // Auth
     login: 'Войти',
@@ -127,7 +130,7 @@ export const TRANSLATIONS = {
     copyright: '© 2026 CarEx. Все права защищены.',
 
     // Sell Car
-    sellHeader: 'Продать авто',
+    sellHeader: 'Продать',
     editListing: 'Редактировать объявление',
     mainInfo: 'Основная информация',
     brand: 'Марка (например, BMW)',
@@ -223,6 +226,7 @@ export const TRANSLATIONS = {
     carHistory: 'Car History',
     help: 'Help',
     about: 'About',
+    pressBackAgainToExit: 'Press back again to exit',
 
     // Home Screen
     freshListings: 'Fresh Listings',
@@ -238,6 +242,7 @@ export const TRANSLATIONS = {
     enterMake: 'Enter make',
     enterModel: 'Enter model',
     noCars: 'No cars found',
+    carNotFound: 'Car not found',
 
     // Categories
     sedan: 'Sedan',
@@ -291,6 +296,7 @@ export const TRANSLATIONS = {
     contactVia: 'Contact seller via:',
     whatsapp: 'WhatsApp',
     reportListing: 'Report Listing',
+    shareListing: 'Share listing',
 
     // Auth
     login: 'Log In',
@@ -337,7 +343,7 @@ export const TRANSLATIONS = {
     copyright: '© 2026 CarEx. All rights reserved.',
 
     // Sell Car
-    sellHeader: 'Sell Car',
+    sellHeader: 'Sell',
     editListing: 'Edit Listing',
     mainInfo: 'Main Information',
     brand: 'Make (e.g., BMW)',

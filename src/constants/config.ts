@@ -10,7 +10,15 @@ const ENV = {
 };
 
 // Change this to 'prod' before building for App Store
-const currentEnv = 'prod'; 
+const currentEnv = 'prod';
 
 export const API_URL = ENV[currentEnv].apiUrl;
+
+// Web platform & deep linking
+export const WEB_BASE_URL = 'https://www.carexmarket.com';
+export const LISTING_URL = (carId: string) => `${WEB_BASE_URL}/listing/${carId}`;
+
+// App store URLs - update with actual store IDs when published
+export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.carex.marketplace';
+export const APP_STORE_URL = 'https://apps.apple.com/app/carex/id000000000'; // Replace 000000000 with actual App Store ID
 

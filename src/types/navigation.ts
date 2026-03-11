@@ -1,5 +1,5 @@
 export type RootStackParamList = {
-  Home: undefined;
+  Home: { clearFilters?: boolean } | undefined;
   CarDetails: { carId: string; carData?: any };
   SellCar: { carId?: string } | undefined;
   About: undefined;

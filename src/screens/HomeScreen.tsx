@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { View, Text, StyleSheet, ScrollView, FlatList, TouchableOpacity, StatusBar, ActivityIndicator, Alert, RefreshControl, Image, Platform } from 'react-native';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { View, Text, StyleSheet, ScrollView, FlatList, TouchableOpacity, StatusBar, ActivityIndicator, Alert, RefreshControl, Image, Platform, BackHandler, ToastAndroid } from 'react-native';
+import { useNavigation, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SIZES } from '../constants/theme';
@@ -20,11 +20,13 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+type HomeScreenRouteProp = RouteProp<RootStackParamList, 'Home'>;
 
 export const HomeScreen = () => {
   const { t, language, setLanguage } = useLanguage();
   const { user } = useAuth();
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const route = useRoute<HomeScreenRouteProp>();
   const isFocused = useIsFocused();
   const [selectedMake, setSelectedMake] = useState<{ id: string; name: string } | null>(null);
   const [selectedModel, setSelectedModel] = useState<{ id: string; name: string } | null>(null);
@@ -75,6 +77,36 @@ export const HomeScreen = () => {
       fetchCars();
     }
   }, [isFocused]);
+
+  // Clear all filters when Home button is pressed (from BottomBar)
+  useEffect(() => {
+    if (route.params?.clearFilters) {
+      setSelectedMake(null);
+      setSelectedModel(null);
+      setSelectedCategory(null);
+      setActiveFilters({});
+      setFiltersVisible(false);
+      navigation.setParams({ clearFilters: false });
+    }
+  }, [route.params?.clearFilters]);
+
+  // Android back button: "Press back again to exit" when on main page
+  const lastBackPressRef = useRef(0);
+  useEffect(() => {
+    if (!isFocused || Platform.OS !== 'android') return;
+    const onBackPress = () => {
+      const now = Date.now();
+      if (now - lastBackPressRef.current < 2000) {
+        BackHandler.exitApp();
+        return true;
+      }
+      lastBackPressRef.current = now;
+      ToastAndroid.show(t.pressBackAgainToExit, ToastAndroid.SHORT);
+      return true;
+    };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, [isFocused, t.pressBackAgainToExit]);
 
   const filteredCars = cars.filter(car => {
     const matchesSearch =

@@ -26,13 +26,23 @@ import { AuthProvider } from './src/context/AuthContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+const linking = {
+  prefixes: ['https://www.carexmarket.com', 'carex://'],
+  config: {
+    screens: {
+      Home: '',
+      CarDetails: 'listing/:carId',
+    },
+  },
+};
+
 function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AuthProvider>
           <LanguageProvider>
-            <NavigationContainer>
+            <NavigationContainer linking={linking}>
               <OfflineNotice />
               <Stack.Navigator
                 screenOptions={{

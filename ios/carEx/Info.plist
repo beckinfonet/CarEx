@@ -37,6 +37,19 @@
 	<string>CarEx needs access to your photos to let you select vehicle images for your sales listing.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>CarEx uses the camera to let you take photos of your vehicle to create a sales listing.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>carex</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.carex.app</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+		</dict>
+	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>whatsapp</string>

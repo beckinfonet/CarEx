@@ -18,7 +18,7 @@ export const BottomBar = ({ t }: BottomBarProps) => {
   return (
     <>
       <View style={styles.container}>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home', { clearFilters: true })}>
           <Home size={20} color={COLORS.textPrimary} />
           <Text style={styles.text}>{t.home}</Text>
         </TouchableOpacity>
