@@ -21,7 +21,7 @@ interface MakeModelSearchBarProps {
   selectedModel: VehicleModel | null;
   onSelect: (make: VehicleMake | null, model: VehicleModel | null) => void;
   placeholder?: string;
-  t?: { selectMake: string; selectModel: string; clear: string };
+  t?: { selectMake: string; selectModel: string; clear: string; searchWithMake?: string };
   containerStyle?: object;
 }
 
@@ -33,7 +33,7 @@ export const MakeModelSearchBar = ({
   t,
   containerStyle,
 }: MakeModelSearchBarProps) => {
-  const _t = t || { selectMake: 'Select Make', selectModel: 'Select Model', clear: 'Clear' };
+  const _t = t || { selectMake: 'Select Make', selectModel: 'Select Model', clear: 'Clear', searchWithMake: 'Search' };
   const { makes, models, loadingMakes, loadingModels, fetchModels } = useVehicleCatalog();
   const [modalVisible, setModalVisible] = useState(false);
   const [step, setStep] = useState<Step>('make');
@@ -74,6 +74,11 @@ export const MakeModelSearchBar = ({
 
   const handleClear = () => {
     onSelect(null, null);
+    setModalVisible(false);
+  };
+
+  const handleSearchWithMake = () => {
+    onSelect(tempMake, null);
     setModalVisible(false);
   };
 
@@ -121,26 +126,38 @@ export const MakeModelSearchBar = ({
                     <ActivityIndicator size="large" color={COLORS.accent} />
                   </View>
                 ) : (
-                  <FlatList
-                    data={listData}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
+                  <>
+                    <FlatList
+                      data={listData}
+                      keyExtractor={(item) => item.id}
+                      renderItem={({ item }) => (
+                        <TouchableOpacity
+                          style={styles.optionItem}
+                          onPress={() => (step === 'make' ? handleSelectMake(item as VehicleMake) : handleSelectModel(item as VehicleModel))}
+                          activeOpacity={0.7}
+                        >
+                          <Text style={styles.optionText}>{item.name}</Text>
+                        </TouchableOpacity>
+                      )}
+                      style={styles.list}
+                      keyboardShouldPersistTaps="handled"
+                      ListEmptyComponent={
+                        <Text style={styles.emptyText}>
+                          {step === 'make' ? 'No makes available' : 'No models for this make'}
+                        </Text>
+                      }
+                    />
+                    {step === 'model' && tempMake && (
                       <TouchableOpacity
-                        style={styles.optionItem}
-                        onPress={() => (step === 'make' ? handleSelectMake(item as VehicleMake) : handleSelectModel(item as VehicleModel))}
-                        activeOpacity={0.7}
+                        style={styles.searchButton}
+                        onPress={handleSearchWithMake}
+                        activeOpacity={0.8}
                       >
-                        <Text style={styles.optionText}>{item.name}</Text>
+                        <Search size={20} color="#000" />
+                        <Text style={styles.searchButtonText}>{_t.searchWithMake || 'Search'}</Text>
                       </TouchableOpacity>
                     )}
-                    style={styles.list}
-                    keyboardShouldPersistTaps="handled"
-                    ListEmptyComponent={
-                      <Text style={styles.emptyText}>
-                        {step === 'make' ? 'No makes available' : 'No models for this make'}
-                      </Text>
-                    }
-                  />
+                  </>
                 )}
               </View>
             </TouchableWithoutFeedback>
@@ -237,5 +254,22 @@ const styles = StyleSheet.create({
   loadingContainer: {
     padding: 48,
     alignItems: 'center',
+  },
+  searchButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.accent,
+    marginHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 8,
+    paddingVertical: 14,
+    borderRadius: SIZES.borderRadius,
+    gap: 8,
+  },
+  searchButtonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
