@@ -5,6 +5,8 @@ import { API_URL } from '../constants/config';
 export interface VehicleMake {
   id: string;
   name: string;
+  slug?: string | null;
+  logo?: string | null;
 }
 
 export interface VehicleModel {

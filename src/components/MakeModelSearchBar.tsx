@@ -10,8 +10,10 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
+import { OptimizedImage } from './OptimizedImage';
 import { COLORS, SIZES } from '../constants/theme';
 import { Search, ChevronLeft } from 'lucide-react-native';
+import { getMakeLogoUrl, needsDarkLogoBg } from '../utils/makeLogos';
 import { useVehicleCatalog, VehicleMake, VehicleModel } from '../hooks/useVehicleCatalog';
 
 type Step = 'make' | 'model';
@@ -136,6 +138,15 @@ export const MakeModelSearchBar = ({
                           onPress={() => (step === 'make' ? handleSelectMake(item as VehicleMake) : handleSelectModel(item as VehicleModel))}
                           activeOpacity={0.7}
                         >
+                          {step === 'make' && (() => {
+                            const url = getMakeLogoUrl(item as VehicleMake);
+                            const darkBg = needsDarkLogoBg(item as VehicleMake);
+                            return url ? (
+                              <View style={[styles.makeLogoContainer, darkBg && styles.makeLogoContainerDark]}>
+                                <OptimizedImage source={{ uri: url }} style={styles.makeLogo} resizeMode="contain" />
+                              </View>
+                            ) : null;
+                          })()}
                           <Text style={styles.optionText}>{item.name}</Text>
                         </TouchableOpacity>
                       )}
@@ -236,10 +247,29 @@ const styles = StyleSheet.create({
     maxHeight: 400,
   },
   optionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
+  },
+  makeLogoContainer: {
+    width: 40,
+    height: 28,
+    marginRight: 12,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  makeLogoContainerDark: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  makeLogo: {
+    width: 32,
+    height: 24,
+    resizeMode: 'contain',
   },
   optionText: {
     color: COLORS.textPrimary,
