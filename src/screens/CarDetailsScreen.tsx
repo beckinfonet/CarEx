@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Dimensions, Linking, Alert, Modal, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Dimensions, Linking, Alert, Modal, Platform, Animated } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Zoomable } from '@likashefqet/react-native-image-zoom';
 import { OptimizedImage } from '../components/OptimizedImage';
@@ -24,21 +24,39 @@ export const CarDetailsScreen = () => {
   const [galleryVisible, setGalleryVisible] = useState(false);
   const [fullScreenVisible, setFullScreenVisible] = useState(false);
   const fullScreenScrollRef = useRef<ScrollView>(null);
+  const fullScreenOpacity = useRef(new Animated.Value(1)).current;
+  const animateFullScreenOpen = useRef(false);
 
   const car = CARS.find(c => c.id === carId) || (route.params as any).carData;
 
   useEffect(() => {
     if (fullScreenVisible && fullScreenScrollRef.current) {
-      setTimeout(() => {
+      const doScroll = () => {
         fullScreenScrollRef.current?.scrollTo({
           x: activeImageIndex * width,
           animated: false,
         });
-      }, 50);
+      };
+
+      if (animateFullScreenOpen.current) {
+        animateFullScreenOpen.current = false;
+        fullScreenOpacity.setValue(0);
+        setTimeout(() => {
+          doScroll();
+          Animated.timing(fullScreenOpacity, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }).start();
+        }, 100);
+      } else {
+        doScroll();
+      }
     }
   }, [fullScreenVisible, activeImageIndex]);
 
   const openFullScreenFromGallery = (index: number) => {
+    animateFullScreenOpen.current = true;
     setActiveImageIndex(index);
     setFullScreenVisible(true);
     setGalleryVisible(false);
@@ -347,7 +365,7 @@ export const CarDetailsScreen = () => {
         <StatusBar barStyle="light-content" backgroundColor="transparent" />
         {fullScreenVisible ? (
         <GestureHandlerRootView style={styles.fullScreenOverlay}>
-          <View style={styles.fullScreenOverlay}>
+          <Animated.View style={[styles.fullScreenOverlay, { opacity: fullScreenOpacity }]}>
             <TouchableOpacity
               style={[styles.fullScreenCloseButton, { top: insets.top + 16 }]}
               onPress={() => { setFullScreenVisible(false); setGalleryVisible(false); }}
@@ -397,7 +415,7 @@ export const CarDetailsScreen = () => {
                 ))}
               </View>
             )}
-          </View>
+          </Animated.View>
         </GestureHandlerRootView>
         ) : (
         <View style={styles.galleryOverlay}>
