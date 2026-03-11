@@ -238,16 +238,20 @@ export const CarDetailsScreen = () => {
               <Edit2 size={24} color={COLORS.accent} />
             </TouchableOpacity>
           )}
-          <TouchableOpacity style={styles.iconButton} onPress={handleReport}>
-            <AlertTriangle size={24} color={COLORS.textSecondary} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={toggleFavorite}>
-            <Heart
-              size={24}
-              color={isFavorite ? '#EF4444' : COLORS.accent}
-              fill={isFavorite ? '#EF4444' : 'none'}
-            />
-          </TouchableOpacity>
+          {!(car.sellerId && user?.localId === car.sellerId) && (
+            <>
+              <TouchableOpacity style={styles.iconButton} onPress={handleReport}>
+                <AlertTriangle size={24} color={COLORS.textSecondary} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconButton} onPress={toggleFavorite}>
+                <Heart
+                  size={24}
+                  color={isFavorite ? '#EF4444' : COLORS.accent}
+                  fill={isFavorite ? '#EF4444' : 'none'}
+                />
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </View>
 

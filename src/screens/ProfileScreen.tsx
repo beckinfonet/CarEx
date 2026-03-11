@@ -7,7 +7,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { User, LogOut, ChevronRight, Heart, ArrowLeft, ChevronDown, Save, Edit2, X } from 'lucide-react-native';
+import { User, LogOut, ChevronRight, Heart, ArrowLeft, ChevronDown, Save, Edit2, X, List } from 'lucide-react-native';
 import { AuthService } from '../services/AuthService';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Profile'>;
@@ -136,12 +136,12 @@ export const ProfileScreen = () => {
   };
 
   const menuItems = [
-    // {
-    //   id: 'listings',
-    //   title: t.myListings,
-    //   icon: <List size={24} color={COLORS.accent} />,
-    //   onPress: () => Alert.alert(t.myListings, t.comingSoon || 'Coming Soon')
-    // },
+    {
+      id: 'listings',
+      title: t.myListings,
+      icon: <List size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('MyListings')
+    },
     {
       id: 'favorites',
       title: t.myFavorites,

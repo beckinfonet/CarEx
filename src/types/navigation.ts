@@ -7,4 +7,5 @@ export type RootStackParamList = {
   Signup: undefined;
   Profile: undefined;
   Favorites: undefined;
+  MyListings: undefined;
 };
