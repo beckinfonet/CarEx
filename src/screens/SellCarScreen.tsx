@@ -5,13 +5,14 @@ import axios from 'axios';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Alert, ActivityIndicator, Modal, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
 import { ArrowLeft, Camera, X, ChevronDown, AlertTriangle, CheckCircle, Clock, Smartphone } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { MakeModelFormField } from '../components/MakeModelFormField';
+import { RootStackParamList } from '../types/navigation';
 
 const COUNTRIES = [
   { code: 'KR', name: 'South Korea', dial_code: '+82', flag: '🇰🇷', placeholder: '10-1234-5678' },
@@ -26,9 +27,15 @@ export const SellCarScreen = () => {
   const { t } = useLanguage();
   const { user, requestSeller, sendPhoneOtp, verifyPhone } = useAuth();
   const navigation = useNavigation();
+  const route = useRoute<RouteProp<RootStackParamList, 'SellCar'>>();
+  const carId = route.params?.carId;
+  const isEditMode = !!carId;
+
   const [loading, setLoading] = useState(false);
   const [requesting, setRequesting] = useState(false);
+  const [loadingCar, setLoadingCar] = useState(isEditMode);
   const [images, setImages] = useState<Asset[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
   const [countryModalVisible, setCountryModalVisible] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]); // Default KR
 
@@ -69,6 +76,63 @@ export const SellCarScreen = () => {
       checkProfileAndAutofill();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (carId && user?.sellerStatus === 'APPROVED') {
+      const fetchCar = async () => {
+        setLoadingCar(true);
+        try {
+          const res = await axios.get(`${API_URL}/api/cars/${carId}`);
+          const c = res.data;
+          if (c.sellerId !== user?.localId) {
+            Alert.alert(t.error, 'Not authorized to edit this listing.');
+            navigation.goBack();
+            return;
+          }
+          setExistingImageUrls(c.imageUrls || []);
+          let phone = c.phoneNumber || '';
+          let country = COUNTRIES[0];
+          const foundCountry = COUNTRIES.find(cn => phone.startsWith(cn.dial_code));
+          if (foundCountry) {
+            country = foundCountry;
+            phone = phone.replace(foundCountry.dial_code, '');
+          }
+          setSelectedCountry(country);
+          setFormData({
+            makeId: c.makeId?.toString() || '',
+            modelId: c.modelId?.toString() || '',
+            trimLevel: c.trimLevel || '',
+            wheelbase: c.wheelbase || '',
+            year: c.year?.toString() || '',
+            price: c.price?.toString() || '',
+            mileage: c.mileage?.toString() || '',
+            fuel: c.fuel || t.gasoline,
+            bodyType: c.bodyType || t.sedan,
+            description: c.description || '',
+            engine: c.engine || '',
+            transmission: c.transmission || t.automatic,
+            drivetrain: c.drivetrain || t.fwd,
+            mpg: c.mpg || '',
+            condition: c.condition || t.excellent,
+            knownIssues: c.knownIssues || [],
+            exteriorColor: c.exteriorColor || '',
+            interiorColor: c.interiorColor || '',
+            interiorMaterial: c.interiorMaterial || t.leather,
+            seats: c.seats?.toString() || '',
+            doors: c.doors?.toString() || '',
+            phoneNumber: phone,
+            telegramUsername: c.telegramUsername || '',
+          });
+        } catch (e) {
+          Alert.alert(t.error, 'Failed to load listing.');
+          navigation.goBack();
+        } finally {
+          setLoadingCar(false);
+        }
+      };
+      fetchCar();
+    }
+  }, [carId, user?.localId, user?.sellerStatus]);
 
   const handleRequestSeller = async () => {
     // Check mandatory fields first
@@ -168,21 +232,30 @@ export const SellCarScreen = () => {
   const [customIssue, setCustomIssue] = useState('');
 
   const handleChoosePhoto = async () => {
+    const currentTotal = existingImageUrls.length + images.length;
     const result = await launchImageLibrary({
       mediaType: 'photo',
-      selectionLimit: 25 - images.length,
+      selectionLimit: 25 - currentTotal,
     });
 
-    if (result.assets && result.assets.length > 0) {
-      setImages([...images, ...result.assets]);
+    const assets = result.assets ?? [];
+    if (assets.length > 0) {
+      setImages(prev => [...prev, ...assets]);
     }
   };
 
   const removeImage = (index: number) => {
-    const newImages = [...images];
-    newImages.splice(index, 1);
-    setImages(newImages);
+    if (index < existingImageUrls.length) {
+      setExistingImageUrls(prev => prev.filter((_, i) => i !== index));
+    } else {
+      setImages(prev => prev.filter((_, i) => i !== index - existingImageUrls.length));
+    }
   };
+
+  const displayImages = [
+    ...existingImageUrls.map(uri => ({ uri, isExisting: true })),
+    ...images.map(a => ({ uri: a.uri!, isExisting: false })),
+  ];
 
   const toggleDropdown = (field: string) => {
     setExpandedField(expandedField === field ? null : field);
@@ -224,8 +297,14 @@ export const SellCarScreen = () => {
       return;
     }
 
-    if (images.length === 0 || !formData.makeId || !formData.modelId || !formData.price || !formData.phoneNumber) {
+    const totalImages = existingImageUrls.length + images.length;
+    if (totalImages === 0 || !formData.makeId || !formData.modelId || !formData.price || !formData.phoneNumber) {
       Alert.alert('Error', 'Please fill in all required fields (including phone number) and upload at least one image.');
+      return;
+    }
+
+    if (isEditMode && !user?.localId) {
+      Alert.alert('Error', 'You must be logged in to edit a listing.');
       return;
     }
 
@@ -253,6 +332,15 @@ export const SellCarScreen = () => {
       }
     });
 
+    if (!isEditMode && user?.localId) {
+      data.append('sellerId', user.localId);
+    }
+
+    if (isEditMode) {
+      data.append('sellerId', user!.localId);
+      data.append('existingImageUrls', JSON.stringify(existingImageUrls));
+    }
+
     images.forEach((img, index) => {
       if (img.uri) {
         const file = {
@@ -266,18 +354,24 @@ export const SellCarScreen = () => {
     });
 
     try {
-      await axios.post(`${API_URL}/api/cars`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      Alert.alert('Success', 'Car listed successfully!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
-      ]);
+      if (isEditMode) {
+        await axios.put(`${API_URL}/api/cars/${carId}`, data, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        Alert.alert(t.success, 'Listing updated successfully!', [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
+      } else {
+        await axios.post(`${API_URL}/api/cars`, data, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        Alert.alert(t.success, 'Car listed successfully!', [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
+      }
     } catch (error: any) {
       console.error('Upload Error Details:', error);
-      Alert.alert('Error', 'Failed to upload car listing.');
+      Alert.alert(t.error, isEditMode ? 'Failed to update listing.' : 'Failed to upload car listing.');
     } finally {
       setLoading(false);
     }
@@ -327,7 +421,7 @@ export const SellCarScreen = () => {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={COLORS.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t.sellHeader}</Text>
+        <Text style={styles.headerTitle}>{isEditMode ? t.editListing : t.sellHeader}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -444,6 +538,11 @@ export const SellCarScreen = () => {
           <Text style={styles.statusTitle}>{t.error}</Text>
           <Text style={styles.statusDescription}>{t.sellerStatusRejected}</Text>
         </View>
+      ) : isEditMode && loadingCar ? (
+        <View style={[styles.statusContainer, { flex: 1 }]}>
+          <ActivityIndicator size="large" color={COLORS.accent} />
+          <Text style={styles.statusDescription}>{t.loading}</Text>
+        </View>
       ) : (
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -452,7 +551,7 @@ export const SellCarScreen = () => {
           <ScrollView style={styles.content}>
             <View style={styles.imageSection}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageList}>
-                {images.map((img, index) => (
+                {displayImages.map((img, index) => (
                   <View key={index} style={styles.imagePreviewContainer}>
                     <Image source={{ uri: img.uri }} style={styles.uploadedImage} />
                     <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
@@ -460,7 +559,7 @@ export const SellCarScreen = () => {
                     </TouchableOpacity>
                   </View>
                 ))}
-                {images.length < 25 && (
+                {displayImages.length < 25 && (
                   <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
                     <Camera size={32} color={COLORS.textSecondary} style={{ marginBottom: 4 }} />
                     <Text style={styles.uploadText}>{t.photo}</Text>

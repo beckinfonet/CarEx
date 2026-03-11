@@ -127,6 +127,7 @@ export const TRANSLATIONS = {
 
     // Sell Car
     sellHeader: 'Продать авто',
+    editListing: 'Редактировать объявление',
     mainInfo: 'Основная информация',
     brand: 'Марка (например, BMW)',
     model: 'Модель (например, X5)',
@@ -335,6 +336,7 @@ export const TRANSLATIONS = {
 
     // Sell Car
     sellHeader: 'Sell Car',
+    editListing: 'Edit Listing',
     mainInfo: 'Main Information',
     brand: 'Make (e.g., BMW)',
     model: 'Model (e.g., X5)',

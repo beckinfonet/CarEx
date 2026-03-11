@@ -8,15 +8,17 @@ import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X } from 'lucide-react-native';
+import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X, Edit2 } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
 export const CarDetailsScreen = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const route = useRoute();
   const { carId } = route.params as { carId: string };
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -229,6 +231,14 @@ export const CarDetailsScreen = () => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{car.make} {car.model}</Text>
         <View style={styles.headerRight}>
+          {car.sellerId && user?.localId === car.sellerId && (
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => navigation.navigate('SellCar', { carId: car.id })}
+            >
+              <Edit2 size={24} color={COLORS.accent} />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.iconButton} onPress={handleReport}>
             <AlertTriangle size={24} color={COLORS.textSecondary} />
           </TouchableOpacity>

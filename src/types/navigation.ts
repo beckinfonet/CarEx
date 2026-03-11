@@ -1,7 +1,7 @@
 export type RootStackParamList = {
   Home: undefined;
   CarDetails: { carId: string; carData?: any };
-  SellCar: undefined;
+  SellCar: { carId?: string } | undefined;
   About: undefined;
   Login: undefined;
   Signup: undefined;
