@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Dimensions, Linking, Alert, Modal, Platform, Animated } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, useWindowDimensions, Linking, Alert, Modal, Platform, Animated } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Zoomable } from '@likashefqet/react-native-image-zoom';
 import { OptimizedImage } from '../components/OptimizedImage';
@@ -12,9 +12,8 @@ import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X, Edit2 } from '
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
-const { width, height } = Dimensions.get('window');
-
 export const CarDetailsScreen = () => {
+  const { width, height } = useWindowDimensions();
   const { t } = useLanguage();
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
@@ -55,7 +54,7 @@ export const CarDetailsScreen = () => {
         doScroll();
       }
     }
-  }, [fullScreenVisible, activeImageIndex]);
+  }, [fullScreenVisible, activeImageIndex, width]);
 
   const openFullScreenFromGallery = (index: number) => {
     animateFullScreenOpen.current = true;
@@ -253,11 +252,7 @@ export const CarDetailsScreen = () => {
       </View>
 
       <ScrollView style={styles.content} removeClippedSubviews={Platform.OS === 'android'}>
-        <TouchableOpacity
-          style={styles.imageCarousel}
-          activeOpacity={1}
-          onPress={() => setGalleryVisible(true)}
-        >
+        <View style={styles.imageCarousel}>
           <ScrollView
             horizontal
             pagingEnabled
@@ -267,7 +262,14 @@ export const CarDetailsScreen = () => {
             removeClippedSubviews={Platform.OS === 'android'}
           >
             {images.map((img: string, index: number) => (
-              <OptimizedImage key={index} source={{ uri: img }} style={styles.mainImage} resizeMode="cover" />
+              <TouchableOpacity
+                key={index}
+                activeOpacity={1}
+                onPress={() => setGalleryVisible(true)}
+                style={{ width }}
+              >
+                <OptimizedImage source={{ uri: img }} style={[styles.mainImage, { width }]} resizeMode="cover" />
+              </TouchableOpacity>
             ))}
           </ScrollView>
 
@@ -284,7 +286,7 @@ export const CarDetailsScreen = () => {
               ))}
             </View>
           )}
-        </TouchableOpacity>
+        </View>
 
         <View style={styles.detailsContainer}>
           <View style={styles.titleRow}>
@@ -455,7 +457,7 @@ export const CarDetailsScreen = () => {
               >
                 <OptimizedImage
                   source={{ uri: img }}
-                  style={styles.galleryImage}
+                  style={[styles.galleryImage, { width, height: width * 0.75 }]}
                   resizeMode="contain"
                 />
               </TouchableOpacity>
@@ -527,7 +529,6 @@ const styles = StyleSheet.create({
     height: 250,
   },
   mainImage: {
-    width: width,
     height: 250,
   },
   pagination: {
@@ -563,8 +564,6 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   galleryImage: {
-    width: width,
-    height: width * 0.75,
     marginBottom: 8,
   },
   fullScreenOverlay: {
@@ -582,8 +581,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   fullScreenImage: {
-    width: width,
-    height: height,
+    // width/height set inline from useWindowDimensions for rotation support
   },
   fullScreenPagination: {
     position: 'absolute',
