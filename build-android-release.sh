@@ -56,8 +56,11 @@ rm -rf "$SCRIPT_DIR/android/build/generated/autolinking"
 rm -rf "$SCRIPT_DIR/android/app/build/generated/autolinking"
 
 # Clean and build AAB
+# Note: Run clean and build as separate commands to avoid react-native-reanimated
+# prefab race condition (see https://github.com/software-mansion/react-native-reanimated/issues/7317)
 cd "$SCRIPT_DIR/android"
-./gradlew clean bundleRelease
+./gradlew clean --refresh-dependencies
+./gradlew bundleRelease
 
 if [ -f "$AAB_OUTPUT" ]; then
     echo ""
