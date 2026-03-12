@@ -58,6 +58,13 @@ export const HomeScreen = () => {
         listingStatus: car.listingStatus || 'active',
         ...car
       }));
+      console.log('[Filter] API cars (first 5):', apiCars.slice(0, 5).map(c => ({
+        id: c.id,
+        makeId: c.makeId,
+        modelId: c.modelId,
+        make: c.make,
+        model: c.model,
+      })));
       setCars(apiCars);
     } catch (error) {
       console.error('Failed to fetch cars:', error);
@@ -111,16 +118,46 @@ export const HomeScreen = () => {
 
   const filteredCars = cars.filter(car => {
     if (car.listingStatus === 'sold') return false;
+    const makeIdStr = car.makeId != null ? String(car.makeId) : null;
+    const modelIdStr = car.modelId != null ? String(car.modelId) : null;
+    const carMakeLower = car.make?.toLowerCase() ?? '';
+    const carModelLower = car.model?.toLowerCase() ?? '';
+    const selectedMakeNameLower = selectedMake?.name?.toLowerCase() ?? '';
+    const selectedModelNameLower = selectedModel?.name?.toLowerCase() ?? '';
+
+    const modelNameMatches = (a: string, b: string) =>
+      a === b || (a && b && (a.startsWith(b) || b.startsWith(a)));
+
     const matchesSearch =
       (!selectedMake && !selectedModel) ||
       (selectedMake && !selectedModel && (
-        car.makeId === selectedMake.id ||
-        (!car.makeId && car.make?.toLowerCase() === selectedMake.name?.toLowerCase())
+        makeIdStr === selectedMake.id ||
+        carMakeLower === selectedMakeNameLower
       )) ||
       (selectedMake && selectedModel && (
-        (car.makeId === selectedMake.id && car.modelId === selectedModel.id) ||
-        (!car.makeId && car.make?.toLowerCase() === selectedMake.name?.toLowerCase() && car.model?.toLowerCase() === selectedModel.name?.toLowerCase())
+        (makeIdStr === selectedMake.id && modelIdStr === selectedModel.id) ||
+        (makeIdStr === selectedMake.id && !modelIdStr && modelNameMatches(carModelLower, selectedModelNameLower)) ||
+        (carMakeLower === selectedMakeNameLower && modelNameMatches(carModelLower, selectedModelNameLower))
       ));
+
+    // DEBUG: log when make filter is active and car doesn't match
+    if (selectedMake && !matchesSearch) {
+      console.log('[Filter] NO MATCH car:', {
+        id: car.id,
+        makeId: car.makeId,
+        makeIdStr,
+        modelId: car.modelId,
+        modelIdStr,
+        make: car.make,
+        model: car.model,
+        selectedMakeId: selectedMake.id,
+        selectedMakeName: selectedMake.name,
+        selectedModelId: selectedModel?.id,
+        selectedModelName: selectedModel?.name,
+        makeIdMatch: makeIdStr === selectedMake.id,
+        makeNameMatch: !makeIdStr && carMakeLower === selectedMakeNameLower,
+      });
+    }
 
     // Filter Logic
     let matchesFilters = true;
@@ -154,6 +191,23 @@ export const HomeScreen = () => {
 
     return matchesSearch && matchesCategory && matchesFilters;
   });
+
+  // DEBUG: log filter summary when make/model filter is active
+  if (selectedMake && cars.length > 0) {
+    const sampleCars = cars.slice(0, 5).map(c => ({
+      id: c.id,
+      makeId: c.makeId,
+      make: c.make,
+      model: c.model,
+    }));
+    console.log('[Filter] Summary:', {
+      selectedMake: { id: selectedMake.id, name: selectedMake.name },
+      selectedModel: selectedModel ? { id: selectedModel.id, name: selectedModel.name } : null,
+      totalCars: cars.length,
+      filteredCount: filteredCars.length,
+      sampleCarsFromAPI: sampleCars,
+    });
+  }
 
   const handleCarPress = (car: any) => {
     navigation.navigate('CarDetails', { carId: car.id, carData: car });
