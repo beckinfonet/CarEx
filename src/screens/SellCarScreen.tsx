@@ -60,6 +60,7 @@ export const SellCarScreen = () => {
     transmission: t.automatic,
     drivetrain: t.fwd,
     mpg: '',
+    fuelEfficiencyUnit: 'km' as 'km' | 'mpg',
     condition: t.excellent,
     knownIssues: [] as string[],
     exteriorColor: '',
@@ -112,7 +113,16 @@ export const SellCarScreen = () => {
             engine: c.engine || '',
             transmission: c.transmission || t.automatic,
             drivetrain: c.drivetrain || t.fwd,
-            mpg: c.mpg || '',
+            mpg: (() => {
+              const m = c.mpg || '';
+              const numMatch = m.match(/^([\d.,]+)/);
+              return numMatch ? numMatch[1] : '';
+            })(),
+            fuelEfficiencyUnit: (() => {
+              const m = c.mpg || '';
+              if (m.toUpperCase().includes('MPG')) return 'mpg';
+              return 'km';
+            })(),
             condition: c.condition || t.excellent,
             knownIssues: c.knownIssues || [],
             exteriorColor: c.exteriorColor || '',
@@ -321,11 +331,18 @@ export const SellCarScreen = () => {
     setLoading(true);
 
     const data = new FormData();
+    const mpgValue = formData.mpg?.trim();
+    const mpgForApi = mpgValue
+      ? `${mpgValue} ${formData.fuelEfficiencyUnit === 'km' ? 'L/100km' : 'MPG'}`
+      : '';
     Object.keys(formData).forEach(key => {
+      if (key === 'fuelEfficiencyUnit') return;
       if (key === 'knownIssues') {
         data.append(key, JSON.stringify(formData[key]));
       } else if (key === 'phoneNumber') {
         data.append(key, fullPhoneNumber);
+      } else if (key === 'mpg') {
+        data.append(key, mpgForApi);
       } else {
         // @ts-ignore
         data.append(key, formData[key]);
@@ -626,7 +643,7 @@ export const SellCarScreen = () => {
                 onChangeText={(text) => setFormData({ ...formData, wheelbase: text })}
               />
 
-              {renderDropdown(t.typeBody, formData.bodyType, 'bodyType', [t.sedan, t.suv, t.passenger, t.truck, t.special])}
+              {renderDropdown(t.typeBody, formData.bodyType, 'bodyType', [t.sedan, t.hatchback, t.compactCar, t.suv, t.passenger, t.truck, t.special])}
 
               <View style={styles.row}>
                 <TextInput
@@ -660,13 +677,37 @@ export const SellCarScreen = () => {
               {renderDropdown(t.drivetrain, formData.drivetrain, 'drivetrain', [t.fwd, t.rwd, t.awd, t.fourwd])}
               {renderDropdown(t.fuel, formData.fuel, 'fuel', [t.gasoline, t.diesel, t.hybrid, t.pluginHybrid, t.electric, t.gas])}
 
-              <TextInput
-                style={styles.input}
-                placeholder={t.mpgRange}
-                placeholderTextColor={COLORS.textSecondary}
-                value={formData.mpg}
-                onChangeText={(text) => setFormData({ ...formData, mpg: text })}
-              />
+              <View>
+                <Text style={styles.fieldLabel}>{t.fuelEfficiency}</Text>
+                <View style={styles.fuelEfficiencyRow}>
+                  <TextInput
+                    style={[styles.input, styles.fuelEfficiencyInput]}
+                    placeholder={formData.fuelEfficiencyUnit === 'km' ? (t.fuelEfficiencyPlaceholderKm || 'e.g. 7.5') : (t.fuelEfficiencyPlaceholderMpg || 'e.g. 28')}
+                    placeholderTextColor={COLORS.textSecondary}
+                    keyboardType="decimal-pad"
+                    value={formData.mpg}
+                    onChangeText={(text) => setFormData({ ...formData, mpg: text })}
+                  />
+                  <View style={styles.unitToggle}>
+                    <TouchableOpacity
+                      style={[styles.unitButton, formData.fuelEfficiencyUnit === 'km' && styles.unitButtonActive]}
+                      onPress={() => setFormData({ ...formData, fuelEfficiencyUnit: 'km' })}
+                    >
+                      <Text style={[styles.unitButtonText, formData.fuelEfficiencyUnit === 'km' && styles.unitButtonTextActive]}>
+                        {t.fuelEfficiencyKm || 'L/100 km'}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.unitButton, formData.fuelEfficiencyUnit === 'mpg' && styles.unitButtonActive]}
+                      onPress={() => setFormData({ ...formData, fuelEfficiencyUnit: 'mpg' })}
+                    >
+                      <Text style={[styles.unitButtonText, formData.fuelEfficiencyUnit === 'mpg' && styles.unitButtonTextActive]}>
+                        {t.fuelEfficiencyMpg || 'MPG'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
               <TextInput
                 style={styles.input}
                 placeholder={t.enterMileage}
@@ -885,6 +926,43 @@ const styles = StyleSheet.create({
   },
   halfInput: {
     width: '48%',
+  },
+  fieldLabel: {
+    color: COLORS.textSecondary,
+    fontSize: 12,
+    marginBottom: 6,
+  },
+  fuelEfficiencyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  fuelEfficiencyInput: {
+    flex: 1,
+    minWidth: 60,
+  },
+  unitToggle: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.searchBackground,
+    borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    overflow: 'hidden',
+  },
+  unitButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+  unitButtonActive: {
+    backgroundColor: COLORS.accent,
+  },
+  unitButtonText: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+  },
+  unitButtonTextActive: {
+    color: '#000',
+    fontWeight: '600',
   },
   dropdownContainer: {
     marginBottom: 0,

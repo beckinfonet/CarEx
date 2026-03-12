@@ -35,6 +35,8 @@ export const TRANSLATIONS = {
 
     // Categories
     sedan: 'Седан',
+    hatchback: 'Хэтчбек',
+    compactCar: 'Компактный',
     suv: 'SUV/RV',
     passenger: 'Пассажирские',
     truck: 'Грузовые',
@@ -151,6 +153,11 @@ export const TRANSLATIONS = {
     specs: 'Характеристики',
     enterEngine: 'Двигатель (e.g., 3.0L V6)',
     mpgRange: 'MPG / Запас хода',
+    fuelEfficiency: 'Экономия топлива',
+    fuelEfficiencyKm: 'L/100 км',
+    fuelEfficiencyMpg: 'MPG',
+    fuelEfficiencyPlaceholderKm: 'напр. 7.5',
+    fuelEfficiencyPlaceholderMpg: 'напр. 28',
     enterMileage: 'Пробег (км)',
     conditionLabel: 'Общее состояние',
     issuesLabel: 'Известные проблемы',
@@ -256,6 +263,8 @@ export const TRANSLATIONS = {
 
     // Categories
     sedan: 'Sedan',
+    hatchback: 'Hatchback',
+    compactCar: 'Compact car',
     suv: 'SUV/RV',
     passenger: 'Passenger',
     truck: 'Trucks',
@@ -372,6 +381,11 @@ export const TRANSLATIONS = {
     specs: 'Specifications',
     enterEngine: 'Engine (e.g., 3.0L V6)',
     mpgRange: 'MPG / Range',
+    fuelEfficiency: 'Fuel efficiency',
+    fuelEfficiencyKm: 'L/100 km',
+    fuelEfficiencyMpg: 'MPG',
+    fuelEfficiencyPlaceholderKm: 'e.g. 7.5',
+    fuelEfficiencyPlaceholderMpg: 'e.g. 28',
     enterMileage: 'Mileage (km)',
     conditionLabel: 'Condition',
     issuesLabel: 'Known Issues',
