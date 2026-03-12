@@ -58,13 +58,6 @@ export const HomeScreen = () => {
         listingStatus: car.listingStatus || 'active',
         ...car
       }));
-      console.log('[Filter] API cars (first 5):', apiCars.slice(0, 5).map(c => ({
-        id: c.id,
-        makeId: c.makeId,
-        modelId: c.modelId,
-        make: c.make,
-        model: c.model,
-      })));
       setCars(apiCars);
     } catch (error) {
       console.error('Failed to fetch cars:', error);
@@ -140,25 +133,6 @@ export const HomeScreen = () => {
         (carMakeLower === selectedMakeNameLower && modelNameMatches(carModelLower, selectedModelNameLower))
       ));
 
-    // DEBUG: log when make filter is active and car doesn't match
-    if (selectedMake && !matchesSearch) {
-      console.log('[Filter] NO MATCH car:', {
-        id: car.id,
-        makeId: car.makeId,
-        makeIdStr,
-        modelId: car.modelId,
-        modelIdStr,
-        make: car.make,
-        model: car.model,
-        selectedMakeId: selectedMake.id,
-        selectedMakeName: selectedMake.name,
-        selectedModelId: selectedModel?.id,
-        selectedModelName: selectedModel?.name,
-        makeIdMatch: makeIdStr === selectedMake.id,
-        makeNameMatch: !makeIdStr && carMakeLower === selectedMakeNameLower,
-      });
-    }
-
     // Filter Logic
     let matchesFilters = true;
     if (activeFilters['Год']) {
@@ -192,22 +166,35 @@ export const HomeScreen = () => {
     return matchesSearch && matchesCategory && matchesFilters;
   });
 
-  // DEBUG: log filter summary when make/model filter is active
-  if (selectedMake && cars.length > 0) {
-    const sampleCars = cars.slice(0, 5).map(c => ({
-      id: c.id,
-      makeId: c.makeId,
-      make: c.make,
-      model: c.model,
-    }));
-    console.log('[Filter] Summary:', {
-      selectedMake: { id: selectedMake.id, name: selectedMake.name },
-      selectedModel: selectedModel ? { id: selectedModel.id, name: selectedModel.name } : null,
-      totalCars: cars.length,
-      filteredCount: filteredCars.length,
-      sampleCarsFromAPI: sampleCars,
-    });
-  }
+  // Models available in current make-only results (for model filter chips)
+  const availableModels = React.useMemo(() => {
+    if (!selectedMake) return [];
+    const makeIdStr = (id: any) => id != null ? String(id) : null;
+    const carMakeLower = (c: any) => c.make?.toLowerCase() ?? '';
+    const selectedMakeNameLower = selectedMake.name?.toLowerCase() ?? '';
+    const matchesMake = (car: any) => {
+      if (car.listingStatus === 'sold') return false;
+      const mid = makeIdStr(car.makeId);
+      const m = carMakeLower(car);
+      return mid === selectedMake.id || m === selectedMakeNameLower;
+    };
+    const carsMatchingMake = cars.filter(c => matchesMake(c));
+    const seen = new Set<string>();
+    const models: { id: string; name: string }[] = [];
+    for (const car of carsMatchingMake) {
+      const name = (car.model || car.modelName || '').trim();
+      if (!name) continue;
+      const key = (car.modelId != null ? String(car.modelId) : name).toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      models.push({
+        id: car.modelId != null ? String(car.modelId) : name,
+        name,
+      });
+    }
+    models.sort((a, b) => a.name.localeCompare(b.name));
+    return models;
+  }, [cars, selectedMake]);
 
   const handleCarPress = (car: any) => {
     navigation.navigate('CarDetails', { carId: car.id, carData: car });
@@ -305,6 +292,45 @@ export const HomeScreen = () => {
                     <SlidersHorizontal size={20} color={filtersVisible ? COLORS.accent : COLORS.textPrimary} />
                   </TouchableOpacity>
                 </View>
+                {selectedMake && availableModels.length > 0 && (
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.modelChipsScroll}
+                    contentContainerStyle={styles.modelChipsContent}
+                  >
+                    <TouchableOpacity
+                      style={[styles.modelChip, !selectedModel && styles.modelChipActive]}
+                      onPress={() => setSelectedModel(null)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[styles.modelChipText, !selectedModel && styles.modelChipTextActive]}>
+                        {t.allModels || 'All models'}
+                      </Text>
+                    </TouchableOpacity>
+                    {availableModels.map((model) => (
+                      <TouchableOpacity
+                        key={model.id}
+                        style={[
+                          styles.modelChip,
+                          selectedModel?.id === model.id && styles.modelChipActive,
+                          selectedModel?.name === model.name && styles.modelChipActive,
+                        ]}
+                        onPress={() => setSelectedModel(model)}
+                        activeOpacity={0.7}
+                      >
+                        <Text
+                          style={[
+                            styles.modelChipText,
+                            (selectedModel?.id === model.id || selectedModel?.name === model.name) && styles.modelChipTextActive,
+                          ]}
+                        >
+                          {model.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                )}
                 {filtersVisible && (
                   <>
                     <FilterBar onFilterPress={handleFilterPress} activeFilters={activeFilters} t={t} />
@@ -448,6 +474,35 @@ const styles = StyleSheet.create({
   },
   searchBarContainer: {
     marginBottom: 0,
+  },
+  modelChipsScroll: {
+    marginBottom: 8,
+    maxHeight: 40,
+  },
+  modelChipsContent: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingVertical: 4,
+  },
+  modelChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: COLORS.searchBackground,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  modelChipActive: {
+    backgroundColor: COLORS.accent,
+    borderColor: COLORS.accent,
+  },
+  modelChipText: {
+    fontSize: 14,
+    color: COLORS.textPrimary,
+  },
+  modelChipTextActive: {
+    color: '#000',
+    fontWeight: '600',
   },
   filterToggleButton: {
     width: 44,
