@@ -422,15 +422,21 @@ export const CarDetailsScreen = () => {
               </View>
             </View>
           )}
-          <View style={styles.titleRow}>
-            <View>
-              <Text style={styles.title}>{car.make} {car.model}{car.trimLevel ? ` ${car.trimLevel}` : ''} {car.year}</Text>
+          <View style={styles.titleBlock}>
+            <View style={styles.titleRow}>
+              <View style={styles.titleContainer}>
+                <Text style={styles.title} numberOfLines={3}>{car.make} {car.model}{car.trimLevel ? ` ${car.trimLevel}` : ''} {car.year}</Text>
+              </View>
+              <Text style={styles.price}>{car.currency}{car.price.toLocaleString()}</Text>
+            </View>
+            <View style={styles.subtitleRow}>
               <Text style={styles.subtitle}>{car.mileage.toLocaleString()} км • {car.fuel}</Text>
               {car.listingId && (
-                <Text style={styles.listingId}>ID: {car.listingId}</Text>
+                <View style={styles.listingIdPill}>
+                  <Text style={styles.listingId}>ID: {car.listingId}</Text>
+                </View>
               )}
             </View>
-            <Text style={styles.price}>{car.currency}{car.price.toLocaleString()}</Text>
           </View>
 
           <View style={styles.specsContainer}>
@@ -796,11 +802,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
   },
+  titleBlock: {
+    marginBottom: 24,
+  },
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 24,
+    gap: 12,
+  },
+  titleContainer: {
+    flex: 1,
+    minWidth: 0,
   },
   title: {
     color: COLORS.textPrimary,
@@ -808,20 +821,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 4,
   },
+  subtitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+    width: '100%',
+  },
   subtitle: {
     color: COLORS.textSecondary,
     fontSize: 14,
   },
+  listingIdPill: {
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    borderWidth: 1,
+    borderColor: COLORS.accent,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
   listingId: {
     color: COLORS.accent,
     fontSize: 12,
-    marginTop: 4,
     fontWeight: 'bold',
   },
   price: {
     color: COLORS.accent,
     fontSize: 24,
     fontWeight: 'bold',
+    flexShrink: 0,
   },
   specsContainer: {
     marginBottom: 24,
