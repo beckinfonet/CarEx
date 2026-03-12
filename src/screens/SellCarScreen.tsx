@@ -36,6 +36,7 @@ export const SellCarScreen = () => {
   const [loadingCar, setLoadingCar] = useState(isEditMode);
   const [images, setImages] = useState<Asset[]>([]);
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
+  const [imageOrientation, setImageOrientation] = useState<'vertical' | 'horizontal' | null>(null);
   const [countryModalVisible, setCountryModalVisible] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]); // Default KR
 
@@ -77,6 +78,12 @@ export const SellCarScreen = () => {
       checkProfileAndAutofill();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (isEditMode && existingImageUrls.length > 0 && !imageOrientation) {
+      setImageOrientation('vertical');
+    }
+  }, [isEditMode, existingImageUrls.length]);
 
   useEffect(() => {
     if (carId && user?.sellerStatus === 'APPROVED') {
@@ -241,7 +248,14 @@ export const SellCarScreen = () => {
   const [expandedField, setExpandedField] = useState<string | null>(null);
   const [customIssue, setCustomIssue] = useState('');
 
+  const getImageDimensions = (uri: string): Promise<{ width: number; height: number }> => {
+    return new Promise((resolve, reject) => {
+      Image.getSize(uri, (width, height) => resolve({ width, height }), reject);
+    });
+  };
+
   const handleChoosePhoto = async () => {
+    if (!imageOrientation) return;
     const currentTotal = existingImageUrls.length + images.length;
     const result = await launchImageLibrary({
       mediaType: 'photo',
@@ -249,8 +263,41 @@ export const SellCarScreen = () => {
     });
 
     const assets = result.assets ?? [];
-    if (assets.length > 0) {
-      setImages(prev => [...prev, ...assets]);
+    if (assets.length === 0) return;
+
+    const validAssets: Asset[] = [];
+    let invalidCount = 0;
+    const isVertical = imageOrientation === 'vertical';
+
+    for (const asset of assets) {
+      const uri = asset.uri;
+      if (!uri) continue;
+      try {
+        const { width, height } = await getImageDimensions(uri);
+        const assetIsVertical = height > width;
+        const assetIsHorizontal = width > height;
+        const matches = isVertical ? assetIsVertical : assetIsHorizontal;
+        if (matches) {
+          validAssets.push(asset);
+        } else {
+          invalidCount++;
+        }
+      } catch {
+        invalidCount++;
+      }
+    }
+
+    if (validAssets.length > 0) {
+      setImages(prev => [...prev, ...validAssets]);
+    }
+    if (invalidCount > 0) {
+      const orientationLabel = imageOrientation === 'vertical' ? t.vertical : t.horizontal;
+      Alert.alert(
+        t.wrongOrientation,
+        (t.wrongOrientationMessage || 'Photos must be {{orientation}}. {{count}} photo(s) with wrong orientation were not added.')
+          .replace('{{orientation}}', orientationLabel)
+          .replace('{{count}}', String(invalidCount))
+      );
     }
   };
 
@@ -567,22 +614,68 @@ export const SellCarScreen = () => {
         >
           <ScrollView style={styles.content}>
             <View style={styles.imageSection}>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageList}>
-                {displayImages.map((img, index) => (
-                  <View key={index} style={styles.imagePreviewContainer}>
-                    <Image source={{ uri: img.uri }} style={styles.uploadedImage} />
-                    <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
-                      <X size={16} color="#FFF" />
+              {!imageOrientation ? (
+                <View style={styles.orientationPicker}>
+                  <Text style={styles.orientationTitle}>{t.choosePhotoOrientation}</Text>
+                  <Text style={styles.orientationDesc}>{t.photoOrientationDesc}</Text>
+                  <View style={styles.orientationOptions}>
+                    <TouchableOpacity
+                      style={[styles.orientationOption, imageOrientation === 'vertical' && styles.orientationOptionActive]}
+                      onPress={() => setImageOrientation('vertical')}
+                      activeOpacity={0.8}
+                    >
+                      <View style={styles.orientationVisual}>
+                        <View style={[styles.orientationRect, styles.orientationRectVertical]} />
+                      </View>
+                      <View style={styles.orientationRadioRow}>
+                        <View style={[styles.radioOuter, imageOrientation === 'vertical' && styles.radioOuterActive]}>
+                          {imageOrientation === 'vertical' && <View style={styles.radioInner} />}
+                        </View>
+                        <Text style={[styles.orientationLabel, imageOrientation === 'vertical' && styles.orientationLabelActive]}>{t.vertical}</Text>
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.orientationOption, imageOrientation === 'horizontal' && styles.orientationOptionActive]}
+                      onPress={() => setImageOrientation('horizontal')}
+                      activeOpacity={0.8}
+                    >
+                      <View style={styles.orientationVisual}>
+                        <View style={[styles.orientationRect, styles.orientationRectHorizontal]} />
+                      </View>
+                      <View style={styles.orientationRadioRow}>
+                        <View style={[styles.radioOuter, imageOrientation === 'horizontal' && styles.radioOuterActive]}>
+                          {imageOrientation === 'horizontal' && <View style={styles.radioInner} />}
+                        </View>
+                        <Text style={[styles.orientationLabel, imageOrientation === 'horizontal' && styles.orientationLabelActive]}>{t.horizontal}</Text>
+                      </View>
                     </TouchableOpacity>
                   </View>
-                ))}
-                {displayImages.length < 25 && (
-                  <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
-                    <Camera size={32} color={COLORS.textSecondary} style={{ marginBottom: 4 }} />
-                    <Text style={styles.uploadText}>{t.photo}</Text>
-                  </TouchableOpacity>
-                )}
-              </ScrollView>
+                </View>
+              ) : (
+                <>
+                  {images.length === 0 && (
+                    <TouchableOpacity style={styles.changeOrientationButton} onPress={() => setImageOrientation(null)}>
+                      <Text style={styles.changeOrientationText}>{t.changeOrientation}</Text>
+                    </TouchableOpacity>
+                  )}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageList}>
+                  {displayImages.map((img, index) => (
+                    <View key={index} style={styles.imagePreviewContainer}>
+                      <Image source={{ uri: img.uri }} style={styles.uploadedImage} />
+                      <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
+                        <X size={16} color="#FFF" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                  {displayImages.length < 25 && (
+                    <TouchableOpacity style={styles.addImageButton} onPress={handleChoosePhoto}>
+                      <Camera size={32} color={COLORS.textSecondary} style={{ marginBottom: 4 }} />
+                      <Text style={styles.uploadText}>{t.photo}</Text>
+                    </TouchableOpacity>
+                  )}
+                </ScrollView>
+                </>
+              )}
             </View>
 
             <View style={styles.form}>
@@ -848,7 +941,104 @@ const styles = StyleSheet.create({
   },
   imageSection: {
     marginBottom: 24,
-    height: 120,
+    minHeight: 120,
+  },
+  orientationPicker: {
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  orientationTitle: {
+    color: COLORS.textPrimary,
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  orientationDesc: {
+    color: COLORS.textSecondary,
+    fontSize: 13,
+    marginBottom: 16,
+  },
+  orientationOptions: {
+    flexDirection: 'row',
+    gap: 20,
+  },
+  orientationOption: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: SIZES.borderRadius,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.searchBackground,
+  },
+  orientationOptionActive: {
+    borderColor: COLORS.accent,
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+  },
+  orientationVisual: {
+    width: 60,
+    height: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  orientationRect: {
+    backgroundColor: COLORS.textSecondary,
+    opacity: 0.6,
+    borderRadius: 4,
+  },
+  orientationRectVertical: {
+    width: 24,
+    height: 48,
+  },
+  orientationRectHorizontal: {
+    width: 48,
+    height: 24,
+  },
+  orientationRadioRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  radioOuter: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioOuterActive: {
+    borderColor: COLORS.accent,
+  },
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: COLORS.accent,
+  },
+  orientationLabel: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+  },
+  orientationLabelActive: {
+    color: COLORS.accent,
+    fontWeight: '600',
+  },
+  changeOrientationButton: {
+    alignSelf: 'flex-start',
+    paddingVertical: 6,
+    paddingHorizontal: 0,
+    marginBottom: 8,
+  },
+  changeOrientationText: {
+    color: COLORS.accent,
+    fontSize: 14,
   },
   imageList: {
     flexDirection: 'row',

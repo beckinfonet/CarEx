@@ -31,6 +31,8 @@ export const TRANSLATIONS = {
     enterMake: 'Введите марку',
     enterModel: 'Введите модель',
     noCars: 'Нет автомобилей',
+    wrongOrientation: 'Неверная ориентация',
+    wrongOrientationMessage: 'Фото должно быть {{orientation}}. Выбрано {{count}} фото с неправильной ориентацией.',
     carNotFound: 'Автомобиль не найден',
 
     // Categories
@@ -172,6 +174,11 @@ export const TRANSLATIONS = {
     phoneNumber: 'Номер телефона',
     telegramUsername: 'Telegram (username без @)',
     photo: 'Фото',
+    choosePhotoOrientation: 'Выберите ориентацию фото',
+    photoOrientationDesc: 'Все фото должны быть в одном формате',
+    vertical: 'Вертикально',
+    horizontal: 'Горизонтально',
+    changeOrientation: 'Изменить ориентацию',
     contactMessage: 'Здравствуйте, меня интересует ваш {car} (ID: {id})',
 
     // Drivetrain
@@ -259,6 +266,8 @@ export const TRANSLATIONS = {
     enterMake: 'Enter make',
     enterModel: 'Enter model',
     noCars: 'No cars found',
+    wrongOrientation: 'Wrong orientation',
+    wrongOrientationMessage: 'Photos must be {{orientation}}. {{count}} photo(s) with wrong orientation were not added.',
     carNotFound: 'Car not found',
 
     // Categories
@@ -400,6 +409,11 @@ export const TRANSLATIONS = {
     phoneNumber: 'Phone Number',
     telegramUsername: 'Telegram (username without @)',
     photo: 'Photo',
+    choosePhotoOrientation: 'Choose photo orientation',
+    photoOrientationDesc: 'All photos must be in the same format',
+    vertical: 'Vertical',
+    horizontal: 'Horizontal',
+    changeOrientation: 'Change orientation',
     contactMessage: 'Hi, I\'m interested in your {car} (ID: {id})',
 
     // Drivetrain
