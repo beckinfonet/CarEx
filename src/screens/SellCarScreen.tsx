@@ -653,11 +653,29 @@ export const SellCarScreen = () => {
                 </View>
               ) : (
                 <>
-                  {images.length === 0 && (
-                    <TouchableOpacity style={styles.changeOrientationButton} onPress={() => setImageOrientation(null)}>
-                      <Text style={styles.changeOrientationText}>{t.changeOrientation}</Text>
-                    </TouchableOpacity>
-                  )}
+                  <View style={styles.orientationReminder}>
+                    <CheckCircle size={18} color={COLORS.accent} style={styles.orientationReminderIcon} />
+                    <Text style={styles.orientationReminderText}>{t.orientationSelectedMessage}</Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.changeOrientationButton}
+                    onPress={() => {
+                      if (images.length > 0) {
+                        Alert.alert(
+                          t.changeOrientation,
+                          t.changeOrientationConfirm,
+                          [
+                            { text: t.cancel, style: 'cancel' },
+                            { text: t.changeOrientationConfirmButton || 'Change', onPress: () => { setImages([]); setImageOrientation(null); } },
+                          ]
+                        );
+                      } else {
+                        setImageOrientation(null);
+                      }
+                    }}
+                  >
+                    <Text style={styles.changeOrientationText}>← {t.changeOrientation}</Text>
+                  </TouchableOpacity>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageList}>
                   {displayImages.map((img, index) => (
                     <View key={index} style={styles.imagePreviewContainer}>
@@ -1030,15 +1048,36 @@ const styles = StyleSheet.create({
     color: COLORS.accent,
     fontWeight: '600',
   },
+  orientationReminder: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: 'rgba(59, 130, 246, 0.12)',
+    borderRadius: SIZES.borderRadius,
+    padding: 12,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+  },
+  orientationReminderIcon: {
+    marginRight: 8,
+    marginTop: 2,
+  },
+  orientationReminderText: {
+    flex: 1,
+    color: COLORS.textPrimary,
+    fontSize: 13,
+    lineHeight: 20,
+  },
   changeOrientationButton: {
     alignSelf: 'flex-start',
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 0,
-    marginBottom: 8,
+    marginBottom: 10,
   },
   changeOrientationText: {
     color: COLORS.accent,
     fontSize: 14,
+    fontWeight: '500',
   },
   imageList: {
     flexDirection: 'row',

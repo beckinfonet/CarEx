@@ -179,6 +179,9 @@ export const TRANSLATIONS = {
     vertical: 'Вертикально',
     horizontal: 'Горизонтально',
     changeOrientation: 'Изменить ориентацию',
+    orientationSelectedMessage: 'Отличный выбор! Помните: фото с другой ориентацией не будут добавлены и могут вызвать ошибку при отправке.',
+    changeOrientationConfirm: 'Изменить ориентацию? Все добавленные фото будут удалены.',
+    changeOrientationConfirmButton: 'Изменить',
     contactMessage: 'Здравствуйте, меня интересует ваш {car} (ID: {id})',
 
     // Drivetrain
@@ -414,6 +417,9 @@ export const TRANSLATIONS = {
     vertical: 'Vertical',
     horizontal: 'Horizontal',
     changeOrientation: 'Change orientation',
+    orientationSelectedMessage: 'Great choice! Keep in mind: photos with a different orientation will not be added and may cause an error when submitting.',
+    changeOrientationConfirm: 'Change orientation? All photos you\'ve added will be removed.',
+    changeOrientationConfirmButton: 'Change',
     contactMessage: 'Hi, I\'m interested in your {car} (ID: {id})',
 
     // Drivetrain
