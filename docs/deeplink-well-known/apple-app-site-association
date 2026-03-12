@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "M3W6Y259JR.com.carex.app",
+        "paths": ["/listing/*"]
+      }
+    ]
+  }
+}
