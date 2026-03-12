@@ -290,7 +290,6 @@ export const CarDetailsScreen = () => {
     try {
       await Share.share({
         message,
-        url: Platform.OS === 'ios' ? url : undefined,
         title: t.shareListing || 'Share listing',
       });
     } catch (err) {
@@ -305,7 +304,16 @@ export const CarDetailsScreen = () => {
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
 
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => {
+            if (navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              navigation.replace('Home');
+            }
+          }}
+        >
           <ArrowLeft size={24} color={COLORS.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{car.make} {car.model}</Text>
