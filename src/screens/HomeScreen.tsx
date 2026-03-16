@@ -276,7 +276,11 @@ export const HomeScreen = () => {
             style={[styles.profileButton, user && styles.profileButtonActive]} 
             onPress={handleProfilePress}
           >
-            <User size={24} color={user ? '#FFF' : COLORS.textSecondary} />
+            {user?.avatarUrl ? (
+              <Image source={{ uri: user.avatarUrl }} style={styles.profileAvatar} />
+            ) : (
+              <User size={24} color={user ? '#FFF' : COLORS.textSecondary} />
+            )}
           </TouchableOpacity>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image
@@ -451,11 +455,17 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     justifyContent: 'center',
-    alignItems: 'center', // Center the icon
+    alignItems: 'center',
     backgroundColor: COLORS.cardBackground,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: COLORS.border,
+    overflow: 'hidden',
+  },
+  profileAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   profileButtonActive: {
     backgroundColor: COLORS.accent,
