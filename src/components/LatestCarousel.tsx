@@ -41,7 +41,7 @@ export const LatestCarousel = ({ cars, onCarPress, t }: LatestCarouselProps) => 
   const [collapsed, setCollapsed] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const latestCars = cars.filter((c: CarItem) => c.listingStatus !== 'sold').slice(0, 10);
+  const latestCars = cars.filter((c: CarItem) => c.listingStatus !== 'sold').slice(0, 100);
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offset = e.nativeEvent.contentOffset.x;
