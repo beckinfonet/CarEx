@@ -17,6 +17,7 @@ import { AboutScreen } from './src/screens/AboutScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { SignupScreen } from './src/screens/SignupScreen';
 import { ProfileScreen } from './src/screens/ProfileScreen';
+import { AccountSettingsScreen } from './src/screens/AccountSettingsScreen';
 import { FavoritesScreen } from './src/screens/FavoritesScreen';
 import { MyListingsScreen } from './src/screens/MyListingsScreen';
 import { OfflineNotice } from './src/components/OfflineNotice';
@@ -57,6 +58,7 @@ function App() {
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Signup" component={SignupScreen} />
                 <Stack.Screen name="Profile" component={ProfileScreen} />
+                <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
                 <Stack.Screen name="Favorites" component={FavoritesScreen} />
                 <Stack.Screen name="MyListings" component={MyListingsScreen} />
               </Stack.Navigator>
