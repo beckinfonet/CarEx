@@ -29,7 +29,7 @@ export const FilterModal = ({ visible, type, onClose, onApply, currentValue, t }
         setMaxVal('');
       }
     }
-  }, [visible, currentValue]);
+  }, [visible, currentValue, type]);
 
   const handleApply = () => {
     if (!type) return;

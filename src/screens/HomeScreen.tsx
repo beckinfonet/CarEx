@@ -8,6 +8,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
 import { MakeModelSearchBar } from '../components/MakeModelSearchBar';
 import { FilterBar } from '../components/FilterBar';
+import { QuickSortFilters } from '../components/QuickSortFilters';
 import { CategoryList } from '../components/CategoryList';
 import { CarCard } from '../components/CarCard';
 import { LatestCarousel } from '../components/LatestCarousel';
@@ -166,6 +167,31 @@ export const HomeScreen = () => {
     return matchesSearch && matchesCategory && matchesFilters;
   });
 
+  // Apply sort by price and/or mileage
+  const displayedCars = React.useMemo(() => {
+    let result = [...filteredCars];
+    const sortPrice = activeFilters['sortPrice'];
+    const sortMileage = activeFilters['sortMileage'];
+    if (sortPrice || sortMileage) {
+      result.sort((a, b) => {
+        let cmp = 0;
+        if (sortPrice) {
+          const pa = a.price ?? 0;
+          const pb = b.price ?? 0;
+          cmp = sortPrice === 'asc' ? pa - pb : pb - pa;
+          if (cmp !== 0) return cmp;
+        }
+        if (sortMileage) {
+          const ma = a.mileage ?? 0;
+          const mb = b.mileage ?? 0;
+          cmp = sortMileage === 'asc' ? ma - mb : mb - ma;
+        }
+        return cmp;
+      });
+    }
+    return result;
+  }, [filteredCars, activeFilters]);
+
   // Models available in current make-only results (for model filter chips)
   const availableModels = React.useMemo(() => {
     if (!selectedMake) return [];
@@ -203,6 +229,23 @@ export const HomeScreen = () => {
   const handleFilterPress = (filter: string) => {
     setCurrentFilterType(filter);
     setModalVisible(true);
+  };
+
+  const handleQuickSortToggle = (filterType: 'sortPrice' | 'sortMileage') => {
+    const current = activeFilters[filterType];
+    const next = current === 'asc' ? 'desc' : current === 'desc' ? null : 'asc';
+    const newFilters = { ...activeFilters };
+    delete newFilters['sortPrice'];
+    delete newFilters['sortMileage'];
+    if (next) newFilters[filterType] = next;
+    setActiveFilters(newFilters);
+  };
+
+  const handleQuickSortReset = () => {
+    const newFilters = { ...activeFilters };
+    delete newFilters['sortPrice'];
+    delete newFilters['sortMileage'];
+    setActiveFilters(newFilters);
   };
 
   const handleApplyFilter = (filterType: string, value: any) => {
@@ -260,7 +303,7 @@ export const HomeScreen = () => {
         <FlatList
           style={styles.content}
           showsVerticalScrollIndicator={false}
-          data={loading && cars.length === 0 ? [] : filteredCars}
+          data={loading && cars.length === 0 ? [] : displayedCars}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => handleCarPress(item)}>
@@ -331,6 +374,12 @@ export const HomeScreen = () => {
                     ))}
                   </ScrollView>
                 )}
+                <QuickSortFilters
+                  activeFilters={activeFilters}
+                  onSortToggle={handleQuickSortToggle}
+                  onReset={handleQuickSortReset}
+                  t={{ price: t.price, mileage: t.mileage }}
+                />
                 {filtersVisible && (
                   <>
                     <FilterBar onFilterPress={handleFilterPress} activeFilters={activeFilters} t={t} />
@@ -354,7 +403,7 @@ export const HomeScreen = () => {
           ListEmptyComponent={
             loading && cars.length === 0 ? (
               <ActivityIndicator size="large" color={COLORS.accent} style={{ marginTop: 20 }} />
-            ) : !loading && filteredCars.length === 0 ? (
+            ) : !loading && displayedCars.length === 0 ? (
               <Text style={styles.emptyText}>{t.noCars}</Text>
             ) : null
           }
