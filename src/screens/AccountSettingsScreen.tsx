@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, StatusBar, TextInput, Modal, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, StatusBar, TextInput, Modal, FlatList, ActivityIndicator, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { launchImageLibrary } from 'react-native-image-picker';
 import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { ArrowLeft, ChevronDown, Save, Edit2, X } from 'lucide-react-native';
+import { ArrowLeft, ChevronDown, Save, Edit2, X, Camera } from 'lucide-react-native';
 import { AuthService } from '../services/AuthService';
 
 type AccountSettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'AccountSettings'>;
@@ -35,6 +36,7 @@ export const AccountSettingsScreen = () => {
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -91,6 +93,26 @@ export const AccountSettingsScreen = () => {
     setIsEditing(!isEditing);
   };
 
+  const handleAvatarPress = () => {
+    launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, async (res) => {
+      if (res.didCancel || !res.assets?.[0] || !user?.localId) return;
+      const asset = res.assets[0];
+      setUploadingAvatar(true);
+      try {
+        await AuthService.uploadAvatar(user.localId, {
+          uri: asset.uri!,
+          type: asset.type,
+          fileName: asset.fileName,
+        });
+        await refreshUser();
+      } catch (err) {
+        Alert.alert(t.error, t.profileSaveError);
+      } finally {
+        setUploadingAvatar(false);
+      }
+    });
+  };
+
   const handleDeleteAccount = async () => {
     Alert.alert(
       t.deleteAccount,
@@ -130,6 +152,34 @@ export const AccountSettingsScreen = () => {
       </View>
 
       <ScrollView style={styles.content} contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.avatarSection}>
+          <TouchableOpacity
+            style={styles.avatarTouchable}
+            onPress={handleAvatarPress}
+            disabled={uploadingAvatar}
+            activeOpacity={0.8}
+          >
+            {user.avatarUrl ? (
+              <Image source={{ uri: user.avatarUrl }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Camera size={36} color={COLORS.textSecondary} />
+              </View>
+            )}
+            {uploadingAvatar && (
+              <View style={styles.avatarOverlay}>
+                <ActivityIndicator color="#FFF" size="small" />
+              </View>
+            )}
+            {!uploadingAvatar && (
+              <View style={styles.avatarChangeBadge}>
+                <Camera size={14} color="#FFF" />
+              </View>
+            )}
+          </TouchableOpacity>
+          <Text style={styles.avatarHint}>{t.changePhoto}</Text>
+        </View>
+
         <View style={styles.formContainer}>
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionHeader}>{t.mainInfo}</Text>
@@ -298,6 +348,55 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: SIZES.padding,
+  },
+  avatarSection: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  avatarTouchable: {
+    position: 'relative',
+  },
+  avatarImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  avatarPlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: COLORS.searchBackground,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 50,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarChangeBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarHint: {
+    marginTop: 8,
+    fontSize: 14,
+    color: COLORS.textSecondary,
   },
   formContainer: {
     marginBottom: 24,

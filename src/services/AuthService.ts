@@ -83,6 +83,26 @@ export const AuthService = {
     }
   },
 
+  uploadAvatar: async (firebaseUid: string, imageAsset: { uri: string; type?: string; fileName?: string }) => {
+    try {
+      const formData = new FormData();
+      const file = {
+        uri: imageAsset.uri,
+        type: imageAsset.type || 'image/jpeg',
+        name: imageAsset.fileName || 'avatar.jpg',
+      };
+      // @ts-ignore - React Native FormData accepts this shape
+      formData.append('avatar', file);
+      const response = await axios.post(`${API_URL}/api/users/${firebaseUid}/avatar`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to upload avatar', error);
+      throw error;
+    }
+  },
+
   requestSellerStatus: async (firebaseUid: string) => {
     try {
       const response = await axios.post(`${API_URL}/api/users/${firebaseUid}/request-seller`);

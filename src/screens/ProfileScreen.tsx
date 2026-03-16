@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, StatusBar, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -78,9 +78,17 @@ export const ProfileScreen = () => {
       <ScrollView style={styles.content} contentContainerStyle={{ flexGrow: 1 }}>
         <View style={{ flex: 1 }}>
             <View style={styles.userInfoContainer}>
-                <View style={styles.avatarContainer}>
+                <TouchableOpacity
+                  style={styles.avatarContainer}
+                  onPress={() => navigation.navigate('AccountSettings')}
+                  activeOpacity={0.8}
+                >
+                  {user.avatarUrl ? (
+                    <Image source={{ uri: user.avatarUrl }} style={styles.avatarImage} />
+                  ) : (
                     <User size={40} color={COLORS.textPrimary} />
-                </View>
+                  )}
+                </TouchableOpacity>
                 <View style={styles.userDetails}>
                     <Text style={styles.userEmail}>{user.email}</Text>
                     <Text style={[styles.userLabel, { color: COLORS.accent }]}>
@@ -185,6 +193,12 @@ const styles = StyleSheet.create({
     marginRight: 16,
     borderWidth: 1,
     borderColor: COLORS.border,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
   },
   userDetails: {
     flex: 1,

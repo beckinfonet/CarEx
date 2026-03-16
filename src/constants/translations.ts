@@ -135,6 +135,7 @@ export const TRANSLATIONS = {
     deleteAccount: 'Удалить аккаунт',
     deleteAccountConfirm: 'Вы уверены, что хотите удалить аккаунт? Это действие нельзя отменить.',
     delete: 'Удалить',
+    changePhoto: 'Изменить фото',
 
     // About Screen
     version: 'Версия',
@@ -377,6 +378,7 @@ export const TRANSLATIONS = {
     deleteAccount: 'Delete Account',
     deleteAccountConfirm: 'Are you sure you want to delete your account? This action cannot be undone.',
     delete: 'Delete',
+    changePhoto: 'Change photo',
 
     // About Screen
     version: 'Version',
