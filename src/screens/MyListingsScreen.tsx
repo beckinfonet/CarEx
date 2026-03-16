@@ -41,7 +41,9 @@ export const MyListingsScreen = () => {
         listingStatus: car.listingStatus || 'active',
         ...car
       }));
-      const myCars = allCars.filter((car: any) => car.sellerId === user.localId);
+      const myCars = allCars
+        .filter((car: any) => car.sellerId === user.localId)
+        .filter((car: any) => car.listingStatus !== 'sold');
       setListings(myCars);
     } catch (error) {
       console.error('Failed to fetch listings', error);

@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     flexDirection: 'row',
     overflow: 'hidden',
-    height: 140,
+    height: 156,
   },
   image: {
     width: 120,
@@ -64,7 +64,8 @@ const styles = StyleSheet.create({
   },
   details: {
     flex: 1,
-    padding: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 16,
     justifyContent: 'center',
   },
   header: {

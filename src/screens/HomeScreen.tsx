@@ -536,20 +536,23 @@ const styles = StyleSheet.create({
   },
   modelChipsScroll: {
     marginBottom: 8,
-    maxHeight: 40,
+    minHeight: 44,
   },
   modelChipsContent: {
     flexDirection: 'row',
     gap: 8,
-    paddingVertical: 4,
+    paddingVertical: 6,
+    alignItems: 'center',
   },
   modelChip: {
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 20,
     backgroundColor: COLORS.searchBackground,
     borderWidth: 1,
     borderColor: COLORS.border,
+    justifyContent: 'center',
+    minHeight: 36,
   },
   modelChipActive: {
     backgroundColor: COLORS.accent,
