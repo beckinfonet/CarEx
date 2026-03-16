@@ -286,7 +286,7 @@ export const CarDetailsScreen = () => {
   const handleShare = async () => {
     const url = LISTING_URL(car.id);
     const title = `${car.make} ${car.model} ${car.year}`;
-    const message = `${title} - ${car.currency}${car.price?.toLocaleString()}\n${url}`;
+    const message = `${title} - ${car.currency}${car.price?.toLocaleString()}\n\n${url}`;
     try {
       await Share.share({
         message,
