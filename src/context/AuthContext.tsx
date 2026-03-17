@@ -4,10 +4,10 @@ import { AuthService } from '../services/AuthService';
   interface AuthContextType {
     user: any;
     loading: boolean;
-    login: (email, password) => Promise<void>;
-    signup: (email, password) => Promise<void>;
+    login: (email: string, password: string) => Promise<void>;
+    signup: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
-    refreshUser: () => Promise<void>; // Added to manually refresh user data
+    refreshUser: () => Promise<void>;
     requestSeller: () => Promise<void>;
     verifyPhone: (code: string) => Promise<void>;
     sendPhoneOtp: () => Promise<void>;
@@ -50,7 +50,7 @@ import { AuthService } from '../services/AuthService';
         }
     };
 
-    const login = async (email, password) => {
+    const login = async (email: string, password: string) => {
       const data = await AuthService.signIn(email, password);
       let userData = { email: data.email, localId: data.localId };
       
@@ -64,7 +64,7 @@ import { AuthService } from '../services/AuthService';
       setUser(userData);
     };
 
-    const signup = async (email, password) => {
+    const signup = async (email: string, password: string) => {
       const data = await AuthService.signUp(email, password);
       const userData = { email: data.email, localId: data.localId };
       
@@ -88,16 +88,15 @@ import { AuthService } from '../services/AuthService';
     };
 
     const sendPhoneOtp = async () => {
-      if (user && user.phoneNumber) {
-        await AuthService.sendOtp(user.phoneNumber);
-      }
+      if (!user?.phoneNumber || !user?.localId) return;
+      const phoneNumber = user.phoneNumber.startsWith('+') ? user.phoneNumber : `+${user.phoneNumber.replace(/\s/g, '')}`;
+      await AuthService.sendOtp(phoneNumber);
     };
 
     const verifyPhone = async (code: string) => {
-      if (user && user.phoneNumber && user.localId) {
-        await AuthService.verifyOtp(user.phoneNumber, code, user.localId);
-        await refreshUser();
-      }
+      if (!user?.phoneNumber || !user?.localId) return;
+      await AuthService.verifyOtp(user.phoneNumber, code, user.localId);
+      await refreshUser();
     };
 
     const deleteAccount = async () => {
