@@ -7,7 +7,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { User, LogOut, ChevronRight, Heart, ArrowLeft, List } from 'lucide-react-native';
+import { User, LogOut, ChevronRight, Heart, ArrowLeft, List, Store } from 'lucide-react-native';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Profile'>;
 
@@ -47,6 +47,12 @@ export const ProfileScreen = () => {
       icon: <Heart size={24} color={COLORS.accent} />,
       onPress: () => navigation.navigate('Favorites')
     },
+    ...(user && user.sellerStatus !== 'APPROVED' ? [{
+      id: 'requestSeller',
+      title: t.requestSellerAccount,
+      icon: <Store size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('SellCar')
+    }] : []),
   ];
 
   if (!user) {

@@ -241,6 +241,7 @@ export const TRANSLATIONS = {
     profileRequiredForSelling: 'Чтобы стать продавцом, пожалуйста, заполните ваш профиль.',
     goToProfile: 'Перейти в профиль',
     cancel: 'Отмена',
+    requestSellerAccount: 'Заявка на продавца',
   },
   EN: {
     // Header & Navigation
@@ -484,6 +485,7 @@ export const TRANSLATIONS = {
     profileRequiredForSelling: 'To become a seller, please complete your profile.',
     goToProfile: 'Go to Profile',
     cancel: 'Cancel',
+    requestSellerAccount: 'Request Seller Account',
   }
 };
 
