@@ -177,9 +177,11 @@ export const CarDetailsScreen = () => {
 
     // @ts-ignore
     const messageTemplate = t.contactMessage || `Hi, I'm interested in your {car} (ID: {id})`;
-    const message = messageTemplate
+    const baseMessage = messageTemplate
       .replace('{car}', `${car.make} ${car.model}`)
-      .replace('{id}', car.listingId || '');
+      .replace('{id}', car.listingId || car.id || '');
+    const listingLink = LISTING_URL(car.id);
+    const message = `${baseMessage}\n\n${listingLink}`;
 
     const encodedText = encodeURIComponent(message);
     const whatsappDeepLink = `whatsapp://send?phone=${cleanPhone}&text=${encodedText}`;
@@ -217,9 +219,11 @@ export const CarDetailsScreen = () => {
 
     // @ts-ignore
     const messageTemplate = t.contactMessage || `Hi, I'm interested in your {car} (ID: {id})`;
-    const message = messageTemplate
+    const baseMessage = messageTemplate
       .replace('{car}', `${car.make} ${car.model}`)
-      .replace('{id}', car.listingId || '');
+      .replace('{id}', car.listingId || car.id || '');
+    const listingLink = LISTING_URL(car.id);
+    const message = `${baseMessage}\n\n${listingLink}`;
 
     // Telegram requires the "text" parameter for web links (t.me)
     const webUrl = `https://t.me/${username}?text=${encodeURIComponent(message)}`;
