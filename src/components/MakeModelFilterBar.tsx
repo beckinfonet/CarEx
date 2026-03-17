@@ -11,7 +11,7 @@ import {
   ScrollView,
   useWindowDimensions,
 } from 'react-native';
-import { X, ChevronDown, Check, Search } from 'lucide-react-native';
+import { X, Check, Search } from 'lucide-react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { OptimizedImage } from './OptimizedImage';
 import { getMakeLogoUrl, needsDarkLogoBg } from '../utils/makeLogos';
@@ -53,6 +53,14 @@ export const MakeModelFilterBar = ({
     setDropdownVisible(true);
   };
 
+  const toggleDropdown = () => {
+    if (dropdownVisible) {
+      setDropdownVisible(false);
+    } else {
+      openDropdown();
+    }
+  };
+
   const handleSelectMake = (make: VehicleMake) => {
     setTempMake(make);
     setStep('model');
@@ -87,7 +95,11 @@ export const MakeModelFilterBar = ({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      <View style={styles.filterBar}>
+      <TouchableOpacity
+        style={styles.filterBar}
+        onPress={toggleDropdown}
+        activeOpacity={0.9}
+      >
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -123,25 +135,16 @@ export const MakeModelFilterBar = ({
           )}
         </ScrollView>
 
-        <View style={styles.actions}>
-          {hasFilters && (
-            <TouchableOpacity
-              style={styles.clearAllButton}
-              onPress={handleClearAll}
-              activeOpacity={0.7}
-            >
-              <X size={18} color={COLORS.textSecondary} />
-            </TouchableOpacity>
-          )}
+        {hasFilters && (
           <TouchableOpacity
-            style={[styles.dropdownButton, dropdownVisible && styles.dropdownButtonActive]}
-            onPress={() => setDropdownVisible(!dropdownVisible)}
+            style={styles.clearAllButton}
+            onPress={handleClearAll}
             activeOpacity={0.7}
           >
-            <ChevronDown size={20} color={dropdownVisible ? COLORS.accent : COLORS.textPrimary} />
+            <X size={18} color={COLORS.textSecondary} />
           </TouchableOpacity>
-        </View>
-      </View>
+        )}
+      </TouchableOpacity>
 
       <Modal visible={dropdownVisible} transparent animationType="slide">
         <TouchableWithoutFeedback onPress={() => setDropdownVisible(false)}>
@@ -290,12 +293,6 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     alignSelf: 'center',
   },
-  actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginLeft: 8,
-  },
   clearAllButton: {
     width: 32,
     height: 32,
@@ -305,20 +302,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  dropdownButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.cardBackground,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dropdownButtonActive: {
-    borderColor: COLORS.accent,
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    marginLeft: 8,
   },
   modalOverlay: {
     flex: 1,
