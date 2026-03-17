@@ -10,6 +10,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, ChevronDown, Save, Edit2, X, Camera } from 'lucide-react-native';
 import { AuthService } from '../services/AuthService';
+import { PhoneNumberFormatter, COUNTRY_FORMATS } from '../components/PhoneNumberFormatter';
 
 type AccountSettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'AccountSettings'>;
 
@@ -45,12 +46,15 @@ export const AccountSettingsScreen = () => {
       setTelegramUsername(user.telegramUsername || '');
 
       if (user.phoneNumber) {
-        const foundCountry = COUNTRIES.find(c => user.phoneNumber.startsWith(c.dial_code));
+        const foundCountry = COUNTRIES.find(c => user.phoneNumber!.startsWith(c.dial_code));
         if (foundCountry) {
           setSelectedCountry(foundCountry);
-          setPhoneNumber(user.phoneNumber.replace(foundCountry.dial_code, ''));
+          const digits = user.phoneNumber.replace(foundCountry.dial_code, '').replace(/\D/g, '');
+          const pattern = COUNTRY_FORMATS[foundCountry.code] ?? [3, 4, 4];
+          const maxDigits = pattern.reduce((a, b) => a + b, 0);
+          setPhoneNumber(digits.slice(0, maxDigits));
         } else {
-          setPhoneNumber(user.phoneNumber);
+          setPhoneNumber(user.phoneNumber.replace(/\D/g, ''));
         }
       }
 
@@ -59,6 +63,14 @@ export const AccountSettingsScreen = () => {
       }
     }
   }, [user]);
+
+  const handleCountrySelect = (country: typeof COUNTRIES[0]) => {
+    setSelectedCountry(country);
+    const pattern = COUNTRY_FORMATS[country.code] ?? [3, 4, 4];
+    const maxDigits = pattern.reduce((a, b) => a + b, 0);
+    setPhoneNumber(prev => prev.replace(/\D/g, '').slice(0, maxDigits));
+    setCountryModalVisible(false);
+  };
 
   const handleSave = async () => {
     if (!user) return;
@@ -214,13 +226,11 @@ export const AccountSettingsScreen = () => {
                   <Text style={styles.countryCode}>{selectedCountry.dial_code}</Text>
                   <ChevronDown size={16} color={COLORS.textSecondary} />
                 </TouchableOpacity>
-                <TextInput
-                  style={[styles.input, styles.phoneInput]}
-                  placeholder={selectedCountry.placeholder}
-                  placeholderTextColor={COLORS.textSecondary}
-                  keyboardType="phone-pad"
+                <PhoneNumberFormatter
+                  countryCode={selectedCountry.code}
                   value={phoneNumber}
-                  onChangeText={setPhoneNumber}
+                  onChange={setPhoneNumber}
+                  style={styles.phoneFormatter}
                 />
               </View>
 
@@ -305,10 +315,7 @@ export const AccountSettingsScreen = () => {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.countryItem}
-                  onPress={() => {
-                    setSelectedCountry(item);
-                    setCountryModalVisible(false);
-                  }}
+                  onPress={() => handleCountrySelect(item)}
                 >
                   <Text style={styles.countryItemFlag}>{item.flag}</Text>
                   <Text style={styles.countryItemName}>{item.name}</Text>
@@ -487,29 +494,35 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     marginBottom: 16,
+    alignItems: 'center',
   },
   countryButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.searchBackground,
     borderRadius: SIZES.borderRadius,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
+    height: 36,
     borderWidth: 1,
     borderColor: COLORS.border,
-    width: 100,
     justifyContent: 'space-between',
+    minWidth: 80,
   },
   countryFlag: {
-    fontSize: 20,
+    fontSize: 16,
   },
   countryCode: {
     color: COLORS.textPrimary,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
   },
   phoneInput: {
     flex: 1,
     marginBottom: 0,
+  },
+  phoneFormatter: {
+    flex: 1,
+    minWidth: 0,
   },
   deleteLinkButton: {
     alignItems: 'center',
