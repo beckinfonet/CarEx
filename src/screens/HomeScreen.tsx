@@ -6,7 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
-import { MakeModelSearchBar } from '../components/MakeModelSearchBar';
+import { MakeModelFilterBar } from '../components/MakeModelFilterBar';
 import { FilterBar } from '../components/FilterBar';
 import { QuickSortFilters } from '../components/QuickSortFilters';
 import { CategoryList } from '../components/CategoryList';
@@ -338,15 +338,14 @@ export const HomeScreen = () => {
               <View style={styles.searchSection}>
                 <View style={styles.searchRow}>
                   <View style={styles.searchBarWrapper}>
-                    <MakeModelSearchBar
+                    <MakeModelFilterBar
                       selectedMake={selectedMake}
                       selectedModel={selectedModel}
                       onSelect={(make, model) => {
                         setSelectedMake(make);
                         setSelectedModel(model);
                       }}
-                      placeholder={t.searchPlaceholder}
-                      t={t}
+                      t={{ selectMake: t.selectMake, selectModel: t.selectModel, make: t.brand, model: t.model, searchWithMake: t.searchWithMake }}
                       containerStyle={styles.searchBarContainer}
                     />
                   </View>
@@ -553,6 +552,20 @@ const styles = StyleSheet.create({
   searchBarContainer: {
     marginBottom: 0,
   },
+  filterToggleButton: {
+    width: 44,
+    minWidth: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.searchBackground,
+    borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  filterToggleButtonActive: {
+    borderColor: COLORS.accent,
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+  },
   modelChipsScroll: {
     marginBottom: 8,
     minHeight: 44,
@@ -584,20 +597,6 @@ const styles = StyleSheet.create({
   modelChipTextActive: {
     color: '#000',
     fontWeight: '600',
-  },
-  filterToggleButton: {
-    width: 44,
-    minWidth: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: COLORS.searchBackground,
-    borderRadius: SIZES.borderRadius,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  filterToggleButtonActive: {
-    borderColor: COLORS.accent,
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
   },
   carouselSticky: {
     backgroundColor: COLORS.background,
