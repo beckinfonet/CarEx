@@ -533,7 +533,12 @@ export const SellCarScreen = () => {
         onRequestClose={() => setOtpModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { maxHeight: 'auto' }]}>
+          <KeyboardAvoidingView
+            style={{ flex: 1, justifyContent: 'center' }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+          >
+            <View style={[styles.modalContent, { maxHeight: 'auto' }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{t.enterCode}</Text>
               <TouchableOpacity onPress={() => setOtpModalVisible(false)}>
@@ -558,6 +563,7 @@ export const SellCarScreen = () => {
               </TouchableOpacity>
             </View>
           </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
 

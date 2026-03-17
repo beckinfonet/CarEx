@@ -46,7 +46,6 @@ import { AuthService } from '../services/AuthService';
             const backendUser = await AuthService.getBackendUser(user.localId);
             const updatedUser = { ...user, ...backendUser };
             setUser(updatedUser);
-            // Optionally update AsyncStorage if you store full profile there
         }
     };
 
