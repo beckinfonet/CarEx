@@ -92,11 +92,30 @@ export const HomeScreen = () => {
     }
   }, [route.params?.clearFilters]);
 
-  // Android back button: "Press back again to exit" when on main page
+  // Android back button: step back through filters, then "Press back again to exit"
+  // 1. make+model → remove model only (show all for make)
+  // 2. make only or other filters → clear all
+  // 3. no filters → exit warning
   const lastBackPressRef = useRef(0);
   useEffect(() => {
     if (!isFocused || Platform.OS !== 'android') return;
     const onBackPress = () => {
+      const hasOtherFilters =
+        selectedCategory != null || Object.keys(activeFilters).length > 0;
+
+      if (selectedMake && selectedModel) {
+        setSelectedModel(null);
+        return true;
+      }
+      if (selectedMake || hasOtherFilters) {
+        setSelectedMake(null);
+        setSelectedModel(null);
+        setSelectedCategory(null);
+        setActiveFilters({});
+        setFiltersVisible(false);
+        return true;
+      }
+
       const now = Date.now();
       if (now - lastBackPressRef.current < 2000) {
         BackHandler.exitApp();
@@ -108,7 +127,7 @@ export const HomeScreen = () => {
     };
     const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
     return () => sub.remove();
-  }, [isFocused, t.pressBackAgainToExit]);
+  }, [isFocused, t.pressBackAgainToExit, selectedMake, selectedModel, selectedCategory, activeFilters]);
 
   const filteredCars = cars.filter(car => {
     if (car.listingStatus === 'sold') return false;
