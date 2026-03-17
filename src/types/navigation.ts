@@ -9,4 +9,5 @@ export type RootStackParamList = {
   AccountSettings: undefined;
   Favorites: undefined;
   MyListings: undefined;
+  SellerListings: { sellerId: string; sellerName?: string };
 };

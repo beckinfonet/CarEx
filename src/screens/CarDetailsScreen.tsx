@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, useWindowDimensions, Linking, Alert, Modal, Platform, Animated, Share } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, useWindowDimensions, Linking, Alert, Modal, Platform, Animated, Share, Image } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Zoomable } from '@likashefqet/react-native-image-zoom';
 import { OptimizedImage } from '../components/OptimizedImage';
@@ -8,7 +8,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X, Edit2, Share2 } from 'lucide-react-native';
+import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X, Edit2, Share2, User, ChevronRight } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { LISTING_URL, API_URL } from '../constants/config';
@@ -33,6 +33,8 @@ export const CarDetailsScreen = () => {
   const [carLoading, setCarLoading] = useState(false);
   const [statusUpdating, setStatusUpdating] = useState(false);
   const [localListingStatus, setLocalListingStatus] = useState<string | null>(null);
+  const [sellerName, setSellerName] = useState<string | null>(null);
+  const [sellerAvatarUrl, setSellerAvatarUrl] = useState<string | null>(null);
 
   const car = CARS.find(c => c.id === carId) || (route.params as any).carData || fetchedCar;
   const listingStatus = (localListingStatus ?? car?.listingStatus ?? 'active') as string;
@@ -108,6 +110,23 @@ export const CarDetailsScreen = () => {
         .finally(() => setCarLoading(false));
     }
   }, [carId]);
+
+  // Fetch seller profile (name, avatar) when car has sellerId
+  useEffect(() => {
+    const sid = car?.sellerId;
+    if (!sid) return;
+    axios.get(`${API_URL}/api/users/${sid}`)
+      .then(res => {
+        const u = res.data;
+        const name = [u.firstName, u.lastName].filter(Boolean).join(' ').trim();
+        setSellerName(name || null);
+        setSellerAvatarUrl(u.avatarUrl || null);
+      })
+      .catch(() => {
+        setSellerName(null);
+        setSellerAvatarUrl(null);
+      });
+  }, [car?.sellerId]);
 
   const checkFavoriteStatus = async () => {
     try {
@@ -441,6 +460,29 @@ export const CarDetailsScreen = () => {
                 </View>
               )}
             </View>
+            {car.sellerId && (
+              <TouchableOpacity
+                style={styles.sellerCard}
+                onPress={() => navigation.navigate('SellerListings', { sellerId: car.sellerId, sellerName: sellerName || undefined })}
+                activeOpacity={0.7}
+              >
+                <View style={styles.sellerAvatarContainer}>
+                  {sellerAvatarUrl ? (
+                    <Image source={{ uri: sellerAvatarUrl }} style={styles.sellerAvatar} />
+                  ) : (
+                    <View style={styles.sellerAvatarPlaceholder}>
+                      <User size={24} color={COLORS.textSecondary} />
+                    </View>
+                  )}
+                </View>
+                <View style={styles.sellerInfo}>
+                  <Text style={styles.sellerLabel}>{t.listingOwner}</Text>
+                  <Text style={styles.sellerName}>{sellerName || t.seller}</Text>
+                  <Text style={styles.sellerViewAll}>{t.viewAllListings}</Text>
+                </View>
+                <ChevronRight size={22} color={COLORS.accent} style={styles.sellerChevron} />
+              </TouchableOpacity>
+            )}
           </View>
 
           <View style={styles.specsContainer}>
@@ -848,6 +890,59 @@ const styles = StyleSheet.create({
     color: COLORS.accent,
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  sellerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  sellerAvatarContainer: {
+    marginRight: 14,
+  },
+  sellerAvatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+  },
+  sellerAvatarPlaceholder: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.searchBackground,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  sellerInfo: {
+    flex: 1,
+    minWidth: 0,
+  },
+  sellerLabel: {
+    color: COLORS.textSecondary,
+    fontSize: 12,
+    marginBottom: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  sellerName: {
+    color: COLORS.textPrimary,
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  sellerViewAll: {
+    color: COLORS.accent,
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  sellerChevron: {
+    marginLeft: 8,
   },
   price: {
     color: COLORS.accent,
