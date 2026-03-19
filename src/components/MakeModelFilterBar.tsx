@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   useWindowDimensions,
+  BackHandler,
+  Platform,
 } from 'react-native';
 import { X, Check, Search } from 'lucide-react-native';
 import { COLORS, SIZES } from '../constants/theme';
@@ -90,8 +92,27 @@ export const MakeModelFilterBar = ({
     setDropdownVisible(false);
   };
 
+  const handleBackPress = () => {
+    if (step === 'model') {
+      setStep('make');
+      setTempMake(null);
+    } else {
+      setDropdownVisible(false);
+    }
+  };
+
   const listData = step === 'make' ? makes : models;
   const isLoading = step === 'make' ? loadingMakes : loadingModels;
+
+  useEffect(() => {
+    if (!dropdownVisible) return;
+    if (Platform.OS !== 'android') return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      handleBackPress();
+      return true;
+    });
+    return () => sub.remove();
+  }, [dropdownVisible, step]);
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -146,7 +167,12 @@ export const MakeModelFilterBar = ({
         )}
       </TouchableOpacity>
 
-      <Modal visible={dropdownVisible} transparent animationType="slide">
+      <Modal
+        visible={dropdownVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={handleBackPress}
+      >
         <TouchableWithoutFeedback onPress={() => setDropdownVisible(false)}>
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback onPress={() => {}}>
@@ -155,6 +181,13 @@ export const MakeModelFilterBar = ({
                   <Text style={styles.dropdownTitle}>
                     {step === 'make' ? _t.selectMake : `${_t.selectModel}${tempMake ? ` (${tempMake.name})` : ''}`}
                   </Text>
+                  <TouchableOpacity
+                    hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                    onPress={() => setDropdownVisible(false)}
+                    style={styles.closeButton}
+                  >
+                    <X size={24} color={COLORS.textPrimary} />
+                  </TouchableOpacity>
                 </View>
                 {isLoading ? (
                   <View style={styles.loadingContainer}>
@@ -318,10 +351,16 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   dropdownHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
+  },
+  closeButton: {
+    padding: 4,
   },
   dropdownTitle: {
     fontSize: 16,
