@@ -346,6 +346,26 @@ export const SellCarScreen = () => {
     setFormData({ ...formData, knownIssues: currentIssues.filter(i => i !== issue) });
   };
 
+  const validateListing = (): string | null => {
+    const totalImages = existingImageUrls.length + images.length;
+    if (totalImages === 0) return t.photo;
+    if (!formData.makeId) return t.brand;
+    if (!formData.modelId) return t.model;
+    if (!formData.year?.trim()) return t.enterYear;
+    const yearNum = parseInt(formData.year, 10);
+    if (isNaN(yearNum) || yearNum < 1900 || yearNum > new Date().getFullYear() + 1) return t.enterYear;
+    if (!formData.price?.trim()) return t.enterPrice;
+    const priceNum = parseInt(formData.price.replace(/\D/g, ''), 10);
+    if (isNaN(priceNum) || priceNum <= 0) return t.enterPrice;
+    if (!formData.mileage?.trim()) return t.enterMileage;
+    const mileageNum = parseInt(formData.mileage.replace(/\D/g, ''), 10);
+    if (isNaN(mileageNum) || mileageNum < 0) return t.enterMileage;
+    if (!formData.phoneNumber?.trim()) return t.phoneNumber;
+    const fullPhone = `${selectedCountry.dial_code}${formData.phoneNumber.replace(/^0+/, '')}`;
+    if (fullPhone.replace(/\D/g, '').length < 10) return t.phoneNumber;
+    return null;
+  };
+
   const handleSubmit = async () => {
     const netState = await NetInfo.fetch();
     if (!netState.isConnected) {
@@ -353,9 +373,12 @@ export const SellCarScreen = () => {
       return;
     }
 
-    const totalImages = existingImageUrls.length + images.length;
-    if (totalImages === 0 || !formData.makeId || !formData.modelId || !formData.price || !formData.phoneNumber) {
-      Alert.alert('Error', 'Please fill in all required fields (including phone number) and upload at least one image.');
+    const missingField = validateListing();
+    if (missingField) {
+      Alert.alert(
+        t.error,
+        (t.listingValidationMissing || 'Required field: {field}').replace('{field}', missingField)
+      );
       return;
     }
 
@@ -364,15 +387,7 @@ export const SellCarScreen = () => {
       return;
     }
 
-    // Combine country code and phone number
-    const fullPhoneNumber = `${selectedCountry.dial_code}${formData.phoneNumber.replace(/^0+/, '')}`; // Remove leading zeros if any
-
-    // Basic phone validation (ensure it has digits and length is reasonable)
-    const cleanPhone = fullPhoneNumber.replace(/\D/g, '');
-    if (cleanPhone.length < 10) {
-      Alert.alert('Invalid Phone', 'Please enter a valid phone number.');
-      return;
-    }
+    const fullPhoneNumber = `${selectedCountry.dial_code}${formData.phoneNumber.replace(/^0+/, '')}`;
 
     setLoading(true);
 

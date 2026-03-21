@@ -193,6 +193,8 @@ export const TRANSLATIONS = {
     changeOrientationConfirm: 'Изменить ориентацию? Все добавленные фото будут удалены.',
     changeOrientationConfirmButton: 'Изменить',
     contactMessage: 'Здравствуйте, меня интересует ваш {car} (ID: {id})',
+    listingValidationRequired: 'Заполните все обязательные поля',
+    listingValidationMissing: 'Обязательное поле: {field}',
 
     // Drivetrain
     fwd: 'Передний (FWD)',
@@ -442,6 +444,8 @@ export const TRANSLATIONS = {
     changeOrientationConfirm: 'Change orientation? All photos you\'ve added will be removed.',
     changeOrientationConfirmButton: 'Change',
     contactMessage: 'Hi, I\'m interested in your {car} (ID: {id})',
+    listingValidationRequired: 'Please fill in all required fields',
+    listingValidationMissing: 'Required field: {field}',
 
     // Drivetrain
     fwd: 'FWD',
