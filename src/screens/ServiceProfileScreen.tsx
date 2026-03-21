@@ -123,7 +123,33 @@ export const ServiceProfileScreen = () => {
     setModalVisible(true);
   };
 
-  const handleModalSave = () => {
+  const saveToBackend = async (updatedServices: ServiceItem[]) => {
+    if (!user?.localId) return;
+    const validServices = updatedServices
+      .filter(s => s.name.trim())
+      .map(s => ({
+        name: s.name.trim(),
+        description: s.description.trim(),
+        fee: parseFloat(s.fee) || 0,
+        currency: s.currency || '$',
+      }));
+
+    const data: any = {
+      companyName: companyName.trim() || undefined,
+      description: description.trim(),
+      phoneNumber: phoneNumber.trim(),
+      telegramUsername: telegramUsername.trim(),
+      services: validServices,
+    };
+
+    if (isBroker) {
+      await AuthService.updateBrokerProfile(user.localId, data);
+    } else {
+      await AuthService.updateLogisticsProfile(user.localId, data);
+    }
+  };
+
+  const handleModalSave = async () => {
     if (!modalName.trim()) {
       Alert.alert(t.error, t.serviceName);
       return;
@@ -135,20 +161,46 @@ export const ServiceProfileScreen = () => {
       currency: modalCurrency,
     };
 
+    let updatedServices: ServiceItem[];
     if (editingIndex !== null) {
-      setServices(prev => {
-        const updated = [...prev];
-        updated[editingIndex] = newItem;
-        return updated;
-      });
+      updatedServices = [...services];
+      updatedServices[editingIndex] = newItem;
     } else {
-      setServices(prev => [...prev, newItem]);
+      updatedServices = [...services, newItem];
     }
+
+    setServices(updatedServices);
     setModalVisible(false);
+
+    try {
+      await saveToBackend(updatedServices);
+    } catch {
+      Alert.alert(t.error, 'Failed to save service.');
+    }
   };
 
   const removeService = (index: number) => {
-    setServices(prev => prev.filter((_, i) => i !== index));
+    const serviceName = services[index]?.name || '';
+    Alert.alert(
+      t.removeService,
+      serviceName,
+      [
+        { text: t.cancel, style: 'cancel' },
+        {
+          text: t.delete,
+          style: 'destructive',
+          onPress: async () => {
+            const updatedServices = services.filter((_, i) => i !== index);
+            setServices(updatedServices);
+            try {
+              await saveToBackend(updatedServices);
+            } catch {
+              Alert.alert(t.error, 'Failed to save changes.');
+            }
+          },
+        },
+      ],
+    );
   };
 
   const handleSave = async () => {
@@ -159,31 +211,9 @@ export const ServiceProfileScreen = () => {
       return;
     }
 
-    const validServices = services
-      .filter(s => s.name.trim())
-      .map(s => ({
-        name: s.name.trim(),
-        description: s.description.trim(),
-        fee: parseFloat(s.fee) || 0,
-        currency: s.currency || '$',
-      }));
-
     setSaving(true);
     try {
-      const data: any = {
-        companyName: companyName.trim(),
-        description: description.trim(),
-        phoneNumber: phoneNumber.trim(),
-        telegramUsername: telegramUsername.trim(),
-        services: validServices,
-      };
-
-      if (isBroker) {
-        await AuthService.updateBrokerProfile(user.localId, data);
-      } else {
-        await AuthService.updateLogisticsProfile(user.localId, data);
-      }
-
+      await saveToBackend(services);
       setIsEditingInfo(false);
       Alert.alert(t.success, t.profileSavedSuccess);
     } catch {
