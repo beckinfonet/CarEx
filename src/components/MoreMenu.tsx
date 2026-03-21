@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
-import { Car, Wrench, Banknote, Shield, ClipboardList, HelpCircle, X, Info, LogIn, LogOut, User } from 'lucide-react-native';
+import { Car, Wrench, Banknote, Shield, ClipboardList, HelpCircle, X, Info, LogIn, LogOut, User, Briefcase } from 'lucide-react-native';
 import { useAuth } from '../context/AuthContext';
 
 interface MoreMenuProps {
@@ -19,6 +19,7 @@ const getIcon = (id: number) => {
     case 7: return <Info size={24} color={COLORS.accent} />;
     case 8: return <LogIn size={24} color={COLORS.accent} />;
     case 9: return <User size={24} color={COLORS.accent} />;
+    case 10: return <Briefcase size={24} color={COLORS.accent} />;
     default: return <Car size={24} color={COLORS.accent} />;
   }
 };
@@ -29,6 +30,7 @@ export const MoreMenu = ({ visible, onClose, t }: MoreMenuProps) => {
 
   const MENU_ITEMS = [
     { id: 1, name: t.sellCar, icon: '🚘', route: 'SellCar' },
+    { id: 10, name: t.services, icon: '💼', route: 'Services' },
     { id: 7, name: t.about, icon: 'ℹ️', route: 'About' },
   ];
 

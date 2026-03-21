@@ -21,6 +21,7 @@ import { AccountSettingsScreen } from './src/screens/AccountSettingsScreen';
 import { FavoritesScreen } from './src/screens/FavoritesScreen';
 import { MyListingsScreen } from './src/screens/MyListingsScreen';
 import { SellerListingsScreen } from './src/screens/SellerListingsScreen';
+import { ServicesScreen } from './src/screens/ServicesScreen';
 import { OfflineNotice } from './src/components/OfflineNotice';
 import { RootStackParamList } from './src/types/navigation';
 import { LanguageProvider } from './src/context/LanguageContext';
@@ -63,6 +64,7 @@ function App() {
                 <Stack.Screen name="Favorites" component={FavoritesScreen} />
                 <Stack.Screen name="MyListings" component={MyListingsScreen} />
                 <Stack.Screen name="SellerListings" component={SellerListingsScreen} />
+                <Stack.Screen name="Services" component={ServicesScreen} />
               </Stack.Navigator>
             </NavigationContainer>
           </LanguageProvider>

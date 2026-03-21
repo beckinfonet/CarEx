@@ -13,6 +13,9 @@ export const TRANSLATIONS = {
     carHistory: 'История авто',
     help: 'Помощь',
     about: 'О приложении',
+    services: 'Услуги',
+    brokers: 'Брокеры',
+    logisticsTab: 'Логистика',
     pressBackAgainToExit: 'Нажмите ещё раз для выхода',
 
     // Home Screen
@@ -264,6 +267,9 @@ export const TRANSLATIONS = {
     carHistory: 'Car History',
     help: 'Help',
     about: 'About',
+    services: 'Services',
+    brokers: 'Brokers',
+    logisticsTab: 'Logistics',
     pressBackAgainToExit: 'Press back again to exit',
 
     // Home Screen

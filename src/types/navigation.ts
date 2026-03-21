@@ -10,4 +10,5 @@ export type RootStackParamList = {
   Favorites: undefined;
   MyListings: undefined;
   SellerListings: { sellerId: string; sellerName?: string };
+  Services: undefined;
 };
