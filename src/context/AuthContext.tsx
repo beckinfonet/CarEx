@@ -9,6 +9,8 @@ import { AuthService } from '../services/AuthService';
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
     requestSeller: () => Promise<void>;
+    requestBroker: () => Promise<void>;
+    requestLogistics: () => Promise<void>;
     verifyPhone: (code: string) => Promise<void>;
     sendPhoneOtp: () => Promise<void>;
     deleteAccount: () => Promise<void>;
@@ -86,6 +88,20 @@ import { AuthService } from '../services/AuthService';
       }
     };
 
+    const requestBroker = async () => {
+      if (user && user.localId) {
+        await AuthService.requestBrokerStatus(user.localId);
+        await refreshUser();
+      }
+    };
+
+    const requestLogistics = async () => {
+      if (user && user.localId) {
+        await AuthService.requestLogisticsStatus(user.localId);
+        await refreshUser();
+      }
+    };
+
     const sendPhoneOtp = async () => {
       if (!user?.phoneNumber || !user?.localId) return;
       const phoneNumber = user.phoneNumber.startsWith('+') ? user.phoneNumber : `+${user.phoneNumber.replace(/\s/g, '')}`;
@@ -109,7 +125,7 @@ import { AuthService } from '../services/AuthService';
     };
 
     return (
-      <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshUser, requestSeller, sendPhoneOtp, verifyPhone, deleteAccount }}>
+      <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshUser, requestSeller, requestBroker, requestLogistics, sendPhoneOtp, verifyPhone, deleteAccount }}>
         {children}
       </AuthContext.Provider>
     );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,21 +6,140 @@ import {
   TouchableOpacity,
   StatusBar,
   FlatList,
+  ActivityIndicator,
+  Image,
+  Linking,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft, Briefcase, Truck } from 'lucide-react-native';
+import { ArrowLeft, Briefcase, Truck, Phone, User } from 'lucide-react-native';
+import axios from 'axios';
 import { COLORS, SIZES } from '../constants/theme';
+import { API_URL } from '../constants/config';
 import { useLanguage } from '../context/LanguageContext';
 
 type Tab = 'brokers' | 'logistics';
+
+interface ServiceProvider {
+  id: string;
+  companyName: string;
+  description?: string;
+  phoneNumber?: string;
+  telegramUsername?: string;
+  ownerName: string;
+  ownerAvatarUrl?: string | null;
+  ownerEmail?: string | null;
+  services?: { name: string; fee: number; currency?: string }[];
+  coverageAreas?: string[];
+  paymentOptions?: string[];
+  timelines?: string;
+}
 
 export const ServicesScreen = () => {
   const { t } = useLanguage();
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState<Tab>('brokers');
+  const [brokers, setBrokers] = useState<ServiceProvider[]>([]);
+  const [logistics, setLogistics] = useState<ServiceProvider[]>([]);
+  const [loadingBrokers, setLoadingBrokers] = useState(true);
+  const [loadingLogistics, setLoadingLogistics] = useState(true);
+
+  const fetchBrokers = useCallback(async () => {
+    setLoadingBrokers(true);
+    try {
+      const res = await axios.get(`${API_URL}/api/brokers`);
+      setBrokers(res.data);
+    } catch (e) {
+      console.error('Failed to fetch brokers', e);
+    } finally {
+      setLoadingBrokers(false);
+    }
+  }, []);
+
+  const fetchLogistics = useCallback(async () => {
+    setLoadingLogistics(true);
+    try {
+      const res = await axios.get(`${API_URL}/api/logistics`);
+      setLogistics(res.data);
+    } catch (e) {
+      console.error('Failed to fetch logistics partners', e);
+    } finally {
+      setLoadingLogistics(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBrokers();
+    fetchLogistics();
+  }, [fetchBrokers, fetchLogistics]);
+
+  const handleCall = (phoneNumber?: string) => {
+    if (!phoneNumber) return;
+    const url = `tel:${phoneNumber}`;
+    Linking.canOpenURL(url)
+      .then(supported => {
+        if (supported) Linking.openURL(url);
+        else Alert.alert(t.error, 'Cannot open dialer');
+      })
+      .catch(() => Alert.alert(t.error, 'Cannot open dialer'));
+  };
+
+  const renderProvider = ({ item }: { item: ServiceProvider }) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <View style={styles.avatarContainer}>
+          {item.ownerAvatarUrl ? (
+            <Image source={{ uri: item.ownerAvatarUrl }} style={styles.avatar} />
+          ) : (
+            <User size={24} color={COLORS.textSecondary} />
+          )}
+        </View>
+        <View style={styles.cardInfo}>
+          <Text style={styles.companyName}>{item.companyName}</Text>
+          {item.ownerName ? <Text style={styles.ownerName}>{item.ownerName}</Text> : null}
+        </View>
+        {item.phoneNumber ? (
+          <TouchableOpacity style={styles.callButton} onPress={() => handleCall(item.phoneNumber)}>
+            <Phone size={18} color="#FFF" />
+          </TouchableOpacity>
+        ) : null}
+      </View>
+      {item.description ? <Text style={styles.description}>{item.description}</Text> : null}
+      {item.services && item.services.length > 0 ? (
+        <View style={styles.servicesList}>
+          {item.services.map((s, i) => (
+            <View key={i} style={styles.serviceItem}>
+              <Text style={styles.serviceItemName}>{s.name}</Text>
+              <Text style={styles.serviceItemFee}>{s.currency || '$'}{s.fee}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+      {item.coverageAreas && item.coverageAreas.length > 0 ? (
+        <View style={styles.tags}>
+          {item.coverageAreas.map((a, i) => (
+            <View key={i} style={styles.tag}>
+              <Text style={styles.tagText}>{a}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+    </View>
+  );
+
+  const data = activeTab === 'brokers' ? brokers : logistics;
+  const isLoading = activeTab === 'brokers' ? loadingBrokers : loadingLogistics;
 
   const renderEmptyState = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.emptyState}>
+          <ActivityIndicator size="large" color={COLORS.accent} />
+        </View>
+      );
+    }
+
     const icon =
       activeTab === 'brokers' ? (
         <Briefcase size={48} color={COLORS.textSecondary} />
@@ -34,7 +153,9 @@ export const ServicesScreen = () => {
         <Text style={styles.emptyTitle}>
           {activeTab === 'brokers' ? t.brokers : t.logisticsTab}
         </Text>
-        <Text style={styles.emptySubtitle}>{t.comingSoon}</Text>
+        <Text style={styles.emptySubtitle}>
+          {activeTab === 'brokers' ? t.noBrokersYet : t.noLogisticsYet}
+        </Text>
       </View>
     );
   };
@@ -59,15 +180,10 @@ export const ServicesScreen = () => {
           onPress={() => setActiveTab('brokers')}>
           <Briefcase
             size={18}
-            color={
-              activeTab === 'brokers' ? COLORS.accent : COLORS.textSecondary
-            }
+            color={activeTab === 'brokers' ? COLORS.accent : COLORS.textSecondary}
           />
           <Text
-            style={[
-              styles.tabText,
-              activeTab === 'brokers' && styles.activeTabText,
-            ]}>
+            style={[styles.tabText, activeTab === 'brokers' && styles.activeTabText]}>
             {t.brokers}
           </Text>
         </TouchableOpacity>
@@ -77,25 +193,21 @@ export const ServicesScreen = () => {
           onPress={() => setActiveTab('logistics')}>
           <Truck
             size={18}
-            color={
-              activeTab === 'logistics' ? COLORS.accent : COLORS.textSecondary
-            }
+            color={activeTab === 'logistics' ? COLORS.accent : COLORS.textSecondary}
           />
           <Text
-            style={[
-              styles.tabText,
-              activeTab === 'logistics' && styles.activeTabText,
-            ]}>
+            style={[styles.tabText, activeTab === 'logistics' && styles.activeTabText]}>
             {t.logisticsTab}
           </Text>
         </TouchableOpacity>
       </View>
 
       <FlatList
-        data={[]}
-        renderItem={() => null}
+        data={data}
+        renderItem={renderProvider}
+        keyExtractor={item => item.id}
         ListEmptyComponent={renderEmptyState}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={data.length === 0 ? styles.listContentEmpty : styles.listContent}
       />
     </SafeAreaView>
   );
@@ -149,7 +261,107 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   listContent: {
+    padding: SIZES.padding,
+    paddingBottom: 40,
+  },
+  listContentEmpty: {
     flexGrow: 1,
+  },
+  card: {
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: SIZES.borderRadius,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.searchBackground,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+  },
+  cardInfo: {
+    flex: 1,
+  },
+  companyName: {
+    color: COLORS.textPrimary,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  ownerName: {
+    color: COLORS.textSecondary,
+    fontSize: 13,
+    marginTop: 2,
+  },
+  callButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  description: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+    marginTop: 12,
+    lineHeight: 20,
+  },
+  servicesList: {
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    paddingTop: 10,
+  },
+  serviceItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
+  },
+  serviceItemName: {
+    color: COLORS.textPrimary,
+    fontSize: 14,
+    flex: 1,
+  },
+  serviceItemFee: {
+    color: COLORS.accent,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  tags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 10,
+  },
+  tag: {
+    backgroundColor: COLORS.searchBackground,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  tagText: {
+    color: COLORS.textSecondary,
+    fontSize: 12,
   },
   emptyState: {
     flex: 1,

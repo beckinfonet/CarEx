@@ -22,6 +22,8 @@ import { FavoritesScreen } from './src/screens/FavoritesScreen';
 import { MyListingsScreen } from './src/screens/MyListingsScreen';
 import { SellerListingsScreen } from './src/screens/SellerListingsScreen';
 import { ServicesScreen } from './src/screens/ServicesScreen';
+import { ServiceApplicationScreen } from './src/screens/ServiceApplicationScreen';
+import { ServiceProfileScreen } from './src/screens/ServiceProfileScreen';
 import { OfflineNotice } from './src/components/OfflineNotice';
 import { RootStackParamList } from './src/types/navigation';
 import { LanguageProvider } from './src/context/LanguageContext';
@@ -65,6 +67,8 @@ function App() {
                 <Stack.Screen name="MyListings" component={MyListingsScreen} />
                 <Stack.Screen name="SellerListings" component={SellerListingsScreen} />
                 <Stack.Screen name="Services" component={ServicesScreen} />
+                <Stack.Screen name="ServiceApplication" component={ServiceApplicationScreen} />
+                <Stack.Screen name="ServiceProfile" component={ServiceProfileScreen} />
               </Stack.Navigator>
             </NavigationContainer>
           </LanguageProvider>

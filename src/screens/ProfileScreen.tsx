@@ -7,7 +7,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { User, LogOut, ChevronRight, Heart, ArrowLeft, List, Store } from 'lucide-react-native';
+import { User, LogOut, ChevronRight, Heart, ArrowLeft, List, Store, Briefcase, Truck } from 'lucide-react-native';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Profile'>;
 
@@ -52,6 +52,28 @@ export const ProfileScreen = () => {
       title: t.requestSellerAccount,
       icon: <Store size={24} color={COLORS.accent} />,
       onPress: () => navigation.navigate('SellCar')
+    }] : []),
+    ...(user && user.brokerStatus === 'APPROVED' ? [{
+      id: 'viewBrokerage',
+      title: t.viewBrokerage,
+      icon: <Briefcase size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('ServiceProfile' as never, { type: 'broker' } as never)
+    }] : user ? [{
+      id: 'applyBroker',
+      title: t.applyAsBroker,
+      icon: <Briefcase size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('ServiceApplication' as never, { type: 'broker' } as never)
+    }] : []),
+    ...(user && user.logisticsStatus === 'APPROVED' ? [{
+      id: 'viewLogistics',
+      title: t.viewLogistics,
+      icon: <Truck size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('ServiceProfile' as never, { type: 'logistics' } as never)
+    }] : user ? [{
+      id: 'applyLogistics',
+      title: t.applyAsLogistics,
+      icon: <Truck size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('ServiceApplication' as never, { type: 'logistics' } as never)
     }] : []),
   ];
 

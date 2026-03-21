@@ -113,6 +113,70 @@ export const AuthService = {
     }
   },
 
+  requestBrokerStatus: async (firebaseUid: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/users/${firebaseUid}/request-broker`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to request broker status', error);
+      throw error;
+    }
+  },
+
+  requestLogisticsStatus: async (firebaseUid: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/users/${firebaseUid}/request-logistics`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to request logistics status', error);
+      throw error;
+    }
+  },
+
+  getBrokerProfile: async (firebaseUid: string) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/brokers/${firebaseUid}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status !== 404) {
+        console.error('Failed to get broker profile', error);
+      }
+      return null;
+    }
+  },
+
+  updateBrokerProfile: async (firebaseUid: string, data: any) => {
+    try {
+      const response = await axios.put(`${API_URL}/api/brokers/${firebaseUid}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update broker profile', error);
+      throw error;
+    }
+  },
+
+  getLogisticsProfile: async (firebaseUid: string) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/logistics/${firebaseUid}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status !== 404) {
+        console.error('Failed to get logistics profile', error);
+      }
+      return null;
+    }
+  },
+
+  updateLogisticsProfile: async (firebaseUid: string, data: any) => {
+    try {
+      const response = await axios.put(`${API_URL}/api/logistics/${firebaseUid}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update logistics profile', error);
+      throw error;
+    }
+  },
+
   sendOtp: async (phoneNumber: string) => {
     try {
       const response = await axios.post(`${API_URL}/api/otp/send`, { phoneNumber });
