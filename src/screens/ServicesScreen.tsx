@@ -30,7 +30,7 @@ interface ServiceProvider {
   ownerName: string;
   ownerAvatarUrl?: string | null;
   ownerEmail?: string | null;
-  services?: { name: string; fee: number; currency?: string }[];
+  services?: { name: string; description?: string; fee: number; currency?: string }[];
   coverageAreas?: string[];
   paymentOptions?: string[];
   timelines?: string;
@@ -110,7 +110,12 @@ export const ServicesScreen = () => {
         <View style={styles.servicesList}>
           {item.services.map((s, i) => (
             <View key={i} style={styles.serviceItem}>
-              <Text style={styles.serviceItemName}>{s.name}</Text>
+              <View style={styles.serviceItemLeft}>
+                <Text style={styles.serviceItemName}>{s.name}</Text>
+                {s.description ? (
+                  <Text style={styles.serviceItemDesc} numberOfLines={1}>{s.description}</Text>
+                ) : null}
+              </View>
               <Text style={styles.serviceItemFee}>{s.currency || '$'}{s.fee}</Text>
             </View>
           ))}
@@ -333,12 +338,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 6,
+    paddingVertical: 8,
+  },
+  serviceItemLeft: {
+    flex: 1,
+    marginRight: 12,
   },
   serviceItemName: {
     color: COLORS.textPrimary,
     fontSize: 14,
-    flex: 1,
+  },
+  serviceItemDesc: {
+    color: COLORS.textSecondary,
+    fontSize: 12,
+    marginTop: 2,
   },
   serviceItemFee: {
     color: COLORS.accent,
