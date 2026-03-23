@@ -4,6 +4,8 @@ import { AuthService } from '../services/AuthService';
   interface AuthContextType {
     user: any;
     loading: boolean;
+    isAdmin: boolean;
+    adminRole: string | null;
     login: (email: string, password: string) => Promise<void>;
     signup: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
@@ -21,18 +23,31 @@ import { AuthService } from '../services/AuthService';
   export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [adminRole, setAdminRole] = useState<string | null>(null);
 
     useEffect(() => {
       loadStorageData();
     }, []);
 
+    const checkAdminStatus = async (uid: string) => {
+      try {
+        const status = await AuthService.getAdminStatus(uid);
+        setIsAdmin(status.isAdmin);
+        setAdminRole(status.isAdmin ? status.role : null);
+      } catch {
+        setIsAdmin(false);
+        setAdminRole(null);
+      }
+    };
+
     const loadStorageData = async () => {
       try {
         const userData = await AuthService.getUserData();
         if (userData && userData.localId) {
-          // Fetch full profile from backend
           const backendUser = await AuthService.getBackendUser(userData.localId);
           setUser({ ...userData, ...backendUser });
+          await checkAdminStatus(userData.localId);
         } else if (userData) {
            setUser(userData);
         }
@@ -48,6 +63,7 @@ import { AuthService } from '../services/AuthService';
             const backendUser = await AuthService.getBackendUser(user.localId);
             const updatedUser = { ...user, ...backendUser };
             setUser(updatedUser);
+            await checkAdminStatus(user.localId);
         }
     };
 
@@ -55,7 +71,6 @@ import { AuthService } from '../services/AuthService';
       const data = await AuthService.signIn(email, password);
       let userData = { email: data.email, localId: data.localId };
       
-      // Get backend profile
       const backendUser = await AuthService.getBackendUser(data.localId);
       if (backendUser) {
           userData = { ...userData, ...backendUser };
@@ -63,6 +78,7 @@ import { AuthService } from '../services/AuthService';
 
       await AuthService.saveToken(data.idToken, userData);
       setUser(userData);
+      await checkAdminStatus(data.localId);
     };
 
     const signup = async (email: string, password: string) => {
@@ -79,6 +95,8 @@ import { AuthService } from '../services/AuthService';
     const logout = async () => {
       await AuthService.logout();
       setUser(null);
+      setIsAdmin(false);
+      setAdminRole(null);
     };
 
     const requestSeller = async () => {
@@ -125,7 +143,7 @@ import { AuthService } from '../services/AuthService';
     };
 
     return (
-      <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshUser, requestSeller, requestBroker, requestLogistics, sendPhoneOtp, verifyPhone, deleteAccount }}>
+      <AuthContext.Provider value={{ user, loading, isAdmin, adminRole, login, signup, logout, refreshUser, requestSeller, requestBroker, requestLogistics, sendPhoneOtp, verifyPhone, deleteAccount }}>
         {children}
       </AuthContext.Provider>
     );

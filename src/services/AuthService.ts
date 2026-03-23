@@ -199,19 +199,85 @@ export const AuthService = {
 
   deleteAccount: async (idToken: string, firebaseUid: string) => {
     try {
-      // 1. Delete from Backend (MongoDB)
       await axios.delete(`${API_URL}/api/users/${firebaseUid}`);
-
-      // 2. Delete from Firebase
-      await axios.post(`${AUTH_URL}:delete?key=${API_KEY}`, {
-        idToken,
-      });
-      
+      await axios.post(`${AUTH_URL}:delete?key=${API_KEY}`, { idToken });
       return true;
     } catch (error: any) {
       console.error('Delete Account Error:', error.response?.data || error.message);
       throw new Error('Failed to delete account');
     }
-  }
+  },
+
+  // --- Admin Methods ---
+
+  getAdminStatus: async (firebaseUid: string) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/admin/status/${firebaseUid}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to check admin status', error);
+      return { isAdmin: false };
+    }
+  },
+
+  getAdminRequests: async (firebaseUid: string) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/admin/requests`, { params: { uid: firebaseUid } });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch admin requests', error);
+      throw error;
+    }
+  },
+
+  approveRequest: async (callerUid: string, targetUid: string, type: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/admin/requests/${targetUid}/approve`, { callerUid, type });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to approve request', error);
+      throw error;
+    }
+  },
+
+  rejectRequest: async (callerUid: string, targetUid: string, type: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/admin/requests/${targetUid}/reject`, { callerUid, type });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to reject request', error);
+      throw error;
+    }
+  },
+
+  getAdminUsers: async (firebaseUid: string) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/admin/users`, { params: { uid: firebaseUid } });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch admin users', error);
+      throw error;
+    }
+  },
+
+  addAdminUser: async (callerUid: string, email: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/admin/users`, { callerUid, email });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to add admin user', error);
+      throw error;
+    }
+  },
+
+  removeAdminUser: async (callerUid: string, adminId: string) => {
+    try {
+      const response = await axios.delete(`${API_URL}/api/admin/users/${adminId}`, { params: { uid: callerUid } });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to remove admin user', error);
+      throw error;
+    }
+  },
 };
 

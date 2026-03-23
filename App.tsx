@@ -24,6 +24,8 @@ import { SellerListingsScreen } from './src/screens/SellerListingsScreen';
 import { ServicesScreen } from './src/screens/ServicesScreen';
 import { ServiceApplicationScreen } from './src/screens/ServiceApplicationScreen';
 import { ServiceProfileScreen } from './src/screens/ServiceProfileScreen';
+import { AdminDashboardScreen } from './src/screens/AdminDashboardScreen';
+import { AdminManagementScreen } from './src/screens/AdminManagementScreen';
 import { OfflineNotice } from './src/components/OfflineNotice';
 import { RootStackParamList } from './src/types/navigation';
 import { LanguageProvider } from './src/context/LanguageContext';
@@ -69,6 +71,8 @@ function App() {
                 <Stack.Screen name="Services" component={ServicesScreen} />
                 <Stack.Screen name="ServiceApplication" component={ServiceApplicationScreen} />
                 <Stack.Screen name="ServiceProfile" component={ServiceProfileScreen} />
+                <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+                <Stack.Screen name="AdminManagement" component={AdminManagementScreen} />
               </Stack.Navigator>
             </NavigationContainer>
           </LanguageProvider>

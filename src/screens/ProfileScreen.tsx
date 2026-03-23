@@ -7,14 +7,14 @@ import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { User, LogOut, ChevronRight, Heart, ArrowLeft, List, Store, Briefcase, Truck } from 'lucide-react-native';
+import { User, LogOut, ChevronRight, Heart, ArrowLeft, List, Store, Briefcase, Truck, Shield, ShieldCheck, Users } from 'lucide-react-native';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Profile'>;
 
 export const ProfileScreen = () => {
   const { t } = useLanguage();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin, adminRole } = useAuth();
 
   const handleLogout = async () => {
     Alert.alert(
@@ -146,6 +146,30 @@ export const ProfileScreen = () => {
                     </TouchableOpacity>
                 ))}
             </View>
+
+            {isAdmin ? (
+              <>
+                <Text style={styles.adminSectionTitle}>{t.adminPanel}</Text>
+                <View style={styles.menuContainer}>
+                  <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('AdminDashboard' as never)}>
+                    <View style={styles.menuIcon}>
+                      <Shield size={24} color="#F59E0B" />
+                    </View>
+                    <Text style={styles.menuTitle}>{t.pendingRequests}</Text>
+                    <ChevronRight size={20} color={COLORS.textSecondary} />
+                  </TouchableOpacity>
+                  {adminRole === 'superadmin' ? (
+                    <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('AdminManagement' as never)}>
+                      <View style={styles.menuIcon}>
+                        <Users size={24} color="#F59E0B" />
+                      </View>
+                      <Text style={styles.menuTitle}>{t.manageAdmins}</Text>
+                      <ChevronRight size={20} color={COLORS.textSecondary} />
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
+              </>
+            ) : null}
         </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -271,6 +295,14 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: COLORS.textPrimary,
+  },
+  adminSectionTitle: {
+    color: '#F59E0B',
+    fontSize: 14,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 10,
   },
   logoutButton: {
     flexDirection: 'row',
