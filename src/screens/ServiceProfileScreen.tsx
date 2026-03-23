@@ -60,6 +60,7 @@ export const ServiceProfileScreen = () => {
   const [modalDescription, setModalDescription] = useState('');
   const [modalFee, setModalFee] = useState('');
   const [modalCurrency, setModalCurrency] = useState('$');
+  const [modalFeeType, setModalFeeType] = useState<'price' | 'contact' | 'none'>('price');
 
   const title = isBroker ? t.viewBrokerage : t.viewLogistics;
   const Icon = isBroker ? Briefcase : Truck;
@@ -110,6 +111,7 @@ export const ServiceProfileScreen = () => {
     setModalDescription('');
     setModalFee('');
     setModalCurrency('$');
+    setModalFeeType('price');
     setModalVisible(true);
   };
 
@@ -120,6 +122,8 @@ export const ServiceProfileScreen = () => {
     setModalDescription(item.description);
     setModalFee(item.fee);
     setModalCurrency(item.currency || '$');
+    const feeType = item.fee === 'contact' ? 'contact' : (!item.fee || item.fee === '') ? 'none' : 'price';
+    setModalFeeType(feeType);
     setModalVisible(true);
   };
 
@@ -130,8 +134,8 @@ export const ServiceProfileScreen = () => {
       .map(s => ({
         name: s.name.trim(),
         description: s.description.trim(),
-        fee: parseFloat(s.fee) || 0,
-        currency: s.currency || '$',
+        fee: s.fee === 'contact' || s.fee === '' ? s.fee : parseFloat(s.fee) || 0,
+        currency: s.currency,
       }));
 
     const data: any = {
@@ -157,8 +161,8 @@ export const ServiceProfileScreen = () => {
     const newItem: ServiceItem = {
       name: modalName.trim(),
       description: modalDescription.trim(),
-      fee: modalFee,
-      currency: modalCurrency,
+      fee: modalFeeType === 'price' ? modalFee : modalFeeType === 'contact' ? 'contact' : '',
+      currency: modalFeeType === 'price' ? modalCurrency : '',
     };
 
     let updatedServices: ServiceItem[];
@@ -306,36 +310,62 @@ export const ServiceProfileScreen = () => {
               />
 
               <Text style={styles.modalLabel}>{t.serviceFee}</Text>
-              <View style={styles.feeRow}>
-                <TextInput
-                  style={[styles.modalInput, styles.feeInput]}
-                  placeholder="0"
-                  placeholderTextColor={COLORS.textSecondary}
-                  keyboardType="numeric"
-                  value={modalFee}
-                  onChangeText={setModalFee}
-                />
-                <View style={styles.currencyToggle}>
-                  {CURRENCIES.map(c => (
-                    <TouchableOpacity
-                      key={c.code}
+              <View style={styles.feeTypeRow}>
+                {([
+                  { key: 'price' as const, label: t.feeTypePrice },
+                  { key: 'contact' as const, label: t.feeTypeContact },
+                  { key: 'none' as const, label: t.feeTypeNone },
+                ]).map(opt => (
+                  <TouchableOpacity
+                    key={opt.key}
+                    style={[
+                      styles.feeTypeOption,
+                      modalFeeType === opt.key && styles.feeTypeOptionActive,
+                    ]}
+                    onPress={() => setModalFeeType(opt.key)}>
+                    <Text
                       style={[
-                        styles.currencyOption,
-                        modalCurrency === c.code && styles.currencyOptionActive,
-                      ]}
-                      onPress={() => setModalCurrency(c.code)}>
-                      <Text style={styles.currencyFlag}>{c.flag}</Text>
-                      <Text
-                        style={[
-                          styles.currencyLabel,
-                          modalCurrency === c.code && styles.currencyLabelActive,
-                        ]}>
-                        {c.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                        styles.feeTypeLabel,
+                        modalFeeType === opt.key && styles.feeTypeLabelActive,
+                      ]}>
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
+
+              {modalFeeType === 'price' && (
+                <View style={styles.feeRow}>
+                  <TextInput
+                    style={[styles.modalInput, styles.feeInput]}
+                    placeholder="0"
+                    placeholderTextColor={COLORS.textSecondary}
+                    keyboardType="numeric"
+                    value={modalFee}
+                    onChangeText={setModalFee}
+                  />
+                  <View style={styles.currencyToggle}>
+                    {CURRENCIES.map(c => (
+                      <TouchableOpacity
+                        key={c.code}
+                        style={[
+                          styles.currencyOption,
+                          modalCurrency === c.code && styles.currencyOptionActive,
+                        ]}
+                        onPress={() => setModalCurrency(c.code)}>
+                        <Text style={styles.currencyFlag}>{c.flag}</Text>
+                        <Text
+                          style={[
+                            styles.currencyLabel,
+                            modalCurrency === c.code && styles.currencyLabelActive,
+                          ]}>
+                          {c.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
 
               <View style={styles.modalActions}>
                 <TouchableOpacity
@@ -475,7 +505,7 @@ export const ServiceProfileScreen = () => {
                   </View>
                   <View style={styles.serviceCardFee}>
                     <Text style={styles.serviceCardFeeText}>
-                      {item.currency || '$'}{item.fee || '0'}
+                      {item.fee === 'contact' ? t.feeTypeContact : (!item.fee || item.fee === '') ? '-' : `${item.currency || '$'}${item.fee}`}
                     </Text>
                   </View>
                 </View>
@@ -497,7 +527,7 @@ export const ServiceProfileScreen = () => {
             ))
           )}
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[styles.saveButton, saving && styles.disabledButton]}
             onPress={handleSave}
             disabled={saving}>
@@ -506,7 +536,7 @@ export const ServiceProfileScreen = () => {
             ) : (
               <Text style={styles.saveButtonText}>{t.saveServiceProfile}</Text>
             )}
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -830,6 +860,32 @@ const styles = StyleSheet.create({
   modalTextArea: {
     height: 80,
     textAlignVertical: 'top',
+  },
+  feeTypeRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+  feeTypeOption: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+  },
+  feeTypeOptionActive: {
+    borderColor: COLORS.accent,
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+  },
+  feeTypeLabel: {
+    color: COLORS.textSecondary,
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  feeTypeLabelActive: {
+    color: COLORS.accent,
+    fontWeight: '600',
   },
   feeRow: {
     flexDirection: 'row',

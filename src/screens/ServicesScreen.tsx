@@ -30,7 +30,7 @@ interface ServiceProvider {
   ownerName: string;
   ownerAvatarUrl?: string | null;
   ownerEmail?: string | null;
-  services?: { name: string; description?: string; fee: number; currency?: string }[];
+  services?: { name: string; description?: string; fee: number | string; currency?: string }[];
   coverageAreas?: string[];
   paymentOptions?: string[];
   timelines?: string;
@@ -116,7 +116,7 @@ export const ServicesScreen = () => {
                   <Text style={styles.serviceItemDesc} numberOfLines={1}>{s.description}</Text>
                 ) : null}
               </View>
-              <Text style={styles.serviceItemFee}>{s.currency || '$'}{s.fee}</Text>
+              <Text style={styles.serviceItemFee}>{s.fee === 'contact' ? t.feeTypeContact : (!s.fee || s.fee === '' || s.fee === '0') ? '-' : `${s.currency || '$'}${s.fee}`}</Text>
             </View>
           ))}
         </View>
