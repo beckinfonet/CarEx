@@ -13,7 +13,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft, Briefcase, Truck, Phone, User, MessageCircle, Send } from 'lucide-react-native';
+import { ArrowLeft, Briefcase, Truck, Phone, User, MessageCircle, Send, ChevronRight } from 'lucide-react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/navigation';
 import axios from 'axios';
 import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
@@ -38,7 +40,7 @@ interface ServiceProvider {
 
 export const ServicesScreen = () => {
   const { t } = useLanguage();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [activeTab, setActiveTab] = useState<Tab>('brokers');
   const [brokers, setBrokers] = useState<ServiceProvider[]>([]);
   const [logistics, setLogistics] = useState<ServiceProvider[]>([]);
@@ -106,6 +108,11 @@ export const ServicesScreen = () => {
             <Text style={styles.companyName}>{item.companyName}</Text>
             {item.ownerName ? <Text style={styles.ownerName}>{item.ownerName}</Text> : null}
           </View>
+          <TouchableOpacity
+            style={styles.detailsButton}
+            onPress={() => navigation.navigate('ServiceDetails', { provider: item, type: activeTab === 'brokers' ? 'broker' : 'logistics' })}>
+            <ChevronRight size={20} color={COLORS.textSecondary} />
+          </TouchableOpacity>
         </View>
         {item.description ? <Text style={styles.description}>{item.description}</Text> : null}
         {item.services && item.services.length > 0 ? (
@@ -338,6 +345,9 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontSize: 13,
     marginTop: 2,
+  },
+  detailsButton: {
+    padding: 8,
   },
   contactRow: {
     flexDirection: 'row',

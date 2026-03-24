@@ -50,6 +50,10 @@ export const TRANSLATIONS = {
     myServices: 'Мои услуги',
     pressBackAgainToExit: 'Нажмите ещё раз для выхода',
 
+    viewDetails: 'Подробнее',
+    servicesOffered: 'Услуги',
+    contactInfo: 'Контакты',
+
     // Admin
     adminPanel: 'Панель администратора',
     manageAdmins: 'Управление админами',
@@ -368,6 +372,10 @@ export const TRANSLATIONS = {
     addAtLeastOneService: 'Add at least one service',
     myServices: 'My Services',
     pressBackAgainToExit: 'Press back again to exit',
+
+    viewDetails: 'View Details',
+    servicesOffered: 'Services',
+    contactInfo: 'Contact',
 
     // Admin
     adminPanel: 'Admin Panel',

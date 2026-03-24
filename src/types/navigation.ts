@@ -13,6 +13,7 @@ export type RootStackParamList = {
   Services: undefined;
   ServiceApplication: { type: 'broker' | 'logistics' };
   ServiceProfile: { type: 'broker' | 'logistics' };
+  ServiceDetails: { provider: any; type: 'broker' | 'logistics' };
   AdminDashboard: undefined;
   AdminManagement: undefined;
 };
