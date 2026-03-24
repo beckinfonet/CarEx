@@ -8,9 +8,10 @@ import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X, Edit2, Share2, User, ChevronRight } from 'lucide-react-native';
+import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X, Edit2, Share2, User, ChevronRight, Briefcase } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import { LISTING_URL, API_URL } from '../constants/config';
 import axios from 'axios';
 
@@ -18,6 +19,7 @@ export const CarDetailsScreen = () => {
   const { width, height } = useWindowDimensions();
   const { t } = useLanguage();
   const { user } = useAuth();
+  const { setCar } = useCart();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const route = useRoute();
@@ -545,6 +547,24 @@ export const CarDetailsScreen = () => {
           </View>
         ) : (
           <>
+            <TouchableOpacity
+              style={styles.getServicesButton}
+              onPress={() => {
+                setCar({
+                  id: car._id || car.id || '',
+                  makeName: car.makeName || car.make || '',
+                  modelName: car.modelName || car.model || '',
+                  year: car.year || 0,
+                  price: car.price || 0,
+                  currency: car.currency || '$',
+                  imageUrl: car.imageUrls?.[0] || car.image || '',
+                  listingId: car.listingId || '',
+                });
+                navigation.navigate('Services');
+              }}>
+              <Briefcase size={18} color="#FFF" />
+              <Text style={styles.getServicesText}>{t.getServices}</Text>
+            </TouchableOpacity>
             <Text style={styles.contactLabel}>{t.contactVia}</Text>
             <View style={styles.contactButtonsRow}>
               {car.telegramUsername && (
@@ -997,6 +1017,21 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
     backgroundColor: COLORS.background,
+  },
+  getServicesButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: COLORS.accent,
+    paddingVertical: 12,
+    borderRadius: SIZES.borderRadius,
+    marginBottom: 14,
+  },
+  getServicesText: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: '600',
   },
   contactLabel: {
     color: COLORS.textSecondary,

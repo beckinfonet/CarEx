@@ -14,6 +14,9 @@ export type RootStackParamList = {
   ServiceApplication: { type: 'broker' | 'logistics' };
   ServiceProfile: { type: 'broker' | 'logistics' };
   ServiceDetails: { provider: any; type: 'broker' | 'logistics' };
+  ServiceCart: undefined;
+  MyOrders: undefined;
+  ProviderOrders: undefined;
   AdminDashboard: undefined;
   AdminManagement: undefined;
 };

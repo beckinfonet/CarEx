@@ -12,17 +12,45 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { ArrowLeft, Briefcase, Truck, Phone, MessageCircle, Send, User, MapPin } from 'lucide-react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ArrowLeft, Briefcase, Truck, Phone, MessageCircle, Send, User, MapPin, Check, ShoppingCart } from 'lucide-react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { useLanguage } from '../context/LanguageContext';
+import { useCart, CartProviderInfo, CartServiceItem } from '../context/CartContext';
 import { RootStackParamList } from '../types/navigation';
 
 export const ServiceDetailsScreen = () => {
   const { t } = useLanguage();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'ServiceDetails'>>();
   const { provider, type } = route.params;
   const isBroker = type === 'broker';
+  const { addItem, removeItem, isInCart, itemCount } = useCart();
+
+  const providerInfo: CartProviderInfo = {
+    id: provider.id,
+    ownerUid: provider.ownerUid,
+    companyName: provider.companyName,
+    phoneNumber: provider.phoneNumber,
+    telegramUsername: provider.telegramUsername,
+    type,
+  };
+
+  const toggleService = (s: any) => {
+    const serviceItem: CartServiceItem = {
+      name: s.name,
+      description: s.description || '',
+      fee: s.fee,
+      currency: s.currency || '$',
+    };
+    if (isInCart(provider.ownerUid, type, s.name)) {
+      removeItem(provider.ownerUid, type, s.name);
+    } else {
+      addItem(providerInfo, serviceItem);
+    }
+  };
+
+  const selectedCount = (provider.services || []).filter((s: any) => isInCart(provider.ownerUid, type, s.name)).length;
 
   const handleCall = () => {
     if (!provider.phoneNumber) return;
@@ -55,7 +83,14 @@ export const ServiceDetailsScreen = () => {
           <ArrowLeft size={24} color={COLORS.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>{provider.companyName}</Text>
-        <View style={{ width: 40 }} />
+        <TouchableOpacity style={styles.cartHeaderBtn} onPress={() => navigation.navigate('ServiceCart')}>
+          <ShoppingCart size={22} color={COLORS.textPrimary} />
+          {itemCount > 0 ? (
+            <View style={styles.cartBadge}>
+              <Text style={styles.cartBadgeText}>{itemCount}</Text>
+            </View>
+          ) : null}
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContainer}>
@@ -87,18 +122,24 @@ export const ServiceDetailsScreen = () => {
 
         {provider.services && provider.services.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.servicesOffered}</Text>
-            {provider.services.map((s: any, i: number) => (
-              <View key={i} style={styles.serviceRow}>
-                <View style={styles.serviceInfo}>
-                  <Text style={styles.serviceName}>{s.name}</Text>
-                  {s.description ? <Text style={styles.serviceDesc}>{s.description}</Text> : null}
-                </View>
-                <View style={styles.feeBadge}>
-                  <Text style={styles.feeText}>{formatFee(s.fee, s.currency)}</Text>
-                </View>
-              </View>
-            ))}
+            <Text style={styles.sectionTitle}>{t.selectServices}</Text>
+            {provider.services.map((s: any, i: number) => {
+              const selected = isInCart(provider.ownerUid, type, s.name);
+              return (
+                <TouchableOpacity key={i} style={styles.serviceRow} onPress={() => toggleService(s)} activeOpacity={0.7}>
+                  <View style={[styles.checkbox, selected && styles.checkboxSelected]}>
+                    {selected ? <Check size={14} color="#FFF" /> : null}
+                  </View>
+                  <View style={styles.serviceInfo}>
+                    <Text style={[styles.serviceName, selected && styles.serviceNameSelected]}>{s.name}</Text>
+                    {s.description ? <Text style={styles.serviceDesc}>{s.description}</Text> : null}
+                  </View>
+                  <View style={[styles.feeBadge, selected && styles.feeBadgeSelected]}>
+                    <Text style={[styles.feeText, selected && styles.feeTextSelected]}>{formatFee(s.fee, s.currency)}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         ) : null}
 
@@ -151,15 +192,24 @@ export const ServiceDetailsScreen = () => {
           </View>
         ) : null}
       </ScrollView>
+
+      {selectedCount > 0 ? (
+        <View style={styles.stickyFooter}>
+          <Text style={styles.footerCount}>
+            {t.servicesSelected.replace('{count}', String(selectedCount))}
+          </Text>
+          <TouchableOpacity style={styles.viewCartBtn} onPress={() => navigation.navigate('ServiceCart')}>
+            <ShoppingCart size={18} color="#FFF" />
+            <Text style={styles.viewCartText}>{t.cart} ({itemCount})</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
+  container: { flex: 1, backgroundColor: COLORS.background },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -168,9 +218,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
-  backButton: {
-    padding: 8,
-  },
+  backButton: { padding: 8 },
   headerTitle: {
     color: COLORS.textPrimary,
     fontSize: 18,
@@ -178,13 +226,22 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
-  scrollContent: {
-    flex: 1,
+  cartHeaderBtn: { padding: 8, position: 'relative' },
+  cartBadge: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    backgroundColor: '#EF4444',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
   },
-  scrollContainer: {
-    padding: SIZES.padding,
-    paddingBottom: 40,
-  },
+  cartBadgeText: { color: '#FFF', fontSize: 10, fontWeight: '700' },
+  scrollContent: { flex: 1 },
+  scrollContainer: { padding: SIZES.padding, paddingBottom: 100 },
   profileSection: {
     backgroundColor: COLORS.cardBackground,
     borderRadius: SIZES.borderRadius,
@@ -192,163 +249,86 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-  avatarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  avatarRow: { flexDirection: 'row', alignItems: 'center' },
   avatarContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 52, height: 52, borderRadius: 26,
     backgroundColor: COLORS.searchBackground,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    justifyContent: 'center', alignItems: 'center',
+    marginRight: 12, overflow: 'hidden',
+    borderWidth: 1, borderColor: COLORS.border,
   },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  companyName: {
-    color: COLORS.textPrimary,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  ownerName: {
-    color: COLORS.textSecondary,
-    fontSize: 14,
-    marginTop: 2,
-  },
+  avatar: { width: 52, height: 52, borderRadius: 26 },
+  profileInfo: { flex: 1 },
+  companyName: { color: COLORS.textPrimary, fontSize: 18, fontWeight: '700' },
+  ownerName: { color: COLORS.textSecondary, fontSize: 14, marginTop: 2 },
   typeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8,
     backgroundColor: COLORS.searchBackground,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    borderWidth: 1, borderColor: COLORS.border,
   },
-  typeBadgeText: {
-    color: COLORS.accent,
-    fontSize: 11,
-    fontWeight: '600',
-  },
+  typeBadgeText: { color: COLORS.accent, fontSize: 11, fontWeight: '600' },
   description: {
-    color: COLORS.textSecondary,
-    fontSize: 14,
-    lineHeight: 21,
-    marginTop: 14,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    paddingTop: 14,
+    color: COLORS.textSecondary, fontSize: 14, lineHeight: 21,
+    marginTop: 14, borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 14,
   },
   section: {
-    backgroundColor: COLORS.cardBackground,
-    borderRadius: SIZES.borderRadius,
-    padding: 16,
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    backgroundColor: COLORS.cardBackground, borderRadius: SIZES.borderRadius,
+    padding: 16, marginTop: 12, borderWidth: 1, borderColor: COLORS.border,
   },
-  sectionTitle: {
-    color: COLORS.accent,
-    fontSize: 15,
-    fontWeight: '700',
-    marginBottom: 12,
-  },
+  sectionTitle: { color: COLORS.accent, fontSize: 15, fontWeight: '700', marginBottom: 12 },
   serviceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: COLORS.border,
   },
-  serviceInfo: {
-    flex: 1,
-    marginRight: 12,
+  checkbox: {
+    width: 24, height: 24, borderRadius: 6,
+    borderWidth: 2, borderColor: COLORS.border,
+    justifyContent: 'center', alignItems: 'center', marginRight: 12,
   },
-  serviceName: {
-    color: COLORS.textPrimary,
-    fontSize: 15,
-    fontWeight: '500',
+  checkboxSelected: {
+    backgroundColor: COLORS.accent, borderColor: COLORS.accent,
   },
-  serviceDesc: {
-    color: COLORS.textSecondary,
-    fontSize: 13,
-    marginTop: 2,
-    lineHeight: 18,
-  },
+  serviceInfo: { flex: 1, marginRight: 12 },
+  serviceName: { color: COLORS.textPrimary, fontSize: 15, fontWeight: '500' },
+  serviceNameSelected: { color: COLORS.accent },
+  serviceDesc: { color: COLORS.textSecondary, fontSize: 13, marginTop: 2, lineHeight: 18 },
   feeBadge: {
     backgroundColor: COLORS.searchBackground,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8,
+    borderWidth: 1, borderColor: COLORS.border,
   },
-  feeText: {
-    color: COLORS.accent,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  tagsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
+  feeBadgeSelected: { backgroundColor: COLORS.accent + '20', borderColor: COLORS.accent },
+  feeText: { color: COLORS.accent, fontSize: 14, fontWeight: '700' },
+  feeTextSelected: { color: COLORS.accent },
+  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
     backgroundColor: COLORS.searchBackground,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8,
+    borderWidth: 1, borderColor: COLORS.border,
   },
-  tagText: {
-    color: COLORS.textSecondary,
-    fontSize: 13,
-  },
-  contactButtons: {
-    gap: 10,
-  },
+  tagText: { color: COLORS.textSecondary, fontSize: 13 },
+  contactButtons: { gap: 10 },
   contactBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: COLORS.accent,
-    padding: 14,
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: COLORS.accent, padding: 14, borderRadius: 10,
+  },
+  whatsappBtn: { backgroundColor: '#25D366' },
+  telegramBtn: { backgroundColor: '#2AABEE' },
+  contactBtnInfo: { flex: 1 },
+  contactBtnLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '500' },
+  contactBtnValue: { color: '#FFF', fontSize: 15, fontWeight: '600', marginTop: 1 },
+  stickyFooter: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    padding: 16, borderTopWidth: 1, borderTopColor: COLORS.border,
+    backgroundColor: COLORS.cardBackground,
+  },
+  footerCount: { color: COLORS.textSecondary, fontSize: 14, fontWeight: '500' },
+  viewCartBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: COLORS.accent, paddingVertical: 12, paddingHorizontal: 20,
     borderRadius: 10,
   },
-  whatsappBtn: {
-    backgroundColor: '#25D366',
-  },
-  telegramBtn: {
-    backgroundColor: '#2AABEE',
-  },
-  contactBtnInfo: {
-    flex: 1,
-  },
-  contactBtnLabel: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 11,
-    fontWeight: '500',
-  },
-  contactBtnValue: {
-    color: '#FFF',
-    fontSize: 15,
-    fontWeight: '600',
-    marginTop: 1,
-  },
+  viewCartText: { color: '#FFF', fontSize: 15, fontWeight: '700' },
 });

@@ -31,6 +31,10 @@ import { OfflineNotice } from './src/components/OfflineNotice';
 import { RootStackParamList } from './src/types/navigation';
 import { LanguageProvider } from './src/context/LanguageContext';
 import { AuthProvider } from './src/context/AuthContext';
+import { CartProvider } from './src/context/CartContext';
+import { ServiceCartScreen } from './src/screens/ServiceCartScreen';
+import { MyOrdersScreen } from './src/screens/MyOrdersScreen';
+import { ProviderOrdersScreen } from './src/screens/ProviderOrdersScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -49,7 +53,8 @@ function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AuthProvider>
-          <LanguageProvider>
+          <CartProvider>
+            <LanguageProvider>
             <NavigationContainer linking={linking}>
               <OfflineNotice />
               <Stack.Navigator
@@ -73,11 +78,15 @@ function App() {
                 <Stack.Screen name="ServiceApplication" component={ServiceApplicationScreen} />
                 <Stack.Screen name="ServiceProfile" component={ServiceProfileScreen} />
                 <Stack.Screen name="ServiceDetails" component={ServiceDetailsScreen} />
+                <Stack.Screen name="ServiceCart" component={ServiceCartScreen} />
+                <Stack.Screen name="MyOrders" component={MyOrdersScreen} />
+                <Stack.Screen name="ProviderOrders" component={ProviderOrdersScreen} />
                 <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
                 <Stack.Screen name="AdminManagement" component={AdminManagementScreen} />
               </Stack.Navigator>
             </NavigationContainer>
-          </LanguageProvider>
+            </LanguageProvider>
+          </CartProvider>
         </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

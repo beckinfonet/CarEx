@@ -13,13 +13,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft, Briefcase, Truck, Phone, User, MessageCircle, Send, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { ArrowLeft, Briefcase, Truck, Phone, User, MessageCircle, Send, ChevronRight, ChevronDown, ChevronUp, ShoppingCart } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import axios from 'axios';
 import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
 import { useLanguage } from '../context/LanguageContext';
+import { useCart } from '../context/CartContext';
 
 type Tab = 'brokers' | 'logistics';
 
@@ -41,6 +42,7 @@ interface ServiceProvider {
 export const ServicesScreen = () => {
   const { t } = useLanguage();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { itemCount } = useCart();
   const [activeTab, setActiveTab] = useState<Tab>('brokers');
   const [brokers, setBrokers] = useState<ServiceProvider[]>([]);
   const [logistics, setLogistics] = useState<ServiceProvider[]>([]);
@@ -225,7 +227,14 @@ export const ServicesScreen = () => {
           <ArrowLeft size={24} color={COLORS.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t.services}</Text>
-        <View style={{ width: 40 }} />
+        <TouchableOpacity style={styles.cartHeaderBtn} onPress={() => navigation.navigate('ServiceCart')}>
+          <ShoppingCart size={22} color={COLORS.textPrimary} />
+          {itemCount > 0 ? (
+            <View style={styles.cartBadge}>
+              <Text style={styles.cartBadgeText}>{itemCount}</Text>
+            </View>
+          ) : null}
+        </TouchableOpacity>
       </View>
 
       <View style={styles.tabBar}>
@@ -282,6 +291,27 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 8,
+  },
+  cartHeaderBtn: {
+    padding: 8,
+    position: 'relative' as const,
+  },
+  cartBadge: {
+    position: 'absolute' as const,
+    top: 2,
+    right: 2,
+    backgroundColor: '#EF4444',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    paddingHorizontal: 4,
+  },
+  cartBadgeText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: '700' as const,
   },
   headerTitle: {
     color: COLORS.textPrimary,

@@ -279,5 +279,47 @@ export const AuthService = {
       throw error;
     }
   },
+
+  // --- Order Methods ---
+
+  createOrders: async (payload: { buyerUid: string; car: any; items: any[]; buyerNote?: string }) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/orders`, payload);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to create orders', error);
+      throw error;
+    }
+  },
+
+  getBuyerOrders: async (firebaseUid: string) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/orders/buyer/${firebaseUid}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch buyer orders', error);
+      throw error;
+    }
+  },
+
+  getProviderOrders: async (firebaseUid: string) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/orders/provider/${firebaseUid}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch provider orders', error);
+      throw error;
+    }
+  },
+
+  updateOrderStatus: async (orderId: string, status: string, callerUid: string) => {
+    try {
+      const response = await axios.patch(`${API_URL}/api/orders/${orderId}/status`, { status, callerUid });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update order status', error);
+      throw error;
+    }
+  },
 };
 

@@ -7,7 +7,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { User, LogOut, ChevronRight, Heart, ArrowLeft, List, Store, Briefcase, Truck, Shield, ShieldCheck, Users } from 'lucide-react-native';
+import { User, LogOut, ChevronRight, Heart, ArrowLeft, List, Store, Briefcase, Truck, Shield, ShieldCheck, Users, Package, ClipboardList } from 'lucide-react-native';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Profile'>;
 
@@ -47,6 +47,12 @@ export const ProfileScreen = () => {
       icon: <Heart size={24} color={COLORS.accent} />,
       onPress: () => navigation.navigate('Favorites')
     },
+    {
+      id: 'myOrders',
+      title: t.myOrders,
+      icon: <Package size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('MyOrders' as never)
+    },
     ...(user && user.sellerStatus !== 'APPROVED' ? [{
       id: 'requestSeller',
       title: t.requestSellerAccount,
@@ -74,6 +80,12 @@ export const ProfileScreen = () => {
       title: t.applyAsLogistics,
       icon: <Truck size={24} color={COLORS.accent} />,
       onPress: () => navigation.navigate('ServiceApplication' as never, { type: 'logistics' } as never)
+    }] : []),
+    ...(user && (user.brokerStatus === 'APPROVED' || user.logisticsStatus === 'APPROVED') ? [{
+      id: 'providerOrders',
+      title: t.providerOrders,
+      icon: <ClipboardList size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('ProviderOrders' as never)
     }] : []),
   ];
 
