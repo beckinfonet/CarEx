@@ -10,12 +10,14 @@ import {
   Alert,
   RefreshControl,
   Image,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
-  ArrowLeft, Package, Car, User, XCircle, Clock, CheckCircle, AlertCircle, Play, Check,
+  ArrowLeft, Package, Car, User, XCircle, Clock, CheckCircle,
+  AlertCircle, AlertTriangle, ChevronDown,
 } from 'lucide-react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { useLanguage } from '../context/LanguageContext';
@@ -23,20 +25,24 @@ import { useAuth } from '../context/AuthContext';
 import { AuthService } from '../services/AuthService';
 import { RootStackParamList } from '../types/navigation';
 
-const STATUS_CONFIG: Record<string, { color: string; icon: any; labelKey: string }> = {
-  pending:     { color: '#F59E0B', icon: Clock,       labelKey: 'orderPending' },
-  accepted:    { color: '#3B82F6', icon: CheckCircle, labelKey: 'orderAccepted' },
-  in_progress: { color: '#8B5CF6', icon: Package,     labelKey: 'orderInProgress' },
-  completed:   { color: '#10B981', icon: CheckCircle, labelKey: 'orderCompleted' },
-  cancelled:   { color: '#6B7280', icon: XCircle,     labelKey: 'orderCancelled' },
-  rejected:    { color: '#EF4444', icon: AlertCircle,  labelKey: 'orderRejected' },
+const ORDER_STATUS_CONFIG: Record<string, { color: string; icon: any; labelKey: string }> = {
+  pending:     { color: '#F59E0B', icon: Clock,        labelKey: 'orderPending' },
+  accepted:    { color: '#3B82F6', icon: CheckCircle,  labelKey: 'orderAccepted' },
+  in_progress: { color: '#8B5CF6', icon: Package,      labelKey: 'orderInProgress' },
+  completed:   { color: '#10B981', icon: CheckCircle,  labelKey: 'orderCompleted' },
+  cancelled:   { color: '#6B7280', icon: XCircle,      labelKey: 'orderCancelled' },
+  rejected:    { color: '#EF4444', icon: AlertCircle,   labelKey: 'orderRejected' },
 };
 
-const NEXT_STATUS: Record<string, { key: string; label: string; color: string }> = {
-  pending:     { key: 'accepted',    label: 'Accept',      color: '#3B82F6' },
-  accepted:    { key: 'in_progress', label: 'Start Work',  color: '#8B5CF6' },
-  in_progress: { key: 'completed',   label: 'Complete',    color: '#10B981' },
+const SVC_STATUS_CONFIG: Record<string, { color: string; icon: any; labelKey: string }> = {
+  pending:     { color: '#F59E0B', icon: Clock,          labelKey: 'svcPending' },
+  in_progress: { color: '#8B5CF6', icon: Package,        labelKey: 'svcInProgress' },
+  blocked:     { color: '#EF4444', icon: AlertTriangle,   labelKey: 'svcBlocked' },
+  completed:   { color: '#10B981', icon: CheckCircle,    labelKey: 'svcCompleted' },
+  cancelled:   { color: '#6B7280', icon: XCircle,        labelKey: 'svcCancelled' },
 };
+
+const SVC_STATUS_OPTIONS = ['pending', 'in_progress', 'blocked', 'completed', 'cancelled'];
 
 export const ProviderOrdersScreen = () => {
   const { t } = useLanguage();
@@ -45,6 +51,7 @@ export const ProviderOrdersScreen = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [pickerTarget, setPickerTarget] = useState<{ orderId: string; serviceIndex: number; currentStatus: string } | null>(null);
 
   const fetchOrders = useCallback(async () => {
     if (!user?.localId) return;
@@ -61,27 +68,33 @@ export const ProviderOrdersScreen = () => {
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchOrders();
-  };
+  const onRefresh = () => { setRefreshing(true); fetchOrders(); };
 
-  const updateStatus = async (order: any, newStatus: string) => {
+  const handleServiceStatusChange = async (newStatus: string) => {
+    if (!pickerTarget || !user?.localId) return;
+    setPickerTarget(null);
     try {
-      await AuthService.updateOrderStatus(order.id || order._id, newStatus, user!.localId);
+      await AuthService.updateServiceStatus(pickerTarget.orderId, pickerTarget.serviceIndex, newStatus, user.localId);
       fetchOrders();
     } catch {
-      Alert.alert(t.error, 'Failed to update');
+      Alert.alert(t.error, 'Failed to update status');
     }
   };
 
-  const handleReject = (order: any) => {
+  const handleRejectOrder = (order: any) => {
     Alert.alert(t.reject, t.confirmCancelOrder, [
       { text: t.cancel, style: 'cancel' },
       {
         text: t.reject,
         style: 'destructive',
-        onPress: () => updateStatus(order, 'rejected'),
+        onPress: async () => {
+          try {
+            await AuthService.updateOrderStatus(order.id || order._id, 'rejected', user!.localId);
+            fetchOrders();
+          } catch {
+            Alert.alert(t.error, 'Failed to reject');
+          }
+        },
       },
     ]);
   };
@@ -93,25 +106,22 @@ export const ProviderOrdersScreen = () => {
   };
 
   const renderOrder = ({ item }: { item: any }) => {
-    const config = STATUS_CONFIG[item.status] || STATUS_CONFIG.pending;
-    const StatusIcon = config.icon;
-    const statusLabel = (t as any)[config.labelKey] || item.status;
-    const next = NEXT_STATUS[item.status];
-    const canReject = item.status === 'pending';
+    const orderConfig = ORDER_STATUS_CONFIG[item.status] || ORDER_STATUS_CONFIG.pending;
+    const OrderStatusIcon = orderConfig.icon;
+    const orderLabel = (t as any)[orderConfig.labelKey] || item.status;
+    const isTerminal = ['completed', 'cancelled', 'rejected'].includes(item.status);
 
     return (
       <View style={styles.orderCard}>
         <View style={styles.orderHeader}>
           <View style={styles.orderNumberRow}>
             <Text style={styles.orderNumber}>{item.orderNumber}</Text>
-            <View style={[styles.statusBadge, { backgroundColor: config.color + '20' }]}>
-              <StatusIcon size={12} color={config.color} />
-              <Text style={[styles.statusText, { color: config.color }]}>{statusLabel}</Text>
+            <View style={[styles.statusBadge, { backgroundColor: orderConfig.color + '20' }]}>
+              <OrderStatusIcon size={12} color={orderConfig.color} />
+              <Text style={[styles.statusText, { color: orderConfig.color }]}>{orderLabel}</Text>
             </View>
           </View>
-          <Text style={styles.orderDate}>
-            {new Date(item.createdAt).toLocaleDateString()}
-          </Text>
+          <Text style={styles.orderDate}>{new Date(item.createdAt).toLocaleDateString()}</Text>
         </View>
 
         <View style={styles.buyerRow}>
@@ -139,12 +149,28 @@ export const ProviderOrdersScreen = () => {
         ) : null}
 
         <View style={styles.servicesList}>
-          {(item.services || []).map((svc: any, i: number) => (
-            <View key={i} style={styles.serviceRow}>
-              <Text style={styles.svcName}>{svc.name}</Text>
-              <Text style={styles.svcFee}>{formatFee(svc.fee, svc.currency)}</Text>
-            </View>
-          ))}
+          {(item.services || []).map((svc: any, i: number) => {
+            const svcConfig = SVC_STATUS_CONFIG[svc.status || 'pending'] || SVC_STATUS_CONFIG.pending;
+            const SvcIcon = svcConfig.icon;
+            const svcLabel = (t as any)[svcConfig.labelKey] || svc.status || 'pending';
+
+            return (
+              <View key={i} style={styles.svcRow}>
+                <View style={styles.svcInfo}>
+                  <Text style={styles.svcName}>{svc.name}</Text>
+                  <Text style={styles.svcFee}>{formatFee(svc.fee, svc.currency)}</Text>
+                </View>
+                <TouchableOpacity
+                  style={[styles.svcStatusBtn, { borderColor: svcConfig.color }]}
+                  disabled={isTerminal}
+                  onPress={() => setPickerTarget({ orderId: item.id || item._id, serviceIndex: i, currentStatus: svc.status || 'pending' })}>
+                  <SvcIcon size={12} color={svcConfig.color} />
+                  <Text style={[styles.svcStatusLabel, { color: svcConfig.color }]}>{svcLabel}</Text>
+                  {!isTerminal ? <ChevronDown size={12} color={svcConfig.color} /> : null}
+                </TouchableOpacity>
+              </View>
+            );
+          })}
         </View>
 
         {item.totalAmount > 0 ? (
@@ -158,23 +184,11 @@ export const ProviderOrdersScreen = () => {
           <Text style={styles.noteText}>{item.buyerNote}</Text>
         ) : null}
 
-        {(next || canReject) ? (
-          <View style={styles.actionRow}>
-            {canReject ? (
-              <TouchableOpacity style={styles.rejectBtn} onPress={() => handleReject(item)}>
-                <XCircle size={16} color="#EF4444" />
-                <Text style={styles.rejectText}>{t.reject}</Text>
-              </TouchableOpacity>
-            ) : null}
-            {next ? (
-              <TouchableOpacity
-                style={[styles.advanceBtn, { backgroundColor: next.color }]}
-                onPress={() => updateStatus(item, next.key)}>
-                {next.key === 'completed' ? <Check size={16} color="#FFF" /> : <Play size={16} color="#FFF" />}
-                <Text style={styles.advanceText}>{next.label}</Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
+        {item.status === 'pending' ? (
+          <TouchableOpacity style={styles.rejectBtn} onPress={() => handleRejectOrder(item)}>
+            <XCircle size={16} color="#EF4444" />
+            <Text style={styles.rejectText}>{t.reject}</Text>
+          </TouchableOpacity>
         ) : null}
       </View>
     );
@@ -210,6 +224,31 @@ export const ProviderOrdersScreen = () => {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.accent} />}
         />
       )}
+
+      <Modal visible={!!pickerTarget} transparent animationType="fade" onRequestClose={() => setPickerTarget(null)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setPickerTarget(null)}>
+          <View style={styles.pickerSheet}>
+            <View style={styles.pickerHandle} />
+            <Text style={styles.pickerTitle}>{t.updateStatus}</Text>
+            {SVC_STATUS_OPTIONS.map(statusKey => {
+              const cfg = SVC_STATUS_CONFIG[statusKey];
+              const Icon = cfg.icon;
+              const label = (t as any)[cfg.labelKey] || statusKey;
+              const isCurrent = pickerTarget?.currentStatus === statusKey;
+              return (
+                <TouchableOpacity
+                  key={statusKey}
+                  style={[styles.pickerOption, isCurrent && styles.pickerOptionCurrent]}
+                  onPress={() => handleServiceStatusChange(statusKey)}>
+                  <Icon size={18} color={cfg.color} />
+                  <Text style={[styles.pickerOptionText, { color: cfg.color }]}>{label}</Text>
+                  {isCurrent ? <Text style={styles.pickerCurrentMark}>●</Text> : null}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -230,9 +269,7 @@ const styles = StyleSheet.create({
     padding: 16, borderWidth: 1, borderColor: COLORS.border, marginBottom: 12,
   },
   orderHeader: { marginBottom: 10 },
-  orderNumberRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-  },
+  orderNumberRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   orderNumber: { color: COLORS.textPrimary, fontSize: 16, fontWeight: '700' },
   statusBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
@@ -259,18 +296,23 @@ const styles = StyleSheet.create({
   },
   carText: { color: COLORS.textPrimary, fontSize: 14, fontWeight: '500', flex: 1 },
   carThumb: { width: 44, height: 32, borderRadius: 4 },
-  servicesList: {
-    borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 8,
+  servicesList: { borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 6 },
+  svcRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: COLORS.border,
   },
-  serviceRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: 4,
+  svcInfo: { flex: 1, marginRight: 10 },
+  svcName: { color: COLORS.textPrimary, fontSize: 14, fontWeight: '500' },
+  svcFee: { color: COLORS.textSecondary, fontSize: 12, marginTop: 2 },
+  svcStatusBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8,
+    borderWidth: 1,
   },
-  svcName: { color: COLORS.textSecondary, fontSize: 13, flex: 1 },
-  svcFee: { color: COLORS.accent, fontSize: 13, fontWeight: '600' },
+  svcStatusLabel: { fontSize: 12, fontWeight: '600' },
   totalRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingTop: 8, marginTop: 4, borderTopWidth: 1, borderTopColor: COLORS.border,
+    paddingTop: 8, marginTop: 4,
   },
   totalLabel: { color: COLORS.textSecondary, fontSize: 13, fontWeight: '500' },
   totalValue: { color: COLORS.textPrimary, fontSize: 16, fontWeight: '700' },
@@ -278,19 +320,37 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary, fontSize: 12, fontStyle: 'italic',
     marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: COLORS.border,
   },
-  actionRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: COLORS.border,
-  },
   rejectBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    flex: 1, paddingVertical: 10, borderRadius: 8,
+    marginTop: 12, paddingVertical: 10, borderRadius: 8,
     borderWidth: 1, borderColor: '#EF4444',
   },
   rejectText: { color: '#EF4444', fontSize: 14, fontWeight: '600' },
-  advanceBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    flex: 1, paddingVertical: 10, borderRadius: 8,
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
   },
-  advanceText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
+  pickerSheet: {
+    backgroundColor: COLORS.cardBackground,
+    borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    padding: 20, paddingBottom: 40,
+  },
+  pickerHandle: {
+    width: 40, height: 4, borderRadius: 2,
+    backgroundColor: COLORS.border, alignSelf: 'center', marginBottom: 16,
+  },
+  pickerTitle: {
+    color: COLORS.textPrimary, fontSize: 16, fontWeight: '700',
+    marginBottom: 16, textAlign: 'center',
+  },
+  pickerOption: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingVertical: 14, paddingHorizontal: 12,
+    borderRadius: 10, marginBottom: 4,
+  },
+  pickerOptionCurrent: {
+    backgroundColor: COLORS.searchBackground,
+  },
+  pickerOptionText: { fontSize: 15, fontWeight: '600', flex: 1 },
+  pickerCurrentMark: { color: COLORS.accent, fontSize: 10 },
 });

@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ArrowLeft, Package, Car, Briefcase, Truck, XCircle, Clock, CheckCircle, AlertCircle } from 'lucide-react-native';
+import { ArrowLeft, Package, Car, Briefcase, Truck, XCircle, Clock, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -28,6 +28,14 @@ const STATUS_CONFIG: Record<string, { color: string; icon: any; labelKey: string
   completed:   { color: '#10B981', icon: CheckCircle, labelKey: 'orderCompleted' },
   cancelled:   { color: '#6B7280', icon: XCircle,     labelKey: 'orderCancelled' },
   rejected:    { color: '#EF4444', icon: AlertCircle,  labelKey: 'orderRejected' },
+};
+
+const SVC_STATUS_CONFIG: Record<string, { color: string; icon: any; labelKey: string }> = {
+  pending:     { color: '#F59E0B', icon: Clock,          labelKey: 'svcPending' },
+  in_progress: { color: '#8B5CF6', icon: Package,        labelKey: 'svcInProgress' },
+  blocked:     { color: '#EF4444', icon: AlertTriangle,   labelKey: 'svcBlocked' },
+  completed:   { color: '#10B981', icon: CheckCircle,    labelKey: 'svcCompleted' },
+  cancelled:   { color: '#6B7280', icon: XCircle,        labelKey: 'svcCancelled' },
 };
 
 export const MyOrdersScreen = () => {
@@ -123,12 +131,23 @@ export const MyOrdersScreen = () => {
         </View>
 
         <View style={styles.servicesList}>
-          {(item.services || []).map((svc: any, i: number) => (
-            <View key={i} style={styles.serviceRow}>
-              <Text style={styles.svcName}>{svc.name}</Text>
-              <Text style={styles.svcFee}>{formatFee(svc.fee, svc.currency)}</Text>
-            </View>
-          ))}
+          {(item.services || []).map((svc: any, i: number) => {
+            const svcConfig = SVC_STATUS_CONFIG[svc.status || 'pending'] || SVC_STATUS_CONFIG.pending;
+            const SvcIcon = svcConfig.icon;
+            const svcLabel = (t as any)[svcConfig.labelKey] || svc.status || 'pending';
+            return (
+              <View key={i} style={styles.serviceRow}>
+                <View style={styles.svcInfoCol}>
+                  <Text style={styles.svcName}>{svc.name}</Text>
+                  <Text style={styles.svcFee}>{formatFee(svc.fee, svc.currency)}</Text>
+                </View>
+                <View style={[styles.svcBadge, { backgroundColor: svcConfig.color + '18' }]}>
+                  <SvcIcon size={10} color={svcConfig.color} />
+                  <Text style={[styles.svcBadgeText, { color: svcConfig.color }]}>{svcLabel}</Text>
+                </View>
+              </View>
+            );
+          })}
         </View>
 
         {item.totalAmount > 0 ? (
@@ -228,10 +247,16 @@ const styles = StyleSheet.create({
   },
   serviceRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: 4,
+    paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: COLORS.border,
   },
-  svcName: { color: COLORS.textSecondary, fontSize: 13, flex: 1 },
-  svcFee: { color: COLORS.accent, fontSize: 13, fontWeight: '600' },
+  svcInfoCol: { flex: 1, marginRight: 8 },
+  svcName: { color: COLORS.textPrimary, fontSize: 13, fontWeight: '500' },
+  svcFee: { color: COLORS.textSecondary, fontSize: 12, marginTop: 1 },
+  svcBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6,
+  },
+  svcBadgeText: { fontSize: 11, fontWeight: '600' },
   totalRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingTop: 8, marginTop: 4, borderTopWidth: 1, borderTopColor: COLORS.border,

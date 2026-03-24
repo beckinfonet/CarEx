@@ -321,5 +321,15 @@ export const AuthService = {
       throw error;
     }
   },
+
+  updateServiceStatus: async (orderId: string, serviceIndex: number, status: string, callerUid: string) => {
+    try {
+      const response = await axios.patch(`${API_URL}/api/orders/${orderId}/services/${serviceIndex}/status`, { status, callerUid });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update service status', error);
+      throw error;
+    }
+  },
 };
 
