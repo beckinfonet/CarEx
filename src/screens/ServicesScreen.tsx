@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft, Briefcase, Truck, Phone, User, MessageCircle, Send, ChevronRight } from 'lucide-react-native';
+import { ArrowLeft, Briefcase, Truck, Phone, User, MessageCircle, Send, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import axios from 'axios';
@@ -92,8 +92,15 @@ export const ServicesScreen = () => {
     Linking.openURL(`https://t.me/${username}`).catch(() => Alert.alert(t.error, 'Cannot open Telegram'));
   };
 
-  const renderProvider = ({ item }: { item: ServiceProvider }) => {
+  const SERVICE_PREVIEW_COUNT = 2;
+
+  const ProviderCard = ({ item }: { item: ServiceProvider }) => {
+    const [expanded, setExpanded] = useState(false);
     const hasContacts = item.phoneNumber || item.telegramUsername;
+    const services = item.services || [];
+    const hasMore = services.length > SERVICE_PREVIEW_COUNT;
+    const visibleServices = expanded ? services : services.slice(0, SERVICE_PREVIEW_COUNT);
+
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
@@ -115,9 +122,9 @@ export const ServicesScreen = () => {
           </TouchableOpacity>
         </View>
         {item.description ? <Text style={styles.description}>{item.description}</Text> : null}
-        {item.services && item.services.length > 0 ? (
+        {visibleServices.length > 0 ? (
           <View style={styles.servicesList}>
-            {item.services.map((s, i) => (
+            {visibleServices.map((s, i) => (
               <View key={i} style={styles.serviceItem}>
                 <View style={styles.serviceItemLeft}>
                   <Text style={styles.serviceItemName}>{s.name}</Text>
@@ -128,6 +135,14 @@ export const ServicesScreen = () => {
                 <Text style={styles.serviceItemFee}>{s.fee === 'contact' ? t.feeTypeContact : (!s.fee || s.fee === '' || s.fee === '0') ? '-' : `${s.currency || '$'}${s.fee}`}</Text>
               </View>
             ))}
+            {hasMore ? (
+              <TouchableOpacity style={styles.toggleServicesBtn} onPress={() => setExpanded(!expanded)}>
+                {expanded ? <ChevronUp size={16} color={COLORS.accent} /> : <ChevronDown size={16} color={COLORS.accent} />}
+                <Text style={styles.toggleServicesText}>
+                  {expanded ? t.showLess : t.showAllServices.replace('{count}', String(services.length))}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
         ) : null}
         {item.coverageAreas && item.coverageAreas.length > 0 ? (
@@ -164,6 +179,8 @@ export const ServicesScreen = () => {
       </View>
     );
   };
+
+  const renderProvider = ({ item }: { item: ServiceProvider }) => <ProviderCard item={item} />;
 
   const data = activeTab === 'brokers' ? brokers : logistics;
   const isLoading = activeTab === 'brokers' ? loadingBrokers : loadingLogistics;
@@ -412,6 +429,19 @@ const styles = StyleSheet.create({
   serviceItemFee: {
     color: COLORS.accent,
     fontSize: 14,
+    fontWeight: '600',
+  },
+  toggleServicesBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingVertical: 8,
+    marginTop: 4,
+  },
+  toggleServicesText: {
+    color: COLORS.accent,
+    fontSize: 13,
     fontWeight: '600',
   },
   tags: {

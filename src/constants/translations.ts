@@ -53,6 +53,8 @@ export const TRANSLATIONS = {
     viewDetails: 'Подробнее',
     servicesOffered: 'Услуги',
     contactInfo: 'Контакты',
+    showAllServices: 'Показать все ({count})',
+    showLess: 'Скрыть',
 
     // Admin
     adminPanel: 'Панель администратора',
@@ -376,6 +378,8 @@ export const TRANSLATIONS = {
     viewDetails: 'View Details',
     servicesOffered: 'Services',
     contactInfo: 'Contact',
+    showAllServices: 'Show all ({count})',
+    showLess: 'Show less',
 
     // Admin
     adminPanel: 'Admin Panel',
