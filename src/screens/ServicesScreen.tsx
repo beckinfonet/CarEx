@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft, Briefcase, Truck, Phone, User } from 'lucide-react-native';
+import { ArrowLeft, Briefcase, Truck, Phone, User, MessageCircle, Send } from 'lucide-react-native';
 import axios from 'axios';
 import { COLORS, SIZES } from '../constants/theme';
 import { API_URL } from '../constants/config';
@@ -76,62 +76,87 @@ export const ServicesScreen = () => {
 
   const handleCall = (phoneNumber?: string) => {
     if (!phoneNumber) return;
-    const url = `tel:${phoneNumber}`;
-    Linking.canOpenURL(url)
-      .then(supported => {
-        if (supported) Linking.openURL(url);
-        else Alert.alert(t.error, 'Cannot open dialer');
-      })
-      .catch(() => Alert.alert(t.error, 'Cannot open dialer'));
+    Linking.openURL(`tel:${phoneNumber}`).catch(() => Alert.alert(t.error, 'Cannot open dialer'));
   };
 
-  const renderProvider = ({ item }: { item: ServiceProvider }) => (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <View style={styles.avatarContainer}>
-          {item.ownerAvatarUrl ? (
-            <Image source={{ uri: item.ownerAvatarUrl }} style={styles.avatar} />
-          ) : (
-            <User size={24} color={COLORS.textSecondary} />
-          )}
+  const handleWhatsApp = (phoneNumber?: string) => {
+    if (!phoneNumber) return;
+    const cleaned = phoneNumber.replace(/[^0-9]/g, '');
+    Linking.openURL(`https://wa.me/${cleaned}`).catch(() => Alert.alert(t.error, 'Cannot open WhatsApp'));
+  };
+
+  const handleTelegram = (username?: string) => {
+    if (!username) return;
+    Linking.openURL(`https://t.me/${username}`).catch(() => Alert.alert(t.error, 'Cannot open Telegram'));
+  };
+
+  const renderProvider = ({ item }: { item: ServiceProvider }) => {
+    const hasContacts = item.phoneNumber || item.telegramUsername;
+    return (
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <View style={styles.avatarContainer}>
+            {item.ownerAvatarUrl ? (
+              <Image source={{ uri: item.ownerAvatarUrl }} style={styles.avatar} />
+            ) : (
+              <User size={24} color={COLORS.textSecondary} />
+            )}
+          </View>
+          <View style={styles.cardInfo}>
+            <Text style={styles.companyName}>{item.companyName}</Text>
+            {item.ownerName ? <Text style={styles.ownerName}>{item.ownerName}</Text> : null}
+          </View>
         </View>
-        <View style={styles.cardInfo}>
-          <Text style={styles.companyName}>{item.companyName}</Text>
-          {item.ownerName ? <Text style={styles.ownerName}>{item.ownerName}</Text> : null}
-        </View>
-        {item.phoneNumber ? (
-          <TouchableOpacity style={styles.callButton} onPress={() => handleCall(item.phoneNumber)}>
-            <Phone size={18} color="#FFF" />
-          </TouchableOpacity>
+        {item.description ? <Text style={styles.description}>{item.description}</Text> : null}
+        {item.services && item.services.length > 0 ? (
+          <View style={styles.servicesList}>
+            {item.services.map((s, i) => (
+              <View key={i} style={styles.serviceItem}>
+                <View style={styles.serviceItemLeft}>
+                  <Text style={styles.serviceItemName}>{s.name}</Text>
+                  {s.description ? (
+                    <Text style={styles.serviceItemDesc} numberOfLines={1}>{s.description}</Text>
+                  ) : null}
+                </View>
+                <Text style={styles.serviceItemFee}>{s.fee === 'contact' ? t.feeTypeContact : (!s.fee || s.fee === '' || s.fee === '0') ? '-' : `${s.currency || '$'}${s.fee}`}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+        {item.coverageAreas && item.coverageAreas.length > 0 ? (
+          <View style={styles.tags}>
+            {item.coverageAreas.map((a, i) => (
+              <View key={i} style={styles.tag}>
+                <Text style={styles.tagText}>{a}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+        {hasContacts ? (
+          <View style={styles.contactRow}>
+            {item.phoneNumber ? (
+              <TouchableOpacity style={styles.contactButton} onPress={() => handleCall(item.phoneNumber)}>
+                <Phone size={16} color="#FFF" />
+                <Text style={styles.contactButtonText}>{t.phone}</Text>
+              </TouchableOpacity>
+            ) : null}
+            {item.phoneNumber ? (
+              <TouchableOpacity style={[styles.contactButton, styles.whatsappButton]} onPress={() => handleWhatsApp(item.phoneNumber)}>
+                <MessageCircle size={16} color="#FFF" />
+                <Text style={styles.contactButtonText}>WhatsApp</Text>
+              </TouchableOpacity>
+            ) : null}
+            {item.telegramUsername ? (
+              <TouchableOpacity style={[styles.contactButton, styles.telegramButton]} onPress={() => handleTelegram(item.telegramUsername)}>
+                <Send size={16} color="#FFF" />
+                <Text style={styles.contactButtonText}>Telegram</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
         ) : null}
       </View>
-      {item.description ? <Text style={styles.description}>{item.description}</Text> : null}
-      {item.services && item.services.length > 0 ? (
-        <View style={styles.servicesList}>
-          {item.services.map((s, i) => (
-            <View key={i} style={styles.serviceItem}>
-              <View style={styles.serviceItemLeft}>
-                <Text style={styles.serviceItemName}>{s.name}</Text>
-                {s.description ? (
-                  <Text style={styles.serviceItemDesc} numberOfLines={1}>{s.description}</Text>
-                ) : null}
-              </View>
-              <Text style={styles.serviceItemFee}>{s.fee === 'contact' ? t.feeTypeContact : (!s.fee || s.fee === '' || s.fee === '0') ? '-' : `${s.currency || '$'}${s.fee}`}</Text>
-            </View>
-          ))}
-        </View>
-      ) : null}
-      {item.coverageAreas && item.coverageAreas.length > 0 ? (
-        <View style={styles.tags}>
-          {item.coverageAreas.map((a, i) => (
-            <View key={i} style={styles.tag}>
-              <Text style={styles.tagText}>{a}</Text>
-            </View>
-          ))}
-        </View>
-      ) : null}
-    </View>
-  );
+    );
+  };
 
   const data = activeTab === 'brokers' ? brokers : logistics;
   const isLoading = activeTab === 'brokers' ? loadingBrokers : loadingLogistics;
@@ -314,13 +339,34 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 2,
   },
-  callButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.accent,
-    justifyContent: 'center',
+  contactRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    paddingTop: 12,
+  },
+  contactButton: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: COLORS.accent,
+  },
+  whatsappButton: {
+    backgroundColor: '#25D366',
+  },
+  telegramButton: {
+    backgroundColor: '#2AABEE',
+  },
+  contactButtonText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '600',
   },
   description: {
     color: COLORS.textSecondary,
