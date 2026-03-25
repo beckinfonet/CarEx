@@ -40,6 +40,7 @@ export const CarDetailsScreen = () => {
   const [sellerName, setSellerName] = useState<string | null>(null);
   const [sellerAvatarUrl, setSellerAvatarUrl] = useState<string | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const car = CARS.find(c => c.id === carId) || (route.params as any).carData || fetchedCar;
@@ -324,11 +325,12 @@ export const CarDetailsScreen = () => {
       return;
     }
 
-    Alert.alert(t.chooseCurrency, '', [
-      { text: t.payInKGS, onPress: () => processPayment('kgs') },
-      { text: t.payInUSD, onPress: () => processPayment('usd') },
-      { text: t.cancel, style: 'cancel' },
-    ]);
+    setCurrencyPickerVisible(true);
+  };
+
+  const handleCurrencySelect = (currency: string) => {
+    setCurrencyPickerVisible(false);
+    processPayment(currency);
   };
 
   const processPayment = async (currency: string) => {
@@ -569,7 +571,7 @@ export const CarDetailsScreen = () => {
                     });
                     navigation.navigate('Services');
                   }}>
-                  <Briefcase size={18} color="#FFF" />
+                  <Briefcase size={18} color={COLORS.accent} />
                   <Text style={styles.getServicesText}>{t.getServices}</Text>
                 </TouchableOpacity>
               )}
@@ -578,10 +580,10 @@ export const CarDetailsScreen = () => {
                 onPress={handleBookIt}
                 disabled={bookingLoading || listingStatus === 'booked'}>
                 {bookingLoading ? (
-                  <ActivityIndicator size="small" color="#FFF" />
+                  <ActivityIndicator size="small" color="#22c55e" />
                 ) : (
                   <>
-                    <CreditCard size={18} color={listingStatus === 'booked' ? 'rgba(255,255,255,0.6)' : '#FFF'} />
+                    <CreditCard size={18} color={listingStatus === 'booked' ? 'rgba(255,255,255,0.4)' : '#22c55e'} />
                     <Text style={[styles.bookItText, listingStatus === 'booked' && styles.bookItTextDisabled]}>
                       {listingStatus === 'booked' ? t.booked : t.bookIt}
                     </Text>
@@ -671,6 +673,60 @@ export const CarDetailsScreen = () => {
           </View>
         )}
       </View>
+
+      <Modal
+        visible={currencyPickerVisible}
+        transparent
+        animationType="slide"
+        statusBarTranslucent
+        onRequestClose={() => setCurrencyPickerVisible(false)}>
+        <TouchableOpacity
+          style={styles.currencyOverlay}
+          activeOpacity={1}
+          onPress={() => setCurrencyPickerVisible(false)}>
+          <View style={styles.currencySheet}>
+            <View style={styles.currencyHandle} />
+            <Text style={styles.currencyTitle}>{t.chooseCurrency}</Text>
+            <Text style={styles.currencySubtitle}>
+              {car.make} {car.model} {car.year}
+            </Text>
+
+            <TouchableOpacity
+              style={styles.currencyOption}
+              activeOpacity={0.7}
+              onPress={() => handleCurrencySelect('kgs')}>
+              <View style={styles.currencyIconWrap}>
+                <Text style={styles.currencyFlag}>🇰🇬</Text>
+              </View>
+              <View style={styles.currencyInfo}>
+                <Text style={styles.currencyName}>KGS</Text>
+                <Text style={styles.currencyDesc}>Кыргызский сом</Text>
+              </View>
+              <Text style={styles.currencyAmount}>5 000 сом</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.currencyOption}
+              activeOpacity={0.7}
+              onPress={() => handleCurrencySelect('usd')}>
+              <View style={styles.currencyIconWrap}>
+                <Text style={styles.currencyFlag}>🇺🇸</Text>
+              </View>
+              <View style={styles.currencyInfo}>
+                <Text style={styles.currencyName}>USD</Text>
+                <Text style={styles.currencyDesc}>US Dollar</Text>
+              </View>
+              <Text style={styles.currencyAmount}>~$58</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.currencyCancelBtn}
+              onPress={() => setCurrencyPickerVisible(false)}>
+              <Text style={styles.currencyCancelText}>{t.cancel}</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
 
       {/* Combined gallery + full-screen modal - single modal prevents iOS flash */}
       <Modal
@@ -1119,12 +1175,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: COLORS.accent,
+    backgroundColor: 'transparent',
     paddingVertical: 12,
     borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
   },
   getServicesText: {
-    color: '#FFF',
+    color: COLORS.accent,
     fontSize: 15,
     fontWeight: '600',
   },
@@ -1134,20 +1192,111 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#22c55e',
+    backgroundColor: 'transparent',
     paddingVertical: 12,
     borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: '#22c55e',
   },
   bookItText: {
-    color: '#FFF',
+    color: '#22c55e',
     fontSize: 15,
     fontWeight: '600',
   },
   bookItButtonDisabled: {
-    backgroundColor: '#6b7280',
+    borderColor: COLORS.border,
+    backgroundColor: 'transparent',
   },
   bookItTextDisabled: {
-    color: 'rgba(255,255,255,0.6)',
+    color: 'rgba(255,255,255,0.4)',
+  },
+  currencyOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  currencySheet: {
+    backgroundColor: COLORS.cardBackground,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 36,
+    paddingTop: 12,
+  },
+  currencyHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: COLORS.border,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  currencyTitle: {
+    color: COLORS.textPrimary,
+    fontSize: 20,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  currencySubtitle: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  currencyOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.searchBackground,
+    borderRadius: SIZES.borderRadius,
+    padding: 16,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  currencyIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  currencyFlag: {
+    fontSize: 24,
+  },
+  currencyInfo: {
+    flex: 1,
+  },
+  currencyName: {
+    color: COLORS.textPrimary,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  currencyDesc: {
+    color: COLORS.textSecondary,
+    fontSize: 13,
+    marginTop: 2,
+  },
+  currencyAmount: {
+    color: COLORS.accent,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  currencyCancelBtn: {
+    marginTop: 8,
+    paddingVertical: 14,
+    borderRadius: SIZES.borderRadius,
+    backgroundColor: COLORS.background,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  currencyCancelText: {
+    color: COLORS.textSecondary,
+    fontSize: 16,
+    fontWeight: '600',
   },
   contactLabel: {
     color: COLORS.textSecondary,
