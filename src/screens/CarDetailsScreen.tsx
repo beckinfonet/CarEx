@@ -330,24 +330,42 @@ export const CarDetailsScreen = () => {
 
   const handleCurrencySelect = (currency: string) => {
     setCurrencyPickerVisible(false);
-    processPayment(currency);
+    setTimeout(() => processPayment(currency), 600);
   };
+
+  const withTimeout = <T,>(promise: Promise<T>, ms: number, label: string): Promise<T> =>
+    Promise.race([
+      promise,
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error(`${label} timed out`)), ms),
+      ),
+    ]);
 
   const processPayment = async (currency: string) => {
     setBookingLoading(true);
     try {
       const carId = car._id || car.id || '';
-      const { clientSecret, paymentIntentId } = await AuthService.createPaymentIntent(
-        currency,
-        carId,
-        user!.localId,
+
+      const { clientSecret, paymentIntentId } = await withTimeout(
+        AuthService.createPaymentIntent(currency, carId, user!.localId),
+        30000,
+        'Creating payment',
       );
 
-      const { error: initError } = await initPaymentSheet({
-        paymentIntentClientSecret: clientSecret,
-        merchantDisplayName: 'CarEx',
-        returnURL: 'carex://stripe-redirect',
-      });
+      if (!clientSecret) {
+        Alert.alert(t.paymentFailed, 'No client secret returned from server.');
+        return;
+      }
+
+      const { error: initError } = await withTimeout(
+        initPaymentSheet({
+          paymentIntentClientSecret: clientSecret,
+          merchantDisplayName: 'CarEx',
+          returnURL: 'carex://stripe-redirect',
+        }),
+        30000,
+        'Initializing payment sheet',
+      );
 
       if (initError) {
         Alert.alert(t.paymentFailed, initError.message);
@@ -363,12 +381,17 @@ export const CarDetailsScreen = () => {
         return;
       }
 
-      await AuthService.confirmBooking(paymentIntentId, carId, user!.localId);
+      await withTimeout(
+        AuthService.confirmBooking(paymentIntentId, carId, user!.localId),
+        30000,
+        'Confirming booking',
+      );
       setLocalListingStatus('booked');
 
       Alert.alert(t.paymentSuccess, t.paymentSuccessDesc);
     } catch (err: any) {
-      Alert.alert(t.paymentFailed, err.message || t.error);
+      const msg = err?.response?.data?.message || err.message || t.error;
+      Alert.alert(t.paymentFailed, msg);
     } finally {
       setBookingLoading(false);
     }

@@ -288,7 +288,7 @@ export const AuthService = {
         currency,
         carId,
         buyerUid,
-      });
+      }, { timeout: 30000 });
       return response.data;
     } catch (error) {
       console.error('Failed to create payment intent', error);
@@ -302,7 +302,7 @@ export const AuthService = {
         paymentIntentId,
         carId,
         buyerUid,
-      });
+      }, { timeout: 30000 });
       return response.data;
     } catch (error) {
       console.error('Failed to confirm booking', error);
