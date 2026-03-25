@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, useWindowDimensions, Linking, Alert, Modal, Platform, Animated, Share, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, useWindowDimensions, Linking, Alert, Modal, Platform, Animated, Share, Image, ActivityIndicator } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Zoomable } from '@likashefqet/react-native-image-zoom';
 import { OptimizedImage } from '../components/OptimizedImage';
@@ -8,7 +8,9 @@ import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X, Edit2, Share2, User, ChevronRight, Briefcase } from 'lucide-react-native';
+import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X, Edit2, Share2, User, ChevronRight, Briefcase, CreditCard } from 'lucide-react-native';
+import { useStripe } from '@stripe/stripe-react-native';
+import { AuthService } from '../services/AuthService';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -37,10 +39,15 @@ export const CarDetailsScreen = () => {
   const [localListingStatus, setLocalListingStatus] = useState<string | null>(null);
   const [sellerName, setSellerName] = useState<string | null>(null);
   const [sellerAvatarUrl, setSellerAvatarUrl] = useState<string | null>(null);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const car = CARS.find(c => c.id === carId) || (route.params as any).carData || fetchedCar;
   const listingStatus = (localListingStatus ?? car?.listingStatus ?? 'active') as string;
   const isOwner = car?.sellerId && user?.localId === car.sellerId;
+  const isBooker = listingStatus === 'booked' && user?.localId &&
+    (car?.bookedByUid === user.localId || localListingStatus === 'booked');
+  const canAccessBookedCar = listingStatus !== 'booked' || isBooker || isOwner;
 
   useEffect(() => {
     if (fullScreenVisible && fullScreenScrollRef.current) {
@@ -308,6 +315,63 @@ export const CarDetailsScreen = () => {
     }
   };
 
+  const handleBookIt = () => {
+    if (!user) {
+      Alert.alert(t.loginRequired, t.loginRequiredDesc, [
+        { text: t.cancel, style: 'cancel' },
+        { text: t.login, onPress: () => navigation.navigate('Login') },
+      ]);
+      return;
+    }
+
+    Alert.alert(t.chooseCurrency, '', [
+      { text: t.payInKGS, onPress: () => processPayment('kgs') },
+      { text: t.payInUSD, onPress: () => processPayment('usd') },
+      { text: t.cancel, style: 'cancel' },
+    ]);
+  };
+
+  const processPayment = async (currency: string) => {
+    setBookingLoading(true);
+    try {
+      const carId = car._id || car.id || '';
+      const { clientSecret, paymentIntentId } = await AuthService.createPaymentIntent(
+        currency,
+        carId,
+        user!.localId,
+      );
+
+      const { error: initError } = await initPaymentSheet({
+        paymentIntentClientSecret: clientSecret,
+        merchantDisplayName: 'CarEx',
+        returnURL: 'carex://stripe-redirect',
+      });
+
+      if (initError) {
+        Alert.alert(t.paymentFailed, initError.message);
+        return;
+      }
+
+      const { error: presentError } = await presentPaymentSheet();
+
+      if (presentError) {
+        if (presentError.code !== 'Canceled') {
+          Alert.alert(t.paymentFailed, presentError.message);
+        }
+        return;
+      }
+
+      await AuthService.confirmBooking(paymentIntentId, carId, user!.localId);
+      setLocalListingStatus('booked');
+
+      Alert.alert(t.paymentSuccess, t.paymentSuccessDesc);
+    } catch (err: any) {
+      Alert.alert(t.paymentFailed, err.message || t.error);
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
   const handleShare = async () => {
     const url = LISTING_URL(car.id);
     const title = `${car.make} ${car.model} ${car.year}`;
@@ -487,6 +551,46 @@ export const CarDetailsScreen = () => {
             )}
           </View>
 
+          {listingStatus !== 'sold' && (
+            <View style={styles.actionButtonsRow}>
+              {canAccessBookedCar && (
+                <TouchableOpacity
+                  style={styles.getServicesButton}
+                  onPress={() => {
+                    setCar({
+                      id: car._id || car.id || '',
+                      makeName: car.makeName || car.make || '',
+                      modelName: car.modelName || car.model || '',
+                      year: car.year || 0,
+                      price: car.price || 0,
+                      currency: car.currency || '$',
+                      imageUrl: car.imageUrls?.[0] || car.image || '',
+                      listingId: car.listingId || '',
+                    });
+                    navigation.navigate('Services');
+                  }}>
+                  <Briefcase size={18} color="#FFF" />
+                  <Text style={styles.getServicesText}>{t.getServices}</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={[styles.bookItButton, listingStatus === 'booked' && styles.bookItButtonDisabled]}
+                onPress={handleBookIt}
+                disabled={bookingLoading || listingStatus === 'booked'}>
+                {bookingLoading ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <>
+                    <CreditCard size={18} color={listingStatus === 'booked' ? 'rgba(255,255,255,0.6)' : '#FFF'} />
+                    <Text style={[styles.bookItText, listingStatus === 'booked' && styles.bookItTextDisabled]}>
+                      {listingStatus === 'booked' ? t.booked : t.bookIt}
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
+
           <View style={styles.specsContainer}>
             <Text style={styles.sectionTitle}>{t.specs}</Text>
             <View style={styles.specsGrid}>
@@ -545,26 +649,8 @@ export const CarDetailsScreen = () => {
           <View style={styles.soldMessage}>
             <Text style={styles.soldMessageText}>{t.sold}</Text>
           </View>
-        ) : (
+        ) : canAccessBookedCar ? (
           <>
-            <TouchableOpacity
-              style={styles.getServicesButton}
-              onPress={() => {
-                setCar({
-                  id: car._id || car.id || '',
-                  makeName: car.makeName || car.make || '',
-                  modelName: car.modelName || car.model || '',
-                  year: car.year || 0,
-                  price: car.price || 0,
-                  currency: car.currency || '$',
-                  imageUrl: car.imageUrls?.[0] || car.image || '',
-                  listingId: car.listingId || '',
-                });
-                navigation.navigate('Services');
-              }}>
-              <Briefcase size={18} color="#FFF" />
-              <Text style={styles.getServicesText}>{t.getServices}</Text>
-            </TouchableOpacity>
             <Text style={styles.contactLabel}>{t.contactVia}</Text>
             <View style={styles.contactButtonsRow}>
               {car.telegramUsername && (
@@ -579,6 +665,10 @@ export const CarDetailsScreen = () => {
               </TouchableOpacity>
             </View>
           </>
+        ) : (
+          <View style={styles.soldMessage}>
+            <Text style={styles.soldMessageText}>{t.booked}</Text>
+          </View>
         )}
       </View>
 
@@ -1018,7 +1108,13 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.border,
     backgroundColor: COLORS.background,
   },
+  actionButtonsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 24,
+  },
   getServicesButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1026,12 +1122,32 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.accent,
     paddingVertical: 12,
     borderRadius: SIZES.borderRadius,
-    marginBottom: 14,
   },
   getServicesText: {
     color: '#FFF',
     fontSize: 15,
     fontWeight: '600',
+  },
+  bookItButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#22c55e',
+    paddingVertical: 12,
+    borderRadius: SIZES.borderRadius,
+  },
+  bookItText: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  bookItButtonDisabled: {
+    backgroundColor: '#6b7280',
+  },
+  bookItTextDisabled: {
+    color: 'rgba(255,255,255,0.6)',
   },
   contactLabel: {
     color: COLORS.textSecondary,

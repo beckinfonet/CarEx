@@ -56,6 +56,17 @@ export const TRANSLATIONS = {
     showAllServices: 'Показать все ({count})',
     showLess: 'Скрыть',
 
+    // Booking & Payment
+    bookIt: 'Забронировать',
+    chooseCurrency: 'Выберите валюту оплаты',
+    payInKGS: 'Оплатить в сомах (5 000 сом)',
+    payInUSD: 'Оплатить в долларах (~$58)',
+    paymentSuccess: 'Оплата прошла успешно!',
+    paymentSuccessDesc: 'Бронирование подтверждено.',
+    paymentFailed: 'Ошибка оплаты',
+    loginRequired: 'Необходимо войти',
+    loginRequiredDesc: 'Войдите в аккаунт для бронирования.',
+
     // Cart & Orders
     getServices: 'Заказать услуги',
     addToCart: 'В корзину',
@@ -420,6 +431,17 @@ export const TRANSLATIONS = {
     contactInfo: 'Contact',
     showAllServices: 'Show all ({count})',
     showLess: 'Show less',
+
+    // Booking & Payment
+    bookIt: 'Book it',
+    chooseCurrency: 'Choose payment currency',
+    payInKGS: 'Pay in KGS (5,000 сом)',
+    payInUSD: 'Pay in USD (~$58)',
+    paymentSuccess: 'Payment successful!',
+    paymentSuccessDesc: 'Your booking is confirmed.',
+    paymentFailed: 'Payment failed',
+    loginRequired: 'Login required',
+    loginRequiredDesc: 'Please log in to book.',
 
     // Cart & Orders
     getServices: 'Get Services',

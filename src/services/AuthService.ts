@@ -280,6 +280,36 @@ export const AuthService = {
     }
   },
 
+  // --- Payment Methods ---
+
+  createPaymentIntent: async (currency: string, carId: string, buyerUid: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/payments/create-payment-intent`, {
+        currency,
+        carId,
+        buyerUid,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to create payment intent', error);
+      throw error;
+    }
+  },
+
+  confirmBooking: async (paymentIntentId: string, carId: string, buyerUid: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/payments/confirm-booking`, {
+        paymentIntentId,
+        carId,
+        buyerUid,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to confirm booking', error);
+      throw error;
+    }
+  },
+
   // --- Order Methods ---
 
   createOrders: async (payload: { buyerUid: string; car: any; items: any[]; buyerNote?: string }) => {

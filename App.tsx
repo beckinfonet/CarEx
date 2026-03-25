@@ -32,6 +32,7 @@ import { RootStackParamList } from './src/types/navigation';
 import { LanguageProvider } from './src/context/LanguageContext';
 import { AuthProvider } from './src/context/AuthContext';
 import { CartProvider } from './src/context/CartContext';
+import { StripeProvider } from '@stripe/stripe-react-native';
 import { ServiceCartScreen } from './src/screens/ServiceCartScreen';
 import { MyOrdersScreen } from './src/screens/MyOrdersScreen';
 import { ProviderOrdersScreen } from './src/screens/ProviderOrdersScreen';
@@ -54,6 +55,7 @@ function App() {
       <SafeAreaProvider>
         <AuthProvider>
           <CartProvider>
+            <StripeProvider publishableKey="pk_test_51TEgrOJAS81xgsxjpbIvgoGw67eODe91yRPnNTpRcQrweRvUFBLX5wknw3XsAN2um4bFUsAG7HvFZqPArAQS5Ruf00MUNqZQLy">
             <LanguageProvider>
             <NavigationContainer linking={linking}>
               <OfflineNotice />
@@ -86,6 +88,7 @@ function App() {
               </Stack.Navigator>
             </NavigationContainer>
             </LanguageProvider>
+            </StripeProvider>
           </CartProvider>
         </AuthProvider>
       </SafeAreaProvider>
