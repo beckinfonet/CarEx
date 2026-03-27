@@ -40,7 +40,7 @@ Look for `SHA256:` in the output. Add the value to `ANDROID_SHA256_CERT_FINGERPR
 
 **Android:** Verify with:
 ```bash
-adb shell am start -a android.intent.action.VIEW -d "https://www.carexmarket.com/listing/test123" -p com.carex.marketplace
+adb shell am start -a android.intent.action.VIEW -d "https://www.carexmarket.com/listing/test123" -p com.carex.market
 ```
 
 Or use [Google's Statement List Generator and Tester](https://developers.google.com/digital-asset-links/tools/generator) to validate your assetlinks.json.
@@ -58,7 +58,7 @@ Or use [Google's Statement List Generator and Tester](https://developers.google.
 Android checks `https://www.carexmarket.com/.well-known/assetlinks.json`. It must return valid JSON, not your website HTML.
 
 - Open: https://www.carexmarket.com/.well-known/assetlinks.json  
-- Expected: `[{"relation":["delegate_permission/common.handle_all_urls"],"target":{"namespace":"android_app","package_name":"com.carex.marketplace","sha256_cert_fingerprints":["FA:C6:17:45:..."]}}]`
+- Expected: `[{"relation":["delegate_permission/common.handle_all_urls"],"target":{"namespace":"android_app","package_name":"com.carex.market","sha256_cert_fingerprints":["FA:C6:17:45:..."]}}]`
 - If you see "CarEx" or HTML: your site at carexmarket.com is not proxying `/.well-known/*` to the backend. Add a rewrite/proxy so `/.well-known/assetlinks.json` and `/.well-known/apple-app-site-association` are served by carEx-services (e.g. on Railway).
 
 **2. Verify SHA256 fingerprints in production**

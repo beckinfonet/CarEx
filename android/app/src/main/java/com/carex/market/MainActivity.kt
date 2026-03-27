@@ -1,4 +1,4 @@
-package com.carex.marketplace
+package com.carex.market
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

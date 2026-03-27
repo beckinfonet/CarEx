@@ -1,4 +1,4 @@
-package com.carex.marketplace
+package com.carex.market
 
 import android.app.Application
 import com.facebook.react.PackageList

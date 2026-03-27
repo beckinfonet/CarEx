@@ -2,7 +2,7 @@ module.exports = {
   project: {
     android: {
       sourceDir: './android',
-      packageName: 'com.carex.marketplace',
+      packageName: 'com.carex.market',
     },
   },
 };
