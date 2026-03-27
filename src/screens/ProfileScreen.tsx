@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, StatusBar, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Image, Modal, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -15,23 +15,14 @@ export const ProfileScreen = () => {
   const { t } = useLanguage();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const { user, logout, isAdmin, adminRole } = useAuth();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const handleLogout = async () => {
-    Alert.alert(
-      t.logout,
-      t.logoutConfirm,
-      [
-        { text: t.cancel, style: 'cancel' },
-        { 
-          text: t.logout, 
-          style: 'destructive', 
-          onPress: async () => {
-            await logout();
-            navigation.navigate('Home');
-          } 
-        }
-      ]
-    );
+  const handleLogout = () => setShowLogoutModal(true);
+
+  const confirmLogout = async () => {
+    setShowLogoutModal(false);
+    await logout();
+    navigation.navigate('Home');
   };
 
   const menuItems = [
@@ -51,7 +42,7 @@ export const ProfileScreen = () => {
       id: 'myOrders',
       title: t.myOrders,
       icon: <Package size={24} color={COLORS.accent} />,
-      onPress: () => navigation.navigate('MyOrders' as never)
+      onPress: () => navigation.navigate('MyOrders')
     },
     ...(user && user.sellerStatus !== 'APPROVED' ? [{
       id: 'requestSeller',
@@ -63,29 +54,29 @@ export const ProfileScreen = () => {
       id: 'viewBrokerage',
       title: t.viewBrokerage,
       icon: <Briefcase size={24} color={COLORS.accent} />,
-      onPress: () => navigation.navigate('ServiceProfile' as never, { type: 'broker' } as never)
+      onPress: () => navigation.navigate('ServiceProfile', { type: 'broker' })
     }] : user ? [{
       id: 'applyBroker',
       title: t.applyAsBroker,
       icon: <Briefcase size={24} color={COLORS.accent} />,
-      onPress: () => navigation.navigate('ServiceApplication' as never, { type: 'broker' } as never)
+      onPress: () => navigation.navigate('ServiceApplication', { type: 'broker' })
     }] : []),
     ...(user && user.logisticsStatus === 'APPROVED' ? [{
       id: 'viewLogistics',
       title: t.viewLogistics,
       icon: <Truck size={24} color={COLORS.accent} />,
-      onPress: () => navigation.navigate('ServiceProfile' as never, { type: 'logistics' } as never)
+      onPress: () => navigation.navigate('ServiceProfile', { type: 'logistics' })
     }] : user ? [{
       id: 'applyLogistics',
       title: t.applyAsLogistics,
       icon: <Truck size={24} color={COLORS.accent} />,
-      onPress: () => navigation.navigate('ServiceApplication' as never, { type: 'logistics' } as never)
+      onPress: () => navigation.navigate('ServiceApplication', { type: 'logistics' })
     }] : []),
     ...(user && (user.brokerStatus === 'APPROVED' || user.logisticsStatus === 'APPROVED') ? [{
       id: 'providerOrders',
       title: t.providerOrders,
       icon: <ClipboardList size={24} color={COLORS.accent} />,
-      onPress: () => navigation.navigate('ProviderOrders' as never)
+      onPress: () => navigation.navigate('ProviderOrders')
     }] : []),
   ];
 
@@ -189,6 +180,43 @@ export const ProfileScreen = () => {
             <Text style={styles.logoutText}>{t.logout}</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <Modal
+        visible={showLogoutModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLogoutModal(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setShowLogoutModal(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalCard}>
+                <View style={styles.modalIconCircle}>
+                  <LogOut size={28} color="#EF4444" />
+                </View>
+                <Text style={styles.modalTitle}>{t.logout}</Text>
+                <Text style={styles.modalMessage}>{t.logoutConfirm}</Text>
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={styles.modalCancelBtn}
+                    onPress={() => setShowLogoutModal(false)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.modalCancelText}>{t.cancel}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.modalConfirmBtn}
+                    onPress={confirmLogout}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.modalConfirmText}>{t.logout}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -331,6 +359,76 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  modalCard: {
+    width: '100%',
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: SIZES.borderRadius * 1.5,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  modalIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginBottom: 8,
+  },
+  modalMessage: {
+    fontSize: 15,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 28,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalCancelBtn: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: SIZES.borderRadius,
+    backgroundColor: COLORS.searchBackground,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  modalCancelText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+  },
+  modalConfirmBtn: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: SIZES.borderRadius,
+    backgroundColor: '#EF4444',
+    alignItems: 'center',
+  },
+  modalConfirmText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });
 
