@@ -301,18 +301,11 @@ export const HomeScreen = () => {
               <User size={24} color={user ? '#FFF' : COLORS.textSecondary} />
             )}
           </TouchableOpacity>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Image
-              source={require('../assets/CarExWord.png')}
-              style={{ width: 130, height: 70, marginLeft: 0 }}
-              resizeMode="contain"
-            />
-            <Image
-              source={require('../assets/car-logo-transparent.png')}
-              style={{ width: 60, height: 80 }}
-              resizeMode="contain"
-            />
-          </View>
+          <Image
+            source={require('../assets/CarExWord.png')}
+            style={{ width: 130, height: 70, marginLeft: 0 }}
+            resizeMode="contain"
+          />
           <TouchableOpacity
             style={styles.langSwitch}
             onPress={() => setLanguage(language === 'RU' ? 'EN' : 'RU')}
