@@ -6,6 +6,9 @@ import { COLORS, SIZES } from '../constants/theme';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowLeft } from 'lucide-react-native';
+import { PasswordRequirements } from '../components/PasswordRequirements';
+import { PasswordTextInput } from '../components/PasswordTextInput';
+import { passwordMeetsPolicy } from '../utils/passwordPolicy';
 
 export const SignupScreen = () => {
   const { t } = useLanguage();
@@ -27,7 +30,7 @@ export const SignupScreen = () => {
       return;
     }
 
-    if (password.length < 6) {
+    if (!passwordMeetsPolicy(password)) {
       Alert.alert(t.error, t.shortPassword);
       return;
     }
@@ -64,19 +67,21 @@ export const SignupScreen = () => {
           value={email}
           onChangeText={setEmail}
         />
-        <TextInput
-          style={styles.input}
+        <PasswordTextInput
+          style={[
+            styles.input,
+            password.length > 0 && !passwordMeetsPolicy(password) ? { borderColor: COLORS.accent } : null,
+          ]}
           placeholder={t.password}
           placeholderTextColor={COLORS.textSecondary}
-          secureTextEntry
           value={password}
           onChangeText={setPassword}
         />
-        <TextInput
+        <PasswordRequirements password={password} />
+        <PasswordTextInput
           style={styles.input}
           placeholder={t.confirmPassword}
           placeholderTextColor={COLORS.textSecondary}
-          secureTextEntry
           value={confirmPassword}
           onChangeText={setConfirmPassword}
         />

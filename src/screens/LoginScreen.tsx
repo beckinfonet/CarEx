@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../constants/theme';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowLeft } from 'lucide-react-native';
+import { PasswordTextInput } from '../components/PasswordTextInput';
 
 export const LoginScreen = () => {
   const { t } = useLanguage();
@@ -77,11 +78,10 @@ export const LoginScreen = () => {
           value={email}
           onChangeText={setEmail}
         />
-        <TextInput
+        <PasswordTextInput
           style={styles.input}
           placeholder={t.password}
           placeholderTextColor={COLORS.textSecondary}
-          secureTextEntry
           value={password}
           onChangeText={setPassword}
         />
