@@ -58,6 +58,9 @@ export const TRANSLATIONS = {
 
     // Booking & Payment
     bookIt: 'Забронировать',
+    paymentWarningTitle: 'Подтверждение оплаты',
+    paymentWarningMessage: 'Оплата производится банковскими картами Visa и Mastercard. Это реальный платёж. Пожалуйста, убедитесь, что вы действительно хотите забронировать данный автомобиль.',
+    paymentWarningConfirm: 'Подтверждаю',
     chooseCurrency: 'Выберите валюту оплаты',
     payInKGS: 'Оплатить в сомах (5 000 сом)',
     payInUSD: 'Оплатить в долларах (~$58)',
@@ -451,6 +454,9 @@ export const TRANSLATIONS = {
 
     // Booking & Payment
     bookIt: 'Book it',
+    paymentWarningTitle: 'Payment Confirmation',
+    paymentWarningMessage: 'Payments are processed via Visa and Mastercard. This is a real transaction. Please make sure you want to reserve this vehicle before proceeding.',
+    paymentWarningConfirm: 'I Agree, Proceed',
     chooseCurrency: 'Choose payment currency',
     payInKGS: 'Pay in KGS (5,000 сом)',
     payInUSD: 'Pay in USD (~$58)',

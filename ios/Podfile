@@ -30,5 +30,22 @@ target 'carEx' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # Xcode 26 beta: fmt 11.0.2 consteval bug & stripe enum type mismatch
+    installer.pods_project.targets.each do |target|
+      if target.name == 'fmt'
+        target.build_configurations.each do |config|
+          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+        end
+      end
+      if target.name == 'stripe-react-native'
+        target.build_configurations.each do |config|
+          existing = config.build_settings['OTHER_CPLUSPLUSFLAGS'] || '$(inherited)'
+          config.build_settings['OTHER_CPLUSPLUSFLAGS'] = "#{existing} -Wno-error=enum-redeclared-with-different-underlying-type"
+          existing_c = config.build_settings['OTHER_CFLAGS'] || '$(inherited)'
+          config.build_settings['OTHER_CFLAGS'] = "#{existing_c} -Wno-error=enum-redeclared-with-different-underlying-type"
+        end
+      end
+    end
   end
 end

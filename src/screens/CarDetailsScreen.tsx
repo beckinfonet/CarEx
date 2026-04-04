@@ -41,6 +41,7 @@ export const CarDetailsScreen = () => {
   const [sellerAvatarUrl, setSellerAvatarUrl] = useState<string | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
+  const [paymentWarningVisible, setPaymentWarningVisible] = useState(false);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const car = CARS.find(c => c.id === carId) || (route.params as any).carData || fetchedCar;
@@ -325,7 +326,7 @@ export const CarDetailsScreen = () => {
       return;
     }
 
-    setCurrencyPickerVisible(true);
+    setPaymentWarningVisible(true);
   };
 
   const handleCurrencySelect = (currency: string) => {
@@ -696,6 +697,46 @@ export const CarDetailsScreen = () => {
           </View>
         )}
       </View>
+
+      <Modal
+        visible={paymentWarningVisible}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setPaymentWarningVisible(false)}>
+        <View style={styles.warningOverlay}>
+          <View style={styles.warningCard}>
+            <View style={styles.warningIconWrap}>
+              <AlertTriangle size={32} color="#F59E0B" />
+            </View>
+            <Text style={styles.warningTitle}>{t.paymentWarningTitle}</Text>
+            <Text style={styles.warningMessage}>{t.paymentWarningMessage}</Text>
+            <View style={styles.warningCardRow}>
+              <View style={styles.warningBadge}>
+                <Text style={styles.warningBadgeText}>Visa</Text>
+              </View>
+              <View style={styles.warningBadge}>
+                <Text style={styles.warningBadgeText}>Mastercard</Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.warningConfirmBtn}
+              activeOpacity={0.8}
+              onPress={() => {
+                setPaymentWarningVisible(false);
+                setTimeout(() => setCurrencyPickerVisible(true), 300);
+              }}>
+              <Text style={styles.warningConfirmText}>{t.paymentWarningConfirm}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.warningCancelBtn}
+              activeOpacity={0.7}
+              onPress={() => setPaymentWarningVisible(false)}>
+              <Text style={styles.warningCancelText}>{t.cancel}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <Modal
         visible={currencyPickerVisible}
@@ -1232,6 +1273,88 @@ const styles = StyleSheet.create({
   },
   bookItTextDisabled: {
     color: 'rgba(255,255,255,0.4)',
+  },
+  warningOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 28,
+  },
+  warningCard: {
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: 20,
+    paddingHorizontal: 24,
+    paddingTop: 28,
+    paddingBottom: 20,
+    width: '100%',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  warningIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(245,158,11,0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  warningTitle: {
+    color: COLORS.textPrimary,
+    fontSize: 20,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  warningMessage: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+    lineHeight: 21,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  warningCardRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 24,
+  },
+  warningBadge: {
+    backgroundColor: COLORS.searchBackground,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  warningBadgeText: {
+    color: COLORS.textPrimary,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  warningConfirmBtn: {
+    width: '100%',
+    backgroundColor: '#22c55e',
+    borderRadius: SIZES.borderRadius,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  warningConfirmText: {
+    color: '#0F1115',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  warningCancelBtn: {
+    width: '100%',
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  warningCancelText: {
+    color: COLORS.textSecondary,
+    fontSize: 15,
+    fontWeight: '600',
   },
   currencyOverlay: {
     flex: 1,
