@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 02-05-PLAN.md (deleteProviderProfile + editProfile handlers + routes wired; 91/91 backend tests passing)
-last_updated: "2026-04-17T17:57:02.068Z"
+status: verifying
+stopped_at: Completed 02-06-PLAN.md (rate limiter wired + acceptance test; 14/98 backend tests passing; Phase 2 acceptance-complete, ready for verification)
+last_updated: "2026-04-17T18:07:32.019Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 12
-  completed_plans: 11
-  percent: 92
+  completed_plans: 12
+  percent: 100
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 Phase: 02 (admin-moderation-endpoints-backend) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-17
 
 Progress: [░░░░░░░░░░] 0%
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P03 | 4min | 2 tasks tasks | 4 files files |
 | Phase 02 P04 | 3min | 2 tasks tasks | 3 files files |
 | Phase 02 P05 | 6m24s | 3 tasks | 4 files |
+| Phase 02 P06 | 4m47s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,10 @@ Recent decisions affecting current work:
 - [Phase 02]: Plan 02-05: PROFILE_MODEL_BY_ROLE + getProfileModel() shared between delete and edit; lazy mongoose.model() resolution lets tests inject canonical-name loose-schema seeds before service.js loads, while production server.js registers the same names at boot
 - [Phase 02]: Plan 02-05: Two failure paths for unknown edit-profile fields collapse to ONE error envelope ({ error: 'invalid_field', fields: [...] }) — Zod unrecognized_keys at the router AND service-layer EDIT_WHITELIST_BY_ROLE both surface identical 400 shape so mobile UI has one error path
 - [Phase 02]: Plan 02-05: Two rollback evidence tests on deleteProviderProfile (audit-failure + post-delete via jest.spyOn User.updateOne mockRejectedValueOnce) prove T-02-05-02 mitigation across both ordering paths
+- [Phase 02]: Plan 02-06: router.use(moderationRateLimiter) mounted IMMEDIATELY after express.Router() and BEFORE any route definitions — position load-bearing, verified by an awk positional assertion that catches misordered edits in CI
+- [Phase 02]: Plan 02-06: Test isolation via moderationRateLimiter.resetKey('admin:<uid>') in a top-level beforeEach (not module-tree resets) — clears specific buckets without re-requiring the moderation router and triggering OverwriteModelError on the model singletons
+- [Phase 02]: Plan 02-06: Single shared Express app built ONCE in beforeAll — limiter state is per-key not per-app, so resetKey() is sufficient for isolation; no per-describe rebuilder helper needed (or possible without OverwriteModelError)
+- [Phase 02]: Plan 02-06: Block 3 Test 2 (per-admin keying) explicitly proves D-31 — admin C succeeds with 200 even after admin A's bucket is exhausted, closing the IP-rotation bypass attack vector via real e2e evidence
 
 ### Pending Todos
 
@@ -108,6 +113,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-17T17:56:50.307Z
-Stopped at: Completed 02-05-PLAN.md (deleteProviderProfile + editProfile handlers + routes wired; 91/91 backend tests passing)
+Last session: 2026-04-17T18:07:32.015Z
+Stopped at: Completed 02-06-PLAN.md (rate limiter wired + acceptance test; 14/98 backend tests passing; Phase 2 acceptance-complete, ready for verification)
 Resume file: None
