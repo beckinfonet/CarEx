@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-04-17T17:29:44.693Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-04-17T17:38:19.729Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 12
-  completed_plans: 8
-  percent: 67
+  completed_plans: 9
+  percent: 75
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 02 (admin-moderation-endpoints-backend) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-04-17
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 02 P01 | 2 | 2 tasks | 4 files |
 | Phase 02 P02 | 3min | 3 tasks | 5 files |
+| Phase 02 P03 | 4min | 2 tasks tasks | 4 files files |
 
 ## Accumulated Context
 
@@ -70,6 +71,9 @@ Recent decisions affecting current work:
 - [Phase 02]: Plan 02-01: MongoMemoryReplSet fixture lives at __tests__/_helpers/mongoReplSet.js — sibling to existing standalone tests, not a replacement
 - [Phase 02]: Plan 02-02: Edit-profile whitelist codified as two .strict() Zod objects wrapped in z.discriminatedUnion on role — machine-enforced D-03 whitelist, not just documented
 - [Phase 02]: Plan 02-02: Rate limiter keyGenerator has 3-tier fallback (admin.uid → admin.email → 'unauthenticated' bucket) — regression that nulls uid degrades gracefully instead of silent single-bucket merge
+- [Phase 02]: Plan 02-03: Two-step transactional pattern (insert audit row → update User with lastActionId) established as the canonical shape for every Phase 2 handler — explicitly NOT optimized into single $set per D-18
+- [Phase 02]: Plan 02-03: Last-admin guard runs INSIDE the transaction with .session(session) — D-27/D-28 compliance; fires only for suspend (never for unsuspend, revoke_role, delete_profile, edit_profile per D-28)
+- [Phase 02]: Plan 02-03: Router KNOWN_USER_ERRORS set pre-registered with Plan 02-04/02-05 error tags (role_not_assigned, invalid_field, no_changes, invalid_role_for_delete) — downstream plans throw without amending router error-mapping
 
 ### Pending Todos
 
@@ -96,6 +100,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-17T17:29:44.690Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-04-17T17:38:08.522Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None

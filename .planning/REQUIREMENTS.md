@@ -23,8 +23,8 @@ Requirements for this milestone. Each maps to a roadmap phase.
 
 ### Admin Actions
 
-- [ ] **ADMIN-01**: Admin can **suspend** any user with one of three severities (feature-limited / blocked-with-review / permanently-banned), a preset reason category (Spam / Policy violation / Fraud / Other), and an optional free-text note. Status mutation + audit write occur in a single Mongoose transaction
-- [ ] **ADMIN-02**: Admin can **unsuspend** any suspended user, returning them to `active`. Listings re-surface automatically via read-time filter (no mutation on suspend — prevents unsuspend-leaves-hidden bug)
+- [x] **ADMIN-01**: Admin can **suspend** any user with one of three severities (feature-limited / blocked-with-review / permanently-banned), a preset reason category (Spam / Policy violation / Fraud / Other), and an optional free-text note. Status mutation + audit write occur in a single Mongoose transaction
+- [x] **ADMIN-02**: Admin can **unsuspend** any suspended user, returning them to `active`. Listings re-surface automatically via read-time filter (no mutation on suspend — prevents unsuspend-leaves-hidden bug)
 - [ ] **ADMIN-03**: Admin can **revoke** a provider role (broker / seller / logistics). User is downgraded to regular user; provider profile record is preserved for history but no longer surfaces in provider-facing queries
 - [ ] **ADMIN-04**: Admin can **delete** a broker or logistics provider profile. Provider profile record is hard-deleted; past orders remain intact via `Order.providerSnapshot`; the `User` record's provider link is nulled
 - [ ] **ADMIN-05**: Admin can **edit** provider profile fields (company name, phone, Telegram, contact email) on behalf of the provider. Edit writes an audit entry with `action: 'edit_profile'` and a diff of changed fields
@@ -131,8 +131,8 @@ Populated during roadmap creation. Every requirement maps to exactly one phase.
 | DATA-02 | Phase 1 | Pending |
 | DATA-03 | Phase 1 | Pending |
 | DATA-04 | Phase 1 | Pending |
-| ADMIN-01 | Phase 2 | Pending |
-| ADMIN-02 | Phase 2 | Pending |
+| ADMIN-01 | Phase 2 | Complete |
+| ADMIN-02 | Phase 2 | Complete |
 | ADMIN-03 | Phase 2 | Pending |
 | ADMIN-04 | Phase 2 | Pending |
 | ADMIN-05 | Phase 2 | Pending |
