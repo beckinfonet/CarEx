@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-04-17T17:23:46.292Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-04-17T17:29:44.693Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 12
-  completed_plans: 7
-  percent: 58
+  completed_plans: 8
+  percent: 67
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 02 (admin-moderation-endpoints-backend) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-04-17
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 02 P01 | 2 | 2 tasks | 4 files |
+| Phase 02 P02 | 3min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,8 @@ Recent decisions affecting current work:
 - [Phase 02]: Plan 02-01: req.admin.uid copied from req.auth.uid in requireAdmin (option a per pattern map) — single canonical req.admin shape
 - [Phase 02]: Plan 02-01: zod ^3.25.76 + express-rate-limit ^8.3.2 installed as backend production deps (D-37 caret pins)
 - [Phase 02]: Plan 02-01: MongoMemoryReplSet fixture lives at __tests__/_helpers/mongoReplSet.js — sibling to existing standalone tests, not a replacement
+- [Phase 02]: Plan 02-02: Edit-profile whitelist codified as two .strict() Zod objects wrapped in z.discriminatedUnion on role — machine-enforced D-03 whitelist, not just documented
+- [Phase 02]: Plan 02-02: Rate limiter keyGenerator has 3-tier fallback (admin.uid → admin.email → 'unauthenticated' bucket) — regression that nulls uid degrades gracefully instead of silent single-bucket merge
 
 ### Pending Todos
 
@@ -93,6 +96,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-17T17:23:46.289Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-04-17T17:29:44.690Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
