@@ -11,8 +11,8 @@ Requirements for this milestone. Each maps to a roadmap phase.
 
 - [ ] **SEC-01**: Backend verifies the caller's Firebase ID token via `firebase-admin.auth().verifyIdToken()` on every admin route (replaces the spoofable `callerUid`-in-body pattern)
 - [ ] **SEC-02**: Every admin moderation endpoint enforces admin-only access server-side; mobile `isAdmin` is never trusted for authorization
-- [ ] **SEC-03**: Backend rejects admin attempts to suspend, revoke, or delete their own account or the last remaining admin (guard in both UI and backend; backend is authoritative)
-- [ ] **SEC-04**: Admin moderation endpoints are rate-limited via `express-rate-limit` (30 actions per 15 minutes per admin) to defend against compromised-admin scripting
+- [x] **SEC-03**: Backend rejects admin attempts to suspend, revoke, or delete their own account or the last remaining admin (guard in both UI and backend; backend is authoritative)
+- [x] **SEC-04**: Admin moderation endpoints are rate-limited via `express-rate-limit` (30 actions per 15 minutes per admin) to defend against compromised-admin scripting
 
 ### Data Model
 
@@ -125,8 +125,8 @@ Populated during roadmap creation. Every requirement maps to exactly one phase.
 |-------------|-------|--------|
 | SEC-01 | Phase 1 | Pending |
 | SEC-02 | Phase 1 | Pending |
-| SEC-03 | Phase 2 | Pending |
-| SEC-04 | Phase 2 | Pending |
+| SEC-03 | Phase 2 | Complete |
+| SEC-04 | Phase 2 | Complete |
 | DATA-01 | Phase 1 | Pending |
 | DATA-02 | Phase 1 | Pending |
 | DATA-03 | Phase 1 | Pending |

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 2 context gathered
-last_updated: "2026-04-17T17:01:34.087Z"
-last_activity: 2026-04-17 -- Phase 02 planning complete
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-04-17T17:23:46.292Z"
+last_activity: 2026-04-17
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 12
-  completed_plans: 6
-  percent: 50
+  completed_plans: 7
+  percent: 58
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-17)
 
 **Core value:** Admins can act on bad-actor users after they're already in the system — without losing the audit trail or breaking in-flight orders for legitimate counterparties.
-**Current focus:** Phase 1 — Schema + Security Baseline (Backend)
+**Current focus:** Phase 02 — admin-moderation-endpoints-backend
 
 ## Current Position
 
-Phase: 1 (Schema + Security Baseline (Backend)) — EXECUTING
-Plan: 1 of 6
+Phase: 02 (admin-moderation-endpoints-backend) — EXECUTING
+Plan: 2 of 6
 Status: Ready to execute
-Last activity: 2026-04-17 -- Phase 02 planning complete
+Last activity: 2026-04-17
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 02 P01 | 2 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,9 @@ Recent decisions affecting current work:
 - Roadmap: Backend-first 6-phase sequence forced by hard deps (verifyIdToken before endpoints; capability map before enforcement; providerSnapshot before delete; ModerationService before UI)
 - Roadmap: Schema + security baseline merged into one phase (Phase 1) since both are small foundation work
 - Roadmap: QUAL-01 translations audit owned by Phase 6 as cross-cutting gate; earlier phases still write translations as they go
+- [Phase 02]: Plan 02-01: req.admin.uid copied from req.auth.uid in requireAdmin (option a per pattern map) — single canonical req.admin shape
+- [Phase 02]: Plan 02-01: zod ^3.25.76 + express-rate-limit ^8.3.2 installed as backend production deps (D-37 caret pins)
+- [Phase 02]: Plan 02-01: MongoMemoryReplSet fixture lives at __tests__/_helpers/mongoReplSet.js — sibling to existing standalone tests, not a replacement
 
 ### Pending Todos
 
@@ -89,6 +93,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-17T15:22:20.012Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-admin-moderation-endpoints-backend/02-CONTEXT.md
+Last session: 2026-04-17T17:23:46.289Z
+Stopped at: Completed 02-01-PLAN.md
+Resume file: None
