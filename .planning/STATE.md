@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-04-PLAN.md
-last_updated: "2026-04-17T17:45:04.939Z"
+stopped_at: Completed 02-05-PLAN.md (deleteProviderProfile + editProfile handlers + routes wired; 91/91 backend tests passing)
+last_updated: "2026-04-17T17:57:02.068Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 12
-  completed_plans: 10
-  percent: 83
+  completed_plans: 11
+  percent: 92
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 02 (admin-moderation-endpoints-backend) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-04-17
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P02 | 3min | 3 tasks | 5 files |
 | Phase 02 P03 | 4min | 2 tasks tasks | 4 files files |
 | Phase 02 P04 | 3min | 2 tasks tasks | 3 files files |
+| Phase 02 P05 | 6m24s | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,9 @@ Recent decisions affecting current work:
 - [Phase 02]: Plan 02-04: ROLE_FIELD_BY_NAME whitelist map at top of service.js — dynamic $set on User.{sellerStatus|brokerStatus|logisticsStatus} guarded by fixed lookup so direct service callers cannot inject arbitrary field names via the role parameter (T-02-04-06 mitigation)
 - [Phase 02]: Plan 02-04: Last-admin guard explicitly NOT wired into revokeRole per D-28 — admin-ness lives in AdminUser collection (joined by email), not in User.{role}Status fields. Revoke can never make someone less of an admin. Documented in-source so future readers don't add suspend's guard 'for safety'
 - [Phase 02]: Plan 02-04: Negative invariants enforced as test assertions — Tests 2/3 assert Broker/LogisticsPartner doc still exists after revoke (D-08 preservation), Test 6 asserts moderationStatus.state unchanged after revoke (D-12 orthogonality). Invariants live BOTH as in-source comments at the do-NOT step AND as toEqual assertions in revokeRole.test.js
+- [Phase 02]: Plan 02-05: PROFILE_MODEL_BY_ROLE + getProfileModel() shared between delete and edit; lazy mongoose.model() resolution lets tests inject canonical-name loose-schema seeds before service.js loads, while production server.js registers the same names at boot
+- [Phase 02]: Plan 02-05: Two failure paths for unknown edit-profile fields collapse to ONE error envelope ({ error: 'invalid_field', fields: [...] }) — Zod unrecognized_keys at the router AND service-layer EDIT_WHITELIST_BY_ROLE both surface identical 400 shape so mobile UI has one error path
+- [Phase 02]: Plan 02-05: Two rollback evidence tests on deleteProviderProfile (audit-failure + post-delete via jest.spyOn User.updateOne mockRejectedValueOnce) prove T-02-05-02 mitigation across both ordering paths
 
 ### Pending Todos
 
@@ -104,6 +108,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-17T17:44:55.467Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-04-17T17:56:50.307Z
+Stopped at: Completed 02-05-PLAN.md (deleteProviderProfile + editProfile handlers + routes wired; 91/91 backend tests passing)
 Resume file: None
