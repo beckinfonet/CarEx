@@ -119,48 +119,57 @@ Explicitly excluded from this milestone. Documented to prevent scope creep.
 
 ## Traceability
 
-Populated during roadmap creation. Every requirement must map to exactly one phase.
+Populated during roadmap creation. Every requirement maps to exactly one phase.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | TBD | Pending |
-| SEC-02 | TBD | Pending |
-| SEC-03 | TBD | Pending |
-| SEC-04 | TBD | Pending |
-| DATA-01 | TBD | Pending |
-| DATA-02 | TBD | Pending |
-| DATA-03 | TBD | Pending |
-| DATA-04 | TBD | Pending |
-| ADMIN-01 | TBD | Pending |
-| ADMIN-02 | TBD | Pending |
-| ADMIN-03 | TBD | Pending |
-| ADMIN-04 | TBD | Pending |
-| ADMIN-05 | TBD | Pending |
-| ENF-01 | TBD | Pending |
-| ENF-02 | TBD | Pending |
-| ENF-03 | TBD | Pending |
-| ENF-04 | TBD | Pending |
-| UI-01 | TBD | Pending |
-| UI-02 | TBD | Pending |
-| UI-03 | TBD | Pending |
-| UI-04 | TBD | Pending |
-| MOB-01 | TBD | Pending |
-| MOB-02 | TBD | Pending |
-| MOB-03 | TBD | Pending |
-| MOB-04 | TBD | Pending |
-| AFF-01 | TBD | Pending |
-| AFF-02 | TBD | Pending |
-| AFF-03 | TBD | Pending |
-| AFF-04 | TBD | Pending |
-| QUAL-01 | TBD | Pending |
-| QUAL-02 | TBD | Pending |
-| QUAL-03 | TBD | Pending |
+| SEC-01 | Phase 1 | Pending |
+| SEC-02 | Phase 1 | Pending |
+| SEC-03 | Phase 2 | Pending |
+| SEC-04 | Phase 2 | Pending |
+| DATA-01 | Phase 1 | Pending |
+| DATA-02 | Phase 1 | Pending |
+| DATA-03 | Phase 1 | Pending |
+| DATA-04 | Phase 1 | Pending |
+| ADMIN-01 | Phase 2 | Pending |
+| ADMIN-02 | Phase 2 | Pending |
+| ADMIN-03 | Phase 2 | Pending |
+| ADMIN-04 | Phase 2 | Pending |
+| ADMIN-05 | Phase 2 | Pending |
+| ENF-01 | Phase 3 | Pending |
+| ENF-02 | Phase 3 | Pending |
+| ENF-03 | Phase 3 | Pending |
+| ENF-04 | Phase 3 | Pending |
+| UI-01 | Phase 5 | Pending |
+| UI-02 | Phase 5 | Pending |
+| UI-03 | Phase 5 | Pending |
+| UI-04 | Phase 5 | Pending |
+| MOB-01 | Phase 4 | Pending |
+| MOB-02 | Phase 4 | Pending |
+| MOB-03 | Phase 4 | Pending |
+| MOB-04 | Phase 4 | Pending |
+| AFF-01 | Phase 6 | Pending |
+| AFF-02 | Phase 6 | Pending |
+| AFF-03 | Phase 6 | Pending |
+| AFF-04 | Phase 6 | Pending |
+| QUAL-01 | Phase 6 | Pending |
+| QUAL-02 | Phase 6 | Pending |
+| QUAL-03 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 32 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 32 ⚠️ (will be resolved by roadmap)
+- Mapped to phases: 32
+- Unmapped: 0
+
+**Per-Phase Requirement Counts:**
+- Phase 1 (Schema + Security Baseline): 6 (SEC-01, SEC-02, DATA-01..04)
+- Phase 2 (Admin Moderation Endpoints): 7 (SEC-03, SEC-04, ADMIN-01..05)
+- Phase 3 (Backend Enforcement): 4 (ENF-01..04)
+- Phase 4 (Mobile Plumbing): 4 (MOB-01..04)
+- Phase 5 (Admin Moderation UI): 4 (UI-01..04)
+- Phase 6 (Affected-User UX + Security Review): 7 (AFF-01..04, QUAL-01..03)
+- **Total: 32 ✓**
 
 ---
 *Requirements defined: 2026-04-17*
-*Last updated: 2026-04-17 after initial definition*
+*Last updated: 2026-04-17 after roadmap creation (traceability populated)*
