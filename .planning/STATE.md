@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-04-17T20:26:23.260Z"
+stopped_at: Completed 03-05-PLAN.md
+last_updated: "2026-04-17T20:30:57.722Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 18
-  completed_plans: 16
-  percent: 89
+  completed_plans: 17
+  percent: 94
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 03 (Backend Enforcement (Backend)) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-04-17
 
@@ -62,6 +62,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P02 | 2min | 2 tasks | 2 files |
 | Phase 03 P03 | 2min | 2 tasks tasks | 1 file files |
 | Phase 03 P04 | 3min | 2 tasks tasks | 2 files files |
+| Phase 03 P05 | 2m10s | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,7 @@ Recent decisions affecting current work:
 - [Phase 03]: Plan 03-04: Idempotency fast-path placed BEFORE stripe.paymentIntents.retrieve — retry on an already-booked car (car.stripePaymentIntentId === paymentIntentId) returns existing { car, orders } without touching Stripe, preventing redundant API calls on mobile retry loops (T-03-04-06).
 - [Phase 03]: Plan 03-04: ServiceOrder model resolved lazily via mongoose.model('ServiceOrder') inside function body (not top-of-file require) — service loads cleanly without depending on server.js's inline ServiceOrder registration, matters for test isolation and future Phase 1 D-02 extraction.
 - [Phase 03]: Plan 03-04: orderNumber collision-check lookup uses .session(session).lean() inside the transaction so uniqueness read + create share the same snapshot — prevents two concurrent confirms from both observing 'no such orderNumber' and then both inserting, catching the race at read time instead of relying on the unique index to reject one post-txn.
+- [Phase 03]: Plan 03-05: POST /api/orders route body replaced with unconditional 410 Gone stub (13 lines) while route entry preserved — removal deferred per 03-CONTEXT.md until Phase 4 mobile retires the call + grace period. No middleware on the route (the 410 is the gate per D-12); attachAuthIfPresent total unchanged at 6 (5 route usages + 1 require). ServiceOrder require kept at top-of-file (7 remaining handlers still reference the model). Net -85 lines. Closes ROADMAP Criterion #3 TOCTOU escape hatch where a client could skip confirm-booking's transactional re-check by calling standalone POST /api/orders directly.
 
 ### Pending Todos
 
@@ -132,6 +134,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-17T20:26:23.257Z
-Stopped at: Completed 03-04-PLAN.md
+Last session: 2026-04-17T20:30:49.874Z
+Stopped at: Completed 03-05-PLAN.md
 Resume file: None

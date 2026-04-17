@@ -68,7 +68,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 03-02-PLAN.md — Create attachAuthIfPresent + requireNotSuspended factory middleware (ENF-01, ENF-04)
   - [x] 03-03-PLAN.md — Wire middleware on 5 ROADMAP-named routes + replace inline schemas with requires in server.js (ENF-01, ENF-02, ENF-04)
   - [x] 03-04-PLAN.md — Rewrite confirm-booking as transactional service with refund-first-throw-second + providerSnapshot absorption (ENF-03)
-  - [ ] 03-05-PLAN.md — Replace POST /api/orders handler body with 410 Gone (ENF-03)
+  - [x] 03-05-PLAN.md — Replace POST /api/orders handler body with 410 Gone (ENF-03)
   - [ ] 03-06-PLAN.md — Enforcement test suite under __tests__/enforcement/ mapping to ROADMAP Success Criteria #1-4 (ENF-01..04 verification)
 
 ### Phase 4: Mobile Plumbing (Mobile)
