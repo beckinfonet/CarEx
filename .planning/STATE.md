@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-04-17T20:19:02.859Z"
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-04-17T20:26:23.260Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 18
-  completed_plans: 15
-  percent: 83
+  completed_plans: 16
+  percent: 89
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 03 (Backend Enforcement (Backend)) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-04-17
 
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P01 | 3min | 2 tasks | 3 files |
 | Phase 03 P02 | 2min | 2 tasks | 2 files |
 | Phase 03 P03 | 2min | 2 tasks tasks | 1 file files |
+| Phase 03 P04 | 3min | 2 tasks tasks | 2 files files |
 
 ## Accumulated Context
 
@@ -100,6 +101,11 @@ Recent decisions affecting current work:
 - [Phase 03]: Plan 03-03: server.js now requires extracted Car/Broker/LogisticsPartner models — Plan 03-01 pre(/^find/) hide-hooks go LIVE on every server.js Car/Broker/Logistics query without further changes. ROADMAP Criterion #2 effectively delivered at this commit.
 - [Phase 03]: Plan 03-03: attachAuthIfPresent precedes requireNotSuspended on all five gated routes; attachAuthIfPresent precedes upload.array('images', 25) on POST /api/cars so 403 short-circuits BEFORE multer starts streaming to S3 — avoids charging S3 put-object costs on suspended callers. D-04 mount order enforced.
 - [Phase 03]: Plan 03-03: exact grep counts on requireNotSuspended/attachAuthIfPresent (5/5 respectively; 1/2/2 by capability) elevated to CI-relevant invariant — scope discipline per D-02 hybrid cutover encoded as a mechanical check, not just documentation.
+- [Phase 03]: Plan 03-04: confirmBooking injected-stripe contract (function arg, not require) — lets Jest mock Stripe via jest.mock('stripe',...) at server.js level while production passes the module-level instance through. Handler at server.js:1044 does the injection.
+- [Phase 03]: Plan 03-04: Refund-first-throw-second ordering hardened by triple 'Refund first, throw second' comment (file header + helper body + transaction-callback banner) — high-visibility tripwire at every touch point; any future refactor that reverses the ordering must explicitly delete three comments.
+- [Phase 03]: Plan 03-04: Idempotency fast-path placed BEFORE stripe.paymentIntents.retrieve — retry on an already-booked car (car.stripePaymentIntentId === paymentIntentId) returns existing { car, orders } without touching Stripe, preventing redundant API calls on mobile retry loops (T-03-04-06).
+- [Phase 03]: Plan 03-04: ServiceOrder model resolved lazily via mongoose.model('ServiceOrder') inside function body (not top-of-file require) — service loads cleanly without depending on server.js's inline ServiceOrder registration, matters for test isolation and future Phase 1 D-02 extraction.
+- [Phase 03]: Plan 03-04: orderNumber collision-check lookup uses .session(session).lean() inside the transaction so uniqueness read + create share the same snapshot — prevents two concurrent confirms from both observing 'no such orderNumber' and then both inserting, catching the race at read time instead of relying on the unique index to reject one post-txn.
 
 ### Pending Todos
 
@@ -126,6 +132,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-17T20:19:02.856Z
-Stopped at: Completed 03-03-PLAN.md
+Last session: 2026-04-17T20:26:23.257Z
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
