@@ -63,7 +63,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. After suspending user X, `GET /api/cars` (public browse) no longer returns cars owned by X; after unsuspending X, `GET /api/cars` returns X's cars again immediately with no data migration or backfill — and X's cars still have whatever `active` flag X originally set
   3. A concurrent test where admin suspends seller Y during the window between `create-payment-intent` and `confirm-booking` causes `confirm-booking` to return `provider_suspended`, the PaymentIntent is cancelled/refunded, and no order is created
   4. A feature-limited user whose capability map blocks `create_listing` receives `403 { error: 'account_suspended' }` on `POST /api/cars` but receives `200` on read endpoints they are permitted to call
-**Plans**: TBD
+**Plans**: 6 plans
+  - [ ] 03-01-PLAN.md — Extract Car/Broker/LogisticsPartner models to src/models/ with co-located pre(/^find/) hide hooks (ENF-02)
+  - [ ] 03-02-PLAN.md — Create attachAuthIfPresent + requireNotSuspended factory middleware (ENF-01, ENF-04)
+  - [ ] 03-03-PLAN.md — Wire middleware on 5 ROADMAP-named routes + replace inline schemas with requires in server.js (ENF-01, ENF-02, ENF-04)
+  - [ ] 03-04-PLAN.md — Rewrite confirm-booking as transactional service with refund-first-throw-second + providerSnapshot absorption (ENF-03)
+  - [ ] 03-05-PLAN.md — Replace POST /api/orders handler body with 410 Gone (ENF-03)
+  - [ ] 03-06-PLAN.md — Enforcement test suite under __tests__/enforcement/ mapping to ROADMAP Success Criteria #1-4 (ENF-01..04 verification)
 
 ### Phase 4: Mobile Plumbing (Mobile)
 **Goal**: Mobile has a separate ModerationService (not glued onto AuthService), a shared axios instance with idToken and 403 interceptors, and a refresh-on-foreground handler so suspensions propagate without an app restart
@@ -114,7 +120,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Schema + Security Baseline (Backend) | 6/6 | Complete   | 2026-04-17 |
 | 2. Admin Moderation Endpoints (Backend) | 0/TBD | Not started | - |
-| 3. Backend Enforcement (Backend) | 0/TBD | Not started | - |
+| 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
 | 4. Mobile Plumbing (Mobile) | 0/TBD | Not started | - |
 | 5. Admin Moderation UI (Mobile) | 0/TBD | Not started | - |
 | 6. Affected-User UX + Security Review (Both) | 0/TBD | Not started | - |
