@@ -65,7 +65,8 @@ UI surface:
 
 Backend work (separate repo `backend-services/carEx-services`):
 
-- [ ] New moderation endpoints: `POST /api/admin/moderation/:targetUid`, `GET /api/admin/moderation/:targetUid/history`, `PATCH /api/admin/moderation/:targetUid/unsuspend`, etc.
+- [x] New moderation endpoints: `POST /api/admin/moderation/:targetUid`, `PATCH /api/admin/moderation/:targetUid/unsuspend`, `DELETE /:targetUid/provider-profile`, `POST /:targetUid/edit-profile` — Phase 2 complete
+- [ ] `GET /api/admin/moderation/:targetUid/history` (audit-read endpoint — Phase 5)
 - [ ] New `UserStatus` model (active | feature_limited | blocked_with_review | permanently_banned) + audit log collection
 - [ ] Listings/orders hide automatically when owner is suspended; orders pause rather than auto-cancel
 - [ ] Enforce status checks on all user-initiated endpoints (create listing, create order, contact seller, etc.)
@@ -133,4 +134,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-17 after initialization*
+*Last updated: 2026-04-17 after Phase 2 completion (admin moderation endpoints shipped)*
