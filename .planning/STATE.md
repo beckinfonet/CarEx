@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 03-05-PLAN.md
-last_updated: "2026-04-17T20:30:57.722Z"
+status: verifying
+stopped_at: Completed 03-06-PLAN.md
+last_updated: "2026-04-17T20:44:41.758Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 18
-  completed_plans: 17
-  percent: 94
+  completed_plans: 18
+  percent: 100
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 Phase: 03 (Backend Enforcement (Backend)) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-17
 
 Progress: [░░░░░░░░░░] 0%
@@ -63,6 +63,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P03 | 2min | 2 tasks tasks | 1 file files |
 | Phase 03 P04 | 3min | 2 tasks tasks | 2 files files |
 | Phase 03 P05 | 2m10s | 1 tasks | 1 files |
+| Phase 03 P06 | 8m44s | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,11 @@ Recent decisions affecting current work:
 - [Phase 03]: Plan 03-04: ServiceOrder model resolved lazily via mongoose.model('ServiceOrder') inside function body (not top-of-file require) — service loads cleanly without depending on server.js's inline ServiceOrder registration, matters for test isolation and future Phase 1 D-02 extraction.
 - [Phase 03]: Plan 03-04: orderNumber collision-check lookup uses .session(session).lean() inside the transaction so uniqueness read + create share the same snapshot — prevents two concurrent confirms from both observing 'no such orderNumber' and then both inserting, catching the race at read time instead of relying on the unique index to reject one post-txn.
 - [Phase 03]: Plan 03-05: POST /api/orders route body replaced with unconditional 410 Gone stub (13 lines) while route entry preserved — removal deferred per 03-CONTEXT.md until Phase 4 mobile retires the call + grace period. No middleware on the route (the 410 is the gate per D-12); attachAuthIfPresent total unchanged at 6 (5 route usages + 1 require). ServiceOrder require kept at top-of-file (7 remaining handlers still reference the model). Net -85 lines. Closes ROADMAP Criterion #3 TOCTOU escape hatch where a client could skip confirm-booking's transactional re-check by calling standalone POST /api/orders directly.
+- [Phase 03]: Plan 03-06: ROADMAP criteria mapped to describe strings as grep-stable literals ('ROADMAP Criterion #1'..'#4') so verifier coverage confirmation is a mechanical grep-count rather than human cross-reference
+- [Phase 03]: Plan 03-06: Concurrent-race tests (D-13 race in confirmBooking case 6 + acceptance Block 3) use Promise.allSettled + branch classification on confirmResult.status; exactly two valid outcomes enumerated (refund-abort OR booking-succeed), forbidden third state (booked orders + refund fired) fails the test
+- [Phase 03]: Plan 03-06: Tests do NOT boot server.js; each file builds its own minimal Express app (or calls services directly). Acceptance app inlines the five gated routes verbatim from Plan 03-03 so the middleware chain is a faithful reproduction without the server.js init weight (Mongo URI, Twilio, S3, Stripe, Firebase initializers)
+- [Phase 03]: Plan 03-06: ServiceOrder registered as a loose { strict: false } schema under the canonical name BEFORE requiring confirmBooking (which does mongoose.model('ServiceOrder') lazily) — mirrors __tests__/moderation/deleteProviderProfile.test.js pattern; decouples enforcement tests from server.js's inline ServiceOrder registration per Phase 1 D-02
+- [Phase 03]: Plan 03-06: Phase 1 DATA-03 test (ServiceOrder.providerSnapshot.test.js) now fails because Plan 03-05 replaced POST /api/orders with 410 Gone; logged to deferred-items.md as Plan 03-05 fallout; DATA-03 coverage preserved in the new confirmBooking.transaction.test.js case 1 (happy path asserts providerSnapshot.companyName)
 
 ### Pending Todos
 
@@ -134,6 +140,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-17T20:30:49.874Z
-Stopped at: Completed 03-05-PLAN.md
+Last session: 2026-04-17T20:44:41.754Z
+Stopped at: Completed 03-06-PLAN.md
 Resume file: None
