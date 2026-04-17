@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-04-17T20:12:55.890Z"
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-04-17T20:19:02.859Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 18
-  completed_plans: 14
-  percent: 78
+  completed_plans: 15
+  percent: 83
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 03 (Backend Enforcement (Backend)) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-04-17
 
@@ -60,6 +60,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P06 | 4m47s | 2 tasks | 2 files |
 | Phase 03 P01 | 3min | 2 tasks | 3 files |
 | Phase 03 P02 | 2min | 2 tasks | 2 files |
+| Phase 03 P03 | 2min | 2 tasks tasks | 1 file files |
 
 ## Accumulated Context
 
@@ -96,6 +97,9 @@ Recent decisions affecting current work:
 - [Phase 03]: Plan 03-02: requireNotSuspended self-lookup uses .setOptions({ includeAllUsers: true }) as MANDATORY bypass of Plan 03-01 pre(/^find/) hide-hook. Without it, suspended caller's User doc self-hides -> middleware 404s instead of 403s -> false-negative suspension bypass (T-03-02-03 mitigation enforced by acceptance criterion requiring exactly 1 literal match).
 - [Phase 03]: Plan 03-02: feature_limited capability check reads denormalized user.moderationStatus.restrictedFeatures directly (Phase 1 D-12) — acceptance criterion requires zero STATUS_POLICY references in the middleware so capability source of truth is co-located with the User doc.
 - [Phase 03]: Plan 03-02: 403 account_suspended response body sends status: state (string), NOT the whole moderationStatus subdoc — mobile banner matches on the string per D-15 and avoids leaking setByAdminUid to gated users.
+- [Phase 03]: Plan 03-03: server.js now requires extracted Car/Broker/LogisticsPartner models — Plan 03-01 pre(/^find/) hide-hooks go LIVE on every server.js Car/Broker/Logistics query without further changes. ROADMAP Criterion #2 effectively delivered at this commit.
+- [Phase 03]: Plan 03-03: attachAuthIfPresent precedes requireNotSuspended on all five gated routes; attachAuthIfPresent precedes upload.array('images', 25) on POST /api/cars so 403 short-circuits BEFORE multer starts streaming to S3 — avoids charging S3 put-object costs on suspended callers. D-04 mount order enforced.
+- [Phase 03]: Plan 03-03: exact grep counts on requireNotSuspended/attachAuthIfPresent (5/5 respectively; 1/2/2 by capability) elevated to CI-relevant invariant — scope discipline per D-02 hybrid cutover encoded as a mechanical check, not just documentation.
 
 ### Pending Todos
 
@@ -122,6 +126,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-17T20:12:55.886Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-04-17T20:19:02.856Z
+Stopped at: Completed 03-03-PLAN.md
 Resume file: None
