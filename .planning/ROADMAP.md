@@ -12,7 +12,7 @@ Six phases deliver admin moderation over approved users on an existing React Nat
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Schema + Security Baseline (Backend)** - Install firebase-admin, add moderation schemas, backfill existing data
+- [x] **Phase 1: Schema + Security Baseline (Backend)** - Install firebase-admin, add moderation schemas, backfill existing data (completed 2026-04-17)
 - [ ] **Phase 2: Admin Moderation Endpoints (Backend)** - POST/GET/PATCH/DELETE moderation routes with transactions, audit writes, rate limiting
 - [ ] **Phase 3: Backend Enforcement (Backend)** - requireNotSuspended on write endpoints, pre-find hiding, payment-confirm re-check
 - [ ] **Phase 4: Mobile Plumbing (Mobile)** - Shared http client, ModerationService, 403 interceptor, AppState refresh
@@ -38,7 +38,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 01-03-PLAN.md — Extend ServiceOrder.providerSnapshot with email/firstName/lastName/providerRole/snapshotAt + populate at order creation (DATA-03)
   - [x] 01-04-PLAN.md — Capability map src/moderation/capabilities.js with STATUS_POLICY + resolveRestrictedFeatures helper (DATA-04)
   - [x] 01-05-PLAN.md — firebase-admin init + verifyIdToken + requireAdmin middlewares + GET /api/admin/moderation/ping (SEC-01, SEC-02)
-  - [ ] 01-06-PLAN.md — scripts/migrate-moderation.js backfill + ensureBaseline startup check (DATA-01, DATA-03)
+  - [x] 01-06-PLAN.md — scripts/migrate-moderation.js backfill + ensureBaseline startup check (DATA-01, DATA-03)
 
 ### Phase 2: Admin Moderation Endpoints (Backend)
 **Goal**: Admins can suspend, unsuspend, revoke role, delete provider profile, and edit provider profile via rate-limited HTTP endpoints, each writing an audit row atomically
@@ -112,7 +112,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schema + Security Baseline (Backend) | 5/6 | In Progress|  |
+| 1. Schema + Security Baseline (Backend) | 6/6 | Complete   | 2026-04-17 |
 | 2. Admin Moderation Endpoints (Backend) | 0/TBD | Not started | - |
 | 3. Backend Enforcement (Backend) | 0/TBD | Not started | - |
 | 4. Mobile Plumbing (Mobile) | 0/TBD | Not started | - |
