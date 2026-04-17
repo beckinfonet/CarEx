@@ -32,7 +32,7 @@ Requirements for this milestone. Each maps to a roadmap phase.
 ### Backend Enforcement
 
 - [ ] **ENF-01**: A `requireNotSuspended` Express middleware gates all user-mutation endpoints (create listing, create/confirm order, message seller, request role, update profile) and returns `403 { error: 'account_suspended', status, reasonCategory, note }` for non-active users
-- [ ] **ENF-02**: Mongoose `pre(/^find/)` middleware auto-hides documents owned by suspended users from public queries (listings, broker lists, logistics lists); admin queries opt in via `.setOptions({ includeAllUsers: true })`
+- [x] **ENF-02**: Mongoose `pre(/^find/)` middleware auto-hides documents owned by suspended users from public queries (listings, broker lists, logistics lists); admin queries opt in via `.setOptions({ includeAllUsers: true })`
 - [ ] **ENF-03**: `POST /api/payments/confirm-booking` re-verifies every involved provider's status inside the Mongoose transaction before finalizing. If any provider is suspended during the Stripe confirm window, the booking is rejected and the payment intent is cancelled; prevents TOCTOU race
 - [ ] **ENF-04**: Suspension never mutates `listing.active` or similar denormalized flags on owned documents. Visibility is *always* computed at read time by joining to the owner's `moderationStatus.state`
 
@@ -137,7 +137,7 @@ Populated during roadmap creation. Every requirement maps to exactly one phase.
 | ADMIN-04 | Phase 2 | Complete |
 | ADMIN-05 | Phase 2 | Complete |
 | ENF-01 | Phase 3 | Pending |
-| ENF-02 | Phase 3 | Pending |
+| ENF-02 | Phase 3 | Complete |
 | ENF-03 | Phase 3 | Pending |
 | ENF-04 | Phase 3 | Pending |
 | UI-01 | Phase 5 | Pending |

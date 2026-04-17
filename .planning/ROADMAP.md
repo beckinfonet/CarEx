@@ -64,7 +64,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A concurrent test where admin suspends seller Y during the window between `create-payment-intent` and `confirm-booking` causes `confirm-booking` to return `provider_suspended`, the PaymentIntent is cancelled/refunded, and no order is created
   4. A feature-limited user whose capability map blocks `create_listing` receives `403 { error: 'account_suspended' }` on `POST /api/cars` but receives `200` on read endpoints they are permitted to call
 **Plans**: 6 plans
-  - [ ] 03-01-PLAN.md — Extract Car/Broker/LogisticsPartner models to src/models/ with co-located pre(/^find/) hide hooks (ENF-02)
+  - [x] 03-01-PLAN.md — Extract Car/Broker/LogisticsPartner models to src/models/ with co-located pre(/^find/) hide hooks (ENF-02)
   - [ ] 03-02-PLAN.md — Create attachAuthIfPresent + requireNotSuspended factory middleware (ENF-01, ENF-04)
   - [ ] 03-03-PLAN.md — Wire middleware on 5 ROADMAP-named routes + replace inline schemas with requires in server.js (ENF-01, ENF-02, ENF-04)
   - [ ] 03-04-PLAN.md — Rewrite confirm-booking as transactional service with refund-first-throw-second + providerSnapshot absorption (ENF-03)

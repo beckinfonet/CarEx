@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 3 context gathered
-last_updated: "2026-04-17T19:21:29.005Z"
+status: executing
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-04-17T20:07:39.363Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 12
-  completed_plans: 12
-  percent: 100
+  total_plans: 18
+  completed_plans: 13
+  percent: 72
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-17)
 
 **Core value:** Admins can act on bad-actor users after they're already in the system — without losing the audit trail or breaking in-flight orders for legitimate counterparties.
-**Current focus:** Phase 02 — admin-moderation-endpoints-backend
+**Current focus:** Phase 03 — Backend Enforcement (Backend)
 
 ## Current Position
 
-Phase: 3
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 03 (Backend Enforcement (Backend)) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
 Last activity: 2026-04-17
 
 Progress: [░░░░░░░░░░] 0%
@@ -58,6 +58,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P04 | 3min | 2 tasks tasks | 3 files files |
 | Phase 02 P05 | 6m24s | 3 tasks | 4 files |
 | Phase 02 P06 | 4m47s | 2 tasks | 2 files |
+| Phase 03 P01 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,9 @@ Recent decisions affecting current work:
 - [Phase 02]: Plan 02-06: Test isolation via moderationRateLimiter.resetKey('admin:<uid>') in a top-level beforeEach (not module-tree resets) — clears specific buckets without re-requiring the moderation router and triggering OverwriteModelError on the model singletons
 - [Phase 02]: Plan 02-06: Single shared Express app built ONCE in beforeAll — limiter state is per-key not per-app, so resetKey() is sufficient for isolation; no per-describe rebuilder helper needed (or possible without OverwriteModelError)
 - [Phase 02]: Plan 02-06: Block 3 Test 2 (per-admin keying) explicitly proves D-31 — admin C succeeds with 200 even after admin A's bucket is exhausted, closing the IP-rotation bypass attack vector via real e2e evidence
+- [Phase 03]: Plan 03-01: Car/Broker/LogisticsPartner models extracted to src/models/*.js with co-located pre(/^find/) hide-hooks. Join fields locked: sellerId (Car), ownerUid (Broker+Logistics). Lazy mongoose.model('User') inside each hook avoids load cycle per D-08.
+- [Phase 03]: Plan 03-01: includeAllUsers bypass lives on query options (not filter). One use per model file — grep-visible for Phase 6 QUAL-03 security review. Default is hide-safely (no flag = filter applies).
+- [Phase 03]: Plan 03-01: server.js intentionally untouched — Plan 03-03 deletes inline schemas + wires require(). Pre-existing duplicate-index warning on ownerUid (inline unique + schema.index) preserved verbatim per scope boundary; cleanup deferred (see deferred-items.md).
 
 ### Pending Todos
 
@@ -113,6 +117,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-17T19:21:29.000Z
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-backend-enforcement-backend/03-CONTEXT.md
+Last session: 2026-04-17T20:07:39.360Z
+Stopped at: Completed 03-01-PLAN.md
+Resume file: None
