@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ArrowLeft, MoreVertical, Users } from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, MoreVertical, Users } from 'lucide-react-native';
 import axios from 'axios';
 import { COLORS, SIZES, TYPOGRAPHY } from '../constants/theme';
 import { useLanguage } from '../context/LanguageContext';
@@ -66,6 +66,7 @@ export const AdminManagementScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   const [sheetTarget, setSheetTarget] = useState<SearchUserItem | null>(null);
@@ -95,6 +96,7 @@ export const AdminManagementScreen: React.FC = () => {
       const controller = new AbortController();
       abortRef.current = controller;
       if (resetList) setLoading(true);
+      setLoadError(false);
       try {
         const result = await ModerationService.searchUsers(buildQuery(), {
           signal: controller.signal,
@@ -110,7 +112,12 @@ export const AdminManagementScreen: React.FC = () => {
         ) {
           return;
         }
-        Alert.alert(T.error ?? 'Error', T.errGeneric);
+        // Read failures surface as an error EmptyState (with Retry) rather
+        // than a blocking Alert. Action failures (suspend/revoke/delete/edit)
+        // still use Alert below — those are user-initiated writes.
+        setUsers([]);
+        setNextCursor(null);
+        setLoadError(true);
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false);
@@ -118,7 +125,7 @@ export const AdminManagementScreen: React.FC = () => {
         }
       }
     },
-    [buildQuery, T],
+    [buildQuery],
   );
 
   useEffect(() => {
@@ -399,13 +406,20 @@ export const AdminManagementScreen: React.FC = () => {
           renderItem={renderUser}
           ListHeaderComponent={ListHeader}
           ListEmptyComponent={
-            !loading ? (
+            loading ? null : loadError ? (
+              <EmptyState
+                icon={AlertTriangle}
+                title={T.errorLoadTitle}
+                body={T.errorLoadBody}
+                action={{ label: T.retry, onPress: () => runFetch(true) }}
+              />
+            ) : (
               <EmptyState
                 icon={Users}
                 title={T.emptyUsersTitle}
                 body={T.emptyUsersBody}
               />
-            ) : null
+            )
           }
           ListFooterComponent={
             loadingMore ? (

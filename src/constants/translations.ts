@@ -488,6 +488,9 @@ export const TRANSLATIONS = {
     searchEmailOrUid: 'Поиск: email или Firebase UID',
     emptyHistoryTitle: 'Действий модерации нет',
     emptyHistoryBody: 'С этим пользователем ещё не было действий модерации.',
+    errorLoadTitle: 'Не удалось загрузить',
+    errorLoadBody: 'Проверьте соединение и попробуйте снова.',
+    retry: 'Повторить',
 
     // Error mappings (one per ModerationError.code)
     errCannotModerateSelf: 'Нельзя модерировать самого себя.',
@@ -1015,6 +1018,9 @@ export const TRANSLATIONS = {
     searchEmailOrUid: 'Search: email or Firebase UID',
     emptyHistoryTitle: 'No moderation history',
     emptyHistoryBody: 'No moderation actions have been taken on this user yet.',
+    errorLoadTitle: 'Couldn\'t load',
+    errorLoadBody: 'Check your connection and try again.',
+    retry: 'Retry',
 
     // Error mappings (one per ModerationError.code)
     errCannotModerateSelf: 'You cannot moderate your own account.',

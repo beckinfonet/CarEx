@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ArrowLeft, MoreVertical, Search, Users } from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, MoreVertical, Search, Users } from 'lucide-react-native';
 import axios from 'axios';
 import { COLORS, SIZES, TYPOGRAPHY } from '../constants/theme';
 import { useLanguage } from '../context/LanguageContext';
@@ -89,6 +89,7 @@ export const AdminModerationScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   // ---- modal state ----
@@ -122,6 +123,7 @@ export const AdminModerationScreen: React.FC = () => {
       const controller = new AbortController();
       abortRef.current = controller;
       if (resetList) setLoading(true);
+      setLoadError(false);
       try {
         const result = await ModerationService.searchUsers(buildQuery(), {
           signal: controller.signal,
@@ -137,7 +139,13 @@ export const AdminModerationScreen: React.FC = () => {
         ) {
           return;
         }
-        Alert.alert(T.error ?? 'Error', T.errGeneric);
+        // Read failures flip the list into an error EmptyState (with Retry)
+        // instead of firing a blocking Alert. Action failures (suspend,
+        // revoke, delete, edit) still surface via Alert below — those are
+        // user-initiated writes where a modal interruption is appropriate.
+        setUsers([]);
+        setNextCursor(null);
+        setLoadError(true);
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false);
@@ -145,7 +153,7 @@ export const AdminModerationScreen: React.FC = () => {
         }
       }
     },
-    [buildQuery, T],
+    [buildQuery],
   );
 
   // Re-run on debounced query / filter change
@@ -389,7 +397,14 @@ export const AdminModerationScreen: React.FC = () => {
     </View>
   );
 
-  const ListEmpty = (
+  const ListEmpty = loadError ? (
+    <EmptyState
+      icon={AlertTriangle}
+      title={T.errorLoadTitle}
+      body={T.errorLoadBody}
+      action={{ label: T.retry, onPress: () => runSearch(true) }}
+    />
+  ) : (
     <EmptyState
       icon={debouncedQuery ? Search : Users}
       title={debouncedQuery ? T.emptySearchTitle : T.searchPromptTitle}
