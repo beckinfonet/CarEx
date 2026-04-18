@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: In progress
 stopped_at: Phase 5 executing (mobile plans only; backend 05-0a/0b deferred)
-last_updated: "2026-04-18T18:10:08Z"
-last_activity: 2026-04-18 -- Phase 05 Plan 02 complete (theme tokens + RU/EN translation keys)
+last_updated: "2026-04-18T18:15:44Z"
+last_activity: 2026-04-18 -- Phase 05 Plan 03 complete (ModerationService.searchUsers + getHistory real impl)
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 37
-  completed_plans: 27
-  percent: 73
+  completed_plans: 28
+  percent: 76
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 05 (Admin Moderation UI (Mobile)) — executing 10 mobile plans (backend 05-0a/0b deferred to separate repo)
-Next: Wave 2 — Plan 05-03 (ModerationService.searchUsers + getHistory real impl)
-Last activity: 2026-04-18 -- Phase 05 Plan 02 complete (theme tokens + 131 RU/EN translation keys)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-03-PLAN.md
+Next: Wave 1 — Plan 05-04 (useDebouncedValue hook + formatYmdHm util + moderationErrorKeyMap util + nav route types)
+Last activity: 2026-04-18 -- Phase 05 Plan 03 complete (ModerationService.searchUsers + getHistory real impl)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-04-PLAN.md
 
-Progress: [██░░░░░░░░] 20% (Phase 05 execution, 2/10 plans complete)
+Progress: [███░░░░░░░] 30% (Phase 05 execution, 3/10 plans complete)
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Progress: [██░░░░░░░░] 20% (Phase 05 execution, 2/10 plans c
 | Phase 03 P06 | 8m44s | 3 tasks | 5 files |
 | Phase 05 P01 | 3m14s | 2 tasks | 13 files |
 | Phase 05 P02 | 3m14s | 2 tasks | 2 files |
+| Phase 05 P03 | 2min | 2 tasks | 1 file |
 
 ## Accumulated Context
 
@@ -124,6 +125,10 @@ Recent decisions affecting current work:
 - [Phase 05]: Plan 05-02: COLORS.success preserved at `#22C55E` (legacy); COLORS.successFg (`#4ADE80`) added as a new separate token aligned with COLORS.moderation.active.fg — T-05-02-03 mitigation. Existing call sites of COLORS.success continue to resolve unchanged; new moderation code uses COLORS.successFg where tonal alignment with active-severity badge matters
 - [Phase 05]: Plan 05-02: TYPOGRAPHY fontWeight values pinned with `as const` (6 instances — one per variant) — without it TypeScript widens to `string`, which React Native StyleSheet rejects (only the literal union `'normal' | 'bold' | '100' | ... | '900'` is accepted). Acceptance criterion locks count at exactly 6
 - [Phase 05]: Plan 05-02: Strict RU/EN parity enforced by sorted key-set diff — 455 = 455 keys at end of plan; verified by Node script extracting `^ {4}([a-zA-Z][a-zA-Z0-9]*):` from each language block. Banner comment `// ---- Phase 5 — Admin Moderation UI (UI-SPEC §10) ----` appears exactly 2× (once per language)
+- [Phase 05]: Plan 05-03: AbortSignal config param added to BOTH searchUsers AND getHistory (plan prescribed only searchUsers; added to getHistory for symmetry + future detail-screen cancellation) — matches axios 1.x forward-compat path per RESEARCH §A2; consumers pass `{ signal: controller.signal }` to drop stale requests
+- [Phase 05]: Plan 05-03: ModerationActionRow.severity typed as `Severity | 'none'` (not just Severity) because unsuspend/revoke_role/restore_role/edit_profile/delete_provider_profile audit rows carry no severity — matches Phase 2 audit schema and prevents downstream discriminant narrowing bugs when rendering history rows
+- [Phase 05]: Plan 05-03: SearchUserItem.moderationStatus uses the full discriminated literal union (`'active' | 'feature_limited' | 'blocked_with_review' | 'permanently_banned'`) rather than reusing the `Severity` type alias — because `'active'` is NOT a valid Severity (Severity excludes active by design). Keeps filter query `state` type aligned with row `state` field without widening Severity
+- [Phase 05]: Plan 05-03: MOB-01 guardrail held exactly as prescribed — `grep -c 'suspend|revoke|moderation' src/services/AuthService.ts` = 0 unchanged baseline; all new HTTP stays in ModerationService. Existing 6 admin write methods byte-identical verified by `git diff` showing only additions + stub replacement scoped to `getHistory`
 
 ### Pending Todos
 
@@ -150,6 +155,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-18T18:10:08Z
-Stopped at: Phase 05 Plan 02 complete (theme tokens + 131 RU/EN translation keys — 2 files, 2 commits)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-03-PLAN.md
+Last session: 2026-04-18T18:15:44Z
+Stopped at: Phase 05 Plan 03 complete (ModerationService.searchUsers + getHistory real impl — 1 file, 2 commits)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-04-PLAN.md
