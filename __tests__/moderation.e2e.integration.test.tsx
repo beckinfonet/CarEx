@@ -213,7 +213,7 @@ describe('Phase 4 Integration: Success-Criterion Coverage', () => {
       expect(ModerationService).not.toBeNull();
     });
 
-    it('Test 1.2: ModerationService exposes exactly the 7 methods from 04-CONTEXT D-05', () => {
+    it('Test 1.2: ModerationService exposes exactly the 8 methods from 04-CONTEXT D-05 + Plan 05-03', () => {
       const keys = Object.keys(ModerationService).sort();
       expect(keys).toEqual([
         'deleteProviderProfile',
@@ -221,6 +221,7 @@ describe('Phase 4 Integration: Success-Criterion Coverage', () => {
         'getHistory',
         'restoreRole',
         'revokeRole',
+        'searchUsers',
         'suspend',
         'unsuspend',
       ]);
