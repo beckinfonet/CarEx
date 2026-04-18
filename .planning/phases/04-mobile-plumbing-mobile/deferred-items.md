@@ -6,14 +6,16 @@ Out-of-scope discoveries surfaced during plan execution, logged for later triage
 
 ### Pre-existing test infra: `__tests__/App.test.tsx` fails under Jest
 
-- **Status:** Pre-existing (confirmed by stashing Plan 04-01 changes and re-running)
+- **Status:** Pre-existing (confirmed by stashing Plan 04-01 changes and re-running; also independently confirmed by Plan 04-03)
 - **Error:** `TurboModuleRegistry.getEnforcing(...): 'RNGestureHandlerModule' could not be found`
 - **Root cause:** `react-native-gesture-handler` TurboModule spec is not mocked in the default `react-native` Jest preset; the App-level smoke test imports `GestureHandlerRootView` unconditionally.
 - **Impact on Plan 04-01:** None. All 13 Plan 04-01 tests pass; the failure is isolated to the App smoke test and exists on `c14932a` (phase baseline) before any Plan 04-01 file was touched.
+- **Impact on Plan 04-03:** None. All 8 useAppStateRefresh tests pass; failure reproduces at HEAD without any Plan 04-03 changes.
 - **Possible fixes (deferred):**
   1. Add `jest.mock('react-native-gesture-handler', () => ({ GestureHandlerRootView: 'View' }))` in a shared setup file.
-  2. Drop the App smoke test in favor of provider-stack unit tests.
-- **Why deferred:** Scope boundary rule — this is not directly caused by Plan 04-01 changes.
+  2. Also mock `react-native-reanimated` and other native modules surfaced by the App provider stack.
+  3. Drop the App smoke test in favor of provider-stack unit tests.
+- **Why deferred:** Scope boundary rule — this is not directly caused by any Phase 4 plan. Fix owner: a future mobile test-infra cleanup phase.
 
 ### Pre-existing TypeScript errors in `src/services/AuthService.ts`
 
