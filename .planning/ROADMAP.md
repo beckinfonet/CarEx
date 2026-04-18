@@ -81,7 +81,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `src/services/http/client.ts` exports a shared axios instance used by both `AuthService` and `ModerationService`; both a request interceptor (attaches `Authorization: Bearer <idToken>`) and a response interceptor (catches `403 account_suspended`) are wired to that single instance
   3. When the backend returns `403 account_suspended` to any API call, the client interceptor calls `AuthContext.refreshUser()` and the updated `user.moderationStatus` appears in React DevTools without a user-visible navigation loop
   4. Suspending a logged-in user, backgrounding the app, and returning to foreground causes `AuthContext.refreshUser()` to fire via the `AppState` handler in `App.tsx` and `user.moderationStatus.state` transitions to the new value without an app restart
-**Plans**: TBD
+**Plans**: 7 plans
+  - [ ] 04-01-PLAN.md — Shared axios client + ModerationError typed error (MOB-02, MOB-03)
+  - [ ] 04-02-PLAN.md — ModerationService module wrapping 7 admin moderation endpoints (MOB-01)
+  - [ ] 04-03-PLAN.md — useAppStateRefresh hook (MOB-04)
+  - [ ] 04-04-PLAN.md — AuthContext enrichment: dedupe + cooldown + listener registration + skip flag (MOB-03, MOB-04)
+  - [ ] 04-05-PLAN.md — Migrate AuthService backend calls to shared apiClient; Identity Toolkit stays on axios (MOB-02, MOB-01)
+  - [ ] 04-06-PLAN.md — Mount AppStateRefreshEffect inside AuthProvider in App.tsx (MOB-04)
+  - [ ] 04-07-PLAN.md — End-to-end integration tests mapped to 4 ROADMAP success criteria (MOB-01..04 verification)
 
 ### Phase 5: Admin Moderation UI (Mobile)
 **Goal**: Admins can moderate users from the mobile app with per-row quick actions on the existing screen and deep search / history / unsuspend on a new dedicated screen
@@ -121,6 +128,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Schema + Security Baseline (Backend) | 6/6 | Complete   | 2026-04-17 |
 | 2. Admin Moderation Endpoints (Backend) | 0/TBD | Not started | - |
 | 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
-| 4. Mobile Plumbing (Mobile) | 0/TBD | Not started | - |
+| 4. Mobile Plumbing (Mobile) | 0/7 | Not started | - |
 | 5. Admin Moderation UI (Mobile) | 0/TBD | Not started | - |
 | 6. Affected-User UX + Security Review (Both) | 0/TBD | Not started | - |
