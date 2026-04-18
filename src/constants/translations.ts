@@ -394,6 +394,137 @@ export const TRANSLATIONS = {
     goToProfile: 'Перейти в профиль',
     cancel: 'Отмена',
     requestSellerAccount: 'Заявка на продавца',
+
+    // ---- Phase 5 — Admin Moderation UI (UI-SPEC §10) ----
+    // Screen titles + headers
+    adminUsersTitle: 'Пользователи',
+    adminModerationTitle: 'Модерация',
+    adminUserDetailTitle: 'Карточка пользователя',
+
+    // Filter chips — AdminManagementScreen
+    filterAdminsOnly: 'Только админы',
+    filterAllUsers: 'Все пользователи',
+
+    // Filter chips — AdminModerationScreen — Role group
+    roleFilterAll: 'Все роли',
+    roleFilterBuyer: 'Покупатели',
+    roleFilterSeller: 'Продавцы',
+    roleFilterBroker: 'Брокеры',
+    roleFilterLogistics: 'Логистика',
+    roleFilterAdmin: 'Админы',
+
+    // Filter chips — State group
+    stateFilterAll: 'Все статусы',
+    stateFilterActive: 'Активен',
+    stateFilterFeatureLimited: 'Огр. функции',
+    stateFilterBlocked: 'Заблокирован',
+    stateFilterBanned: 'Забанен',
+
+    // Severity names + descriptions (SeverityPicker radio cards)
+    severityFeatureLimited: 'Ограничить функции',
+    severityFeatureLimitedDesc: 'Пользователь может заходить и смотреть, но не может размещать, заказывать или связываться.',
+    severityBlockedWithReview: 'Заблокировать с апелляцией',
+    severityBlockedWithReviewDesc: 'Вход заблокирован. Пользователь увидит инструкцию написать в поддержку.',
+    severityPermanentlyBanned: 'Бессрочный бан',
+    severityPermanentlyBannedDesc: 'Пользователь полностью заблокирован без права апелляции. Необратимое действие.',
+
+    // Reason categories
+    reasonSpam: 'Спам',
+    reasonPolicyViolation: 'Нарушение правил',
+    reasonFraud: 'Мошенничество',
+    reasonOther: 'Другое',
+
+    // Action names (quick-action sheet rows + modal titles)
+    actionSuspend: 'Приостановить',
+    actionUnsuspend: 'Восстановить',
+    actionRevokeRole: 'Отозвать роль',
+    actionDeleteProfile: 'Удалить профиль',
+    actionEditProfile: 'Редактировать профиль',
+
+    // Dual-role delete labels (QuickActionSheet — two rows when target has BOTH broker AND logistics)
+    deleteBrokerProfile: 'Удалить профиль брокера',
+    deleteLogisticsProfile: 'Удалить профиль логистики',
+
+    // Form field labels
+    fieldSeverity: 'Степень',
+    fieldReason: 'Причина',
+    fieldNote: 'Примечание (необязательно)',
+    fieldNotePlaceholder: 'До 500 символов…',
+    fieldRoleToRevoke: 'Какую роль отозвать',
+    fieldRoleToDelete: 'Какой профиль удалить',
+    fieldCompanyName: 'Название компании',
+    fieldPhoneNumber: 'Телефон',
+    fieldTelegram: 'Telegram',
+    fieldCoverageAreas: 'Регионы обслуживания',
+    fieldTimelines: 'Сроки',
+
+    // Primary CTAs (modal-specific)
+    modalConfirm: 'Подтвердить',
+    modalCancel: 'Отмена',
+    confirmSuspend: 'Применить ограничение',
+    confirmUnsuspend: 'Восстановить доступ',
+    confirmRevokeRole: 'Отозвать роль',
+    confirmDeleteProfile: 'Удалить профиль',
+    confirmEditProfile: 'Сохранить изменения',
+    unsuspendUser: 'Восстановить пользователя',
+
+    // Typed-confirmation copy
+    typedConfirmTitle: 'Подтвердите необратимое действие',
+    typedConfirmHint: 'Введите email пользователя {email} для подтверждения',
+    typedConfirmInputPlaceholder: 'email@example.com',
+    typedConfirmMismatch: 'Email не совпадает',
+    typedConfirmWarningHeading: 'Это действие нельзя отменить',
+    typedConfirmWarningBodyDelete: 'Профиль провайдера будет удалён навсегда. История заказов сохранится.',
+    typedConfirmWarningBodyRevoke: 'Пользователь потеряет роль. Прошлые записи сохранятся, но роль больше не будет отображаться.',
+    typedConfirmWarningBodyPermaBan: 'Пользователь будет забанен без возможности апелляции.',
+
+    // Empty states
+    emptyUsersTitle: 'Нет пользователей',
+    emptyUsersBody: 'Измените фильтр или потяните вниз, чтобы обновить.',
+    emptySearchTitle: 'Ничего не найдено',
+    emptySearchBody: 'Попробуйте другой email или UID.',
+    searchPromptTitle: 'Начните поиск',
+    searchPromptBody: 'Введите email или Firebase UID, чтобы найти пользователя.',
+    searchEmailOrUid: 'Поиск: email или Firebase UID',
+    emptyHistoryTitle: 'Действий модерации нет',
+    emptyHistoryBody: 'С этим пользователем ещё не было действий модерации.',
+
+    // Error mappings (one per ModerationError.code)
+    errCannotModerateSelf: 'Нельзя модерировать самого себя.',
+    errLastAdmin: 'Нельзя заблокировать последнего активного администратора.',
+    errRoleNotAssigned: 'У пользователя нет этой роли.',
+    errInvalidField: 'Недопустимое поле для этой роли.',
+    errNoChanges: 'Не указаны изменения.',
+    errInvalidRoleForDelete: 'Можно удалить только профиль брокера или логиста.',
+    errUserNotFound: 'Пользователь не найден.',
+    errRateLimited: 'Слишком много действий. Подождите несколько минут.',
+    errAlreadyAtSeverity: 'Пользователь уже в этом статусе.',
+    errNotSuspended: 'Пользователь не заблокирован.',
+    errAccountSuspended: 'Действие заблокировано: ваш аккаунт ограничен.',
+    errNetwork: 'Ошибка сети. Проверьте подключение.',
+    errGeneric: 'Не удалось выполнить действие.',
+
+    // Success toasts
+    toastSuspended: 'Пользователь ограничен',
+    toastUnsuspended: 'Доступ восстановлен',
+    toastRoleRevoked: 'Роль отозвана',
+    toastProfileDeleted: 'Профиль удалён',
+    toastProfileEdited: 'Профиль обновлён',
+
+    // Sticky summary card copy
+    summaryHistoryCount: '{count} действий',
+    summaryRolesLabel: 'Роли',
+    summaryNoRoles: 'Нет специальных ролей',
+    summaryMemberSinceLabel: 'В сервисе с',
+
+    // Capability preview (SeverityPicker description bottom line)
+    capabilityBrowseOnly: 'Может смотреть, но не может: {list}',
+    capabilityFullyBlocked: 'Вход невозможен. Все функции заблокированы.',
+    capabilityPermaBlocked: 'Вход невозможен навсегда.',
+    capItemCreateListing: 'размещать объявления',
+    capItemCreateOrder: 'заказывать услуги',
+    capItemContactSeller: 'писать продавцам',
+    capItemWithdrawFunds: 'выводить средства',
   },
   EN: {
     // Header & Navigation
@@ -790,6 +921,137 @@ export const TRANSLATIONS = {
     goToProfile: 'Go to Profile',
     cancel: 'Cancel',
     requestSellerAccount: 'Request Seller Account',
+
+    // ---- Phase 5 — Admin Moderation UI (UI-SPEC §10) ----
+    // Screen titles + headers
+    adminUsersTitle: 'Users',
+    adminModerationTitle: 'Moderation',
+    adminUserDetailTitle: 'User Details',
+
+    // Filter chips — AdminManagementScreen
+    filterAdminsOnly: 'Admins only',
+    filterAllUsers: 'All users',
+
+    // Filter chips — AdminModerationScreen — Role group
+    roleFilterAll: 'All roles',
+    roleFilterBuyer: 'Buyers',
+    roleFilterSeller: 'Sellers',
+    roleFilterBroker: 'Brokers',
+    roleFilterLogistics: 'Logistics',
+    roleFilterAdmin: 'Admins',
+
+    // Filter chips — State group
+    stateFilterAll: 'All states',
+    stateFilterActive: 'Active',
+    stateFilterFeatureLimited: 'Limited',
+    stateFilterBlocked: 'Blocked',
+    stateFilterBanned: 'Banned',
+
+    // Severity names + descriptions (SeverityPicker radio cards)
+    severityFeatureLimited: 'Feature-limited',
+    severityFeatureLimitedDesc: 'User can log in and browse, but cannot list, order, or message.',
+    severityBlockedWithReview: 'Blocked with review',
+    severityBlockedWithReviewDesc: 'Sign-in blocked. User sees instructions to contact support for appeal.',
+    severityPermanentlyBanned: 'Permanent ban',
+    severityPermanentlyBannedDesc: 'User fully blocked with no appeal path. Irreversible.',
+
+    // Reason categories
+    reasonSpam: 'Spam',
+    reasonPolicyViolation: 'Policy violation',
+    reasonFraud: 'Fraud',
+    reasonOther: 'Other',
+
+    // Action names (quick-action sheet rows + modal titles)
+    actionSuspend: 'Suspend',
+    actionUnsuspend: 'Unsuspend',
+    actionRevokeRole: 'Revoke role',
+    actionDeleteProfile: 'Delete profile',
+    actionEditProfile: 'Edit profile',
+
+    // Dual-role delete labels (QuickActionSheet — two rows when target has BOTH broker AND logistics)
+    deleteBrokerProfile: 'Delete broker profile',
+    deleteLogisticsProfile: 'Delete logistics profile',
+
+    // Form field labels
+    fieldSeverity: 'Severity',
+    fieldReason: 'Reason',
+    fieldNote: 'Note (optional)',
+    fieldNotePlaceholder: 'Up to 500 characters…',
+    fieldRoleToRevoke: 'Which role to revoke',
+    fieldRoleToDelete: 'Which profile to delete',
+    fieldCompanyName: 'Company name',
+    fieldPhoneNumber: 'Phone number',
+    fieldTelegram: 'Telegram',
+    fieldCoverageAreas: 'Coverage areas',
+    fieldTimelines: 'Timelines',
+
+    // Primary CTAs (modal-specific)
+    modalConfirm: 'Confirm',
+    modalCancel: 'Cancel',
+    confirmSuspend: 'Apply restriction',
+    confirmUnsuspend: 'Restore access',
+    confirmRevokeRole: 'Revoke role',
+    confirmDeleteProfile: 'Delete profile',
+    confirmEditProfile: 'Save changes',
+    unsuspendUser: 'Unsuspend user',
+
+    // Typed-confirmation copy
+    typedConfirmTitle: 'Confirm irreversible action',
+    typedConfirmHint: 'Type the user\'s email {email} to confirm',
+    typedConfirmInputPlaceholder: 'email@example.com',
+    typedConfirmMismatch: 'Email doesn\'t match',
+    typedConfirmWarningHeading: 'This action cannot be undone',
+    typedConfirmWarningBodyDelete: 'The provider profile will be permanently deleted. Order history is preserved.',
+    typedConfirmWarningBodyRevoke: 'The user will lose this role. Past records are preserved but the role will no longer appear.',
+    typedConfirmWarningBodyPermaBan: 'User will be permanently banned with no appeal path.',
+
+    // Empty states
+    emptyUsersTitle: 'No users found',
+    emptyUsersBody: 'Change the filter or pull down to refresh.',
+    emptySearchTitle: 'No matches',
+    emptySearchBody: 'Try a different email or UID.',
+    searchPromptTitle: 'Start searching',
+    searchPromptBody: 'Type an email or Firebase UID to find a user.',
+    searchEmailOrUid: 'Search: email or Firebase UID',
+    emptyHistoryTitle: 'No moderation history',
+    emptyHistoryBody: 'No moderation actions have been taken on this user yet.',
+
+    // Error mappings (one per ModerationError.code)
+    errCannotModerateSelf: 'You cannot moderate your own account.',
+    errLastAdmin: 'Cannot suspend the last active admin.',
+    errRoleNotAssigned: 'User does not have this role.',
+    errInvalidField: 'Field not allowed for this role.',
+    errNoChanges: 'No changes were provided.',
+    errInvalidRoleForDelete: 'Only broker or logistics profiles can be deleted.',
+    errUserNotFound: 'User not found.',
+    errRateLimited: 'Too many actions. Wait a few minutes.',
+    errAlreadyAtSeverity: 'User is already at this severity.',
+    errNotSuspended: 'User is not suspended.',
+    errAccountSuspended: 'Action blocked: your account is restricted.',
+    errNetwork: 'Network error. Check your connection.',
+    errGeneric: 'Action failed.',
+
+    // Success toasts
+    toastSuspended: 'User restricted',
+    toastUnsuspended: 'Access restored',
+    toastRoleRevoked: 'Role revoked',
+    toastProfileDeleted: 'Profile deleted',
+    toastProfileEdited: 'Profile updated',
+
+    // Sticky summary card copy
+    summaryHistoryCount: '{count} actions',
+    summaryRolesLabel: 'Roles',
+    summaryNoRoles: 'No special roles',
+    summaryMemberSinceLabel: 'Member since',
+
+    // Capability preview (SeverityPicker description bottom line)
+    capabilityBrowseOnly: 'Can browse, cannot: {list}',
+    capabilityFullyBlocked: 'Sign-in blocked. All features disabled.',
+    capabilityPermaBlocked: 'Sign-in blocked permanently.',
+    capItemCreateListing: 'list cars',
+    capItemCreateOrder: 'place orders',
+    capItemContactSeller: 'message sellers',
+    capItemWithdrawFunds: 'withdraw funds',
   }
 };
 
