@@ -78,6 +78,75 @@ export interface UnsuspendBody {
   note?: string;
 }
 
+// --- Plan 05-03 additions: read-side types ---
+
+/** Single row returned by GET /api/admin/users/search */
+export interface SearchUserItem {
+  localId: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  photoURL?: string;
+  createdAt?: string;
+  sellerStatus?: string;
+  brokerStatus?: string;
+  logisticsStatus?: string;
+  isAdmin?: boolean;
+  adminRole?: string | null;
+  moderationStatus: {
+    state: 'active' | 'feature_limited' | 'blocked_with_review' | 'permanently_banned';
+    reasonCategory?: ReasonCategory | null;
+    note?: string | null;
+    setAt?: string;
+    setByAdminUid?: string | null;
+    restrictedFeatures?: string[];
+  };
+}
+
+export interface SearchUsersQuery {
+  q?: string;
+  role?: 'buyer' | 'seller' | 'broker' | 'logistics' | 'admin';
+  state?: 'active' | 'feature_limited' | 'blocked_with_review' | 'permanently_banned';
+  cursor?: string;
+  limit?: number;
+}
+
+export interface SearchUsersResult {
+  users: SearchUserItem[];
+  nextCursor: string | null;
+}
+
+/** Single row returned by GET /api/admin/moderation/:uid/history */
+export interface ModerationActionRow {
+  _id: string;
+  action:
+    | 'suspend'
+    | 'unsuspend'
+    | 'revoke_role'
+    | 'restore_role'
+    | 'edit_profile'
+    | 'delete_provider_profile';
+  severity?: Severity | 'none';
+  roleAffected?: RevokableRole;
+  reasonCategory?: ReasonCategory;
+  note?: string | null;
+  adminUid: string;
+  adminEmail: string;
+  targetUid: string;
+  fieldDiff?: Record<string, { before: unknown; after: unknown }>;
+  createdAt: string;
+}
+
+export interface GetHistoryQuery {
+  limit?: number;
+  cursor?: string;
+}
+
+export interface GetHistoryResult {
+  rows: ModerationActionRow[];
+  nextCursor: string | null;
+}
+
 export const ModerationService = {
   // --- Admin writes ---
 
@@ -160,6 +229,24 @@ export const ModerationService = {
       return response.data;
     } catch (error) {
       console.error('Failed to delete provider profile', error);
+      throw error;
+    }
+  },
+
+  // --- Plan 05-03: read-side queries ---
+
+  searchUsers: async (
+    query: SearchUsersQuery,
+    config?: { signal?: AbortSignal },
+  ): Promise<SearchUsersResult> => {
+    try {
+      const response = await apiClient.get('/api/admin/users/search', {
+        params: query,
+        signal: config?.signal,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to search users', error);
       throw error;
     }
   },
