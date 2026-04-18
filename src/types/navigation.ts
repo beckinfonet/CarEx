@@ -20,4 +20,6 @@ export type RootStackParamList = {
   ProviderOrders: undefined;
   AdminDashboard: undefined;
   AdminManagement: undefined;
+  AdminModeration: undefined;
+  AdminUserDetail: { targetUid: string };
 };
