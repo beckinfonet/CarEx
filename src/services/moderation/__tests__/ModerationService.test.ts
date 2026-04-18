@@ -30,7 +30,7 @@ describe('ModerationService', () => {
 
   // -------------------- Test 1: suspend --------------------
 
-  it('Test 1: suspend POSTs to /api/admin/moderation/:uid/suspend and returns response.data', async () => {
+  it('Test 1: suspend POSTs to /api/admin/moderation/:uid with body.action="suspend" and returns response.data', async () => {
     const body = {
       severity: 'blocked_with_review' as const,
       reasonCategory: 'spam' as const,
@@ -42,8 +42,8 @@ describe('ModerationService', () => {
 
     expect(mockedApiClient.post).toHaveBeenCalledTimes(1);
     expect(mockedApiClient.post).toHaveBeenCalledWith(
-      '/api/admin/moderation/uid-123/suspend',
-      body,
+      '/api/admin/moderation/uid-123',
+      { action: 'suspend', ...body },
     );
     expect(result).toEqual({ ok: true, id: 'audit-1' });
   });
@@ -81,7 +81,7 @@ describe('ModerationService', () => {
 
   // -------------------- Test 4: revokeRole --------------------
 
-  it('Test 4: revokeRole POSTs to /api/admin/moderation/:uid/revoke-role', async () => {
+  it('Test 4: revokeRole POSTs to /api/admin/moderation/:uid with body.action="revoke_role"', async () => {
     const body = {
       role: 'broker' as const,
       reasonCategory: 'policy_violation' as const,
@@ -92,8 +92,8 @@ describe('ModerationService', () => {
 
     expect(mockedApiClient.post).toHaveBeenCalledTimes(1);
     expect(mockedApiClient.post).toHaveBeenCalledWith(
-      '/api/admin/moderation/uid-123/revoke-role',
-      body,
+      '/api/admin/moderation/uid-123',
+      { action: 'revoke_role', ...body },
     );
     expect(result).toEqual({ ok: true });
   });

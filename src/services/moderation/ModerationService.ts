@@ -152,9 +152,11 @@ export const ModerationService = {
 
   suspend: async (targetUid: string, body: SuspendBody) => {
     try {
+      // Backend dispatches on body.action at POST /:targetUid (Phase 2 D-01).
+      // There is no dedicated /:targetUid/suspend route — use the dispatcher.
       const response = await apiClient.post(
-        `/api/admin/moderation/${targetUid}/suspend`,
-        body,
+        `/api/admin/moderation/${targetUid}`,
+        { action: 'suspend', ...body },
       );
       return response.data;
     } catch (error) {
@@ -178,9 +180,11 @@ export const ModerationService = {
 
   revokeRole: async (targetUid: string, body: RevokeRoleBody) => {
     try {
+      // Backend dispatches on body.action at POST /:targetUid (Phase 2 D-01).
+      // There is no dedicated /:targetUid/revoke-role route — use the dispatcher.
       const response = await apiClient.post(
-        `/api/admin/moderation/${targetUid}/revoke-role`,
-        body,
+        `/api/admin/moderation/${targetUid}`,
+        { action: 'revoke_role', ...body },
       );
       return response.data;
     } catch (error) {
