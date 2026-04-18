@@ -1,14 +1,31 @@
-import { MODERATION_ERROR_KEY_MAP, ModerationErrorCode } from '../moderationErrorKeyMap';
+import { MODERATION_ERROR_KEY_MAP } from '../moderationErrorKeyMap';
 
 describe('MODERATION_ERROR_KEY_MAP', () => {
-  test.todo('exports a frozen/as-const map of error codes to translation keys');
-  test.todo('maps cannot_moderate_self to errCannotModerateSelf');
-  test.todo('maps last_admin_protected to errLastAdmin');
-  test.todo('maps role_not_assigned to errRoleNotAssigned');
-  test.todo('maps invalid_field to errInvalidField');
-  test.todo('maps no_changes to errNoChanges');
-  test.todo('maps invalid_role_for_delete to errInvalidRoleForDelete');
-  test.todo('maps user_not_found to errUserNotFound');
-  test.todo('maps rate_limited to errRateLimited');
-  test.todo('exports ModerationErrorCode type union of all keys');
+  test('maps every backend error code to a translation key', () => {
+    expect(MODERATION_ERROR_KEY_MAP.cannot_moderate_self).toBe('errCannotModerateSelf');
+    expect(MODERATION_ERROR_KEY_MAP.last_admin_protected).toBe('errLastAdmin');
+    expect(MODERATION_ERROR_KEY_MAP.role_not_assigned).toBe('errRoleNotAssigned');
+    expect(MODERATION_ERROR_KEY_MAP.invalid_field).toBe('errInvalidField');
+    expect(MODERATION_ERROR_KEY_MAP.no_changes).toBe('errNoChanges');
+    expect(MODERATION_ERROR_KEY_MAP.invalid_role_for_delete).toBe(
+      'errInvalidRoleForDelete',
+    );
+    expect(MODERATION_ERROR_KEY_MAP.user_not_found).toBe('errUserNotFound');
+    expect(MODERATION_ERROR_KEY_MAP.rate_limited).toBe('errRateLimited');
+    expect(MODERATION_ERROR_KEY_MAP.already_at_severity).toBe('errAlreadyAtSeverity');
+    expect(MODERATION_ERROR_KEY_MAP.not_suspended).toBe('errNotSuspended');
+    expect(MODERATION_ERROR_KEY_MAP.account_suspended).toBe('errAccountSuspended');
+  });
+
+  test('contains exactly 11 keys (backend-defined error codes)', () => {
+    expect(Object.keys(MODERATION_ERROR_KEY_MAP).length).toBe(11);
+  });
+
+  test('all values are non-empty strings starting with "err"', () => {
+    Object.values(MODERATION_ERROR_KEY_MAP).forEach((v) => {
+      expect(typeof v).toBe('string');
+      expect(v.length).toBeGreaterThan(3);
+      expect(v.startsWith('err')).toBe(true);
+    });
+  });
 });
