@@ -49,6 +49,11 @@ import {
     const currentIdTokenRef = useRef<string | null>(null);
     const refreshInFlightRef = useRef<Promise<any> | null>(null);
     const lastRefreshAtRef = useRef<number>(0);
+    // WR-02 (Phase 4 review): monotonic counter bumped on logout so an
+    // in-flight refresh that resolves AFTER logout can detect the mismatch
+    // and skip its setUser — otherwise a late backendUser would spread onto
+    // userRef.current (null) and resurrect the logged-out user.
+    const refreshGenerationRef = useRef<number>(0);
 
     // Keep the latest `user` visible to the refresh listener closure without
     // reintroducing the effect on every user-state change. The listener fires
@@ -103,12 +108,17 @@ import {
       }
 
       const uid = currentUser.localId;
+      // WR-02: snapshot the generation before we await the network. If
+      // logout bumps the counter while we're in flight, we drop the result.
+      const myGen = refreshGenerationRef.current;
       refreshInFlightRef.current = (async () => {
         try {
           const config = skipInterceptor
             ? { _skipModerationInterceptor: true }
             : undefined;
           const backendUser = await AuthService.getBackendUser(uid, config);
+          // WR-02: stale result after logout → drop, do not setUser.
+          if (refreshGenerationRef.current !== myGen) return;
           if (backendUser) {
             const updatedUser = { ...userRef.current, ...backendUser };
             setUser(updatedUser);
@@ -161,11 +171,16 @@ import {
         // is an authoritative signal that our cached user state is stale.
         const currentUser = userRef.current;
         if (!currentUser?.localId) return;
+        // WR-02: snapshot generation so a mid-await logout invalidates us.
+        const myGen = refreshGenerationRef.current;
         try {
           const backendUser = await AuthService.getBackendUser(
             currentUser.localId,
             { _skipModerationInterceptor: true },
           );
+          // WR-02: if logout bumped the generation while we were awaiting,
+          // drop the result so we don't resurrect a logged-out user.
+          if (refreshGenerationRef.current !== myGen) return;
           if (backendUser) {
             setUser({ ...userRef.current, ...backendUser });
             await checkAdminStatus(currentUser.localId);
@@ -248,6 +263,11 @@ import {
       // the request interceptor cannot attach a stale Bearer on any call
       // triggered by the logout teardown itself.
       currentIdTokenRef.current = null;
+      // WR-02: bump BEFORE any awaits so any in-flight refresh that resolves
+      // after this point (either path — refreshUserInternal IIFE or the
+      // moderation listener) sees the generation mismatch and drops its
+      // setUser call instead of resurrecting the logged-out user.
+      refreshGenerationRef.current += 1;
       await AuthService.logout();
       setUser(null);
       setIsAdmin(false);
