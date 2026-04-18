@@ -37,8 +37,29 @@ import { StripeProvider } from '@stripe/stripe-react-native';
 import { ServiceCartScreen } from './src/screens/ServiceCartScreen';
 import { MyOrdersScreen } from './src/screens/MyOrdersScreen';
 import { ProviderOrdersScreen } from './src/screens/ProviderOrdersScreen';
+import { useAppStateRefresh } from './src/hooks/useAppStateRefresh';
+import { useAuth } from './src/context/AuthContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+/**
+ * AppStateRefreshEffect — mounts the useAppStateRefresh listener inside the AuthProvider subtree.
+ * Pattern mirrors OfflineNotice which uses useNetwork inside NavigationContainer.
+ *
+ * When user is logged in (has localId), passes AuthContext.refreshUser so foreground transitions
+ * trigger a user-doc re-fetch. When logged out, passes null (D-16 logged-out skip).
+ *
+ * 30s cooldown is enforced inside AuthContext.refreshUser (Plan 04-04), not the hook — see
+ * 04-PATTERNS cross-cutting note. The cooldownMs option is passed here for API clarity.
+ *
+ * Exported so __tests__/AppStateRefresh.integration.test.tsx can assert the hook contract
+ * without mounting the full App tree.
+ */
+export const AppStateRefreshEffect = () => {
+  const { user, refreshUser } = useAuth();
+  useAppStateRefresh(user?.localId ? refreshUser : null, { cooldownMs: 30_000 });
+  return null;
+};
 
 const linking = {
   prefixes: ['https://www.carexmarket.com', 'carex://'],
@@ -55,6 +76,7 @@ function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AuthProvider>
+          <AppStateRefreshEffect />
           <CartProvider>
             <StripeProvider publishableKey="pk_test_51TEgrOJAS81xgsxjpbIvgoGw67eODe91yRPnNTpRcQrweRvUFBLX5wknw3XsAN2um4bFUsAG7HvFZqPArAQS5Ruf00MUNqZQLy">
             <LanguageProvider>
