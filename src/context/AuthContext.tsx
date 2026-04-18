@@ -4,6 +4,8 @@ import React, {
   useEffect,
   useContext,
   useRef,
+  useCallback,
+  useMemo,
   ReactNode,
 } from 'react';
 import { AuthService } from '../services/AuthService';
@@ -75,7 +77,25 @@ import {
     // Grep-bait invariant (04-CONTEXT specifics line 238): the loop-guard
     // flag string below is the 2-of-2 legitimate occurrence in mobile
     // source. Plan 04-01's client.ts holds the 1-of-2.
-    const refreshUserInternal = async ({
+    // WR-03 (Phase 4 review): all public callbacks exposed via the context
+    // value are memoized with useCallback so their identity is stable across
+    // re-renders of AuthProvider. This stops useAppStateRefresh (App.tsx)
+    // from tearing down + re-subscribing the AppState listener on every
+    // render. Dependency arrays are intentionally empty for ref/setter-only
+    // callbacks; user-reading callbacks list [user] to re-bind on user change
+    // (still far fewer rebuilds than on every render).
+    const checkAdminStatus = useCallback(async (uid: string) => {
+      try {
+        const status = await AuthService.getAdminStatus(uid);
+        setIsAdmin(status.isAdmin);
+        setAdminRole(status.isAdmin ? status.role : null);
+      } catch {
+        setIsAdmin(false);
+        setAdminRole(null);
+      }
+    }, []);
+
+    const refreshUserInternal = useCallback(async ({
       skipInterceptor,
       force = false,
     }: {
@@ -131,24 +151,24 @@ import {
       })();
 
       await refreshInFlightRef.current;
-    };
+    }, [checkAdminStatus]);
 
     // Public refreshUser — AppState handler, screens, and internal callers.
     // Default path does NOT skip the interceptor: a 403 during a normal
     // refresh is still caught by the interceptor, which calls the listener
     // (which IS configured with skipInterceptor=true). One-level recursion
     // bounded by design.
-    const refreshUser = async (): Promise<void> => {
+    const refreshUser = useCallback(async (): Promise<void> => {
       await refreshUserInternal({ skipInterceptor: false });
-    };
+    }, [refreshUserInternal]);
 
     // WR-01 (Phase 4 review): explicit user-initiated refresh that bypasses
     // the 30s cooldown. Used after mutations like requestSeller/Broker/
     // Logistics and verifyPhone so the UI reflects the server's new state
     // even when a prior passive refresh happened within the cooldown window.
-    const refreshUserForced = async (): Promise<void> => {
+    const refreshUserForced = useCallback(async (): Promise<void> => {
       await refreshUserInternal({ skipInterceptor: false, force: true });
-    };
+    }, [refreshUserInternal]);
 
     useEffect(() => {
       // Register client-level listeners BEFORE loadStorageData so the very
@@ -194,18 +214,7 @@ import {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const checkAdminStatus = async (uid: string) => {
-      try {
-        const status = await AuthService.getAdminStatus(uid);
-        setIsAdmin(status.isAdmin);
-        setAdminRole(status.isAdmin ? status.role : null);
-      } catch {
-        setIsAdmin(false);
-        setAdminRole(null);
-      }
-    };
-
-    const loadStorageData = async () => {
+    const loadStorageData = useCallback(async () => {
       try {
         const userData = await AuthService.getUserData();
         // Hydrate the token ref from AsyncStorage so the request interceptor
@@ -226,9 +235,9 @@ import {
       } finally {
         setLoading(false);
       }
-    };
+    }, [checkAdminStatus]);
 
-    const login = async (email: string, password: string) => {
+    const login = useCallback(async (email: string, password: string) => {
       const data = await AuthService.signIn(email, password);
       // Sync the token ref immediately after signIn resolves so any network
       // call that follows (getBackendUser below) already carries the Bearer
@@ -244,9 +253,9 @@ import {
       await AuthService.saveToken(data.idToken, userData);
       setUser(userData);
       await checkAdminStatus(data.localId);
-    };
+    }, [checkAdminStatus]);
 
-    const signup = async (email: string, password: string) => {
+    const signup = useCallback(async (email: string, password: string) => {
       const data = await AuthService.signUp(email, password);
       currentIdTokenRef.current = data.idToken;
       const userData = { email: data.email, localId: data.localId };
@@ -256,9 +265,9 @@ import {
 
       await AuthService.saveToken(data.idToken, userData);
       setUser(userData);
-    };
+    }, []);
 
-    const logout = async () => {
+    const logout = useCallback(async () => {
       // Clear the token ref FIRST — before any other teardown or awaits — so
       // the request interceptor cannot attach a stale Bearer on any call
       // triggered by the logout teardown itself.
@@ -277,9 +286,9 @@ import {
       // pre-logout user's data.
       lastRefreshAtRef.current = 0;
       refreshInFlightRef.current = null;
-    };
+    }, []);
 
-    const requestSeller = async () => {
+    const requestSeller = useCallback(async () => {
       if (user && user.localId) {
         await AuthService.requestSellerStatus(user.localId);
         // WR-01: explicit user action — bypass the 30s cooldown so the
@@ -287,39 +296,39 @@ import {
         // the next AppState foreground transition.
         await refreshUserForced();
       }
-    };
+    }, [user, refreshUserForced]);
 
-    const requestBroker = async () => {
+    const requestBroker = useCallback(async () => {
       if (user && user.localId) {
         await AuthService.requestBrokerStatus(user.localId);
         // WR-01: explicit user action — bypass cooldown.
         await refreshUserForced();
       }
-    };
+    }, [user, refreshUserForced]);
 
-    const requestLogistics = async () => {
+    const requestLogistics = useCallback(async () => {
       if (user && user.localId) {
         await AuthService.requestLogisticsStatus(user.localId);
         // WR-01: explicit user action — bypass cooldown.
         await refreshUserForced();
       }
-    };
+    }, [user, refreshUserForced]);
 
-    const sendPhoneOtp = async () => {
+    const sendPhoneOtp = useCallback(async () => {
       if (!user?.phoneNumber || !user?.localId) return;
       const phoneNumber = user.phoneNumber.startsWith('+') ? user.phoneNumber : `+${user.phoneNumber.replace(/\s/g, '')}`;
       await AuthService.sendOtp(phoneNumber);
-    };
+    }, [user]);
 
-    const verifyPhone = async (code: string) => {
+    const verifyPhone = useCallback(async (code: string) => {
       if (!user?.phoneNumber || !user?.localId) return;
       await AuthService.verifyOtp(user.phoneNumber, code, user.localId);
       // WR-01: explicit user action — bypass cooldown so isPhoneVerified
       // flips to true immediately.
       await refreshUserForced();
-    };
+    }, [user, refreshUserForced]);
 
-    const deleteAccount = async () => {
+    const deleteAccount = useCallback(async () => {
         if (user && user.localId) {
             const token = await AuthService.getToken();
             if (token) {
@@ -327,10 +336,49 @@ import {
                 await logout();
             }
         }
-    };
+    }, [user, logout]);
+
+    // WR-03: memoize the context value so consumers of useAuth() only
+    // re-render when actual state (user/loading/isAdmin/adminRole) changes
+    // — not on every AuthProvider render. All callback identities are
+    // already stable via useCallback above.
+    const contextValue = useMemo(
+      () => ({
+        user,
+        loading,
+        isAdmin,
+        adminRole,
+        login,
+        signup,
+        logout,
+        refreshUser,
+        requestSeller,
+        requestBroker,
+        requestLogistics,
+        sendPhoneOtp,
+        verifyPhone,
+        deleteAccount,
+      }),
+      [
+        user,
+        loading,
+        isAdmin,
+        adminRole,
+        login,
+        signup,
+        logout,
+        refreshUser,
+        requestSeller,
+        requestBroker,
+        requestLogistics,
+        sendPhoneOtp,
+        verifyPhone,
+        deleteAccount,
+      ],
+    );
 
     return (
-      <AuthContext.Provider value={{ user, loading, isAdmin, adminRole, login, signup, logout, refreshUser, requestSeller, requestBroker, requestLogistics, sendPhoneOtp, verifyPhone, deleteAccount }}>
+      <AuthContext.Provider value={contextValue}>
         {children}
       </AuthContext.Provider>
     );
