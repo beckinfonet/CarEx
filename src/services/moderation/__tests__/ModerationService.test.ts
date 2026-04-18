@@ -149,14 +149,22 @@ describe('ModerationService', () => {
     expect(result).toEqual({ ok: true });
   });
 
-  // -------------------- Test 8: getHistory stub --------------------
+  // -------------------- Test 8: getHistory real implementation --------------------
+  // Phase 4 shipped a stub that rejected with "Not implemented — Phase 5 adds
+  // the /history route". Plan 05-03 replaced the stub with a real
+  // GET /api/admin/moderation/:uid/history call, so this test now asserts the
+  // real call happens. Dedicated path/param coverage lives in
+  // ModerationService.getHistory.test.ts (Plan 05-09 Task 3).
 
-  it('Test 8: getHistory rejects with "Not implemented — Phase 5 adds the /history route"', async () => {
-    await expect(ModerationService.getHistory('uid-123')).rejects.toThrow(
-      'Not implemented — Phase 5 adds the /history route',
+  it('Test 8: getHistory GETs /api/admin/moderation/:uid/history and returns response.data', async () => {
+    const fakeData = { rows: [], nextCursor: null };
+    mockedApiClient.get.mockResolvedValueOnce({ data: fakeData });
+    const result = await ModerationService.getHistory('uid-123');
+    expect(mockedApiClient.get).toHaveBeenCalledWith(
+      '/api/admin/moderation/uid-123/history',
+      expect.objectContaining({ params: expect.any(Object) }),
     );
-    // Must NOT have called apiClient.get — it's a pure stub.
-    expect(mockedApiClient.get).not.toHaveBeenCalled();
+    expect(result).toEqual(fakeData);
   });
 
   // -------------------- Test 9: ModerationError passthrough --------------------
