@@ -142,12 +142,8 @@ describe('AuthService — apiClient migration (Plan 04-05)', () => {
   it('Test 8: no backend method still uses ${API_URL}/api/ template (source-level grep)', () => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const fs = require('fs');
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const path = require('path');
-    const src = fs.readFileSync(
-      path.join(__dirname, '..', 'AuthService.ts'),
-      'utf8',
-    );
+    // Resolve AuthService.ts relative to CWD (jest always runs from repo root).
+    const src = fs.readFileSync('src/services/AuthService.ts', 'utf8');
     const matches = src.match(/\$\{API_URL\}\/api\//g) || [];
     expect(matches.length).toBe(0);
   });
