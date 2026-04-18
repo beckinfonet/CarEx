@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: In progress
-stopped_at: Phase 5 executing (mobile plans only; backend 05-0a/0b deferred)
-last_updated: "2026-04-18T19:00:33Z"
-last_activity: 2026-04-18 -- Phase 05 Plan 09 complete (repurposed AdminManagementScreen + AdminDashboardScreen nav card + App.tsx wiring + 23 Wave 0 assertions + 05-VALIDATION.md populated)
+stopped_at: Phase 5 mobile scope complete (10/10 plans); backend 05-0a/0b deferred to separate repo
+last_updated: "2026-04-18T19:20:00Z"
+last_activity: 2026-04-18 -- Phase 05 Plan 10 complete (8 Wave 0 component+screen test scaffolds filled with 54 real assertions; combined suite 100/100 green; dual-role delete contract + explicit-role pass-through locked at test layer)
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 37
-  completed_plans: 34
-  percent: 92
+  completed_plans: 35
+  percent: 95
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 ## Current Position
 
-Phase: 05 (Admin Moderation UI (Mobile)) — executing 10 mobile plans (backend 05-0a/0b deferred to separate repo)
-Next: Wave 4 — Plan 05-10 (Fill Wave 0 component+screen test scaffolds — dual-role delete contract assertions)
-Last activity: 2026-04-18 -- Phase 05 Plan 09 complete (AdminManagementScreen repurposed + navigation wiring + Wave 0 service+hook+util tests filled + 05-VALIDATION.md populated; MOB-01 + WR-02 guardrails green)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-10-PLAN.md
+Phase: 05 (Admin Moderation UI (Mobile)) — MOBILE SCOPE COMPLETE (10/10 plans; backend 05-0a/0b deferred to separate repo)
+Next: Phase 6 — Affected-User UX + Security Review (blocked on backend 05-0a/0b landing in carEx-services)
+Last activity: 2026-04-18 -- Phase 05 Plan 10 complete (8 Wave 0 scaffolds filled with 54 real assertions; 100/100 tests green; dual-role + explicit-role contracts locked at test layer)
+Resume file: .planning/phases/06-affected-user-ux/ (pending creation)
 
-Progress: [█████████░] 90% (Phase 05 execution, 9/10 plans complete)
+Progress: [██████████] 100% (Phase 05 mobile execution, 10/10 plans complete)
 
 ## Performance Metrics
 
@@ -73,6 +73,7 @@ Progress: [█████████░] 90% (Phase 05 execution, 9/10 plans c
 | Phase 05 P07 | 3m34s | 1 tasks | 1 files |
 | Phase 05 P08 | ~30s | 1 tasks | 1 files |
 | Phase 05 P09 | 8m54s | 5 tasks | 10 files |
+| Phase 05 P10 | ~10m | 4 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -163,6 +164,10 @@ Recent decisions affecting current work:
 - [Phase 05]: Plan 05-09: Existing Phase-4 Test 8 in ModerationService.test.ts (`'Not implemented — Phase 5 adds the /history route'`) updated to assert the real Phase 5 GET call instead — the Phase-4 stub assertion was directly contradicting Plan 05-03's real implementation (Rule 1 auto-fix). Dedicated path/param coverage lives in the new ModerationService.getHistory.test.ts file (this Plan's Task 3)
 - [Phase 05]: Plan 05-09: 05-VALIDATION.md self-test row for 05-09-05 uses sentinel `placeholder-task-row` instead of literal `05-XX-XX` in its own grep command — acceptance criterion required `grep -c '05-XX-XX' 05-VALIDATION.md` to return 0, which a literal self-reference would break. Semantic intent preserved; the row still verifies no placeholder rows remain in the document
 - [Phase 05]: Plan 05-09: MOB-01 + WR-02 BLOCKING grep guardrails CERTIFIED GREEN at final state — `grep -c 'suspend\|revoke\|moderation' src/services/AuthService.ts` = 0; `grep -rl "_skipModerationInterceptor" src/ | grep -v "__tests__"` lists EXACTLY 2 files (client.ts + AuthContext.tsx). Phase 5 end-to-end wired: AdminDashboard → nav card → AdminModeration → row tap → AdminUserDetail
+- [Phase 05]: Plan 05-10: React 19 `await act(async)` hang on AdminManagementScreen/AdminModerationScreen solved by hybrid pattern — sync `act(() => TestRenderer.create(...))` + outside-act `setImmediate` microtask pump + bookending sync `act(() => {})` to satisfy state-update warnings. Codified as `settle()` helper shared across all 3 screen tests. Root cause: AbortController-wrapped axios effects keep React's scheduler queue alive past jest's 5s timeout inside async act
+- [Phase 05]: Plan 05-10: LanguageContext jest.mock must return a STABLE Proxy reference (hoisted `const mockT = new Proxy(...)` with `mock*` prefix for babel-plugin-jest-hoist allowlist) — a fresh Proxy on every render rotates `T` identity, which rotates `runSearch` via `useCallback([T])`, which re-fires `useEffect([runSearch])`, which double-fires `searchUsers`, which breaks the AdminModerationScreen pagination guard test (got 4/6 calls vs expected 2/2). Mock hygiene lesson that applies to every future screen test
+- [Phase 05]: Plan 05-10: Dual-role delete contract locked with 3 cases in QuickActionSheet.test.tsx AND 4 pass-through cases in screen tests — `grep -c "role: 'broker'"` = 6 across QuickActionSheet+AdminManagement+AdminModeration tests; `grep -c "role: 'logistics'"` = 6. Any future refactor that silently defaults to broker must break at least 7 tests. Combined Phase 5 test suite: 100 tests green, 16 suites, 1.8s — far exceeding the ≥50 acceptance threshold
+- [Phase 05]: Plan 05-10: Phase 5 MOBILE SCOPE COMPLETE — 10/10 plans executed end-to-end. Backend plans 05-0a (GET /history) + 05-0b (GET /users/search) remain open in the separate carEx-services repo; they are the only blocker between this mobile code and a production-ready Phase 5. Phase 6 (Affected-User UX + Security Review) is gated on 05-0a/0b landing
 
 ### Pending Todos
 
@@ -189,6 +194,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-18T19:00:33Z
-Stopped at: Phase 05 Plan 09 complete (AdminManagementScreen repurposed via D-03 + AdminDashboardScreen nav card + App.tsx Stack.Screen wiring for AdminModeration + AdminUserDetail + 23 Wave 0 real assertions filled across 5 service/hook/util scaffolds + 05-VALIDATION.md populated with 22 real task rows + MOB-01 + WR-02 BLOCKING guardrails certified green — 5 commits, 10 files changed)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-10-PLAN.md
+Last session: 2026-04-18T19:20:00Z
+Stopped at: Phase 05 Plan 10 complete (8 Wave 0 component+screen test scaffolds filled with 54 real assertions including 3 dual-role delete contract cases in QuickActionSheet + 4 explicit-role pass-through cases across AdminManagementScreen/AdminModerationScreen; combined Phase 5 test suite 100/100 green across 16 suites in 1.8s; zero test.todo remaining in src/components/moderation/__tests__ + src/screens/__tests__; package.json unchanged — 3 commits, 8 files changed). PHASE 5 MOBILE SCOPE COMPLETE (10/10 plans); blocked on backend 05-0a/0b for production readiness.
+Resume file: (next) .planning/phases/06-affected-user-ux/ — pending planning once backend routes land
