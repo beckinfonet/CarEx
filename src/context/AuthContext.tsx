@@ -131,7 +131,32 @@ import {
       setModerationRefreshListener(async () => {
         // Listener path MUST set the skip flag to avoid interceptor recursion
         // on the refresh request itself (D-11).
-        await refreshUserInternal({ skipInterceptor: true });
+        //
+        // Fix for CR-01 (Phase 4 review): the listener fetches DIRECTLY
+        // rather than delegating to refreshUserInternal so it bypasses the
+        // dedupe guard. Otherwise, if the public `refreshUser()` (which does
+        // NOT skip the interceptor) hits a 403, the interceptor awaits the
+        // listener, which would await the same in-flight promise (set by the
+        // original caller) — circular await → deadlock. By going direct,
+        // the listener can complete while the caller's promise is still
+        // pending, letting the interceptor resolve and the caller surface
+        // the ModerationError. Cooldown is also bypassed here because a 403
+        // is an authoritative signal that our cached user state is stale.
+        const currentUser = userRef.current;
+        if (!currentUser?.localId) return;
+        try {
+          const backendUser = await AuthService.getBackendUser(
+            currentUser.localId,
+            { _skipModerationInterceptor: true },
+          );
+          if (backendUser) {
+            setUser({ ...userRef.current, ...backendUser });
+            await checkAdminStatus(currentUser.localId);
+          }
+          lastRefreshAtRef.current = Date.now();
+        } catch (err) {
+          console.error('Moderation refresh listener fetch failed', err);
+        }
       });
       loadStorageData();
       // eslint-disable-next-line react-hooks/exhaustive-deps
