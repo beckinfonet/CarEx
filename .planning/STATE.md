@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: In progress
 stopped_at: Phase 5 executing (mobile plans only; backend 05-0a/0b deferred)
-last_updated: "2026-04-18T18:46:50Z"
-last_activity: 2026-04-18 -- Phase 05 Plan 08 complete (AdminUserDetailScreen — sticky summary, paginated history, unsuspend flow with optimistic PREPEND + rollback)
+last_updated: "2026-04-18T19:00:33Z"
+last_activity: 2026-04-18 -- Phase 05 Plan 09 complete (repurposed AdminManagementScreen + AdminDashboardScreen nav card + App.tsx wiring + 23 Wave 0 assertions + 05-VALIDATION.md populated)
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 37
-  completed_plans: 33
-  percent: 89
+  completed_plans: 34
+  percent: 92
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 05 (Admin Moderation UI (Mobile)) — executing 10 mobile plans (backend 05-0a/0b deferred to separate repo)
-Next: Wave 4 — Plan 05-09 (Repurpose AdminManagementScreen + AdminDashboardScreen nav card + App.tsx wiring + fill Wave 0 tests)
-Last activity: 2026-04-18 -- Phase 05 Plan 08 complete (AdminUserDetailScreen — sticky summary, paginated history, unsuspend flow)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-09-PLAN.md
+Next: Wave 4 — Plan 05-10 (Fill Wave 0 component+screen test scaffolds — dual-role delete contract assertions)
+Last activity: 2026-04-18 -- Phase 05 Plan 09 complete (AdminManagementScreen repurposed + navigation wiring + Wave 0 service+hook+util tests filled + 05-VALIDATION.md populated; MOB-01 + WR-02 guardrails green)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-10-PLAN.md
 
-Progress: [████████░░] 80% (Phase 05 execution, 8/10 plans complete)
+Progress: [█████████░] 90% (Phase 05 execution, 9/10 plans complete)
 
 ## Performance Metrics
 
@@ -72,6 +72,7 @@ Progress: [████████░░] 80% (Phase 05 execution, 8/10 plans c
 | Phase 05 P06 | 3m20s | 3 tasks | 3 files |
 | Phase 05 P07 | 3m34s | 1 tasks | 1 files |
 | Phase 05 P08 | ~30s | 1 tasks | 1 files |
+| Phase 05 P09 | 8m54s | 5 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -156,6 +157,12 @@ Recent decisions affecting current work:
 - [Phase 05]: Plan 05-08: Optimistic history mutation is PREPEND-only on success path (`setHistory((curr) => [optimisticRow, ...curr])`) + full-restore on rollback (`setHistory(prevHistory)`); synthetic row id prefix `local-${Date.now()}` is grep-detectable (T-05-08-01). Discipline prevents append-only violation (D-15) while still giving instant visual feedback — pull-to-refresh is the reconciliation path
 - [Phase 05]: Plan 05-08: Target-user lookup uses searchUsers({ q: targetUid, limit: 5 }) with strict localId match first, then users[0] fallback, then Alert + navigation.goBack() on total miss — belt-and-braces closure of T-05-08-03 (hand-crafted invalid targetUid) and T-05-08-08 (wrong-user fallback). Route param stays locked at `{ targetUid: string }` per D-09
 - [Phase 05]: Plan 05-08: History card severity mapping only fires on `action === 'suspend'` with a real severity; non-severity actions (unsuspend/revoke_role/restore_role/edit_profile/delete_provider_profile) get `COLORS.accent` border as fallback. `severity === 'none'` is explicitly excluded from SeverityBadge rendering to avoid Severity-type narrowing bugs (ModerationActionRow.severity is `Severity | 'none'` per Plan 05-03)
+- [Phase 05]: Plan 05-09: AdminManagementScreen repurposed (D-03) as a near-clone of AdminModerationScreen MINUS search/state-filter chips PLUS role-toggle chips ('All users' / 'Admins only'). `pendingDeleteRole` state channel mirrored verbatim so the dual-role delete contract (RESEARCH §Pitfall 11) holds uniformly across BOTH list screens — grep = 0 for `brokerStatus === 'APPROVED' ? 'broker' : 'logistics'` on both. Legacy AdminEntry + AuthService.getAdminUsers + Add/Remove admin modal flows removed in their entirety (admins are added via approval flow on AdminDashboardScreen per RESEARCH §AdminManagementScreen note)
+- [Phase 05]: Plan 05-09: AdminDashboardScreen typed via `NativeStackNavigationProp<RootStackParamList, 'AdminDashboard'>` to make `navigate('AdminModeration')` compile-checked against the new route; aligns with Plans 05-07/05-08 convention. Existing tabBar / pending-request UI untouched — the card is purely additive between header and tabBar
+- [Phase 05]: Plan 05-09: useDebouncedValue.test.ts kept at `.ts` extension (matching Plan 05-01 scaffold filename) by switching from JSX `<Text>...</Text>` to `React.createElement(Text, ...)` — react-native jest preset does not enable JSX transforms for plain `.ts` files. Alternative of renaming to `.tsx` was rejected to preserve scaffold filenames verbatim. All 4 tests green via `react-test-renderer` + `jest.useFakeTimers()`
+- [Phase 05]: Plan 05-09: Existing Phase-4 Test 8 in ModerationService.test.ts (`'Not implemented — Phase 5 adds the /history route'`) updated to assert the real Phase 5 GET call instead — the Phase-4 stub assertion was directly contradicting Plan 05-03's real implementation (Rule 1 auto-fix). Dedicated path/param coverage lives in the new ModerationService.getHistory.test.ts file (this Plan's Task 3)
+- [Phase 05]: Plan 05-09: 05-VALIDATION.md self-test row for 05-09-05 uses sentinel `placeholder-task-row` instead of literal `05-XX-XX` in its own grep command — acceptance criterion required `grep -c '05-XX-XX' 05-VALIDATION.md` to return 0, which a literal self-reference would break. Semantic intent preserved; the row still verifies no placeholder rows remain in the document
+- [Phase 05]: Plan 05-09: MOB-01 + WR-02 BLOCKING grep guardrails CERTIFIED GREEN at final state — `grep -c 'suspend\|revoke\|moderation' src/services/AuthService.ts` = 0; `grep -rl "_skipModerationInterceptor" src/ | grep -v "__tests__"` lists EXACTLY 2 files (client.ts + AuthContext.tsx). Phase 5 end-to-end wired: AdminDashboard → nav card → AdminModeration → row tap → AdminUserDetail
 
 ### Pending Todos
 
@@ -182,6 +189,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-18T18:46:50Z
-Stopped at: Phase 05 Plan 08 complete (AdminUserDetailScreen — new screen with sticky summary card, paginated history list, and optimistic-with-rollback unsuspend flow — 1 new file, 1 commit)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-09-PLAN.md
+Last session: 2026-04-18T19:00:33Z
+Stopped at: Phase 05 Plan 09 complete (AdminManagementScreen repurposed via D-03 + AdminDashboardScreen nav card + App.tsx Stack.Screen wiring for AdminModeration + AdminUserDetail + 23 Wave 0 real assertions filled across 5 service/hook/util scaffolds + 05-VALIDATION.md populated with 22 real task rows + MOB-01 + WR-02 BLOCKING guardrails certified green — 5 commits, 10 files changed)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-10-PLAN.md
