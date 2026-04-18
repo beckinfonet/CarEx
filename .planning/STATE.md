@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: In progress
 stopped_at: Phase 5 executing (mobile plans only; backend 05-0a/0b deferred)
-last_updated: "2026-04-18T18:31:32Z"
-last_activity: 2026-04-18 -- Phase 05 Plan 06 complete (QuickActionSheet + ModerationActionModal + TypedConfirmationModal interactive components)
+last_updated: "2026-04-18T18:40:28Z"
+last_activity: 2026-04-18 -- Phase 05 Plan 07 complete (AdminModerationScreen — search, filter, infinite scroll, role-explicit delete flow)
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 37
-  completed_plans: 31
-  percent: 84
+  completed_plans: 32
+  percent: 86
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 05 (Admin Moderation UI (Mobile)) — executing 10 mobile plans (backend 05-0a/0b deferred to separate repo)
-Next: Wave 3 — Plan 05-07 (AdminModerationScreen — search, filter, infinite scroll, action plumbing)
-Last activity: 2026-04-18 -- Phase 05 Plan 06 complete (QuickActionSheet + ModerationActionModal + TypedConfirmationModal interactive components)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-07-PLAN.md
+Next: Wave 3 — Plan 05-08 (AdminUserDetailScreen — sticky summary, paginated history, unsuspend flow)
+Last activity: 2026-04-18 -- Phase 05 Plan 07 complete (AdminModerationScreen — search, filter, infinite scroll, role-explicit delete flow)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-08-PLAN.md
 
-Progress: [██████░░░░] 60% (Phase 05 execution, 6/10 plans complete)
+Progress: [███████░░░] 70% (Phase 05 execution, 7/10 plans complete)
 
 ## Performance Metrics
 
@@ -70,6 +70,7 @@ Progress: [██████░░░░] 60% (Phase 05 execution, 6/10 plans c
 | Phase 05 P04 | 1m17s | 2 tasks | 4 files |
 | Phase 05 P05 | 1m05s | 2 tasks | 2 files |
 | Phase 05 P06 | 3m20s | 3 tasks | 3 files |
+| Phase 05 P07 | 3m34s | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -147,6 +148,9 @@ Recent decisions affecting current work:
 - [Phase 05]: Plan 05-06: TypedConfirmationModal sentinel matching uses `input.trim().toLowerCase() === target.email.trim().toLowerCase()` — literal string equality, no regex. Hint interpolation uses String.prototype.replace('{email}', ...) — literal substring, not template. keyboardType='email-address' + autoCapitalize='none' + autoCorrect=false together prevent iOS autocorrect from turning a correctly-typed email into a mismatch
 - [Phase 05]: Plan 05-06: Modal + overlay + stop-prop pattern mirrored from FilterModal.tsx across all 3 components — outer `<Pressable onPress={onClose}>` + inner `<Pressable onPress={() => {}}>`. RN Pressable swallows the press when onPress is set, so inner taps never bubble to the overlay. No preventDefault/stopPropagation calls needed
 - [Phase 05]: Plan 05-06: editHasChanges uses `JSON.stringify(before ?? null) !== JSON.stringify(after ?? null)` rather than reference equality — safely handles arrays (coverageAreas, timelines) vs undefined baseline without adding a deep-equal dependency. The `?? null` normalization prevents `undefined !== null` false positives across the before/after axes
+- [Phase 05]: Plan 05-07: AdminModerationScreen SafeAreaView imported from `react-native-safe-area-context` (not stock `react-native`) — matches dominant project convention across HomeScreen/LoginScreen/SellCarScreen/SignupScreen/CarDetailsScreen/AdminManagementScreen. Plan PATTERNS code block used stock import but the screen follows the codebase pattern to preserve safe-area edge handling on display-cutout devices
+- [Phase 05]: Plan 05-07: handleActionSubmit synchronously clears `actionTarget`/`actionType` before escalating `permanently_banned` suspend or `revoke_role` to TypedConfirmationModal — prevents a one-frame overlap where both the action modal AND the destructive confirmation would render simultaneously. Plan PATTERNS did not include this (Rule 1 auto-fix)
+- [Phase 05]: Plan 05-07: Role-explicit delete pass-through enforced with TWO defensive guards — `handleQuickActionSelect` Alerts on missing `selection.role` and `TypedConfirmationModal.onConfirm` Alerts on missing `pendingDeleteRole`. The contract from QuickActionSheet (Plan 05-06) makes `selection.role` non-optional for delete_profile in practice; both guards are belt-and-braces against future refactors. Zero silent broker defaults exist in the screen (grep = 0 for `brokerStatus === 'APPROVED' ? 'broker' : 'logistics'`)
 
 ### Pending Todos
 
@@ -173,6 +177,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-18T18:31:32Z
-Stopped at: Phase 05 Plan 06 complete (QuickActionSheet + ModerationActionModal + TypedConfirmationModal — 3 new files, 3 commits)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-07-PLAN.md
+Last session: 2026-04-18T18:40:28Z
+Stopped at: Phase 05 Plan 07 complete (AdminModerationScreen — new screen with debounced search, role+state filters, infinite scroll, role-explicit delete flow — 1 new file, 1 commit)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-08-PLAN.md
