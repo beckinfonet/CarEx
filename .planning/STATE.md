@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: In progress
 stopped_at: Phase 5 executing (mobile plans only; backend 05-0a/0b deferred)
-last_updated: "2026-04-18T18:20:04Z"
-last_activity: 2026-04-18 -- Phase 05 Plan 04 complete (useDebouncedValue + formatYmdHm + moderationErrorKeyMap + nav route types)
+last_updated: "2026-04-18T18:23:44Z"
+last_activity: 2026-04-18 -- Phase 05 Plan 05 complete (SeverityBadge + EmptyState shared primitives)
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 37
-  completed_plans: 29
-  percent: 78
+  completed_plans: 30
+  percent: 81
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 05 (Admin Moderation UI (Mobile)) — executing 10 mobile plans (backend 05-0a/0b deferred to separate repo)
-Next: Wave 2 — Plan 05-05 (SeverityBadge + EmptyState shared primitives)
-Last activity: 2026-04-18 -- Phase 05 Plan 04 complete (useDebouncedValue + formatYmdHm + moderationErrorKeyMap + nav route types)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-05-PLAN.md
+Next: Wave 2 — Plan 05-06 (QuickActionSheet + ModerationActionModal + TypedConfirmationModal interactive components)
+Last activity: 2026-04-18 -- Phase 05 Plan 05 complete (SeverityBadge + EmptyState shared primitives)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-06-PLAN.md
 
-Progress: [████░░░░░░] 40% (Phase 05 execution, 4/10 plans complete)
+Progress: [█████░░░░░] 50% (Phase 05 execution, 5/10 plans complete)
 
 ## Performance Metrics
 
@@ -68,6 +68,7 @@ Progress: [████░░░░░░] 40% (Phase 05 execution, 4/10 plans c
 | Phase 05 P02 | 3m14s | 2 tasks | 2 files |
 | Phase 05 P03 | 2min | 2 tasks | 1 file |
 | Phase 05 P04 | 1m17s | 2 tasks | 4 files |
+| Phase 05 P05 | 1m05s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -134,6 +135,11 @@ Recent decisions affecting current work:
 - [Phase 05]: Plan 05-04: `formatYmdHm` uses LOCAL time (`getHours`, `getMinutes`) not UTC and avoids `toLocaleString` family entirely — D-15 locale-independent contract enforced by acceptance grep counts (padStart=4, toLocale*/getUTC=0). Returns `'-'` on null/undefined/empty/invalid-date inputs rather than throwing, so a missing backend timestamp does not crash a history row
 - [Phase 05]: Plan 05-04: `MODERATION_ERROR_KEY_MAP` is `as const`-asserted so `t[mapped]` at downstream call sites stays literal-typed against the translations.ts string-literal union; `ModerationErrorCode = keyof typeof MODERATION_ERROR_KEY_MAP` derives the code-union from a single source of truth. Map covers 11 Phase-2 codes; unmapped codes (e.g. `provider_suspended`, `deprecated` from the widened `ModerationError.code` type) intentionally fall back to `t.errGeneric` per T-05-04-03 mitigation
 - [Phase 05]: Plan 05-04: Two new routes appended at the END of `RootStackParamList` (not alphabetized) — preserves 21 pre-existing entries byte-identical; inline `{ targetUid: string }` param shape follows existing CarDetails/SellerListings convention; neither route registered in `linking.config.screens` (admin nav is in-app only, T-05-04-04 acceptance)
+- [Phase 05]: Plan 05-05: SeverityBadge label lookup uses `(t as Record<string, string>)[labelKey]` with defensive `?? state` fallback — decouples the component from the full TRANSLATIONS key union (which grows every phase) while still giving compile-time safety on the STATE_TO_LABEL_KEY table; the `?? state` fallback closes the narrow runtime hole opened by the cast (T-05-05-02 mitigation)
+- [Phase 05]: Plan 05-05: SeverityBadge pill uses `alignSelf: 'flex-start'` (pill hugs content) + `lineHeight: SIZES.badgeHeight` (vertical centering via line-box, not flex alone) — iOS and Android flex vertical centering render short pill text slightly differently; locking lineHeight to container height gives pixel-stable output on both. Mirrors the existing `typeBadge` pattern at AdminDashboardScreen.tsx:163-175
+- [Phase 05]: Plan 05-05: EmptyState imports `LucideIcon` as a TYPE only (`import type {...}`) — no runtime cost, no accidental full-icon-registry pull; JSX destructuring rename `icon: Icon` is required because React parses lowercase identifiers as host elements
+- [Phase 05]: Plan 05-05: EmptyState body capped at `maxWidth: 280` — keeps two-line copy readable on standard phone widths (375-414pt); longer copy wraps to 3+ lines and pushes the icon+title off-screen on iPhone SE form factor. `size={40}` on the icon stays literal-numeric (not a theme token) because Lucide treats icon sizing as a per-consumer decision; Plan 05-02 did not add it to the SIZES scale for a single call site
+- [Phase 05]: Plan 05-05: Both components are pure presentational — no data fetching, no service calls, no business logic — and consume ONLY theme tokens (COLORS.moderation, TYPOGRAPHY, SIZES) plus translations via useLanguage(). Acceptance criteria lock zero hardcoded hex (count=0 after filtering COLORS.* references) on both files
 
 ### Pending Todos
 
@@ -160,6 +166,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-18T18:20:04Z
-Stopped at: Phase 05 Plan 04 complete (useDebouncedValue + formatYmdHm + moderationErrorKeyMap + nav route types — 3 new files + 1 modified, 2 commits)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-05-PLAN.md
+Last session: 2026-04-18T18:23:44Z
+Stopped at: Phase 05 Plan 05 complete (SeverityBadge + EmptyState shared primitives — 2 new files, 2 commits)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-06-PLAN.md
