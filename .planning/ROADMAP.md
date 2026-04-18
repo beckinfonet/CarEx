@@ -108,7 +108,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 05-03-PLAN.md — ModerationService.searchUsers + getHistory real impl + typed response envelopes
   - [x] 05-04-PLAN.md — useDebouncedValue hook + formatYmdHm util + moderationErrorKeyMap util + nav route types
   - [x] 05-05-PLAN.md — SeverityBadge + EmptyState shared primitives
-  - [ ] 05-06-PLAN.md — QuickActionSheet (role-explicit delete — TWO rows for dual-role users) + ModerationActionModal + TypedConfirmationModal interactive components
+  - [x] 05-06-PLAN.md — QuickActionSheet (role-explicit delete — TWO rows for dual-role users) + ModerationActionModal + TypedConfirmationModal interactive components
   - [ ] 05-07-PLAN.md — AdminModerationScreen (NEW) — search, filter, infinite scroll, action plumbing, `pendingDeleteRole` pass-through
   - [ ] 05-08-PLAN.md — AdminUserDetailScreen (NEW) — sticky summary, paginated history, unsuspend flow
   - [ ] 05-09-PLAN.md — Repurpose AdminManagementScreen (with `pendingDeleteRole` pass-through) + AdminDashboardScreen nav card + App.tsx wiring + fill Wave 0 service+hook+util tests + populate 05-VALIDATION.md + final guardrails
@@ -141,5 +141,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Admin Moderation Endpoints (Backend) | 0/TBD | Not started | - |
 | 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
 | 4. Mobile Plumbing (Mobile) | 7/7 | Complete | 2026-04-18 |
-| 5. Admin Moderation UI (Mobile) | 5/12 | In progress | - |
+| 5. Admin Moderation UI (Mobile) | 6/12 | In progress | - |
 | 6. Affected-User UX + Security Review (Both) | 0/TBD | Not started | - |

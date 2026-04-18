@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: In progress
 stopped_at: Phase 5 executing (mobile plans only; backend 05-0a/0b deferred)
-last_updated: "2026-04-18T18:23:44Z"
-last_activity: 2026-04-18 -- Phase 05 Plan 05 complete (SeverityBadge + EmptyState shared primitives)
+last_updated: "2026-04-18T18:31:32Z"
+last_activity: 2026-04-18 -- Phase 05 Plan 06 complete (QuickActionSheet + ModerationActionModal + TypedConfirmationModal interactive components)
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 37
-  completed_plans: 30
-  percent: 81
+  completed_plans: 31
+  percent: 84
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 05 (Admin Moderation UI (Mobile)) — executing 10 mobile plans (backend 05-0a/0b deferred to separate repo)
-Next: Wave 2 — Plan 05-06 (QuickActionSheet + ModerationActionModal + TypedConfirmationModal interactive components)
-Last activity: 2026-04-18 -- Phase 05 Plan 05 complete (SeverityBadge + EmptyState shared primitives)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-06-PLAN.md
+Next: Wave 3 — Plan 05-07 (AdminModerationScreen — search, filter, infinite scroll, action plumbing)
+Last activity: 2026-04-18 -- Phase 05 Plan 06 complete (QuickActionSheet + ModerationActionModal + TypedConfirmationModal interactive components)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-07-PLAN.md
 
-Progress: [█████░░░░░] 50% (Phase 05 execution, 5/10 plans complete)
+Progress: [██████░░░░] 60% (Phase 05 execution, 6/10 plans complete)
 
 ## Performance Metrics
 
@@ -69,6 +69,7 @@ Progress: [█████░░░░░] 50% (Phase 05 execution, 5/10 plans c
 | Phase 05 P03 | 2min | 2 tasks | 1 file |
 | Phase 05 P04 | 1m17s | 2 tasks | 4 files |
 | Phase 05 P05 | 1m05s | 2 tasks | 2 files |
+| Phase 05 P06 | 3m20s | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -140,6 +141,12 @@ Recent decisions affecting current work:
 - [Phase 05]: Plan 05-05: EmptyState imports `LucideIcon` as a TYPE only (`import type {...}`) — no runtime cost, no accidental full-icon-registry pull; JSX destructuring rename `icon: Icon` is required because React parses lowercase identifiers as host elements
 - [Phase 05]: Plan 05-05: EmptyState body capped at `maxWidth: 280` — keeps two-line copy readable on standard phone widths (375-414pt); longer copy wraps to 3+ lines and pushes the icon+title off-screen on iPhone SE form factor. `size={40}` on the icon stays literal-numeric (not a theme token) because Lucide treats icon sizing as a per-consumer decision; Plan 05-02 did not add it to the SIZES scale for a single call site
 - [Phase 05]: Plan 05-05: Both components are pure presentational — no data fetching, no service calls, no business logic — and consume ONLY theme tokens (COLORS.moderation, TYPOGRAPHY, SIZES) plus translations via useLanguage(). Acceptance criteria lock zero hardcoded hex (count=0 after filtering COLORS.* references) on both files
+- [Phase 05]: Plan 05-06: Dual-role delete contract resolved at the UI layer (RESEARCH §Pitfall 11) — QuickActionSheet predicate `hasBroker && hasLogistics` renders TWO distinct rows (deleteBrokerProfile + deleteLogisticsProfile), each with explicit `role` payload. Single-role fallback row computes role inline from the sole truthy provider-status; the `undefined` branch is belt-and-braces since `canDeleteProfile` disables the row but the guard prevents a future refactor silently posting an empty-role DELETE body
+- [Phase 05]: Plan 05-06: ModerationActionPayload is a discriminated union on `action` across 4 variants — each variant carries the typed body shape (SuspendBody/UnsuspendBody/RevokeRoleBody/EditProfileBody) from ModerationService. Forces parent screens to exhaustively handle all 4 cases at compile time. delete_profile deliberately uses TypedConfirmationModal directly, NOT this modal (per UI-SPEC Component 4 table)
+- [Phase 05]: Plan 05-06: All 3 components are purely presentational per D-08 — `grep -c 'ModerationService\.' returns 0 on every file; only ModerationActionModal imports ModerationService as a TYPE. Parent screens (Plans 05-07, 05-08, 05-09) own every runtime service call + optimistic row flip + rollback. Prevents any component from taking responsibility for the optimistic/rollback dance, which belongs at the row/screen level where state lives
+- [Phase 05]: Plan 05-06: TypedConfirmationModal sentinel matching uses `input.trim().toLowerCase() === target.email.trim().toLowerCase()` — literal string equality, no regex. Hint interpolation uses String.prototype.replace('{email}', ...) — literal substring, not template. keyboardType='email-address' + autoCapitalize='none' + autoCorrect=false together prevent iOS autocorrect from turning a correctly-typed email into a mismatch
+- [Phase 05]: Plan 05-06: Modal + overlay + stop-prop pattern mirrored from FilterModal.tsx across all 3 components — outer `<Pressable onPress={onClose}>` + inner `<Pressable onPress={() => {}}>`. RN Pressable swallows the press when onPress is set, so inner taps never bubble to the overlay. No preventDefault/stopPropagation calls needed
+- [Phase 05]: Plan 05-06: editHasChanges uses `JSON.stringify(before ?? null) !== JSON.stringify(after ?? null)` rather than reference equality — safely handles arrays (coverageAreas, timelines) vs undefined baseline without adding a deep-equal dependency. The `?? null` normalization prevents `undefined !== null` false positives across the before/after axes
 
 ### Pending Todos
 
@@ -166,6 +173,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-18T18:23:44Z
-Stopped at: Phase 05 Plan 05 complete (SeverityBadge + EmptyState shared primitives — 2 new files, 2 commits)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-06-PLAN.md
+Last session: 2026-04-18T18:31:32Z
+Stopped at: Phase 05 Plan 06 complete (QuickActionSheet + ModerationActionModal + TypedConfirmationModal — 3 new files, 3 commits)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-07-PLAN.md
