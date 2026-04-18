@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Schema + Security Baseline (Backend)** - Install firebase-admin, add moderation schemas, backfill existing data (completed 2026-04-17)
 - [ ] **Phase 2: Admin Moderation Endpoints (Backend)** - POST/GET/PATCH/DELETE moderation routes with transactions, audit writes, rate limiting
 - [ ] **Phase 3: Backend Enforcement (Backend)** - requireNotSuspended on write endpoints, pre-find hiding, payment-confirm re-check
-- [ ] **Phase 4: Mobile Plumbing (Mobile)** - Shared http client, ModerationService, 403 interceptor, AppState refresh
+- [x] **Phase 4: Mobile Plumbing (Mobile)** - Shared http client, ModerationService, 403 interceptor, AppState refresh (completed 2026-04-18)
 - [ ] **Phase 5: Admin Moderation UI (Mobile)** - Quick actions on AdminManagementScreen + new AdminModerationScreen with search and history
 - [ ] **Phase 6: Affected-User UX + Security Review (Both)** - Banner, FeatureGateOverlay, appeal CTA, translations audit, load test, security review
 
@@ -128,6 +128,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Schema + Security Baseline (Backend) | 6/6 | Complete   | 2026-04-17 |
 | 2. Admin Moderation Endpoints (Backend) | 0/TBD | Not started | - |
 | 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
-| 4. Mobile Plumbing (Mobile) | 7/7 | Pending verification | - |
+| 4. Mobile Plumbing (Mobile) | 7/7 | Complete | 2026-04-18 |
 | 5. Admin Moderation UI (Mobile) | 0/TBD | Not started | - |
 | 6. Affected-User UX + Security Review (Both) | 0/TBD | Not started | - |
