@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: In progress
 stopped_at: Phase 5 executing (mobile plans only; backend 05-0a/0b deferred)
-last_updated: "2026-04-18T18:03:24Z"
-last_activity: 2026-04-18 -- Phase 05 Plan 01 complete (Wave 0 test scaffolds)
+last_updated: "2026-04-18T18:10:08Z"
+last_activity: 2026-04-18 -- Phase 05 Plan 02 complete (theme tokens + RU/EN translation keys)
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 37
-  completed_plans: 26
-  percent: 70
+  completed_plans: 27
+  percent: 73
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 05 (Admin Moderation UI (Mobile)) — executing 10 mobile plans (backend 05-0a/0b deferred to separate repo)
-Next: Wave 1 — Plan 05-02 (theme tokens + ~72 RU/EN translation keys)
-Last activity: 2026-04-18 -- Phase 05 Plan 01 complete (Wave 0 test scaffolds)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-02-PLAN.md
+Next: Wave 2 — Plan 05-03 (ModerationService.searchUsers + getHistory real impl)
+Last activity: 2026-04-18 -- Phase 05 Plan 02 complete (theme tokens + 131 RU/EN translation keys)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-03-PLAN.md
 
-Progress: [█░░░░░░░░░] 10% (Phase 05 execution, 1/10 plans complete)
+Progress: [██░░░░░░░░] 20% (Phase 05 execution, 2/10 plans complete)
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Progress: [█░░░░░░░░░] 10% (Phase 05 execution, 1/10 plans c
 | Phase 03 P05 | 2m10s | 1 tasks | 1 files |
 | Phase 03 P06 | 8m44s | 3 tasks | 5 files |
 | Phase 05 P01 | 3m14s | 2 tasks | 13 files |
+| Phase 05 P02 | 3m14s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,11 @@ Recent decisions affecting current work:
 - [Phase 05]: Plan 05-01: 13 Wave 0 jest test scaffolds created with test.todo placeholders across 5 directories (src/services/moderation/__tests__, src/hooks/__tests__, src/utils/__tests__, src/components/moderation/__tests__, src/screens/__tests__) — every scaffold imports its not-yet-existing module under test so Wave 1+ plans get both a real <automated> verify target AND a compile-time wiring check
 - [Phase 05]: Plan 05-01: Dual-role delete contract (D-04 / RESEARCH §Pitfall 11) locked from Wave 0 across three scaffolds — QuickActionSheet.test.tsx (3 explicit test.todo entries + deleteBrokerProfile + deleteLogisticsProfile mock keys), AdminManagementScreen.test.tsx (explicit-role pass-through test.todo), AdminModerationScreen.test.tsx (same) — prevents any Wave 1+ plan from silently defaulting to broker when both provider profiles are APPROVED
 - [Phase 05]: Plan 05-01: useDebouncedValue.test.ts scaffold uses react-test-renderer + jest.useFakeTimers (already installed) instead of @testing-library/react-hooks (not installed) — driven via a local Harness component so Wave 4 can fill bodies with TestRenderer.create + act(jest.advanceTimersByTime) without a new test dep
+- [Phase 05]: Plan 05-02: `adminUsers` collision resolved via dual-key strategy — legacy `adminUsers: 'Администраторы' / 'Administrators'` preserved verbatim (Profile menu consumer); new `adminUsersTitle: 'Пользователи' / 'Users'` added for the repurposed AdminManagementScreen header (RESEARCH §Pitfall 8). Both keys coexist; Plan 05-09 must import the intended one
+- [Phase 05]: Plan 05-02: Dual-role delete labels `deleteBrokerProfile` + `deleteLogisticsProfile` land in both RU and EN — D-04 / RESEARCH §Pitfall 11 contract now has STRING-layer support matching the Wave 0 scaffold-layer lock. QuickActionSheet (Plan 05-06) renders both rows when target user has BOTH broker AND logistics APPROVED; no silent broker default possible once the labels hard-code the role name
+- [Phase 05]: Plan 05-02: COLORS.success preserved at `#22C55E` (legacy); COLORS.successFg (`#4ADE80`) added as a new separate token aligned with COLORS.moderation.active.fg — T-05-02-03 mitigation. Existing call sites of COLORS.success continue to resolve unchanged; new moderation code uses COLORS.successFg where tonal alignment with active-severity badge matters
+- [Phase 05]: Plan 05-02: TYPOGRAPHY fontWeight values pinned with `as const` (6 instances — one per variant) — without it TypeScript widens to `string`, which React Native StyleSheet rejects (only the literal union `'normal' | 'bold' | '100' | ... | '900'` is accepted). Acceptance criterion locks count at exactly 6
+- [Phase 05]: Plan 05-02: Strict RU/EN parity enforced by sorted key-set diff — 455 = 455 keys at end of plan; verified by Node script extracting `^ {4}([a-zA-Z][a-zA-Z0-9]*):` from each language block. Banner comment `// ---- Phase 5 — Admin Moderation UI (UI-SPEC §10) ----` appears exactly 2× (once per language)
 
 ### Pending Todos
 
@@ -144,6 +150,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-18T18:03:24Z
-Stopped at: Phase 05 Plan 01 complete (Wave 0 test scaffolds — 13 files, 2 commits)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-02-PLAN.md
+Last session: 2026-04-18T18:10:08Z
+Stopped at: Phase 05 Plan 02 complete (theme tokens + 131 RU/EN translation keys — 2 files, 2 commits)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-03-PLAN.md
