@@ -28,6 +28,8 @@ import { ServiceProfileScreen } from './src/screens/ServiceProfileScreen';
 import { ServiceDetailsScreen } from './src/screens/ServiceDetailsScreen';
 import { AdminDashboardScreen } from './src/screens/AdminDashboardScreen';
 import { AdminManagementScreen } from './src/screens/AdminManagementScreen';
+import { AdminModerationScreen } from './src/screens/AdminModerationScreen';
+import { AdminUserDetailScreen } from './src/screens/AdminUserDetailScreen';
 import { OfflineNotice } from './src/components/OfflineNotice';
 import { RootStackParamList } from './src/types/navigation';
 import { LanguageProvider } from './src/context/LanguageContext';
@@ -109,6 +111,8 @@ function App() {
                 <Stack.Screen name="ProviderOrders" component={ProviderOrdersScreen} />
                 <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
                 <Stack.Screen name="AdminManagement" component={AdminManagementScreen} />
+                <Stack.Screen name="AdminModeration" component={AdminModerationScreen} />
+                <Stack.Screen name="AdminUserDetail" component={AdminUserDetailScreen} />
               </Stack.Navigator>
             </NavigationContainer>
             </LanguageProvider>

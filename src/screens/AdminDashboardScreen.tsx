@@ -12,11 +12,15 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft, CheckCircle, XCircle, Phone, Mail, Calendar, ShieldCheck } from 'lucide-react-native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ArrowLeft, CheckCircle, XCircle, Phone, Mail, Calendar, ShieldCheck, Shield } from 'lucide-react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { AuthService } from '../services/AuthService';
+import type { RootStackParamList } from '../types/navigation';
+
+type AdminDashboardNav = NativeStackNavigationProp<RootStackParamList, 'AdminDashboard'>;
 
 type Tab = 'all' | 'seller' | 'broker' | 'logistics';
 
@@ -36,7 +40,7 @@ interface PendingRequest {
 export const AdminDashboardScreen = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const navigation = useNavigation();
+  const navigation = useNavigation<AdminDashboardNav>();
   const [activeTab, setActiveTab] = useState<Tab>('all');
   const [requests, setRequests] = useState<{ sellers: PendingRequest[]; brokers: PendingRequest[]; logistics: PendingRequest[] }>({ sellers: [], brokers: [], logistics: [] });
   const [loading, setLoading] = useState(true);
@@ -242,6 +246,18 @@ export const AdminDashboardScreen = () => {
         <View style={{ width: 40 }} />
       </View>
 
+      <TouchableOpacity
+        style={styles.moderationCard}
+        onPress={() => navigation.navigate('AdminModeration')}
+        accessibilityRole="button"
+        accessibilityLabel={t.adminModerationTitle}
+      >
+        <Shield size={24} color={COLORS.accent} />
+        <View style={styles.moderationCardText}>
+          <Text style={styles.moderationCardTitle}>{t.adminModerationTitle}</Text>
+        </View>
+      </TouchableOpacity>
+
       <View style={styles.tabBar}>
         {tabs.map(tab => (
           <TouchableOpacity
@@ -302,6 +318,25 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  moderationCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: COLORS.cardBackground,
+    padding: SIZES.padding,
+    marginHorizontal: SIZES.padding,
+    marginVertical: 10,
+    borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    minHeight: 44,
+  },
+  moderationCardText: { flex: 1 },
+  moderationCardTitle: {
+    color: COLORS.textPrimary,
+    fontSize: 16,
+    fontWeight: '600',
   },
   tabBar: {
     flexDirection: 'row',
