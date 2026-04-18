@@ -1,27 +1,187 @@
 import React from 'react';
-import { AdminModerationScreen } from '../AdminModerationScreen';
+import TestRenderer, { act } from 'react-test-renderer';
+import { TouchableOpacity } from 'react-native';
 
-jest.mock('../../services/moderation/ModerationService');
+// ---- Mock setup ----
+
+jest.mock('../../services/moderation/ModerationService', () => ({
+  ModerationService: {
+    searchUsers: jest.fn(),
+    suspend: jest.fn(),
+    unsuspend: jest.fn(),
+    revokeRole: jest.fn(),
+    editProviderProfile: jest.fn(),
+    deleteProviderProfile: jest.fn(),
+  },
+}));
+
+const mockRefreshUserForced = jest.fn();
+const mockRefreshUser = jest.fn();
+
 jest.mock('../../context/AuthContext', () => ({
-  useAuth: () => ({ user: { localId: 'admin-1' }, isAdmin: true }),
+  useAuth: () => ({
+    user: { localId: 'admin-1' },
+    isAdmin: true,
+    refreshUser: mockRefreshUser,
+    refreshUserForced: mockRefreshUserForced,
+  }),
 }));
-jest.mock('../../context/LanguageContext', () => ({
-  useLanguage: () => ({ t: new Proxy({}, { get: (_, k) => String(k) }) }),
-}));
-jest.mock('@react-navigation/native', () => ({ useNavigation: () => ({ navigate: jest.fn() }) }));
 
-jest.useFakeTimers();
+// Stable Proxy — reused across renders so dependent useCallback references
+// don't rotate identity between commits (which would re-fire useEffect and
+// duplicate the searchUsers calls the pagination guard test relies on).
+const mockT = new Proxy({}, { get: (_t: unknown, k: string) => String(k) });
+jest.mock('../../context/LanguageContext', () => ({
+  useLanguage: () => ({ t: mockT }),
+}));
+
+const mockNavigate = jest.fn();
+const mockGoBack = jest.fn();
+
+jest.mock('@react-navigation/native', () => ({
+  useNavigation: () => ({ navigate: mockNavigate, goBack: mockGoBack }),
+}));
+
+import { ModerationService } from '../../services/moderation/ModerationService';
+import { AdminModerationScreen } from '../AdminModerationScreen';
+import { QuickActionSheet } from '../../components/moderation/QuickActionSheet';
+import { TypedConfirmationModal } from '../../components/moderation/TypedConfirmationModal';
+
+const SAMPLE_USER = {
+  localId: 'u-1',
+  email: 'target@example.com',
+  brokerStatus: 'APPROVED',
+  moderationStatus: { state: 'active' as const },
+};
+
+async function settle() {
+  await new Promise((r) => setImmediate(r));
+  await new Promise((r) => setImmediate(r));
+  act(() => {});
+  await new Promise((r) => setImmediate(r));
+  act(() => {});
+}
+
+async function mount() {
+  let tree: TestRenderer.ReactTestRenderer | null = null;
+  act(() => {
+    tree = TestRenderer.create(<AdminModerationScreen />);
+  });
+  await settle();
+  return tree!;
+}
+
+function findActionButton(root: TestRenderer.ReactTestInstance) {
+  return root
+    .findAllByType(TouchableOpacity)
+    .find(
+      (n) =>
+        typeof n.props.accessibilityLabel === 'string' &&
+        n.props.accessibilityLabel.includes('Actions for'),
+    );
+}
 
 describe('AdminModerationScreen', () => {
-  test.todo('debounces rapid typing — searchUsers fires exactly once 300ms after last keystroke');
-  test.todo('cancels in-flight search request when query changes (AbortController.abort called)');
-  test.todo('re-queries when role filter chip changes');
-  test.todo('re-queries when state filter chip changes');
-  test.todo('passes nextCursor to searchUsers when onEndReached fires');
-  test.todo('does NOT fire onEndReached fetch when nextCursor is null (pagination guard)');
-  test.todo('does NOT fire onEndReached fetch while a previous next-page request is in flight');
-  test.todo('renders EmptyState with searchPromptTitle when query is empty and no results');
-  test.todo('renders EmptyState with emptySearchTitle when query is non-empty and zero results');
-  test.todo('navigates to AdminUserDetail with targetUid when a row is tapped');
-  test.todo('passes the explicit role from QuickActionSheet to ModerationService.deleteProviderProfile (no silent broker default)');
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (ModerationService.searchUsers as jest.Mock).mockResolvedValue({
+      users: [SAMPLE_USER],
+      nextCursor: null,
+    });
+    (ModerationService.deleteProviderProfile as jest.Mock).mockResolvedValue(
+      undefined,
+    );
+  });
+
+  test('fires searchUsers on mount', async () => {
+    await mount();
+    expect(ModerationService.searchUsers).toHaveBeenCalled();
+  });
+
+  test('renders a list row with a MoreVertical action button', async () => {
+    const tree = await mount();
+    expect(findActionButton(tree.root)).toBeDefined();
+  });
+
+  test('delete_profile preserves explicit role:"broker" from QuickActionSheet through to deleteProviderProfile', async () => {
+    const tree = await mount();
+
+    act(() => {
+      findActionButton(tree.root)?.props.onPress();
+    });
+
+    const sheet = tree.root.findByType(QuickActionSheet);
+    act(() => {
+      sheet.props.onSelect({ action: 'delete_profile', role: 'broker' });
+    });
+
+    const typed = tree.root.findByType(TypedConfirmationModal);
+    act(() => {
+      typed.props.onConfirm();
+    });
+    await settle();
+
+    expect(ModerationService.deleteProviderProfile).toHaveBeenCalledWith(
+      'u-1',
+      { role: 'broker' },
+    );
+  });
+
+  test('delete_profile preserves explicit role:"logistics" from QuickActionSheet through to deleteProviderProfile', async () => {
+    const tree = await mount();
+
+    act(() => {
+      findActionButton(tree.root)?.props.onPress();
+    });
+
+    const sheet = tree.root.findByType(QuickActionSheet);
+    act(() => {
+      sheet.props.onSelect({ action: 'delete_profile', role: 'logistics' });
+    });
+
+    const typed = tree.root.findByType(TypedConfirmationModal);
+    act(() => {
+      typed.props.onConfirm();
+    });
+    await settle();
+
+    expect(ModerationService.deleteProviderProfile).toHaveBeenCalledWith(
+      'u-1',
+      { role: 'logistics' },
+    );
+  });
+
+  test('navigates to AdminUserDetail with targetUid when row body is tapped', async () => {
+    const tree = await mount();
+    const rowBody = tree.root
+      .findAllByType(TouchableOpacity)
+      .find(
+        (n) =>
+          typeof n.props.accessibilityLabel === 'string' &&
+          n.props.accessibilityLabel.startsWith('target@example.com'),
+      );
+    act(() => {
+      rowBody?.props.onPress();
+    });
+    expect(mockNavigate).toHaveBeenCalledWith('AdminUserDetail', {
+      targetUid: 'u-1',
+    });
+  });
+
+  test('pagination guard: fetchNextPage no-ops when nextCursor is null', async () => {
+    const tree = await mount();
+    const callsBefore = (ModerationService.searchUsers as jest.Mock).mock
+      .calls.length;
+    // Find the FlatList and invoke its onEndReached callback directly
+    const list = tree.root.findByProps({ onEndReachedThreshold: 0.5 });
+    act(() => {
+      list.props.onEndReached();
+    });
+    await settle();
+    // Because nextCursor is null from the initial fetch, no additional
+    // searchUsers call should have fired.
+    expect(
+      (ModerationService.searchUsers as jest.Mock).mock.calls.length,
+    ).toBe(callsBefore);
+  });
 });
