@@ -253,14 +253,23 @@ export const ModerationService = {
 
   // --- Reads ---
 
-  // Stub until Phase 5 adds GET /api/admin/moderation/:targetUid/history.
-  // Post-Phase-5 replacement:
-  //   const response = await apiClient.get(`/api/admin/moderation/${_targetUid}/history`);
-  //   return response.data;
-  // The stub exists now so that admin screens in Plan 05 can type-check
-  // against the full ModerationService surface; any accidental call before
-  // Phase 5 ships fails loudly with this exact error message.
-  getHistory: async (_targetUid: string): Promise<never> => {
-    throw new Error('Not implemented — Phase 5 adds the /history route');
+  getHistory: async (
+    targetUid: string,
+    query: GetHistoryQuery = {},
+    config?: { signal?: AbortSignal },
+  ): Promise<GetHistoryResult> => {
+    try {
+      const response = await apiClient.get(
+        `/api/admin/moderation/${targetUid}/history`,
+        {
+          params: query,
+          signal: config?.signal,
+        },
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch moderation history', error);
+      throw error;
+    }
   },
 };
