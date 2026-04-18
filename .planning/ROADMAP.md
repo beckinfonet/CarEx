@@ -103,7 +103,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 12 plans
   - [ ] 05-0a-PLAN.md — Backend `GET /api/admin/moderation/:targetUid/history` route + jest+supertest coverage (cross-repo) (UI-03, UI-04)
   - [ ] 05-0b-PLAN.md — Backend `GET /api/admin/users/search` route with ReDoS-escape + allowlisted filters + cursor pagination + jest+supertest coverage (cross-repo) (UI-02)
-  - [ ] 05-01-PLAN.md — Wave 0 test scaffolds for service+hook+util+component+screen layers (includes 3 dual-role delete test.todo entries; useDebouncedValue scaffold uses react-test-renderer)
+  - [x] 05-01-PLAN.md — Wave 0 test scaffolds for service+hook+util+component+screen layers (includes 3 dual-role delete test.todo entries; useDebouncedValue scaffold uses react-test-renderer)
   - [ ] 05-02-PLAN.md — Theme tokens (COLORS.moderation, role, TYPOGRAPHY) + ~72 RU/EN translation keys (adds `deleteBrokerProfile` + `deleteLogisticsProfile` for dual-role delete rows)
   - [ ] 05-03-PLAN.md — ModerationService.searchUsers + getHistory real impl + typed response envelopes
   - [ ] 05-04-PLAN.md — useDebouncedValue hook + formatYmdHm util + moderationErrorKeyMap util + nav route types
@@ -141,5 +141,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Admin Moderation Endpoints (Backend) | 0/TBD | Not started | - |
 | 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
 | 4. Mobile Plumbing (Mobile) | 7/7 | Complete | 2026-04-18 |
-| 5. Admin Moderation UI (Mobile) | 0/12 | Not started | - |
+| 5. Admin Moderation UI (Mobile) | 1/12 | In progress | - |
 | 6. Affected-User UX + Security Review (Both) | 0/TBD | Not started | - |

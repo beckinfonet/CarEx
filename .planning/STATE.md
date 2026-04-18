@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: In progress
 stopped_at: Phase 5 executing (mobile plans only; backend 05-0a/0b deferred)
-last_updated: "2026-04-18T18:00:00.000Z"
-last_activity: 2026-04-18 -- Phase 05 execution started (mobile-only)
+last_updated: "2026-04-18T18:03:24Z"
+last_activity: 2026-04-18 -- Phase 05 Plan 01 complete (Wave 0 test scaffolds)
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 37
-  completed_plans: 25
-  percent: 68
+  completed_plans: 26
+  percent: 70
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 05 (Admin Moderation UI (Mobile)) — executing 10 mobile plans (backend 05-0a/0b deferred to separate repo)
-Next: Wave 0 — Plan 05-01 (test scaffolds)
-Last activity: 2026-04-18 -- Phase 05 execution started
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-01-PLAN.md
+Next: Wave 1 — Plan 05-02 (theme tokens + ~72 RU/EN translation keys)
+Last activity: 2026-04-18 -- Phase 05 Plan 01 complete (Wave 0 test scaffolds)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-02-PLAN.md
 
-Progress: [░░░░░░░░░░] 0% (Phase 05 execution, 0/10 plans complete)
+Progress: [█░░░░░░░░░] 10% (Phase 05 execution, 1/10 plans complete)
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Progress: [░░░░░░░░░░] 0% (Phase 05 execution, 0/10 plans co
 | Phase 03 P04 | 3min | 2 tasks tasks | 2 files files |
 | Phase 03 P05 | 2m10s | 1 tasks | 1 files |
 | Phase 03 P06 | 8m44s | 3 tasks | 5 files |
+| Phase 05 P01 | 3m14s | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,9 @@ Recent decisions affecting current work:
 - [Phase 03]: Plan 03-06: Tests do NOT boot server.js; each file builds its own minimal Express app (or calls services directly). Acceptance app inlines the five gated routes verbatim from Plan 03-03 so the middleware chain is a faithful reproduction without the server.js init weight (Mongo URI, Twilio, S3, Stripe, Firebase initializers)
 - [Phase 03]: Plan 03-06: ServiceOrder registered as a loose { strict: false } schema under the canonical name BEFORE requiring confirmBooking (which does mongoose.model('ServiceOrder') lazily) — mirrors __tests__/moderation/deleteProviderProfile.test.js pattern; decouples enforcement tests from server.js's inline ServiceOrder registration per Phase 1 D-02
 - [Phase 03]: Plan 03-06: Phase 1 DATA-03 test (ServiceOrder.providerSnapshot.test.js) now fails because Plan 03-05 replaced POST /api/orders with 410 Gone; logged to deferred-items.md as Plan 03-05 fallout; DATA-03 coverage preserved in the new confirmBooking.transaction.test.js case 1 (happy path asserts providerSnapshot.companyName)
+- [Phase 05]: Plan 05-01: 13 Wave 0 jest test scaffolds created with test.todo placeholders across 5 directories (src/services/moderation/__tests__, src/hooks/__tests__, src/utils/__tests__, src/components/moderation/__tests__, src/screens/__tests__) — every scaffold imports its not-yet-existing module under test so Wave 1+ plans get both a real <automated> verify target AND a compile-time wiring check
+- [Phase 05]: Plan 05-01: Dual-role delete contract (D-04 / RESEARCH §Pitfall 11) locked from Wave 0 across three scaffolds — QuickActionSheet.test.tsx (3 explicit test.todo entries + deleteBrokerProfile + deleteLogisticsProfile mock keys), AdminManagementScreen.test.tsx (explicit-role pass-through test.todo), AdminModerationScreen.test.tsx (same) — prevents any Wave 1+ plan from silently defaulting to broker when both provider profiles are APPROVED
+- [Phase 05]: Plan 05-01: useDebouncedValue.test.ts scaffold uses react-test-renderer + jest.useFakeTimers (already installed) instead of @testing-library/react-hooks (not installed) — driven via a local Harness component so Wave 4 can fill bodies with TestRenderer.create + act(jest.advanceTimersByTime) without a new test dep
 
 ### Pending Todos
 
@@ -140,6 +144,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-17T23:40:03.190Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-mobile-plumbing-mobile/04-CONTEXT.md
+Last session: 2026-04-18T18:03:24Z
+Stopped at: Phase 05 Plan 01 complete (Wave 0 test scaffolds — 13 files, 2 commits)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-02-PLAN.md
