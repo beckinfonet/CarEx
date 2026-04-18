@@ -110,7 +110,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 05-05-PLAN.md — SeverityBadge + EmptyState shared primitives
   - [x] 05-06-PLAN.md — QuickActionSheet (role-explicit delete — TWO rows for dual-role users) + ModerationActionModal + TypedConfirmationModal interactive components
   - [x] 05-07-PLAN.md — AdminModerationScreen (NEW) — search, filter, infinite scroll, action plumbing, `pendingDeleteRole` pass-through
-  - [ ] 05-08-PLAN.md — AdminUserDetailScreen (NEW) — sticky summary, paginated history, unsuspend flow
+  - [x] 05-08-PLAN.md — AdminUserDetailScreen (NEW) — sticky summary, paginated history, unsuspend flow
   - [ ] 05-09-PLAN.md — Repurpose AdminManagementScreen (with `pendingDeleteRole` pass-through) + AdminDashboardScreen nav card + App.tsx wiring + fill Wave 0 service+hook+util tests + populate 05-VALIDATION.md + final guardrails
   - [ ] 05-10-PLAN.md — Fill Wave 0 component+screen test scaffolds (8 files) with real assertions locking the dual-role delete contract end-to-end
 **UI hint**: yes

@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: In progress
 stopped_at: Phase 5 executing (mobile plans only; backend 05-0a/0b deferred)
-last_updated: "2026-04-18T18:40:28Z"
-last_activity: 2026-04-18 -- Phase 05 Plan 07 complete (AdminModerationScreen — search, filter, infinite scroll, role-explicit delete flow)
+last_updated: "2026-04-18T18:46:50Z"
+last_activity: 2026-04-18 -- Phase 05 Plan 08 complete (AdminUserDetailScreen — sticky summary, paginated history, unsuspend flow with optimistic PREPEND + rollback)
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 37
-  completed_plans: 32
-  percent: 86
+  completed_plans: 33
+  percent: 89
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 05 (Admin Moderation UI (Mobile)) — executing 10 mobile plans (backend 05-0a/0b deferred to separate repo)
-Next: Wave 3 — Plan 05-08 (AdminUserDetailScreen — sticky summary, paginated history, unsuspend flow)
-Last activity: 2026-04-18 -- Phase 05 Plan 07 complete (AdminModerationScreen — search, filter, infinite scroll, role-explicit delete flow)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-08-PLAN.md
+Next: Wave 4 — Plan 05-09 (Repurpose AdminManagementScreen + AdminDashboardScreen nav card + App.tsx wiring + fill Wave 0 tests)
+Last activity: 2026-04-18 -- Phase 05 Plan 08 complete (AdminUserDetailScreen — sticky summary, paginated history, unsuspend flow)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-09-PLAN.md
 
-Progress: [███████░░░] 70% (Phase 05 execution, 7/10 plans complete)
+Progress: [████████░░] 80% (Phase 05 execution, 8/10 plans complete)
 
 ## Performance Metrics
 
@@ -71,6 +71,7 @@ Progress: [███████░░░] 70% (Phase 05 execution, 7/10 plans c
 | Phase 05 P05 | 1m05s | 2 tasks | 2 files |
 | Phase 05 P06 | 3m20s | 3 tasks | 3 files |
 | Phase 05 P07 | 3m34s | 1 tasks | 1 files |
+| Phase 05 P08 | ~30s | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -151,6 +152,10 @@ Recent decisions affecting current work:
 - [Phase 05]: Plan 05-07: AdminModerationScreen SafeAreaView imported from `react-native-safe-area-context` (not stock `react-native`) — matches dominant project convention across HomeScreen/LoginScreen/SellCarScreen/SignupScreen/CarDetailsScreen/AdminManagementScreen. Plan PATTERNS code block used stock import but the screen follows the codebase pattern to preserve safe-area edge handling on display-cutout devices
 - [Phase 05]: Plan 05-07: handleActionSubmit synchronously clears `actionTarget`/`actionType` before escalating `permanently_banned` suspend or `revoke_role` to TypedConfirmationModal — prevents a one-frame overlap where both the action modal AND the destructive confirmation would render simultaneously. Plan PATTERNS did not include this (Rule 1 auto-fix)
 - [Phase 05]: Plan 05-07: Role-explicit delete pass-through enforced with TWO defensive guards — `handleQuickActionSelect` Alerts on missing `selection.role` and `TypedConfirmationModal.onConfirm` Alerts on missing `pendingDeleteRole`. The contract from QuickActionSheet (Plan 05-06) makes `selection.role` non-optional for delete_profile in practice; both guards are belt-and-braces against future refactors. Zero silent broker defaults exist in the screen (grep = 0 for `brokerStatus === 'APPROVED' ? 'broker' : 'logistics'`)
+- [Phase 05]: Plan 05-08: AdminUserDetailScreen uses `ListHeaderComponent={StickySummaryCard}` + `stickyHeaderIndices={[0]}` — UI-SPEC §Component 3 LOCKED pattern avoids the anti-pattern of FlatList nested inside a ScrollView while keeping the summary pinned during history scroll. `stickyHeaderIndices` is `[]` when target is null to prevent a stuck empty-header render
+- [Phase 05]: Plan 05-08: Optimistic history mutation is PREPEND-only on success path (`setHistory((curr) => [optimisticRow, ...curr])`) + full-restore on rollback (`setHistory(prevHistory)`); synthetic row id prefix `local-${Date.now()}` is grep-detectable (T-05-08-01). Discipline prevents append-only violation (D-15) while still giving instant visual feedback — pull-to-refresh is the reconciliation path
+- [Phase 05]: Plan 05-08: Target-user lookup uses searchUsers({ q: targetUid, limit: 5 }) with strict localId match first, then users[0] fallback, then Alert + navigation.goBack() on total miss — belt-and-braces closure of T-05-08-03 (hand-crafted invalid targetUid) and T-05-08-08 (wrong-user fallback). Route param stays locked at `{ targetUid: string }` per D-09
+- [Phase 05]: Plan 05-08: History card severity mapping only fires on `action === 'suspend'` with a real severity; non-severity actions (unsuspend/revoke_role/restore_role/edit_profile/delete_provider_profile) get `COLORS.accent` border as fallback. `severity === 'none'` is explicitly excluded from SeverityBadge rendering to avoid Severity-type narrowing bugs (ModerationActionRow.severity is `Severity | 'none'` per Plan 05-03)
 
 ### Pending Todos
 
@@ -177,6 +182,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-18T18:40:28Z
-Stopped at: Phase 05 Plan 07 complete (AdminModerationScreen — new screen with debounced search, role+state filters, infinite scroll, role-explicit delete flow — 1 new file, 1 commit)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-08-PLAN.md
+Last session: 2026-04-18T18:46:50Z
+Stopped at: Phase 05 Plan 08 complete (AdminUserDetailScreen — new screen with sticky summary card, paginated history list, and optimistic-with-rollback unsuspend flow — 1 new file, 1 commit)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-09-PLAN.md
