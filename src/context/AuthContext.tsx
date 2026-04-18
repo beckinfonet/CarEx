@@ -72,8 +72,15 @@ import {
     // source. Plan 04-01's client.ts holds the 1-of-2.
     const refreshUserInternal = async ({
       skipInterceptor,
+      force = false,
     }: {
       skipInterceptor: boolean;
+      // WR-01 (Phase 4 review): explicit user-initiated refreshes (e.g.
+      // requestSeller, verifyPhone) pass `force: true` to bypass the shared
+      // 30s cooldown. Dedupe and the logged-out guard still apply — only
+      // the cooldown is skipped. Passive callers (AppState foreground,
+      // screens polling on mount) continue to honor the cooldown.
+      force?: boolean;
     }): Promise<void> => {
       const currentUser = userRef.current;
       if (!currentUser?.localId) {
@@ -88,8 +95,10 @@ import {
       }
 
       const now = Date.now();
-      if (now - lastRefreshAtRef.current < 30_000) {
+      if (!force && now - lastRefreshAtRef.current < 30_000) {
         // Shared 30s cooldown for AppState + 403-interceptor paths.
+        // Bypassed when `force` is set so explicit user actions always
+        // surface their backend state mutation.
         return;
       }
 
@@ -121,6 +130,14 @@ import {
     // bounded by design.
     const refreshUser = async (): Promise<void> => {
       await refreshUserInternal({ skipInterceptor: false });
+    };
+
+    // WR-01 (Phase 4 review): explicit user-initiated refresh that bypasses
+    // the 30s cooldown. Used after mutations like requestSeller/Broker/
+    // Logistics and verifyPhone so the UI reflects the server's new state
+    // even when a prior passive refresh happened within the cooldown window.
+    const refreshUserForced = async (): Promise<void> => {
+      await refreshUserInternal({ skipInterceptor: false, force: true });
     };
 
     useEffect(() => {
@@ -245,21 +262,26 @@ import {
     const requestSeller = async () => {
       if (user && user.localId) {
         await AuthService.requestSellerStatus(user.localId);
-        await refreshUser();
+        // WR-01: explicit user action — bypass the 30s cooldown so the
+        // pending-request UI shows up immediately instead of waiting for
+        // the next AppState foreground transition.
+        await refreshUserForced();
       }
     };
 
     const requestBroker = async () => {
       if (user && user.localId) {
         await AuthService.requestBrokerStatus(user.localId);
-        await refreshUser();
+        // WR-01: explicit user action — bypass cooldown.
+        await refreshUserForced();
       }
     };
 
     const requestLogistics = async () => {
       if (user && user.localId) {
         await AuthService.requestLogisticsStatus(user.localId);
-        await refreshUser();
+        // WR-01: explicit user action — bypass cooldown.
+        await refreshUserForced();
       }
     };
 
@@ -272,7 +294,9 @@ import {
     const verifyPhone = async (code: string) => {
       if (!user?.phoneNumber || !user?.localId) return;
       await AuthService.verifyOtp(user.phoneNumber, code, user.localId);
-      await refreshUser();
+      // WR-01: explicit user action — bypass cooldown so isPhoneVerified
+      // flips to true immediately.
+      await refreshUserForced();
     };
 
     const deleteAccount = async () => {
