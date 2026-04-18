@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: Admin Moderation Endpoints (Backend)** - POST/GET/PATCH/DELETE moderation routes with transactions, audit writes, rate limiting
 - [ ] **Phase 3: Backend Enforcement (Backend)** - requireNotSuspended on write endpoints, pre-find hiding, payment-confirm re-check
 - [x] **Phase 4: Mobile Plumbing (Mobile)** - Shared http client, ModerationService, 403 interceptor, AppState refresh (completed 2026-04-18)
-- [ ] **Phase 5: Admin Moderation UI (Mobile)** - Quick actions on AdminManagementScreen + new AdminModerationScreen with search and history
+- [ ] **Phase 5: Admin Moderation UI (Mobile)** - Quick actions on AdminManagementScreen + new AdminModerationScreen with search and history (includes 2 backend read routes locked by D-16)
 - [ ] **Phase 6: Affected-User UX + Security Review (Both)** - Banner, FeatureGateOverlay, appeal CTA, translations audit, load test, security review
 
 ## Phase Details
@@ -91,16 +91,28 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 04-07-PLAN.md — End-to-end integration tests mapped to 4 ROADMAP success criteria (MOB-01..04 verification)
 
 ### Phase 5: Admin Moderation UI (Mobile)
-**Goal**: Admins can moderate users from the mobile app with per-row quick actions on the existing screen and deep search / history / unsuspend on a new dedicated screen
+**Goal**: Admins can moderate users from the mobile app with per-row quick actions on the existing screen and deep search / history / unsuspend on a new dedicated screen; ship the two backend read endpoints (`GET /api/admin/moderation/:targetUid/history` + `GET /api/admin/users/search`) locked by CONTEXT.md D-16 that power the detail + search UIs
 **Depends on**: Phase 4
-**Scope**: Mobile only (`carEx`)
+**Scope**: Mobile only (`carEx`) — PLUS two cross-repo backend plans (`backend-services/carEx-services`) for the new read routes per D-16
 **Requirements**: UI-01, UI-02, UI-03, UI-04
 **Success Criteria** (what must be TRUE):
-  1. On `AdminManagementScreen`, every approved user row has a quick-action menu (Suspend / Unsuspend / Revoke role / Delete profile / Edit profile); tapping an action opens a modal with severity picker (for suspend), preset reason picker (Spam / Policy violation / Fraud / Other), and optional note; confirm fires the corresponding `ModerationService` call and the row updates optimistically
-  2. `AdminModerationScreen` is reachable from navigation and supports searching users by email substring or Firebase UID prefix, filtering by role and moderation state, and paginated results
-  3. Opening a user from `AdminModerationScreen` shows a detail panel with full moderation history (every `ModerationAction` row for that user, most recent first) displaying action type, severity, admin who acted, timestamp, reason category, and note
+  1. On `AdminManagementScreen`, every approved user row has a quick-action menu (Suspend / Unsuspend / Revoke role / Delete profile / Edit profile); tapping an action opens a modal with severity picker (for suspend), preset reason picker (Spam / Policy violation / Fraud / Other), and optional note; confirm fires the corresponding `ModerationService` call and the row updates optimistically. A user with BOTH approved provider profiles (broker + logistics) sees TWO distinct delete rows ("Delete broker profile" / "Delete logistics profile"), each routing the explicit role verbatim through to `ModerationService.deleteProviderProfile` — no silent default
+  2. `AdminModerationScreen` is reachable from navigation and supports searching users by email substring or Firebase UID prefix, filtering by role and moderation state, and paginated results, backed by `GET /api/admin/users/search`
+  3. Opening a user from `AdminModerationScreen` shows a detail panel with full moderation history (every `ModerationAction` row for that user, most recent first) displaying action type, severity, admin who acted, timestamp, reason category, and note, backed by `GET /api/admin/moderation/:targetUid/history`
   4. The moderation history view has an Unsuspend button that, when tapped on a suspended user, calls `ModerationService.unsuspend`, appends a new audit entry to history (the prior rows are unchanged), and the user's current state transitions to `active`
-**Plans**: TBD
+**Plans**: 12 plans
+  - [ ] 05-0a-PLAN.md — Backend `GET /api/admin/moderation/:targetUid/history` route + jest+supertest coverage (cross-repo) (UI-03, UI-04)
+  - [ ] 05-0b-PLAN.md — Backend `GET /api/admin/users/search` route with ReDoS-escape + allowlisted filters + cursor pagination + jest+supertest coverage (cross-repo) (UI-02)
+  - [ ] 05-01-PLAN.md — Wave 0 test scaffolds for service+hook+util+component+screen layers (includes 3 dual-role delete test.todo entries; useDebouncedValue scaffold uses react-test-renderer)
+  - [ ] 05-02-PLAN.md — Theme tokens (COLORS.moderation, role, TYPOGRAPHY) + ~72 RU/EN translation keys (adds `deleteBrokerProfile` + `deleteLogisticsProfile` for dual-role delete rows)
+  - [ ] 05-03-PLAN.md — ModerationService.searchUsers + getHistory real impl + typed response envelopes
+  - [ ] 05-04-PLAN.md — useDebouncedValue hook + formatYmdHm util + moderationErrorKeyMap util + nav route types
+  - [ ] 05-05-PLAN.md — SeverityBadge + EmptyState shared primitives
+  - [ ] 05-06-PLAN.md — QuickActionSheet (role-explicit delete — TWO rows for dual-role users) + ModerationActionModal + TypedConfirmationModal interactive components
+  - [ ] 05-07-PLAN.md — AdminModerationScreen (NEW) — search, filter, infinite scroll, action plumbing, `pendingDeleteRole` pass-through
+  - [ ] 05-08-PLAN.md — AdminUserDetailScreen (NEW) — sticky summary, paginated history, unsuspend flow
+  - [ ] 05-09-PLAN.md — Repurpose AdminManagementScreen (with `pendingDeleteRole` pass-through) + AdminDashboardScreen nav card + App.tsx wiring + fill Wave 0 service+hook+util tests + populate 05-VALIDATION.md + final guardrails
+  - [ ] 05-10-PLAN.md — Fill Wave 0 component+screen test scaffolds (8 files) with real assertions locking the dual-role delete contract end-to-end
 **UI hint**: yes
 
 ### Phase 6: Affected-User UX + Security Review (Both)
@@ -129,5 +141,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Admin Moderation Endpoints (Backend) | 0/TBD | Not started | - |
 | 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
 | 4. Mobile Plumbing (Mobile) | 7/7 | Complete | 2026-04-18 |
-| 5. Admin Moderation UI (Mobile) | 0/TBD | Not started | - |
+| 5. Admin Moderation UI (Mobile) | 0/12 | Not started | - |
 | 6. Affected-User UX + Security Review (Both) | 0/TBD | Not started | - |
