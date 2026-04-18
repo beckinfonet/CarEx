@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: In progress
 stopped_at: Phase 5 executing (mobile plans only; backend 05-0a/0b deferred)
-last_updated: "2026-04-18T18:15:44Z"
-last_activity: 2026-04-18 -- Phase 05 Plan 03 complete (ModerationService.searchUsers + getHistory real impl)
+last_updated: "2026-04-18T18:20:04Z"
+last_activity: 2026-04-18 -- Phase 05 Plan 04 complete (useDebouncedValue + formatYmdHm + moderationErrorKeyMap + nav route types)
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 37
-  completed_plans: 28
-  percent: 76
+  completed_plans: 29
+  percent: 78
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 05 (Admin Moderation UI (Mobile)) — executing 10 mobile plans (backend 05-0a/0b deferred to separate repo)
-Next: Wave 1 — Plan 05-04 (useDebouncedValue hook + formatYmdHm util + moderationErrorKeyMap util + nav route types)
-Last activity: 2026-04-18 -- Phase 05 Plan 03 complete (ModerationService.searchUsers + getHistory real impl)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-04-PLAN.md
+Next: Wave 2 — Plan 05-05 (SeverityBadge + EmptyState shared primitives)
+Last activity: 2026-04-18 -- Phase 05 Plan 04 complete (useDebouncedValue + formatYmdHm + moderationErrorKeyMap + nav route types)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-05-PLAN.md
 
-Progress: [███░░░░░░░] 30% (Phase 05 execution, 3/10 plans complete)
+Progress: [████░░░░░░] 40% (Phase 05 execution, 4/10 plans complete)
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [███░░░░░░░] 30% (Phase 05 execution, 3/10 plans c
 | Phase 05 P01 | 3m14s | 2 tasks | 13 files |
 | Phase 05 P02 | 3m14s | 2 tasks | 2 files |
 | Phase 05 P03 | 2min | 2 tasks | 1 file |
+| Phase 05 P04 | 1m17s | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,10 @@ Recent decisions affecting current work:
 - [Phase 05]: Plan 05-03: ModerationActionRow.severity typed as `Severity | 'none'` (not just Severity) because unsuspend/revoke_role/restore_role/edit_profile/delete_provider_profile audit rows carry no severity — matches Phase 2 audit schema and prevents downstream discriminant narrowing bugs when rendering history rows
 - [Phase 05]: Plan 05-03: SearchUserItem.moderationStatus uses the full discriminated literal union (`'active' | 'feature_limited' | 'blocked_with_review' | 'permanently_banned'`) rather than reusing the `Severity` type alias — because `'active'` is NOT a valid Severity (Severity excludes active by design). Keeps filter query `state` type aligned with row `state` field without widening Severity
 - [Phase 05]: Plan 05-03: MOB-01 guardrail held exactly as prescribed — `grep -c 'suspend|revoke|moderation' src/services/AuthService.ts` = 0 unchanged baseline; all new HTTP stays in ModerationService. Existing 6 admin write methods byte-identical verified by `git diff` showing only additions + stub replacement scoped to `getHistory`
+- [Phase 05]: Plan 05-04: `useDebouncedValue` cleanup wired via `setTimeout`/`clearTimeout` inside `useEffect`; timer cleared on unmount AND on every value/delay change — matches RESEARCH pitfall mitigation for stale-render race (T-05-04-02 acceptance: closure captures value at schedule time, one-frame staleness is acceptable because the AdminModerationScreen effect re-runs on the new debounced value and AbortController invalidates the prior fetch)
+- [Phase 05]: Plan 05-04: `formatYmdHm` uses LOCAL time (`getHours`, `getMinutes`) not UTC and avoids `toLocaleString` family entirely — D-15 locale-independent contract enforced by acceptance grep counts (padStart=4, toLocale*/getUTC=0). Returns `'-'` on null/undefined/empty/invalid-date inputs rather than throwing, so a missing backend timestamp does not crash a history row
+- [Phase 05]: Plan 05-04: `MODERATION_ERROR_KEY_MAP` is `as const`-asserted so `t[mapped]` at downstream call sites stays literal-typed against the translations.ts string-literal union; `ModerationErrorCode = keyof typeof MODERATION_ERROR_KEY_MAP` derives the code-union from a single source of truth. Map covers 11 Phase-2 codes; unmapped codes (e.g. `provider_suspended`, `deprecated` from the widened `ModerationError.code` type) intentionally fall back to `t.errGeneric` per T-05-04-03 mitigation
+- [Phase 05]: Plan 05-04: Two new routes appended at the END of `RootStackParamList` (not alphabetized) — preserves 21 pre-existing entries byte-identical; inline `{ targetUid: string }` param shape follows existing CarDetails/SellerListings convention; neither route registered in `linking.config.screens` (admin nav is in-app only, T-05-04-04 acceptance)
 
 ### Pending Todos
 
@@ -155,6 +160,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-18T18:15:44Z
-Stopped at: Phase 05 Plan 03 complete (ModerationService.searchUsers + getHistory real impl — 1 file, 2 commits)
-Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-04-PLAN.md
+Last session: 2026-04-18T18:20:04Z
+Stopped at: Phase 05 Plan 04 complete (useDebouncedValue + formatYmdHm + moderationErrorKeyMap + nav route types — 3 new files + 1 modified, 2 commits)
+Resume file: .planning/phases/05-admin-moderation-ui-mobile/05-05-PLAN.md

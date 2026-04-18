@@ -106,7 +106,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 05-01-PLAN.md — Wave 0 test scaffolds for service+hook+util+component+screen layers (includes 3 dual-role delete test.todo entries; useDebouncedValue scaffold uses react-test-renderer)
   - [x] 05-02-PLAN.md — Theme tokens (COLORS.moderation, role, TYPOGRAPHY) + ~72 RU/EN translation keys (adds `deleteBrokerProfile` + `deleteLogisticsProfile` for dual-role delete rows)
   - [x] 05-03-PLAN.md — ModerationService.searchUsers + getHistory real impl + typed response envelopes
-  - [ ] 05-04-PLAN.md — useDebouncedValue hook + formatYmdHm util + moderationErrorKeyMap util + nav route types
+  - [x] 05-04-PLAN.md — useDebouncedValue hook + formatYmdHm util + moderationErrorKeyMap util + nav route types
   - [ ] 05-05-PLAN.md — SeverityBadge + EmptyState shared primitives
   - [ ] 05-06-PLAN.md — QuickActionSheet (role-explicit delete — TWO rows for dual-role users) + ModerationActionModal + TypedConfirmationModal interactive components
   - [ ] 05-07-PLAN.md — AdminModerationScreen (NEW) — search, filter, infinite scroll, action plumbing, `pendingDeleteRole` pass-through
@@ -141,5 +141,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Admin Moderation Endpoints (Backend) | 0/TBD | Not started | - |
 | 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
 | 4. Mobile Plumbing (Mobile) | 7/7 | Complete | 2026-04-18 |
-| 5. Admin Moderation UI (Mobile) | 3/12 | In progress | - |
+| 5. Admin Moderation UI (Mobile) | 4/12 | In progress | - |
 | 6. Affected-User UX + Security Review (Both) | 0/TBD | Not started | - |
