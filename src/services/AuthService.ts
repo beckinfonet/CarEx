@@ -1,6 +1,8 @@
 import axios from 'axios';
+import type { AxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../constants/config';
+import { apiClient } from './http/client';
 
 // Get API Key from your environment or hardcode for now if needed, 
 // but using the one from the plist you provided:
@@ -69,15 +71,15 @@ export const AuthService = {
   // Backend User Methods
   createBackendUser: async (firebaseUid: string, email: string) => {
     try {
-      await axios.post(`${API_URL}/api/users`, { firebaseUid, email });
+      await apiClient.post('/api/users', { firebaseUid, email });
     } catch (error) {
       console.error('Failed to create backend user', error);
     }
   },
 
-  getBackendUser: async (firebaseUid: string) => {
+  getBackendUser: async (firebaseUid: string, config?: AxiosRequestConfig) => {
     try {
-      const response = await axios.get(`${API_URL}/api/users/${firebaseUid}`);
+      const response = await apiClient.get(`/api/users/${firebaseUid}`, config);
       return response.data;
     } catch (error) {
       console.error('Failed to get backend user', error);
@@ -87,7 +89,7 @@ export const AuthService = {
 
   updateBackendUser: async (firebaseUid: string, data: any) => {
     try {
-      const response = await axios.put(`${API_URL}/api/users/${firebaseUid}`, data);
+      const response = await apiClient.put(`/api/users/${firebaseUid}`, data);
       return response.data;
     } catch (error) {
       console.error('Failed to update backend user', error);
@@ -105,7 +107,7 @@ export const AuthService = {
       };
       // @ts-ignore - React Native FormData accepts this shape
       formData.append('avatar', file);
-      const response = await axios.post(`${API_URL}/api/users/${firebaseUid}/avatar`, formData, {
+      const response = await apiClient.post(`/api/users/${firebaseUid}/avatar`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data;
@@ -117,7 +119,7 @@ export const AuthService = {
 
   requestSellerStatus: async (firebaseUid: string) => {
     try {
-      const response = await axios.post(`${API_URL}/api/users/${firebaseUid}/request-seller`);
+      const response = await apiClient.post(`/api/users/${firebaseUid}/request-seller`);
       return response.data;
     } catch (error) {
       console.error('Failed to request seller status', error);
@@ -127,7 +129,7 @@ export const AuthService = {
 
   requestBrokerStatus: async (firebaseUid: string) => {
     try {
-      const response = await axios.post(`${API_URL}/api/users/${firebaseUid}/request-broker`);
+      const response = await apiClient.post(`/api/users/${firebaseUid}/request-broker`);
       return response.data;
     } catch (error) {
       console.error('Failed to request broker status', error);
@@ -137,7 +139,7 @@ export const AuthService = {
 
   requestLogisticsStatus: async (firebaseUid: string) => {
     try {
-      const response = await axios.post(`${API_URL}/api/users/${firebaseUid}/request-logistics`);
+      const response = await apiClient.post(`/api/users/${firebaseUid}/request-logistics`);
       return response.data;
     } catch (error) {
       console.error('Failed to request logistics status', error);
@@ -147,7 +149,7 @@ export const AuthService = {
 
   getBrokerProfile: async (firebaseUid: string) => {
     try {
-      const response = await axios.get(`${API_URL}/api/brokers/${firebaseUid}`);
+      const response = await apiClient.get(`/api/brokers/${firebaseUid}`);
       return response.data;
     } catch (error: any) {
       if (error.response?.status !== 404) {
@@ -159,7 +161,7 @@ export const AuthService = {
 
   updateBrokerProfile: async (firebaseUid: string, data: any) => {
     try {
-      const response = await axios.put(`${API_URL}/api/brokers/${firebaseUid}`, data);
+      const response = await apiClient.put(`/api/brokers/${firebaseUid}`, data);
       return response.data;
     } catch (error) {
       console.error('Failed to update broker profile', error);
@@ -169,7 +171,7 @@ export const AuthService = {
 
   getLogisticsProfile: async (firebaseUid: string) => {
     try {
-      const response = await axios.get(`${API_URL}/api/logistics/${firebaseUid}`);
+      const response = await apiClient.get(`/api/logistics/${firebaseUid}`);
       return response.data;
     } catch (error: any) {
       if (error.response?.status !== 404) {
@@ -181,7 +183,7 @@ export const AuthService = {
 
   updateLogisticsProfile: async (firebaseUid: string, data: any) => {
     try {
-      const response = await axios.put(`${API_URL}/api/logistics/${firebaseUid}`, data);
+      const response = await apiClient.put(`/api/logistics/${firebaseUid}`, data);
       return response.data;
     } catch (error) {
       console.error('Failed to update logistics profile', error);
@@ -191,7 +193,7 @@ export const AuthService = {
 
   sendOtp: async (phoneNumber: string) => {
     try {
-      const response = await axios.post(`${API_URL}/api/otp/send`, { phoneNumber });
+      const response = await apiClient.post('/api/otp/send', { phoneNumber });
       return response.data;
     } catch (error) {
       console.error('Failed to send OTP', error);
@@ -201,7 +203,7 @@ export const AuthService = {
 
   verifyOtp: async (phoneNumber: string, code: string, firebaseUid: string) => {
     try {
-      const response = await axios.post(`${API_URL}/api/otp/verify`, { phoneNumber, code, firebaseUid });
+      const response = await apiClient.post('/api/otp/verify', { phoneNumber, code, firebaseUid });
       return response.data;
     } catch (error: any) {
       console.error('Failed to verify OTP', error);
@@ -211,7 +213,9 @@ export const AuthService = {
 
   deleteAccount: async (idToken: string, firebaseUid: string) => {
     try {
-      await axios.delete(`${API_URL}/api/users/${firebaseUid}`);
+      // Backend leg — migrated to apiClient (Plan 04-05).
+      await apiClient.delete(`/api/users/${firebaseUid}`);
+      // Identity Toolkit leg — stays on plain axios (Firebase Web API key surface).
       await axios.post(`${AUTH_URL}:delete?key=${API_KEY}`, { idToken });
       return true;
     } catch (error: any) {
@@ -224,7 +228,7 @@ export const AuthService = {
 
   getAdminStatus: async (firebaseUid: string) => {
     try {
-      const response = await axios.get(`${API_URL}/api/admin/status/${firebaseUid}`);
+      const response = await apiClient.get(`/api/admin/status/${firebaseUid}`);
       return response.data;
     } catch (error) {
       console.error('Failed to check admin status', error);
@@ -234,7 +238,7 @@ export const AuthService = {
 
   getAdminRequests: async (firebaseUid: string) => {
     try {
-      const response = await axios.get(`${API_URL}/api/admin/requests`, { params: { uid: firebaseUid } });
+      const response = await apiClient.get('/api/admin/requests', { params: { uid: firebaseUid } });
       return response.data;
     } catch (error) {
       console.error('Failed to fetch admin requests', error);
@@ -244,7 +248,7 @@ export const AuthService = {
 
   approveRequest: async (callerUid: string, targetUid: string, type: string) => {
     try {
-      const response = await axios.post(`${API_URL}/api/admin/requests/${targetUid}/approve`, { callerUid, type });
+      const response = await apiClient.post(`/api/admin/requests/${targetUid}/approve`, { callerUid, type });
       return response.data;
     } catch (error) {
       console.error('Failed to approve request', error);
@@ -254,7 +258,7 @@ export const AuthService = {
 
   rejectRequest: async (callerUid: string, targetUid: string, type: string) => {
     try {
-      const response = await axios.post(`${API_URL}/api/admin/requests/${targetUid}/reject`, { callerUid, type });
+      const response = await apiClient.post(`/api/admin/requests/${targetUid}/reject`, { callerUid, type });
       return response.data;
     } catch (error) {
       console.error('Failed to reject request', error);
@@ -264,7 +268,7 @@ export const AuthService = {
 
   getAdminUsers: async (firebaseUid: string) => {
     try {
-      const response = await axios.get(`${API_URL}/api/admin/users`, { params: { uid: firebaseUid } });
+      const response = await apiClient.get('/api/admin/users', { params: { uid: firebaseUid } });
       return response.data;
     } catch (error) {
       console.error('Failed to fetch admin users', error);
@@ -274,7 +278,7 @@ export const AuthService = {
 
   addAdminUser: async (callerUid: string, email: string) => {
     try {
-      const response = await axios.post(`${API_URL}/api/admin/users`, { callerUid, email });
+      const response = await apiClient.post('/api/admin/users', { callerUid, email });
       return response.data;
     } catch (error) {
       console.error('Failed to add admin user', error);
@@ -284,7 +288,7 @@ export const AuthService = {
 
   removeAdminUser: async (callerUid: string, adminId: string) => {
     try {
-      const response = await axios.delete(`${API_URL}/api/admin/users/${adminId}`, { params: { uid: callerUid } });
+      const response = await apiClient.delete(`/api/admin/users/${adminId}`, { params: { uid: callerUid } });
       return response.data;
     } catch (error) {
       console.error('Failed to remove admin user', error);
@@ -296,7 +300,7 @@ export const AuthService = {
 
   createPaymentIntent: async (currency: string, carId: string, buyerUid: string) => {
     try {
-      const response = await axios.post(`${API_URL}/api/payments/create-payment-intent`, {
+      const response = await apiClient.post('/api/payments/create-payment-intent', {
         currency,
         carId,
         buyerUid,
@@ -310,7 +314,7 @@ export const AuthService = {
 
   confirmBooking: async (paymentIntentId: string, carId: string, buyerUid: string) => {
     try {
-      const response = await axios.post(`${API_URL}/api/payments/confirm-booking`, {
+      const response = await apiClient.post('/api/payments/confirm-booking', {
         paymentIntentId,
         carId,
         buyerUid,
@@ -326,7 +330,7 @@ export const AuthService = {
 
   createOrders: async (payload: { buyerUid: string; car: any; items: any[]; buyerNote?: string }) => {
     try {
-      const response = await axios.post(`${API_URL}/api/orders`, payload);
+      const response = await apiClient.post('/api/orders', payload);
       return response.data;
     } catch (error) {
       console.error('Failed to create orders', error);
@@ -336,7 +340,7 @@ export const AuthService = {
 
   getBuyerOrders: async (firebaseUid: string) => {
     try {
-      const response = await axios.get(`${API_URL}/api/orders/buyer/${firebaseUid}`);
+      const response = await apiClient.get(`/api/orders/buyer/${firebaseUid}`);
       return response.data;
     } catch (error) {
       console.error('Failed to fetch buyer orders', error);
@@ -346,7 +350,7 @@ export const AuthService = {
 
   getProviderOrders: async (firebaseUid: string) => {
     try {
-      const response = await axios.get(`${API_URL}/api/orders/provider/${firebaseUid}`);
+      const response = await apiClient.get(`/api/orders/provider/${firebaseUid}`);
       return response.data;
     } catch (error) {
       console.error('Failed to fetch provider orders', error);
@@ -356,7 +360,7 @@ export const AuthService = {
 
   updateOrderStatus: async (orderId: string, status: string, callerUid: string) => {
     try {
-      const response = await axios.patch(`${API_URL}/api/orders/${orderId}/status`, { status, callerUid });
+      const response = await apiClient.patch(`/api/orders/${orderId}/status`, { status, callerUid });
       return response.data;
     } catch (error) {
       console.error('Failed to update order status', error);
@@ -366,7 +370,7 @@ export const AuthService = {
 
   updateServiceStatus: async (orderId: string, serviceIndex: number, status: string, callerUid: string) => {
     try {
-      const response = await axios.patch(`${API_URL}/api/orders/${orderId}/services/${serviceIndex}/status`, { status, callerUid });
+      const response = await apiClient.patch(`/api/orders/${orderId}/services/${serviceIndex}/status`, { status, callerUid });
       return response.data;
     } catch (error) {
       console.error('Failed to update service status', error);
