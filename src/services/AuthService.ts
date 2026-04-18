@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../constants/config';
 
@@ -75,9 +75,18 @@ export const AuthService = {
     }
   },
 
-  getBackendUser: async (firebaseUid: string) => {
+  // NOTE (Plan 04-04 / 04-05 coordination): the optional `config` parameter is
+  // added pre-emptively so AuthContext.refreshUser can pass the interceptor
+  // loop-guard axios config flag on the refresh path. Plan 04-05 migrates
+  // this call onto the shared apiClient; until then the config is forwarded
+  // to plain axios and the flag is a safe no-op on the unshared instance.
+  // See: .planning/phases/04-mobile-plumbing-mobile/04-05-PLAN.md
+  getBackendUser: async (firebaseUid: string, config?: AxiosRequestConfig) => {
     try {
-      const response = await axios.get(`${API_URL}/api/users/${firebaseUid}`);
+      const response = await axios.get(
+        `${API_URL}/api/users/${firebaseUid}`,
+        config,
+      );
       return response.data;
     } catch (error) {
       console.error('Failed to get backend user', error);
