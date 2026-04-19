@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { Platform, UIManager } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -31,6 +32,7 @@ import { AdminManagementScreen } from './src/screens/AdminManagementScreen';
 import { AdminModerationScreen } from './src/screens/AdminModerationScreen';
 import { AdminUserDetailScreen } from './src/screens/AdminUserDetailScreen';
 import { OfflineNotice } from './src/components/OfflineNotice';
+import { UserStatusBanner } from './src/components/moderation/UserStatusBanner';
 import { RootStackParamList } from './src/types/navigation';
 import { LanguageProvider } from './src/context/LanguageContext';
 import { AuthProvider } from './src/context/AuthContext';
@@ -41,6 +43,14 @@ import { MyOrdersScreen } from './src/screens/MyOrdersScreen';
 import { ProviderOrdersScreen } from './src/screens/ProviderOrdersScreen';
 import { useAppStateRefresh } from './src/hooks/useAppStateRefresh';
 import { useAuth } from './src/context/AuthContext';
+
+// Android LayoutAnimation enable — Plan 06-08 / RESEARCH §Pitfall 1.
+// Required at module scope so UserStatusBanner's expand-note animation
+// (LayoutAnimation.configureNext in UserStatusBanner.onToggleNote) works on
+// Android old-arch. No-op on new arch; keep the call regardless per RESEARCH.
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -83,6 +93,7 @@ function App() {
             <StripeProvider publishableKey="pk_test_51TEgrOJAS81xgsxjpbIvgoGw67eODe91yRPnNTpRcQrweRvUFBLX5wknw3XsAN2um4bFUsAG7HvFZqPArAQS5Ruf00MUNqZQLy">
             <LanguageProvider>
             <NavigationContainer linking={linking}>
+              <UserStatusBanner />
               <OfflineNotice />
               <Stack.Navigator
                 screenOptions={{
