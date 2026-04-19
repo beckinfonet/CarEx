@@ -93,9 +93,73 @@ describe('AdminModerationScreen', () => {
     );
   });
 
-  test('fires searchUsers on mount', async () => {
+  test('fires searchUsers ONCE on mount with no q param (initial load shows all users matching filters)', async () => {
     await mount();
-    expect(ModerationService.searchUsers).toHaveBeenCalled();
+    expect(ModerationService.searchUsers).toHaveBeenCalledTimes(1);
+    const [queryArg] = (ModerationService.searchUsers as jest.Mock).mock.calls[0];
+    expect(queryArg.q).toBeUndefined(); // empty draft → no q param sent
+  });
+
+  test('does NOT call searchUsers on every keystroke — typing into the input fires zero additional requests', async () => {
+    const tree = await mount();
+    const callsAfterMount = (ModerationService.searchUsers as jest.Mock).mock.calls.length;
+
+    // Locate the TextInput by its accessibility label (matches T.searchEmailOrUid via mockT Proxy: 'searchEmailOrUid')
+    const input = tree.root
+      .findAllByType(require('react-native').TextInput)
+      .find((n) => n.props.accessibilityLabel === 'searchEmailOrUid');
+    expect(input).toBeDefined();
+
+    // Simulate three keystrokes
+    act(() => { input!.props.onChangeText('a'); });
+    act(() => { input!.props.onChangeText('ab'); });
+    act(() => { input!.props.onChangeText('abc'); });
+    await settle();
+
+    // Critical contract: zero additional searchUsers calls fired.
+    expect((ModerationService.searchUsers as jest.Mock).mock.calls.length).toBe(callsAfterMount);
+  });
+
+  test('fires searchUsers with the typed query when the Search button is tapped', async () => {
+    const tree = await mount();
+    const callsAfterMount = (ModerationService.searchUsers as jest.Mock).mock.calls.length;
+
+    const input = tree.root
+      .findAllByType(require('react-native').TextInput)
+      .find((n) => n.props.accessibilityLabel === 'searchEmailOrUid');
+    act(() => { input!.props.onChangeText('alice@example.com'); });
+    await settle();
+
+    // Locate the Search button by its accessibilityLabel (mockT returns the key as the label: 'actionSearch')
+    const button = tree.root
+      .findAllByType(TouchableOpacity)
+      .find((n) => n.props.accessibilityLabel === 'actionSearch');
+    expect(button).toBeDefined();
+
+    act(() => { button!.props.onPress(); });
+    await settle();
+
+    expect((ModerationService.searchUsers as jest.Mock).mock.calls.length).toBe(callsAfterMount + 1);
+    const [queryArg] = (ModerationService.searchUsers as jest.Mock).mock.calls[callsAfterMount];
+    expect(queryArg.q).toBe('alice@example.com');
+  });
+
+  test('fires searchUsers when TextInput onSubmitEditing is invoked (return key)', async () => {
+    const tree = await mount();
+    const callsAfterMount = (ModerationService.searchUsers as jest.Mock).mock.calls.length;
+
+    const input = tree.root
+      .findAllByType(require('react-native').TextInput)
+      .find((n) => n.props.accessibilityLabel === 'searchEmailOrUid');
+    act(() => { input!.props.onChangeText('bob@example.com'); });
+    await settle();
+
+    act(() => { input!.props.onSubmitEditing(); });
+    await settle();
+
+    expect((ModerationService.searchUsers as jest.Mock).mock.calls.length).toBe(callsAfterMount + 1);
+    const [queryArg] = (ModerationService.searchUsers as jest.Mock).mock.calls[callsAfterMount];
+    expect(queryArg.q).toBe('bob@example.com');
   });
 
   test('renders a list row with a MoreVertical action button', async () => {
