@@ -12,6 +12,8 @@ import { AuthService } from '../services/AuthService';
 import {
   setTokenProvider,
   setModerationRefreshListener,
+  setIdTokenRefreshListener,
+  setLogoutTrigger,
 } from '../services/http/client';
 
   interface AuthContextType {
@@ -56,6 +58,24 @@ import {
     // and skip its setUser — otherwise a late backendUser would spread onto
     // userRef.current (null) and resurrect the logged-out user.
     const refreshGenerationRef = useRef<number>(0);
+
+    // Plan 05-12 (UAT Test 8): Firebase token refresh state.
+    //   - refreshTokenRef: long-lived refresh token from sign-in. Used to mint
+    //     a new idToken via AuthService.refreshIdToken.
+    //   - idTokenExpiresAtRef: epoch ms at which currentIdTokenRef stops
+    //     working. Used by the proactive-refresh check on AppState foreground.
+    //   - idTokenRefreshInFlightRef: single-flight refresh promise so N
+    //     concurrent 401s share ONE refresh request (otherwise N parallel
+    //     401-triggered refreshes would all rotate the token in turn,
+    //     potentially confusing the rotation-aware backend).
+    //   - logoutRef: forward-declared logout reference so the refresh listener
+    //     (registered inside the mount useEffect BEFORE `logout` is defined)
+    //     can trigger logout on permanent refresh failure without capturing
+    //     a stale closure.
+    const refreshTokenRef = useRef<string | null>(null);
+    const idTokenExpiresAtRef = useRef<number>(0);
+    const idTokenRefreshInFlightRef = useRef<Promise<string | null> | null>(null);
+    const logoutRef = useRef<(() => Promise<void>) | null>(null);
 
     // Keep the latest `user` visible to the refresh listener closure without
     // reintroducing the effect on every user-state change. The listener fires
@@ -107,6 +127,55 @@ import {
       // screens polling on mount) continue to honor the cooldown.
       force?: boolean;
     }): Promise<void> => {
+      // Plan 05-12 (UAT Test 8 — proactive path): if the idToken is within
+      // 5 minutes of expiry, refresh it BEFORE the next backend call has a
+      // chance to 401. The refresh listener is single-flight, so concurrent
+      // foreground transitions collapse into one refresh.
+      const remainingMs = idTokenExpiresAtRef.current - Date.now();
+      if (
+        currentIdTokenRef.current &&
+        idTokenExpiresAtRef.current > 0 &&
+        remainingMs < 5 * 60 * 1000
+      ) {
+        try {
+          if (idTokenRefreshInFlightRef.current) {
+            await idTokenRefreshInFlightRef.current;
+          } else {
+            // Replay the same refresh path the listener uses. Inline-call
+            // refreshIdToken so we don't have to expose the listener as a
+            // standalone function — both paths share
+            // idTokenRefreshInFlightRef → still single-flight overall.
+            const tok = refreshTokenRef.current;
+            if (tok) {
+              idTokenRefreshInFlightRef.current = (async () => {
+                try {
+                  const data = await AuthService.refreshIdToken(tok);
+                  currentIdTokenRef.current = data.idToken;
+                  refreshTokenRef.current = data.refreshToken ?? tok;
+                  const sec = parseInt(String(data.expiresIn ?? '3600'), 10);
+                  idTokenExpiresAtRef.current = Date.now() + sec * 1000;
+                  await AuthService.saveAuthSession(
+                    data.idToken,
+                    data.refreshToken ?? tok,
+                    data.expiresIn ?? '3600',
+                    userRef.current ?? undefined,
+                  );
+                  return data.idToken;
+                } finally {
+                  idTokenRefreshInFlightRef.current = null;
+                }
+              })();
+              await idTokenRefreshInFlightRef.current;
+            }
+          }
+        } catch (refreshErr) {
+          // Proactive refresh failure: log + continue. The downstream
+          // backendUser fetch will 401 and the reactive interceptor will
+          // get one more shot.
+          console.error('Proactive idToken refresh failed', refreshErr);
+        }
+      }
+
       const currentUser = userRef.current;
       if (!currentUser?.localId) {
         // D-16: no-op when logged out. Avoids useless `/api/users/undefined`.
@@ -210,6 +279,74 @@ import {
           console.error('Moderation refresh listener fetch failed', err);
         }
       });
+
+      // Plan 05-12 (UAT Test 8): wire the 401-triggered idToken refresh
+      // listener. Single-flight via idTokenRefreshInFlightRef — N parallel
+      // 401s collapse into ONE refresh request. Listener returns the new
+      // idToken on success, or null when the refresh permanently failed.
+      setIdTokenRefreshListener(async (): Promise<string | null> => {
+        if (idTokenRefreshInFlightRef.current) {
+          return await idTokenRefreshInFlightRef.current;
+        }
+        const myRefreshToken = refreshTokenRef.current;
+        if (!myRefreshToken) {
+          // No refresh token (logged out, or session pre-dates Plan 05-12) →
+          // caller will surface the original 401 and trigger logout.
+          return null;
+        }
+        const myGen = refreshGenerationRef.current;
+        idTokenRefreshInFlightRef.current = (async () => {
+          try {
+            const data = await AuthService.refreshIdToken(myRefreshToken);
+            // WR-02-style guard: if logout fired during the await, drop.
+            if (refreshGenerationRef.current !== myGen) return null;
+            currentIdTokenRef.current = data.idToken;
+            refreshTokenRef.current = data.refreshToken ?? myRefreshToken;
+            const expiresInSeconds = parseInt(String(data.expiresIn ?? '3600'), 10);
+            idTokenExpiresAtRef.current = Date.now() + expiresInSeconds * 1000;
+            // Persist so a cold start within the new TTL window has the
+            // fresh token + expiry.
+            await AuthService.saveAuthSession(
+              data.idToken,
+              data.refreshToken ?? myRefreshToken,
+              data.expiresIn ?? '3600',
+              userRef.current ?? undefined,
+            );
+            return data.idToken;
+          } catch (err: any) {
+            // Permanent failures: TOKEN_EXPIRED, INVALID_REFRESH_TOKEN,
+            // USER_DISABLED. Bounce to logout. Transient/network: surface
+            // the 401 so the caller can decide.
+            const message =
+              typeof err === 'object' && err !== null && 'message' in err
+                ? (err as { message: string }).message
+                : '';
+            const permanent =
+              message === 'TOKEN_EXPIRED' ||
+              message === 'INVALID_REFRESH_TOKEN' ||
+              message === 'USER_DISABLED';
+            if (permanent) {
+              try {
+                await logoutRef.current?.();
+              } catch (logoutErr) {
+                console.error('Logout after permanent refresh failure failed', logoutErr);
+              }
+              return null;
+            }
+            throw err;
+          } finally {
+            idTokenRefreshInFlightRef.current = null;
+          }
+        })();
+        return await idTokenRefreshInFlightRef.current;
+      });
+
+      // Plan 05-12: register the logout trigger so the apiClient 401
+      // interceptor can sign the user out on a SECOND 401 (refresh succeeded
+      // but the new token still 401s — likely revoked mid-session).
+      setLogoutTrigger(async () => {
+        await logoutRef.current?.();
+      });
       loadStorageData();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -223,6 +360,14 @@ import {
         if (storedToken) {
           currentIdTokenRef.current = storedToken;
         }
+        // Plan 05-12: hydrate refresh-state refs alongside the idToken so the
+        // 401 interceptor + proactive scheduler can do their job on the very
+        // first call after cold start.
+        const storedRefreshToken = await AuthService.getRefreshToken();
+        if (storedRefreshToken) {
+          refreshTokenRef.current = storedRefreshToken;
+        }
+        idTokenExpiresAtRef.current = await AuthService.getIdTokenExpiresAt();
         if (userData && userData.localId) {
           const backendUser = await AuthService.getBackendUser(userData.localId);
           setUser({ ...userData, ...backendUser });
@@ -243,6 +388,12 @@ import {
       // call that follows (getBackendUser below) already carries the Bearer
       // header via the shared client's request interceptor.
       currentIdTokenRef.current = data.idToken;
+      // Plan 05-12: stash the refresh token + expiry so the 401 interceptor
+      // and proactive scheduler can mint a new idToken when the 1hr TTL
+      // elapses.
+      refreshTokenRef.current = data.refreshToken ?? null;
+      const expiresInSeconds = parseInt(String(data.expiresIn ?? '3600'), 10);
+      idTokenExpiresAtRef.current = Date.now() + expiresInSeconds * 1000;
       let userData = { email: data.email, localId: data.localId };
 
       const backendUser = await AuthService.getBackendUser(data.localId);
@@ -250,7 +401,12 @@ import {
           userData = { ...userData, ...backendUser };
       }
 
-      await AuthService.saveToken(data.idToken, userData);
+      await AuthService.saveAuthSession(
+        data.idToken,
+        data.refreshToken ?? null,
+        data.expiresIn ?? '3600',
+        userData,
+      );
       setUser(userData);
       await checkAdminStatus(data.localId);
     }, [checkAdminStatus]);
@@ -258,12 +414,21 @@ import {
     const signup = useCallback(async (email: string, password: string) => {
       const data = await AuthService.signUp(email, password);
       currentIdTokenRef.current = data.idToken;
+      // Plan 05-12: stash refresh token + expiry on signup too (mirror login).
+      refreshTokenRef.current = data.refreshToken ?? null;
+      const expiresInSeconds = parseInt(String(data.expiresIn ?? '3600'), 10);
+      idTokenExpiresAtRef.current = Date.now() + expiresInSeconds * 1000;
       const userData = { email: data.email, localId: data.localId };
 
       // Create backend user
       await AuthService.createBackendUser(data.localId, data.email);
 
-      await AuthService.saveToken(data.idToken, userData);
+      await AuthService.saveAuthSession(
+        data.idToken,
+        data.refreshToken ?? null,
+        data.expiresIn ?? '3600',
+        userData,
+      );
       setUser(userData);
     }, []);
 
@@ -272,6 +437,11 @@ import {
       // the request interceptor cannot attach a stale Bearer on any call
       // triggered by the logout teardown itself.
       currentIdTokenRef.current = null;
+      // Plan 05-12: clear refresh state so a stale 401 retry cannot rehydrate
+      // the logged-out session via the interceptor.
+      refreshTokenRef.current = null;
+      idTokenExpiresAtRef.current = 0;
+      idTokenRefreshInFlightRef.current = null;
       // WR-02: bump BEFORE any awaits so any in-flight refresh that resolves
       // after this point (either path — refreshUserInternal IIFE or the
       // moderation listener) sees the generation mismatch and drops its
@@ -287,6 +457,14 @@ import {
       lastRefreshAtRef.current = 0;
       refreshInFlightRef.current = null;
     }, []);
+
+    // Plan 05-12: keep logoutRef pointed at the latest logout callback so the
+    // refresh listener (registered in the mount useEffect BEFORE logout is
+    // defined) and setLogoutTrigger can invoke the current logout without
+    // capturing a stale closure.
+    useEffect(() => {
+      logoutRef.current = logout;
+    }, [logout]);
 
     const requestSeller = useCallback(async () => {
       if (user && user.localId) {
