@@ -113,6 +113,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 05-08-PLAN.md — AdminUserDetailScreen (NEW) — sticky summary, paginated history, unsuspend flow
   - [x] 05-09-PLAN.md — Repurpose AdminManagementScreen (with `pendingDeleteRole` pass-through) + AdminDashboardScreen nav card + App.tsx wiring + fill Wave 0 service+hook+util tests + populate 05-VALIDATION.md + final guardrails
   - [x] 05-10-PLAN.md — Fill Wave 0 component+screen test scaffolds (8 files) with real assertions locking the dual-role delete contract end-to-end
+  - [x] 05-11-PLAN.md — Gap closure: submit-driven search on AdminModerationScreen + axios CanceledError suppression in ModerationService + delete dead useDebouncedValue (UAT Test 3 fix) (UI-02)
 **UI hint**: yes
 
 ### Phase 6: Affected-User UX + Security Review (Both)
@@ -141,5 +142,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Admin Moderation Endpoints (Backend) | 0/TBD | Not started | - |
 | 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
 | 4. Mobile Plumbing (Mobile) | 7/7 | Complete | 2026-04-18 |
-| 5. Admin Moderation UI (Mobile) | 8/12 | In progress | - |
+| 5. Admin Moderation UI (Mobile) | 11/13 | In progress (mobile scope 11/11; backend 05-0a/0b deferred to cross-repo) | - |
 | 6. Affected-User UX + Security Review (Both) | 0/TBD | Not started | - |

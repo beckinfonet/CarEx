@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: In progress
-stopped_at: Phase 5 mobile scope complete (10/10 plans); backend 05-0a/0b deferred to separate repo
-last_updated: "2026-04-18T19:20:00Z"
-last_activity: 2026-04-18 -- Phase 05 Plan 10 complete (8 Wave 0 component+screen test scaffolds filled with 54 real assertions; combined suite 100/100 green; dual-role delete contract + explicit-role pass-through locked at test layer)
+stopped_at: Phase 5 Plan 11 complete (UAT Test 3 gap-closure — submit-driven search + CanceledError suppression + dead-hook deletion); mobile scope 11/11; backend 05-0a/0b deferred to separate repo
+last_updated: "2026-04-19T05:50:00Z"
+last_activity: 2026-04-19 -- Phase 05 Plan 11 complete (submit-driven search on AdminModerationScreen; isAbortError guard on ModerationService searchUsers+getHistory; useDebouncedValue retired; 12 ModerationService tests + 9 screen tests green; Phase 5 scope 149 tests green minus pre-existing App.test.tsx navigation-stack failure)
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 37
-  completed_plans: 35
+  total_plans: 38
+  completed_plans: 36
   percent: 95
 ---
 
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 ## Current Position
 
-Phase: 05 (Admin Moderation UI (Mobile)) — MOBILE SCOPE COMPLETE (10/10 plans; backend 05-0a/0b deferred to separate repo)
-Next: Phase 6 — Affected-User UX + Security Review (blocked on backend 05-0a/0b landing in carEx-services)
-Last activity: 2026-04-18 -- Phase 05 Plan 10 complete (8 Wave 0 scaffolds filled with 54 real assertions; 100/100 tests green; dual-role + explicit-role contracts locked at test layer)
+Phase: 05 (Admin Moderation UI (Mobile)) — MOBILE SCOPE COMPLETE (11/11 plans including 05-11 UAT gap closure; backend 05-0a/0b deferred to separate repo)
+Next: Phase 6 — Affected-User UX + Security Review (blocked on backend 05-0a/0b landing in carEx-services). Plan 05-12 runs in parallel by a sibling executor.
+Last activity: 2026-04-19 -- Phase 05 Plan 11 complete (submit-driven search; isAbortError guard on ModerationService; useDebouncedValue retired; 12 ModerationService + 9 AdminModerationScreen tests green)
 Resume file: .planning/phases/06-affected-user-ux/ (pending creation)
 
-Progress: [██████████] 100% (Phase 05 mobile execution, 10/10 plans complete)
+Progress: [██████████] 100% (Phase 05 mobile execution, 11/11 plans complete)
 
 ## Performance Metrics
 
@@ -74,6 +74,7 @@ Progress: [██████████] 100% (Phase 05 mobile execution, 10/1
 | Phase 05 P08 | ~30s | 1 tasks | 1 files |
 | Phase 05 P09 | 8m54s | 5 tasks | 10 files |
 | Phase 05 P10 | ~10m | 4 tasks | 8 files |
+| Phase 05 P11 | 5m48s | 3 tasks | 5 files (+2 deleted) |
 
 ## Accumulated Context
 
@@ -168,6 +169,9 @@ Recent decisions affecting current work:
 - [Phase 05]: Plan 05-10: LanguageContext jest.mock must return a STABLE Proxy reference (hoisted `const mockT = new Proxy(...)` with `mock*` prefix for babel-plugin-jest-hoist allowlist) — a fresh Proxy on every render rotates `T` identity, which rotates `runSearch` via `useCallback([T])`, which re-fires `useEffect([runSearch])`, which double-fires `searchUsers`, which breaks the AdminModerationScreen pagination guard test (got 4/6 calls vs expected 2/2). Mock hygiene lesson that applies to every future screen test
 - [Phase 05]: Plan 05-10: Dual-role delete contract locked with 3 cases in QuickActionSheet.test.tsx AND 4 pass-through cases in screen tests — `grep -c "role: 'broker'"` = 6 across QuickActionSheet+AdminManagement+AdminModeration tests; `grep -c "role: 'logistics'"` = 6. Any future refactor that silently defaults to broker must break at least 7 tests. Combined Phase 5 test suite: 100 tests green, 16 suites, 1.8s — far exceeding the ≥50 acceptance threshold
 - [Phase 05]: Plan 05-10: Phase 5 MOBILE SCOPE COMPLETE — 10/10 plans executed end-to-end. Backend plans 05-0a (GET /history) + 05-0b (GET /users/search) remain open in the separate carEx-services repo; they are the only blocker between this mobile code and a production-ready Phase 5. Phase 6 (Affected-User UX + Security Review) is gated on 05-0a/0b landing
+- [Phase 05]: Plan 05-11: UAT Test 3 gap closed (D-11-01 through D-11-05) — AdminModerationScreen migrated from `useDebouncedValue`-driven auto-search to submit-driven search (raw TextInput + Search button + `onSubmitEditing`). `ModerationService.searchUsers` + `getHistory` gain a narrowly-scoped `isAbortError()` guard covering `axios.isCancel` + `CanceledError` + `AbortError`; write methods (suspend/revoke/delete/edit) continue to log all errors intentionally. Initial load STILL fires one `searchUsers({q: undefined})` to preserve "show all users matching filters" UX — the bug was per-keystroke fires, not initial load. `useDebouncedValue` hook + test deleted (zero in-tree consumers). RU/EN `actionSearch` added with parity. Grep invariants green: `useDebouncedValue` in `src/` = 0; `isAbortError(error)` in ModerationService = 2; `submittedQuery` in AdminModerationScreen = 8; `T.actionSearch` = 2; `actionSearch:` in translations = 2
+- [Phase 05]: Plan 05-11: TDD RED/GREEN gates honored on both service + screen changes — 5 commits total (test→fix for Task 1; test→feat for Task 2; chore for Task 3). ModerationService 12/12 (was 10, +2 CanceledError tests); AdminModerationScreen 9/9 (was 5, +1 renamed mount test + 3 new submit-contract tests). Full Phase 5 suite minus pre-existing App.test.tsx navigation-stack failure: 20 suites / 149 tests green
+- [Phase 05]: Plan 05-11: One deviation auto-fixed — inline comment that mentioned `useDebouncedValue` literally tripped the plan's `grep -c useDebouncedValue = 0` acceptance criterion; comment rephrased to "the previous debounced path" to satisfy the grep-verifiable invariant without losing explanatory intent. One pre-existing failure logged to deferred-items.md (`__tests__/App.test.tsx` — navigation/native-stack `usesNewAndroidHeaderHeightImplementation` TypeError; reproduces on clean main before any 05-11 change)
 
 ### Pending Todos
 
@@ -194,6 +198,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-18T19:20:00Z
-Stopped at: Phase 05 Plan 10 complete (8 Wave 0 component+screen test scaffolds filled with 54 real assertions including 3 dual-role delete contract cases in QuickActionSheet + 4 explicit-role pass-through cases across AdminManagementScreen/AdminModerationScreen; combined Phase 5 test suite 100/100 green across 16 suites in 1.8s; zero test.todo remaining in src/components/moderation/__tests__ + src/screens/__tests__; package.json unchanged — 3 commits, 8 files changed). PHASE 5 MOBILE SCOPE COMPLETE (10/10 plans); blocked on backend 05-0a/0b for production readiness.
+Last session: 2026-04-19T05:50:00Z
+Stopped at: Phase 05 Plan 11 complete (UAT Test 3 gap closure — submit-driven search on AdminModerationScreen + axios CanceledError suppression in ModerationService.searchUsers+getHistory + deletion of dead useDebouncedValue hook and its test. 5 commits: test→fix pair for Task 1, test→feat pair for Task 2, chore for Task 3. ModerationService 12/12 green; AdminModerationScreen 9/9 green; RU+EN parity on new actionSearch key; zero useDebouncedValue residue in src/). PHASE 5 MOBILE SCOPE 11/11 COMPLETE; blocked on backend 05-0a/0b for production readiness. Plan 05-12 runs in parallel under a sibling executor.
 Resume file: (next) .planning/phases/06-affected-user-ux/ — pending planning once backend routes land
