@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: "Phase 06 Plan 03 complete (Wave 2 UserStatusBanner component + 19 real test assertions). 2 commits: feat b8207e6 (UserStatusBanner.tsx 314 lines — non-dismissable severity-aware banner, mailto appeal CTA with encodeURIComponent + setAt + Alert fallback, LayoutAnimation expand, useFocusEffect collapse on blur), test ec11163 (16 test.todo → 19 real assertions, all GREEN first run). Delivers AFF-01/02/03. 3 label-level deviations auto-fixed (all comment-only to satisfy strict grep acceptance criteria on encodeURIComponent=2, canOpenURL=0, mailto-url literal); zero functional deviations. Phase 6 test surface: 23 todo (FeatureGateOverlay + GatedScreenWrapper scaffolds — future plans) + 22 passed (UserStatusBanner 19 + translation-parity 3) / 0 failed."
-last_updated: "2026-04-19T08:38:15.749Z"
+stopped_at: "Phase 06 Plan 04 complete (Wave 2 FeatureGateOverlay component + 18 real test assertions). 2 commits: feat c4b40a0 (FeatureGateOverlay.tsx 250 lines — centered card over rgba(15,17,21,0.7) dim layer, severity palette + icon map copied verbatim from SeverityBadge/UserStatusBanner, capability-key-driven copy lookup via CAPABILITY_TO_KEY_PART × SEVERITY_TO_KEY_PART → gate${Cap}${Sev}{Title|Body}, feature_limited-only Restore-profile CTA per D-06, pointerEvents=box-none coordinating with Plan 06-05 GatedScreenWrapper pointerEvents=none for T-06-03), test 2ce1e6e (10 test.todo → 18 real assertions via 15 test() + 1 test.each×3 severities, all GREEN first run; uses pure Proxy mockT since no post-interpolation substring checks needed). Delivers AFF-04 (component ready; screen wiring follows in Plans 06-05/06/07). 2 label-level deviations auto-fixed (both comment-only to satisfy strict grep acceptance criteria on rgba count=1 + test.todo count=0); zero functional deviations. Phase 6 test surface: 13 todo (GatedScreenWrapper scaffold — Plan 06-05) + 40 passed (UserStatusBanner 19 + FeatureGateOverlay 18 + translation-parity 3) / 0 failed."
+last_updated: "2026-04-19T08:43:53.000Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 51
-  completed_plans: 40
-  percent: 78
+  completed_plans: 41
+  percent: 80
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 06-affected-user-ux-security-review — EXECUTING
-Plan: 4 of 12 (01, 02, 03 complete)
-Next: /gsd-execute-phase 06 (Plan 04 — FeatureGateOverlay + GatedScreenWrapper). UserStatusBanner shipped; FeatureGateOverlay reuses the severity palette + icon map; GatedScreenWrapper wires the apply_as_provider alias + all_writes sentinel predicate.
-Last activity: 2026-04-19 -- Phase 06 Plan 03 complete
-Resume file: .planning/phases/06-affected-user-ux-security-review/06-04-PLAN.md
+Plan: 5 of 12 (01, 02, 03, 04 complete)
+Next: /gsd-execute-phase 06 (Plan 05 — GatedScreenWrapper). FeatureGateOverlay shipped with pointerEvents=box-none + CapabilityKey type export; Plan 06-05 wires the apply_as_provider alias + all_writes sentinel predicate and composes the overlay as a sibling with a pointerEvents=none content wrapper.
+Last activity: 2026-04-19 -- Phase 06 Plan 04 complete
+Resume file: .planning/phases/06-affected-user-ux-security-review/06-05-PLAN.md
 
-Progress: [████████░░] 78% (40/51 plans; Phase 06 3/12)
+Progress: [████████░░] 80% (41/51 plans; Phase 06 4/12)
 
 ## Performance Metrics
 
@@ -80,6 +80,7 @@ Progress: [████████░░] 78% (40/51 plans; Phase 06 3/12)
 | Phase 06 P01 | 2m26s | 3 tasks | 4 files |
 | Phase 06 P02 | 2m45s | 2 tasks | 1 file |
 | Phase 06 P03 | 4m25s | 2 tasks | 2 files |
+| Phase 06 P04 | 3m43s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -197,6 +198,14 @@ Recent decisions affecting current work:
 - [Phase 06]: Plan 06-03: T-06-02 mitigation locked with grep count exactly 2 for encodeURIComponent — subject + body call sites only. Comment mentions scrubbed from source to keep mechanical acceptance grep accurate. Test decodes mailto body and asserts all three required lines (User ID / Reason category / Suspended setAt) present
 - [Phase 06]: Plan 06-03: Severity icon + palette + title maps (STATE_TO_PALETTE_KEY / SEVERITY_ICON / STATE_TO_TITLE_KEY) copied verbatim from SeverityBadge.tsx to establish cross-surface consistency; FeatureGateOverlay (06-04) and GatedScreenWrapper (06-05) reuse AlertTriangle/ShieldAlert/Ban + COLORS.moderation
 - [Phase 06]: Plan 06-03: Wave-0 scaffold's 16 test.todo entries converted to 19 real GREEN assertions on first run — split note-empty/note-null into two tests and added a third null-render guard for no-moderationStatus; all covered by react-test-renderer + stable Proxy mockT with a small known-overlay for keys needing literal post-interpolation assertions
+- [Phase 06]: Plan 06-04: FeatureGateOverlay consumes useAuth() + useLanguage() directly (capability is the only prop) mirroring UserStatusBanner's context-over-props contract; severity icon + palette + state→palette-key maps copied verbatim from SeverityBadge/UserStatusBanner (3rd consumer — cross-surface single source of truth now firmly the project pattern)
+- [Phase 06]: Plan 06-04: Capability-key driven copy lookup assembles via two module-scope PascalCase maps (CAPABILITY_TO_KEY_PART 4 entries + SEVERITY_TO_KEY_PART 3 entries) — single lookup path `gate${capPart}${sevPart}{Title|Body}` resolves all 4×3×2=24 gate copy cells without per-capability branching. SEVERITY_TO_KEY_PART locks the naming mismatch (blocked_with_review→Blocked, permanently_banned→Banned) — test 12 + test 13 assert this mapping mechanically
+- [Phase 06]: Plan 06-04: EmptyState explicitly NOT reused as the inner card (UI-SPEC §Component 2 — flex:1 contradicts centered-fixed-width dim-layer layout); icon + title + body visual rhythm (40px icon / labelStrong / body maxWidth 280 / outline CTA) copied by hand into local StyleSheet — code-decoupled, visually related. Acceptance lock: `grep -c "EmptyState" src/components/moderation/FeatureGateOverlay.tsx` returns 0
+- [Phase 06]: Plan 06-04: pointerEvents="box-none" on dim layer explicitly coordinates with Plan 06-05 GatedScreenWrapper's pointerEvents="none" on the content sibling — T-06-03 mitigation is a two-component contract by design; overlay body remains tap-interactive so the Restore CTA can fire. Source comment documents the coordination at the dim layer call site
+- [Phase 06]: Plan 06-04: Restore-profile CTA onPress is intentionally a no-op for Phase 6 — destination navigation (which screen does 'Restore profile' navigate to?) deferred to future integration plan. Forcing a decision now would push ProfileScreen flow into this plan's scope; comment in source documents the deferral
+- [Phase 06]: Plan 06-04: Pure Proxy mockT (no `known` overlay) vs. Plan 06-03's hybrid Proxy — FeatureGateOverlay has no post-interpolation substring checks (unlike UserStatusBanner's appealNoMailBody `{uid}` replacement), so literal-key-name Proxy is sufficient. Tests assert against `accessibilityLabel` which is source-assembled as `${title}. ${body}` from the key lookups — matches Proxy output directly
+- [Phase 06]: Plan 06-04: 18 real tests GREEN on first run (15 test() calls + 1 test.each expanding to 3) — above the plan's `>= 12` floor. No RED phase needed because Plan 06-01 already established RED via Wave-0 test.todo + unresolvable import path. test.each tightens the 3-severity × borderLeftColor palette assertions into one source block while keeping the BORDER_BY_SEVERITY table grep-stable
+- [Phase 06]: Plan 06-04: CapabilityKey type union ('create_listing' | 'create_order' | 'apply_as_provider' | 'contact_seller') now exported from FeatureGateOverlay.tsx — Plan 06-05's GatedScreenWrapper can import it verbatim instead of redeclaring, keeping the type surface unified across the two components that form the AFF-04 overlay contract
 
 ### Pending Todos
 
@@ -223,6 +232,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-19T08:38:15.744Z
-Stopped at: Phase 06 Plan 03 complete (Wave 2 UserStatusBanner component + 19 real test assertions). 2 commits: feat b8207e6 (UserStatusBanner.tsx 314 lines — non-dismissable severity-aware banner, mailto appeal CTA with encodeURIComponent + setAt + Alert fallback, LayoutAnimation expand, useFocusEffect collapse on blur), test ec11163 (16 test.todo → 19 real assertions, all GREEN first run). Delivers AFF-01/02/03. 3 label-level deviations auto-fixed (all comment-only to satisfy strict grep acceptance criteria on encodeURIComponent=2, canOpenURL=0, mailto-url literal); zero functional deviations. Phase 6 test surface: 23 todo (FeatureGateOverlay + GatedScreenWrapper scaffolds — future plans) + 22 passed (UserStatusBanner 19 + translation-parity 3) / 0 failed.
-Resume file: (next) .planning/phases/06-affected-user-ux-security-review/06-03-PLAN.md — UserStatusBanner component + real assertions (AFF-01, AFF-02, AFF-03)
+Last session: 2026-04-19T08:43:53.000Z
+Stopped at: Phase 06 Plan 04 complete (Wave 2 FeatureGateOverlay component + 18 real test assertions). 2 commits: feat c4b40a0 (FeatureGateOverlay.tsx 250 lines — centered card over rgba(15,17,21,0.7) dim layer, severity palette + icon map copied verbatim from SeverityBadge/UserStatusBanner, capability-key-driven copy lookup via CAPABILITY_TO_KEY_PART × SEVERITY_TO_KEY_PART → gate${Cap}${Sev}{Title|Body}, feature_limited-only Restore-profile CTA per D-06, pointerEvents=box-none coordinating with Plan 06-05 GatedScreenWrapper pointerEvents=none for T-06-03), test 2ce1e6e (10 test.todo → 18 real assertions via 15 test() + 1 test.each×3 severities, all GREEN first run; uses pure Proxy mockT since no post-interpolation substring checks needed). Delivers AFF-04 (component ready; screen wiring follows in Plans 06-05/06/07). 2 label-level deviations auto-fixed (both comment-only to satisfy strict grep acceptance criteria on rgba count=1 + test.todo count=0); zero functional deviations. Phase 6 test surface: 13 todo (GatedScreenWrapper scaffold — Plan 06-05) + 40 passed (UserStatusBanner 19 + FeatureGateOverlay 18 + translation-parity 3) / 0 failed.
+Resume file: (next) .planning/phases/06-affected-user-ux-security-review/06-05-PLAN.md — GatedScreenWrapper component + real assertions (AFF-04 predicate + CapabilityKey alias contract)
