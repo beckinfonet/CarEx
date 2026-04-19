@@ -218,4 +218,51 @@ describe('ModerationService', () => {
 
     consoleSpy.mockRestore();
   });
+
+  // -------------------- Test 11: searchUsers swallows CanceledError --------------------
+  // Gap 1 fix (UAT Test 3): aborted in-flight searches must not surface as
+  // console.error / red LogBox overlays. The error is still re-thrown so the
+  // screen-level isCancel guard continues to short-circuit the .catch handler.
+
+  it('Test 11: searchUsers does NOT log when error is an axios CanceledError; still re-throws', async () => {
+    const cancelErr: any = new Error('canceled');
+    cancelErr.name = 'CanceledError';
+    mockedApiClient.get.mockRejectedValueOnce(cancelErr);
+
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    let caught: unknown;
+    try {
+      await ModerationService.searchUsers({ q: 'foo' });
+    } catch (err) {
+      caught = err;
+    }
+
+    expect(caught).toBe(cancelErr); // re-thrown
+    expect(consoleSpy).not.toHaveBeenCalled(); // silenced
+
+    consoleSpy.mockRestore();
+  });
+
+  // -------------------- Test 12: getHistory swallows CanceledError --------------------
+
+  it('Test 12: getHistory does NOT log when error is an axios CanceledError; still re-throws', async () => {
+    const cancelErr: any = new Error('canceled');
+    cancelErr.name = 'CanceledError';
+    mockedApiClient.get.mockRejectedValueOnce(cancelErr);
+
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    let caught: unknown;
+    try {
+      await ModerationService.getHistory('uid-123');
+    } catch (err) {
+      caught = err;
+    }
+
+    expect(caught).toBe(cancelErr); // re-thrown
+    expect(consoleSpy).not.toHaveBeenCalled(); // silenced
+
+    consoleSpy.mockRestore();
+  });
 });
