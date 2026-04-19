@@ -270,7 +270,22 @@ export const ModerationService = {
           signal: config?.signal,
         },
       );
-      return response.data;
+      // Backend envelope is { items, nextCursor } per Plan 05-0a; mobile
+      // screens consume `rows`. Rename here so GetHistoryResult and every
+      // caller can stay stable even though the two plans disagreed on the
+      // field name. `|| []` guards against a malformed response — callers
+      // rely on `rows` being an array (e.g. dependency arrays reading
+      // history.length would otherwise crash with "Cannot read property
+      // 'length' of undefined").
+      const data = response.data ?? {};
+      return {
+        rows: Array.isArray(data.rows)
+          ? data.rows
+          : Array.isArray(data.items)
+          ? data.items
+          : [],
+        nextCursor: data.nextCursor ?? null,
+      };
     } catch (error) {
       console.error('Failed to fetch moderation history', error);
       throw error;
