@@ -529,6 +529,61 @@ export const TRANSLATIONS = {
     capItemCreateOrder: 'заказывать услуги',
     capItemContactSeller: 'писать продавцам',
     capItemWithdrawFunds: 'выводить средства',
+
+    // ---- Phase 6 — Affected-User UX (UI-SPEC §Copywriting) ----
+
+    // Banner severity titles (per D-01 / UI-SPEC §Banner severity copy)
+    bannerTitleFeatureLimited: 'Доступ ограничен',
+    bannerTitleBlockedWithReview: 'Аккаунт заблокирован',
+    bannerTitlePermanentlyBanned: 'Аккаунт заблокирован навсегда',
+
+    // Appeal CTA (banner, blocked_with_review only, per D-07)
+    appealCta: 'Обжаловать',
+
+    // Appeal mailto fallback Alert (per D-08 / UI-SPEC Clipboard Decision)
+    appealNoMailTitle: 'Почтовое приложение не установлено',
+    appealNoMailBody: 'Отправьте письмо на support@carexmarket.com и укажите ваш ID: {uid}',
+    appealOk: 'OK',
+    appealPlaceholder: '[Напишите ваше сообщение здесь]',
+
+    // Banner expand hints (per D-02)
+    expandNote: 'Нажмите, чтобы развернуть',
+    collapseNote: 'Нажмите, чтобы свернуть',
+
+    // Gate overlay CTA (feature_limited only, per UI-SPEC §Component 2 card content #4)
+    restoreProfile: 'Восстановить профиль',
+
+    // Gate overlay copy — create_listing (capability × severity × field)
+    gateCreateListingFeatureLimitedTitle: 'Размещение объявлений ограничено',
+    gateCreateListingFeatureLimitedBody: 'Чтобы снова размещать объявления, пройдите повторную проверку профиля.',
+    gateCreateListingBlockedTitle: 'Размещение объявлений недоступно',
+    gateCreateListingBlockedBody: 'Ваш аккаунт на рассмотрении. Свяжитесь с поддержкой через баннер выше.',
+    gateCreateListingBannedTitle: 'Размещение объявлений запрещено',
+    gateCreateListingBannedBody: 'Ваш аккаунт заблокирован навсегда.',
+
+    // Gate overlay copy — create_order
+    gateCreateOrderFeatureLimitedTitle: 'Бронирование услуг ограничено',
+    gateCreateOrderFeatureLimitedBody: 'Восстановите статус аккаунта, чтобы оформлять заказы.',
+    gateCreateOrderBlockedTitle: 'Бронирование недоступно',
+    gateCreateOrderBlockedBody: 'Ваш аккаунт на рассмотрении. Свяжитесь с поддержкой через баннер выше.',
+    gateCreateOrderBannedTitle: 'Бронирование запрещено',
+    gateCreateOrderBannedBody: 'Ваш аккаунт заблокирован навсегда.',
+
+    // Gate overlay copy — apply_as_provider (FRONTEND ALIAS per RESEARCH §Capability Contract Verification)
+    gateApplyProviderFeatureLimitedTitle: 'Подача заявок ограничена',
+    gateApplyProviderFeatureLimitedBody: 'Восстановите статус аккаунта, чтобы подать заявку.',
+    gateApplyProviderBlockedTitle: 'Подача заявок недоступна',
+    gateApplyProviderBlockedBody: 'Ваш аккаунт на рассмотрении. Свяжитесь с поддержкой через баннер выше.',
+    gateApplyProviderBannedTitle: 'Подача заявок запрещена',
+    gateApplyProviderBannedBody: 'Ваш аккаунт заблокирован навсегда.',
+
+    // Gate overlay copy — contact_seller
+    gateContactSellerFeatureLimitedTitle: 'Связь с продавцом ограничена',
+    gateContactSellerFeatureLimitedBody: 'Восстановите статус аккаунта, чтобы связаться с продавцом.',
+    gateContactSellerBlockedTitle: 'Связь с продавцом недоступна',
+    gateContactSellerBlockedBody: 'Ваш аккаунт на рассмотрении. Свяжитесь с поддержкой через баннер выше.',
+    gateContactSellerBannedTitle: 'Связь с продавцом запрещена',
+    gateContactSellerBannedBody: 'Ваш аккаунт заблокирован навсегда.',
   },
   EN: {
     // Header & Navigation
