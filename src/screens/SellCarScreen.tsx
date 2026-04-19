@@ -12,6 +12,7 @@ import { ArrowLeft, Camera, X, ChevronDown, AlertTriangle, CheckCircle, Clock, S
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { MakeModelFormField } from '../components/MakeModelFormField';
+import { GatedScreenWrapper } from '../components/moderation/GatedScreenWrapper';
 import { RootStackParamList } from '../types/navigation';
 
 const COUNTRIES = [
@@ -495,6 +496,7 @@ export const SellCarScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <GatedScreenWrapper capability="create_listing">
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={COLORS.textPrimary} />
@@ -944,6 +946,7 @@ export const SellCarScreen = () => {
           </ScrollView>
         </KeyboardAvoidingView>
       )}
+      </GatedScreenWrapper>
     </SafeAreaView>
   );
 };
