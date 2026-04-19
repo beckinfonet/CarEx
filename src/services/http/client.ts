@@ -31,6 +31,15 @@ import { ModerationError } from '../moderation/errors';
 declare module 'axios' {
   interface AxiosRequestConfig {
     _skipModerationInterceptor?: boolean;
+    // Plan 05-12 (UAT Test 8): set on the refresh request itself to bypass the
+    // 401 interceptor (would loop otherwise — the refresh endpoint hits a
+    // different host, but kept symmetric to the moderation skip flag for
+    // future-proofing if the refresh path ever crosses apiClient).
+    _skipIdTokenRefresh?: boolean;
+    // Internal flag: set by the 401 interceptor on the retry attempt so a
+    // second 401 on the same request short-circuits to logout instead of
+    // recursing into another refresh attempt.
+    _idTokenRefreshAttempted?: boolean;
   }
 }
 
@@ -49,6 +58,27 @@ export function setTokenProvider(fn: () => string | null) {
 let moderationRefreshListener: (() => Promise<void>) | null = null;
 export function setModerationRefreshListener(fn: () => Promise<void>) {
   moderationRefreshListener = fn;
+}
+
+// Plan 05-12: 401-triggered idToken refresh listener. AuthContext registers a
+// single-flight refresher here on mount. The listener returns the new idToken
+// on success, or null when the refresh permanently failed (TOKEN_EXPIRED /
+// INVALID_REFRESH_TOKEN / USER_DISABLED — caller should bounce to logout).
+let idTokenRefreshListener: (() => Promise<string | null>) | null = null;
+export function setIdTokenRefreshListener(
+  fn: () => Promise<string | null>,
+) {
+  idTokenRefreshListener = fn;
+}
+
+// Plan 05-12: AuthContext-registered logout trigger. Called by the 401
+// interceptor when the listener returned null (permanent refresh failure)
+// OR when a request 401s a SECOND time after the retry. Listener-style
+// (rather than a direct AuthContext import) avoids a circular dep between
+// http/client and context/AuthContext.
+let logoutTrigger: (() => Promise<void>) | null = null;
+export function setLogoutTrigger(fn: () => Promise<void>) {
+  logoutTrigger = fn;
 }
 
 // Shared instance — every `apiClient.xxx` call is scoped to the carEx backend.
@@ -92,5 +122,62 @@ apiClient.interceptors.response.use(
     }
 
     throw err;
+  },
+);
+
+// Plan 05-12 (UAT Test 8): 401-triggered idToken refresh + single retry.
+// Registered AFTER the 403 interceptor so the 403 handler runs FIRST on its
+// own status code path. On 401:
+//   1. If refresh is opted-out (loop guard) OR already attempted on this
+//      request, propagate the error (and trigger logout if it's the
+//      "second 401 in a row" case → permanent auth failure).
+//   2. Otherwise, await the registered listener (single-flight refresh).
+//      On success, mutate the original config's Authorization header with
+//      the new token, mark the request as "attempted", and re-issue via
+//      apiClient(config). On failure, propagate the original 401 (the
+//      listener itself triggered logout via setLogoutTrigger).
+apiClient.interceptors.response.use(
+  (res) => res,
+  async (err) => {
+    const config: AxiosRequestConfig | undefined = err.config;
+    const status = err.response?.status;
+    if (status !== 401 || !config) throw err;
+
+    if (config._skipIdTokenRefresh || config._idTokenRefreshAttempted) {
+      // Already tried once — trigger logout for permanent auth failure.
+      if (config._idTokenRefreshAttempted && logoutTrigger) {
+        try {
+          await logoutTrigger();
+        } catch (logoutErr) {
+          console.error('Logout trigger failed after second 401', logoutErr);
+        }
+      }
+      throw err;
+    }
+
+    if (!idTokenRefreshListener) {
+      // No listener registered — fail open and propagate the original error.
+      throw err;
+    }
+
+    let newToken: string | null = null;
+    try {
+      newToken = await idTokenRefreshListener();
+    } catch (refreshErr) {
+      console.error('idToken refresh listener failed', refreshErr);
+      throw err;
+    }
+    if (!newToken) {
+      // Listener already triggered logout (returned null on permanent
+      // failure). Propagate the original 401 to the caller.
+      throw err;
+    }
+
+    // Single retry with the new token. Mark the request as attempted so a
+    // recurring 401 on the same request short-circuits next time around.
+    config._idTokenRefreshAttempted = true;
+    config.headers = config.headers ?? {};
+    (config.headers as any).Authorization = `Bearer ${newToken}`;
+    return apiClient(config);
   },
 );
