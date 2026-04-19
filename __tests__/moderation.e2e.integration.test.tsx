@@ -70,13 +70,16 @@ jest.mock('../src/services/AuthService', () => ({
       email: 'u@x.com',
       localId: 'uid-1',
       idToken: 'id-token-1',
+      refreshToken: 'refresh-token-1',
+      expiresIn: '3600',
     })),
     signUp: jest.fn(async () => ({
       email: 'u@x.com',
       localId: 'uid-1',
       idToken: 'id-token-1',
+      refreshToken: 'refresh-token-1',
+      expiresIn: '3600',
     })),
-    saveToken: jest.fn(async () => {}),
     logout: jest.fn(async () => {}),
     createBackendUser: jest.fn(async () => {}),
     requestSellerStatus: jest.fn(async () => {}),
@@ -85,6 +88,17 @@ jest.mock('../src/services/AuthService', () => ({
     sendOtp: jest.fn(async () => {}),
     verifyOtp: jest.fn(async () => {}),
     deleteAccount: jest.fn(async () => {}),
+    // Plan 05-12: saveAuthSession replaces saveToken; getRefreshToken/
+    // getIdTokenExpiresAt hydrate the refresh-state refs on cold start;
+    // refreshIdToken mints new idTokens via securetoken.googleapis.com.
+    saveAuthSession: jest.fn(async () => {}),
+    getRefreshToken: jest.fn(async () => null),
+    getIdTokenExpiresAt: jest.fn(async () => 0),
+    refreshIdToken: jest.fn(async () => ({
+      idToken: 'refreshed-id-token',
+      refreshToken: 'rotated-refresh-token',
+      expiresIn: '3600',
+    })),
   },
 }));
 
