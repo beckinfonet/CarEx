@@ -27,6 +27,7 @@ import {
 import { COLORS, SIZES } from '../constants/theme';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { GatedScreenWrapper } from '../components/moderation/GatedScreenWrapper';
 import { RootStackParamList } from '../types/navigation';
 
 export const ServiceApplicationScreen = () => {
@@ -185,6 +186,7 @@ export const ServiceApplicationScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <GatedScreenWrapper capability="apply_as_provider">
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
 
       <View style={styles.header}>
@@ -238,6 +240,7 @@ export const ServiceApplicationScreen = () => {
       </Modal>
 
       {renderContent()}
+      </GatedScreenWrapper>
     </SafeAreaView>
   );
 };

@@ -20,6 +20,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { AuthService } from '../services/AuthService';
+import { GatedScreenWrapper } from '../components/moderation/GatedScreenWrapper';
 import { RootStackParamList } from '../types/navigation';
 
 export const ServiceCartScreen = () => {
@@ -109,6 +110,7 @@ export const ServiceCartScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <GatedScreenWrapper capability="create_order">
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
 
       <View style={styles.header}>
@@ -217,6 +219,7 @@ export const ServiceCartScreen = () => {
           </View>
         </>
       )}
+      </GatedScreenWrapper>
     </SafeAreaView>
   );
 };
