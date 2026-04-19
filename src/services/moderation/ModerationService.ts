@@ -17,7 +17,25 @@
 // request body must be passed via `config.data` (per 02-CONTEXT D-14,
 // deleteProviderProfile needs `{ role }` to disambiguate broker vs logistics).
 
+import axios from 'axios';
 import { apiClient } from '../http/client';
+
+/**
+ * True when `err` is an axios cancellation produced by AbortController.
+ * Used by searchUsers + getHistory (the only methods that accept an
+ * AbortSignal) to suppress the noisy `console.error` on aborted in-flight
+ * requests. Aborts are intended flow control (the caller superseded the
+ * request) — they should not surface as red LogBox overlays in dev.
+ *
+ * Belt-and-braces: checks all three signatures axios 1.x can produce
+ * (`isCancel`, `CanceledError`, `AbortError`) — mirrors the screen-level
+ * pattern at AdminModerationScreen.tsx (~line 136-139).
+ */
+function isAbortError(err: unknown): boolean {
+  if (axios.isCancel?.(err)) return true;
+  const name = (err as { name?: string } | null)?.name;
+  return name === 'CanceledError' || name === 'AbortError';
+}
 
 // --- Types (exported for consumers in Plan 05 admin screens) ---
 
@@ -250,6 +268,11 @@ export const ModerationService = {
       });
       return response.data;
     } catch (error) {
+      if (isAbortError(error)) {
+        // Aborted by AbortController — intended flow control, not a failure.
+        // Re-throw so callers' isCancel guards still trigger; suppress the log.
+        throw error;
+      }
       console.error('Failed to search users', error);
       throw error;
     }
@@ -287,6 +310,9 @@ export const ModerationService = {
         nextCursor: data.nextCursor ?? null,
       };
     } catch (error) {
+      if (isAbortError(error)) {
+        throw error;
+      }
       console.error('Failed to fetch moderation history', error);
       throw error;
     }
