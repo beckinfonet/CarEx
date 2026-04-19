@@ -155,4 +155,92 @@ describe('AuthService — apiClient migration (Plan 04-05)', () => {
     );
     expect(forbidden).toEqual([]);
   });
+
+  // -------------------- Test 10: refreshIdToken — Plan 05-12 --------------------
+
+  it('Test 10: refreshIdToken POSTs form-encoded body to securetoken.googleapis.com and returns camelCase shape', async () => {
+    (axios.post as jest.Mock).mockResolvedValueOnce({
+      data: {
+        id_token: 'new-id-token',
+        refresh_token: 'rotated-refresh-token',
+        expires_in: '3600',
+      },
+    });
+
+    const result = await AuthService.refreshIdToken('the-refresh-token');
+
+    expect(axios.post).toHaveBeenCalledTimes(1);
+    const [url, body, config] = (axios.post as jest.Mock).mock.calls[0];
+    expect(url).toMatch(/^https:\/\/securetoken\.googleapis\.com\/v1\/token\?key=/);
+    expect(body).toBe('grant_type=refresh_token&refresh_token=the-refresh-token');
+    expect(config.headers['Content-Type']).toBe('application/x-www-form-urlencoded');
+
+    expect(result).toEqual({
+      idToken: 'new-id-token',
+      refreshToken: 'rotated-refresh-token',
+      expiresIn: '3600',
+    });
+
+    // Critical: apiClient (which would attach Bearer) must NOT be used here.
+    expect(apiClient.post).not.toHaveBeenCalled();
+  });
+
+  it('Test 11: refreshIdToken throws the Firebase error.message on HTTP 400', async () => {
+    const err: any = new Error('Request failed with status code 400');
+    err.response = { status: 400, data: { error: { message: 'TOKEN_EXPIRED' } } };
+    (axios.post as jest.Mock).mockRejectedValueOnce(err);
+
+    await expect(
+      AuthService.refreshIdToken('expired-token'),
+    ).rejects.toEqual({ message: 'TOKEN_EXPIRED' });
+  });
+
+  it('Test 12: refreshIdToken URL-encodes the refresh token', async () => {
+    (axios.post as jest.Mock).mockResolvedValueOnce({
+      data: { id_token: 'x', refresh_token: 'y', expires_in: '3600' },
+    });
+
+    // Tokens with special chars must round-trip correctly through the form body.
+    await AuthService.refreshIdToken('a/b+c=d');
+
+    const [, body] = (axios.post as jest.Mock).mock.calls[0];
+    expect(body).toBe('grant_type=refresh_token&refresh_token=a%2Fb%2Bc%3Dd');
+  });
+
+  it('Test 13: saveAuthSession persists token + refreshToken + expiresAt to AsyncStorage', async () => {
+    const AS = require('@react-native-async-storage/async-storage');
+    AS.setItem.mockClear();
+
+    // Freeze time so expiresAt is deterministic.
+    const fixedNow = 1_700_000_000_000;
+    jest.spyOn(Date, 'now').mockReturnValue(fixedNow);
+
+    await AuthService.saveAuthSession(
+      'new-id-token',
+      'new-refresh-token',
+      '3600',
+      { localId: 'uid-1', email: 'a@b.com' },
+    );
+
+    const calls = AS.setItem.mock.calls;
+    const map = Object.fromEntries(calls);
+    expect(map.userToken).toBe('new-id-token');
+    expect(map.userRefreshToken).toBe('new-refresh-token');
+    expect(map.userIdTokenExpiresAt).toBe(String(fixedNow + 3600 * 1000));
+    expect(JSON.parse(map.userData)).toEqual({ localId: 'uid-1', email: 'a@b.com' });
+
+    (Date.now as jest.Mock).mockRestore();
+  });
+
+  it('Test 14: logout clears userRefreshToken + userIdTokenExpiresAt in addition to userToken/userData', async () => {
+    const AS = require('@react-native-async-storage/async-storage');
+    AS.removeItem.mockClear();
+
+    await AuthService.logout();
+
+    const removed = AS.removeItem.mock.calls.map((c: any[]) => c[0]).sort();
+    expect(removed).toEqual(
+      ['userData', 'userIdTokenExpiresAt', 'userRefreshToken', 'userToken'].sort(),
+    );
+  });
 });
