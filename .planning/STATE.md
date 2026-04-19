@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: In progress
-stopped_at: Phase 5 Plan 12 complete (UAT Test 8 gap-closure — Firebase idToken refresh via securetoken.googleapis.com + single-flight 401 interceptor + proactive 5-min-pre-expiry refresh); mobile scope 12/12; backend 05-0a/0b deferred to separate repo
-last_updated: "2026-04-19T06:02:31Z"
-last_activity: 2026-04-19 -- Phase 05 Plan 12 complete (AuthService.refreshIdToken + saveAuthSession + 401 interceptor in http/client.ts + AuthContext refresh lifecycle wiring; 14 AuthService tests + 15 AuthContext tests green; 18 moderation e2e tests green after Rule 1 auto-fix for saveToken→saveAuthSession migration; zero new deps; zero new tsc errors)
+stopped_at: Phase 06 context gathered (06-CONTEXT.md committed; 8 decisions D-01..D-08 locked across banner/overlay/appeal-CTA; quality-gates execution deferred to Claude's Discretion)
+last_updated: "2026-04-18T20:00:00Z"
+last_activity: 2026-04-18 -- Phase 06 discuss-phase complete (06-CONTEXT.md + 06-DISCUSSION-LOG.md committed; phase 5 learnings extracted to 05-LEARNINGS.md). Phase 6 execution blocked on backend 05-0a/0b landing in backend-services/carEx-services.
 progress:
   total_phases: 6
   completed_phases: 4
@@ -21,13 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-17)
 
 **Core value:** Admins can act on bad-actor users after they're already in the system — without losing the audit trail or breaking in-flight orders for legitimate counterparties.
-**Current focus:** Phase 05 — Admin Moderation UI (Mobile)
+**Current focus:** Phase 06 — Affected-User UX + Security Review (context gathered, awaiting planning)
 
 ## Current Position
 
-Phase: 05 (Admin Moderation UI (Mobile)) — MOBILE SCOPE COMPLETE (12/12 plans including 05-11 UAT Test 3 gap closure AND 05-12 UAT Test 8 gap closure; backend 05-0a/0b deferred to separate repo)
-Next: Phase 6 — Affected-User UX + Security Review (blocked on backend 05-0a/0b landing in carEx-services).
-Last activity: 2026-04-19 -- Phase 05 Plan 12 complete (AuthService.refreshIdToken + saveAuthSession + apiClient 401 interceptor + AuthContext idToken refresh lifecycle; 29 unit tests + 18 e2e tests green; zero new deps)
+Phase: 06 (Affected-User UX + Security Review) — CONTEXT GATHERED (06-CONTEXT.md + 06-DISCUSSION-LOG.md committed; 8 decisions D-01..D-08 locked). Phase 5 mobile scope is complete (12/12); backend 05-0a/0b still outstanding in carEx-services.
+Next: /gsd-plan-phase 6 (discussion-to-plan handoff). Execution blocked on backend 05-0a/0b landing.
+Last activity: 2026-04-18 -- Phase 06 discuss-phase complete (tinted+left-accent banner, faded+disabled FeatureGateOverlay with capability-key copy mapping, severity-aware overlay for all non-active severities, mailto appeal CTA with UID+reason+timestamp prefill and Alert+copy-to-clipboard fallback; quality-gates execution deferred to Claude's Discretion)
+Resume file: .planning/phases/06-affected-user-ux-security-review/06-CONTEXT.md
 Resume file: .planning/phases/06-affected-user-ux/ (pending creation)
 
 Progress: [██████████] 100% (Phase 05 mobile execution, 12/12 plans complete)
