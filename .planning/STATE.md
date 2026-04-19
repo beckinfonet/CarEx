@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: "Phase 06 Plan 04 complete (Wave 2 FeatureGateOverlay component + 18 real test assertions). 2 commits: feat c4b40a0 (FeatureGateOverlay.tsx 250 lines — centered card over rgba(15,17,21,0.7) dim layer, severity palette + icon map copied verbatim from SeverityBadge/UserStatusBanner, capability-key-driven copy lookup via CAPABILITY_TO_KEY_PART × SEVERITY_TO_KEY_PART → gate${Cap}${Sev}{Title|Body}, feature_limited-only Restore-profile CTA per D-06, pointerEvents=box-none coordinating with Plan 06-05 GatedScreenWrapper pointerEvents=none for T-06-03), test 2ce1e6e (10 test.todo → 18 real assertions via 15 test() + 1 test.each×3 severities, all GREEN first run; uses pure Proxy mockT since no post-interpolation substring checks needed). Delivers AFF-04 (component ready; screen wiring follows in Plans 06-05/06/07). 2 label-level deviations auto-fixed (both comment-only to satisfy strict grep acceptance criteria on rgba count=1 + test.todo count=0); zero functional deviations. Phase 6 test surface: 13 todo (GatedScreenWrapper scaffold — Plan 06-05) + 40 passed (UserStatusBanner 19 + FeatureGateOverlay 18 + translation-parity 3) / 0 failed."
-last_updated: "2026-04-19T08:43:53.000Z"
-last_activity: 2026-04-19
+stopped_at: "Phase 06 Plan 05 complete (Wave 2 GatedScreenWrapper predicate + CAPABILITY_ALIASES + all_writes sentinel + 14 real test assertions). 2 commits: feat 152576e (GatedScreenWrapper.tsx 84 lines — pass-through vs gated branch; apply_as_provider aliases to [request_broker_role, request_logistics_role] via CAPABILITY_ALIASES Record; all_writes sentinel OR'd with backendKeys.some(...) gated by state!=='active'; gated render wraps children in pointerEvents='none' View + FeatureGateOverlay sibling inside outer testID='gated-screen-wrapper-{capability}'; re-exports CapabilityKey for consumer convenience), test 768abc9 (13 test.todo → 14 real GREEN assertions via react-test-renderer + stable Proxy mockT; findHostWrapper() helper disambiguates RN <View> composite vs host testID match to assert structural children). Delivers AFF-04 predicate correctness (fixes UI-SPEC §Component 3 sketch bugs on both alias + sentinel branches per RESEARCH §Capability Contract Verification + §Pitfall 6). 2 deviations auto-fixed: (1) label-level comment rephrase to hit grep-count-1 on 'all_writes' + pointerEvents=\"none\"; (2) Rule 3 blocking — findHostWrapper() helper added to test file to walk past RN <View> composite instance to host for structural assertions. Phase 6 test surface: 54 passed + 0 todo + 0 failed (was 40+13+0 before this plan). AFF-04 closed mobile-side; Plans 06-06..10 wire screens."
+last_updated: "2026-04-19T08:56:15.000Z"
+last_activity: 2026-04-19 -- Phase 06 Plan 05 complete
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 51
-  completed_plans: 41
-  percent: 80
+  completed_plans: 42
+  percent: 82
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 06-affected-user-ux-security-review — EXECUTING
-Plan: 5 of 12 (01, 02, 03, 04 complete)
-Next: /gsd-execute-phase 06 (Plan 05 — GatedScreenWrapper). FeatureGateOverlay shipped with pointerEvents=box-none + CapabilityKey type export; Plan 06-05 wires the apply_as_provider alias + all_writes sentinel predicate and composes the overlay as a sibling with a pointerEvents=none content wrapper.
-Last activity: 2026-04-19 -- Phase 06 Plan 04 complete
-Resume file: .planning/phases/06-affected-user-ux-security-review/06-05-PLAN.md
+Plan: 6 of 12 (01, 02, 03, 04, 05 complete)
+Next: /gsd-execute-phase 06 (Plan 06 — wrap SellCarScreen + ServiceCartScreen + ServiceApplicationScreen with `<GatedScreenWrapper capability=...>`). GatedScreenWrapper shipped with alias + sentinel predicates; 4 gated screens remaining (plus CarDetailsScreen inline + App.tsx banner mount + literal-scanner test + backend cross-repo load test + security review artifact).
+Last activity: 2026-04-19 -- Phase 06 Plan 05 complete
+Resume file: .planning/phases/06-affected-user-ux-security-review/06-06-PLAN.md
 
-Progress: [████████░░] 80% (41/51 plans; Phase 06 4/12)
+Progress: [████████░░] 82% (42/51 plans; Phase 06 5/12)
 
 ## Performance Metrics
 
@@ -81,6 +81,7 @@ Progress: [████████░░] 80% (41/51 plans; Phase 06 4/12)
 | Phase 06 P02 | 2m45s | 2 tasks | 1 file |
 | Phase 06 P03 | 4m25s | 2 tasks | 2 files |
 | Phase 06 P04 | 3m43s | 2 tasks | 2 files |
+| Phase 06 P05 | 5m46s | 2 tasks (+2 auto-fix) | 2 files |
 
 ## Accumulated Context
 
@@ -206,6 +207,12 @@ Recent decisions affecting current work:
 - [Phase 06]: Plan 06-04: Pure Proxy mockT (no `known` overlay) vs. Plan 06-03's hybrid Proxy — FeatureGateOverlay has no post-interpolation substring checks (unlike UserStatusBanner's appealNoMailBody `{uid}` replacement), so literal-key-name Proxy is sufficient. Tests assert against `accessibilityLabel` which is source-assembled as `${title}. ${body}` from the key lookups — matches Proxy output directly
 - [Phase 06]: Plan 06-04: 18 real tests GREEN on first run (15 test() calls + 1 test.each expanding to 3) — above the plan's `>= 12` floor. No RED phase needed because Plan 06-01 already established RED via Wave-0 test.todo + unresolvable import path. test.each tightens the 3-severity × borderLeftColor palette assertions into one source block while keeping the BORDER_BY_SEVERITY table grep-stable
 - [Phase 06]: Plan 06-04: CapabilityKey type union ('create_listing' | 'create_order' | 'apply_as_provider' | 'contact_seller') now exported from FeatureGateOverlay.tsx — Plan 06-05's GatedScreenWrapper can import it verbatim instead of redeclaring, keeping the type surface unified across the two components that form the AFF-04 overlay contract
+- [Phase 06]: Plan 06-05: GatedScreenWrapper predicate encodes BOTH branches UI-SPEC §Component 3's sketch omitted — (1) CAPABILITY_ALIASES frontend map resolves apply_as_provider → [request_broker_role, request_logistics_role] (EITHER gates) per RESEARCH §Capability Contract Verification; (2) all_writes sentinel (restrictedFeatures.includes('all_writes')) gates ALL 4 capabilities regardless of the capability prop per RESEARCH §Pitfall 6. Combined predicate: state !== 'active' && (sentinelGated || keyGated). Named locals kept (not inlined) for grep-verifiability and reviewer clarity
+- [Phase 06]: Plan 06-05: Alias map narrowness locked by a negative test — capability='apply_as_provider' + restrictedFeatures=['request_seller_role'] does NOT gate (seller-role is approved via modal flow in Phase 5, not a screen; out of scope). Any future refactor that silently expands CAPABILITY_ALIASES breaks this test. Test 11 loops across all 4 capabilities with state='blocked_with_review' + ['all_writes'] to prove sentinel coverage is uniform
+- [Phase 06]: Plan 06-05: findHostWrapper() test helper added to disambiguate RN <View> composite instance vs host View when both carry forwarded testID — `findByProps` matched BOTH instances, but only the host View has the structurally meaningful 2 direct children (pointerEvents='none' View + FeatureGateOverlay sibling). Helper prefers `type === 'View'` string match (host) over composite. Pattern applies to any future wrapper whose top-level element is a direct RN <View> with testID — documented in SUMMARY key-decisions
+- [Phase 06]: Plan 06-05: pointerEvents contract is a TWO-COMPONENT mitigation (T-06-03) documented at both call sites — wrapper sets pointerEvents='none' on content subtree (this plan); overlay sets pointerEvents='box-none' on dim layer (Plan 06-04); neither alone suffices. Test 12 asserts pointerEvents='none' View contains child-marker; test 13 asserts overlay dim testID is NOT inside the pointerEvents='none' subtree AND directChildren.length === 2 at the host View level
+- [Phase 06]: Plan 06-05: Re-exports CapabilityKey from GatedScreenWrapper via `export type { CapabilityKey }` — Plans 06-07..09 can import both the wrapper and its type from a single module path without knowing the type's provenance from FeatureGateOverlay. Pattern applies to other moderation seam types that would otherwise force two imports on integration screens
+- [Phase 06]: Plan 06-05: 2 deviations auto-fixed — (1) Rule 1 label-level: docstring rephrased to hit exact grep counts on 'all_writes' and pointerEvents="none" (count=1 each, matching plan's <done>); (2) Rule 3 blocking: findHostWrapper() helper added because tests 12+13 initially failed on findByProps matching the wrong instance. Zero functional source deviations; component code is plan-action verbatim
 
 ### Pending Todos
 
@@ -232,6 +239,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-19T08:43:53.000Z
-Stopped at: Phase 06 Plan 04 complete (Wave 2 FeatureGateOverlay component + 18 real test assertions). 2 commits: feat c4b40a0 (FeatureGateOverlay.tsx 250 lines — centered card over rgba(15,17,21,0.7) dim layer, severity palette + icon map copied verbatim from SeverityBadge/UserStatusBanner, capability-key-driven copy lookup via CAPABILITY_TO_KEY_PART × SEVERITY_TO_KEY_PART → gate${Cap}${Sev}{Title|Body}, feature_limited-only Restore-profile CTA per D-06, pointerEvents=box-none coordinating with Plan 06-05 GatedScreenWrapper pointerEvents=none for T-06-03), test 2ce1e6e (10 test.todo → 18 real assertions via 15 test() + 1 test.each×3 severities, all GREEN first run; uses pure Proxy mockT since no post-interpolation substring checks needed). Delivers AFF-04 (component ready; screen wiring follows in Plans 06-05/06/07). 2 label-level deviations auto-fixed (both comment-only to satisfy strict grep acceptance criteria on rgba count=1 + test.todo count=0); zero functional deviations. Phase 6 test surface: 13 todo (GatedScreenWrapper scaffold — Plan 06-05) + 40 passed (UserStatusBanner 19 + FeatureGateOverlay 18 + translation-parity 3) / 0 failed.
-Resume file: (next) .planning/phases/06-affected-user-ux-security-review/06-05-PLAN.md — GatedScreenWrapper component + real assertions (AFF-04 predicate + CapabilityKey alias contract)
+Last session: 2026-04-19T08:56:15.000Z
+Stopped at: Phase 06 Plan 05 complete (Wave 2 GatedScreenWrapper predicate + CAPABILITY_ALIASES + all_writes sentinel + 14 real test assertions). 2 commits: feat 152576e (GatedScreenWrapper.tsx 84 lines — pass-through when state==='active' OR capability not restricted; gated branch wraps children in pointerEvents='none' View + FeatureGateOverlay sibling inside outer testID='gated-screen-wrapper-{capability}' View; CAPABILITY_ALIASES Record maps apply_as_provider to [request_broker_role, request_logistics_role] EITHER alias per RESEARCH §Capability Contract Verification; all_writes sentinel OR'd with backendKeys.some(...) gated by state!=='active' per RESEARCH §Pitfall 6; re-exports CapabilityKey for consumer convenience), test 768abc9 (13 test.todo → 14 real GREEN assertions; covers pass-through + 3 literal gates + 2 alias + 1 negative alias (request_seller_role) + 2 sentinel + 1 loop across all 4 capabilities + 3 render-structure assertions; findHostWrapper() helper disambiguates RN <View> composite vs host testID match). Delivers AFF-04 predicate correctness (fixes UI-SPEC §Component 3 sketch bugs on both alias + sentinel branches). 2 deviations auto-fixed: (1) Rule 1 label-level comment rephrase to hit grep-count-1 on 'all_writes' + pointerEvents="none"; (2) Rule 3 blocking — findHostWrapper() helper added to test file to walk past RN <View> composite to host for structural assertions. Zero functional source deviations. Phase 6 test surface: 54 passed + 0 todo + 0 failed (was 40+13+0 before this plan). AFF-04 closed mobile-side across 3 components (UserStatusBanner + FeatureGateOverlay + GatedScreenWrapper); Plans 06-06..10 wire screens + App.tsx + backend cross-repo + security review.
+Resume file: (next) .planning/phases/06-affected-user-ux-security-review/06-06-PLAN.md — wrap SellCarScreen + ServiceCartScreen + ServiceApplicationScreen with GatedScreenWrapper capability markers
