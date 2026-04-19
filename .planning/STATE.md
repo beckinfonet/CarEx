@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 06
-stopped_at: "Phase 06 Plan 01 complete (Wave 0 test scaffolds — four Jest files, 45 test.todo entries across three moderation component scaffolds + 3 real QUAL-01 translation-parity assertions. 3 commits: test for Task 1 (UserStatusBanner 16 todos), test for Task 2 (FeatureGateOverlay 10 todos + GatedScreenWrapper 13 todos with apply_as_provider alias + all_writes sentinel branches), test for Task 3 (translation-parity.test.ts with set-equality). Component scaffolds: 39 todo / 0 failed / 0 passed (expected RED). translation-parity: 3/3 green against 459=459 RU/EN baseline. Zero deviations; all done-criteria met on first run; zero source file changes)."
-last_updated: "2026-04-19T08:18:08Z"
-last_activity: 2026-04-19 -- Phase 06 Plan 01 complete
+stopped_at: "Phase 06 Plan 02 complete (Wave 1 translations additions — 35 Phase 6 keys landed in both RU and EN blocks of src/constants/translations.ts per UI-SPEC §Copywriting Contract. 2 commits: feat for Task 1 (RU 35 entries, 459→494), feat for Task 2 (EN 35 entries mirrored 1:1, 459→494). QUAL-01 parity test green: 3/3 passed with set-equality RU=EN=494. Phase 6 scaffolds still green: 39 todo + 3 passed / 0 failed. One label-level deviation auto-fixed: plan objective said '32 keys' but enumerated action block lists 35; followed enumerated block since grep-verifiable done criteria (gate*×6 per lang) force all 35. Zero functional deviations; UI-SPEC D-05 locked copy preserved verbatim. Struck keys (appealCopyEmail/appealCopied/appealCancel) confirmed absent)."
+last_updated: "2026-04-19T08:25:20Z"
+last_activity: 2026-04-19 -- Phase 06 Plan 02 complete
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 51
-  completed_plans: 38
-  percent: 75
+  completed_plans: 39
+  percent: 76
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 06-affected-user-ux-security-review — EXECUTING
-Plan: 2 of 12 (01 complete)
-Next: /gsd-execute-phase 06 (Plan 02 — 32 RU + 32 EN translation keys per UI-SPEC Copywriting). Plan 02 can proceed Wave 1 without backend blockers since scaffolds compile and translation-parity.test.ts is green.
-Last activity: 2026-04-19 -- Phase 06 Plan 01 complete (Wave 0 scaffolds)
-Resume file: .planning/phases/06-affected-user-ux-security-review/06-02-PLAN.md
+Plan: 3 of 12 (01, 02 complete)
+Next: /gsd-execute-phase 06 (Plan 03 — UserStatusBanner component + real assertions). 35 Phase 6 translation keys now live; Wave 2 components can reference t.bannerTitle*, t.appeal*, t.gate*, t.restoreProfile.
+Last activity: 2026-04-19 -- Phase 06 Plan 02 complete (Wave 1 translations +35/+35)
+Resume file: .planning/phases/06-affected-user-ux-security-review/06-03-PLAN.md
 
-Progress: [███████▌░░] 75% (38/51 plans; Phase 06 1/12)
+Progress: [███████▌░░] 76% (39/51 plans; Phase 06 2/12)
 
 ## Performance Metrics
 
@@ -78,6 +78,7 @@ Progress: [███████▌░░] 75% (38/51 plans; Phase 06 1/12)
 | Phase 05 P11 | 5m48s | 3 tasks | 5 files (+2 deleted) |
 | Phase 05 P12 | 8m46s | 4 tasks (+1 auto-fix) | 6 files |
 | Phase 06 P01 | 2m26s | 3 tasks | 4 files |
+| Phase 06 P02 | 2m45s | 2 tasks | 1 file |
 
 ## Accumulated Context
 
@@ -186,6 +187,10 @@ Recent decisions affecting current work:
 - [Phase 06]: Plan 06-01: `translation-parity.test.ts` ships with REAL assertions (not `test.todo`) — 3/3 green against current 459-key baseline. Uses set-equality (Object.keys + filter) instead of hardcoded count; RESEARCH §Pitfall 8 confirms UI-SPEC's 455 figure is stale
 - [Phase 06]: Plan 06-01: 45 combined `test.todo` entries across 3 component scaffolds (16+10+13+6 Task-1-extra beyond plan floor) cover AFF-01 render contract, AFF-02 reason + note, AFF-03 mailto + fallback (encodeURIComponent + setAt literal grep-verifiable), AFF-04 overlay + wrapper predicate. Zero `src/*` changes; zero deviations
 - [Phase 06]: Plan 06-01: Requirement IDs AFF-01..04 + QUAL-01 NOT yet marked complete in REQUIREMENTS.md — scaffolds lock the contract but don't implement behavior. Later waves (06-03..06-09) convert `test.todo` → real assertions and land the components; requirement tickoff belongs to those plans
+- [Phase 06]: Plan 06-02: Plan's "32 new keys" objective label was a miscount — enumerated action block lists 35 entries (3 banner titles + 1 appealCta + 4 mailto fallback + 2 expand/collapse + 1 restoreProfile + 4 capability families × 6 gate keys = 35). All grep-verifiable `<done>` criteria (gateCreateListing × 6, gateCreateOrder × 6, gateApplyProvider × 6, gateContactSeller × 6 per language) only hold with all 35. Followed enumerated action block (plan-body-wins); RU=EN=494 keys after this plan (not 491)
+- [Phase 06]: Plan 06-02: UI-SPEC §Copywriting D-05 strings copied verbatim into both RU and EN blocks — zero paraphrasing, zero wordsmithing. Wave 2 component tests can assert literal string matches against t.bannerTitleFeatureLimited ('Доступ ограничен' / 'Access limited'), etc. if needed
+- [Phase 06]: Plan 06-02: Struck keys (appealCopyEmail / appealCopied / appealCancel) confirmed absent (grep count = 0) — UI-SPEC Clipboard Decision definitive; RN 0.83 removed legacy @react-native-community/clipboard and CLAUDE.md forbids new libs this milestone. Single Alert button `appealOk` handles mailto-fallback UX per D-08
+- [Phase 06]: Plan 06-02: Phase 5 and earlier keys preserved byte-identical — diff shows only additions at end of each language block; `reasonSpam` / `reasonPolicyViolation` / `reasonFraud` / `reasonOther` NOT re-added (Phase 5 ships them). Banner comment `// ---- Phase 6 — Affected-User UX (UI-SPEC §Copywriting) ----` appears exactly twice (one per language block)
 
 ### Pending Todos
 
@@ -212,6 +217,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-19T08:18:08Z
-Stopped at: Phase 06 Plan 01 complete (Wave 0 test scaffolds — four Jest files, 45 test.todo entries across three moderation component scaffolds + 3 real QUAL-01 translation-parity assertions. 3 commits: test for Task 1 (UserStatusBanner 16 todos), test for Task 2 (FeatureGateOverlay 10 todos + GatedScreenWrapper 13 todos with apply_as_provider alias + all_writes sentinel branches), test for Task 3 (translation-parity.test.ts with set-equality against 459=459 RU/EN baseline). Component scaffolds: 39 todo / 0 failed / 0 passed (expected RED). Zero deviations; all done-criteria met on first run; zero source file changes.
-Resume file: (next) .planning/phases/06-affected-user-ux-security-review/06-02-PLAN.md — 32 RU + 32 EN translation keys per UI-SPEC Copywriting (QUAL-01)
+Last session: 2026-04-19T08:25:20Z
+Stopped at: Phase 06 Plan 02 complete (Wave 1 translations additions — 35 Phase 6 keys added to both RU and EN blocks of src/constants/translations.ts per UI-SPEC §Copywriting Contract. 2 commits: feat for Task 1 (RU 35 entries, 459→494), feat for Task 2 (EN 35 entries mirrored 1:1, 459→494). QUAL-01 parity test green 3/3 with set-equality RU=EN=494. Phase 6 scaffolds still green: 39 todo + 3 passed / 0 failed. One label-level deviation auto-fixed: plan objective said '32 keys' but enumerated action block lists 35. Zero functional deviations; UI-SPEC D-05 locked copy preserved verbatim; struck keys (appealCopyEmail/appealCopied/appealCancel) confirmed absent.
+Resume file: (next) .planning/phases/06-affected-user-ux-security-review/06-03-PLAN.md — UserStatusBanner component + real assertions (AFF-01, AFF-02, AFF-03)
