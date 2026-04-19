@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, useWindowDimensions, Linking, Alert, Modal, Platform, Animated, Share, Image, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, useWindowDimensions, Linking, Alert, Modal, Platform, Animated, Share, Image, ActivityIndicator, Pressable } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Zoomable } from '@likashefqet/react-native-image-zoom';
 import { OptimizedImage } from '../components/OptimizedImage';
@@ -14,6 +14,7 @@ import { AuthService } from '../services/AuthService';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { FeatureGateOverlay } from '../components/moderation/FeatureGateOverlay';
 import { LISTING_URL, API_URL } from '../constants/config';
 import axios from 'axios';
 
@@ -42,7 +43,20 @@ export const CarDetailsScreen = () => {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
   const [paymentWarningVisible, setPaymentWarningVisible] = useState(false);
+  const [contactGateVisible, setContactGateVisible] = useState(false);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
+
+  // Phase 6 Plan 06-07 — inline contact_seller gate on Telegram + WhatsApp CTAs.
+  // Predicate mirrors the full-screen wrapper (Plan 06-05) exactly:
+  // state !== 'active' AND (all_writes sentinel OR literal contact_seller key).
+  // Keeps CTA-only gating consistent with the full-screen wrapper's predicate
+  // behavior; browse body stays interactive (D-04 context preservation).
+  // T-06-03 mitigation.
+  const state: string = user?.moderationStatus?.state ?? 'active';
+  const restricted: string[] = user?.moderationStatus?.restrictedFeatures ?? [];
+  const isContactGated =
+    state !== 'active' &&
+    (restricted.includes('all_writes') || restricted.includes('contact_seller'));
 
   const car = CARS.find(c => c.id === carId) || (route.params as any).carData || fetchedCar;
   const listingStatus = (localListingStatus ?? car?.listingStatus ?? 'active') as string;
@@ -680,12 +694,27 @@ export const CarDetailsScreen = () => {
             <Text style={styles.contactLabel}>{t.contactVia}</Text>
             <View style={styles.contactButtonsRow}>
               {car.telegramUsername && (
-                <TouchableOpacity style={[styles.contactButton, styles.telegramButton]} onPress={handleTelegram}>
+                <TouchableOpacity
+                  style={[styles.contactButton, styles.telegramButton, isContactGated && { opacity: 0.4 }]}
+                  onPress={isContactGated ? () => setContactGateVisible(true) : handleTelegram}
+                  disabled={false}
+                  testID="car-details-telegram-cta"
+                  accessibilityState={{ disabled: isContactGated }}>
                   <Send size={20} color="#FFF" />
                   <Text style={[styles.contactButtonText, { color: '#FFF' }]}>Telegram</Text>
                 </TouchableOpacity>
               )}
-              <TouchableOpacity style={[styles.contactButton, styles.whatsappButton, car.telegramUsername ? { flex: 1, marginLeft: 2 } : { width: '100%' }]} onPress={handleCallSeller}>
+              <TouchableOpacity
+                style={[
+                  styles.contactButton,
+                  styles.whatsappButton,
+                  car.telegramUsername ? { flex: 1, marginLeft: 2 } : { width: '100%' },
+                  isContactGated && { opacity: 0.4 },
+                ]}
+                onPress={isContactGated ? () => setContactGateVisible(true) : handleCallSeller}
+                disabled={false}
+                testID="car-details-whatsapp-cta"
+                accessibilityState={{ disabled: isContactGated }}>
                 <MessageCircle size={20} color="#FFF" />
                 <Text style={[styles.contactButtonText, { color: '#FFF' }]}>{t.whatsapp}</Text>
               </TouchableOpacity>
@@ -697,6 +726,20 @@ export const CarDetailsScreen = () => {
           </View>
         )}
       </View>
+
+      <Modal
+        visible={contactGateVisible}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setContactGateVisible(false)}>
+        <Pressable
+          style={{ flex: 1 }}
+          onPress={() => setContactGateVisible(false)}
+          testID="car-details-contact-gate-modal">
+          <FeatureGateOverlay capability="contact_seller" />
+        </Pressable>
+      </Modal>
 
       <Modal
         visible={paymentWarningVisible}
