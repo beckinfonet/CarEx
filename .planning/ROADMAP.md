@@ -130,7 +130,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Backend load test with 10,000 seeded users shows admin search + moderation history endpoints respond < 200ms P95 with `explain()` confirming index use on `moderationStatus.state`, `ModerationAction.targetUid+createdAt`, and `ModerationAction.adminUid+createdAt`
   6. Security review sign-off confirms (a) `verifyIdToken` runs on every admin route, (b) no `callerUid` body param is trusted for authorization on any new route, (c) suspend and confirm-booking mutations are transactional, (d) the `ModerationAction` collection rejects updates and deletes at the application layer, (e) no new hardcoded secrets were introduced
 **Plans**: 11 plans
-  - [ ] 06-01-PLAN.md — Wave 0 test scaffolds (banner/overlay/wrapper + translation-parity) (AFF-01..04, QUAL-01)
+  - [x] 06-01-PLAN.md — Wave 0 test scaffolds (banner/overlay/wrapper + translation-parity) (AFF-01..04, QUAL-01)
   - [ ] 06-02-PLAN.md — Add 32 RU + 32 EN translation keys per UI-SPEC Copywriting (QUAL-01)
   - [ ] 06-03-PLAN.md — UserStatusBanner component + real assertions (mailto encode + severity icons) (AFF-01, AFF-02, AFF-03)
   - [ ] 06-04-PLAN.md — FeatureGateOverlay component + capability-key-driven copy lookup tests (AFF-04)
@@ -156,4 +156,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
 | 4. Mobile Plumbing (Mobile) | 7/7 | Complete | 2026-04-18 |
 | 5. Admin Moderation UI (Mobile) | 12/14 | In progress (mobile scope 12/12; backend 05-0a/0b deferred to cross-repo) | - |
-| 6. Affected-User UX + Security Review (Both) | 0/12 | Planned | - |
+| 6. Affected-User UX + Security Review (Both) | 1/12 | In progress | - |

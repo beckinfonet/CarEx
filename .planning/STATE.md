@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: In progress
-stopped_at: Phase 06 context gathered (06-CONTEXT.md committed; 8 decisions D-01..D-08 locked across banner/overlay/appeal-CTA; quality-gates execution deferred to Claude's Discretion)
-last_updated: "2026-04-18T20:00:00Z"
-last_activity: 2026-04-18 -- Phase 06 discuss-phase complete (06-CONTEXT.md + 06-DISCUSSION-LOG.md committed; phase 5 learnings extracted to 05-LEARNINGS.md). Phase 6 execution blocked on backend 05-0a/0b landing in backend-services/carEx-services.
+status: Executing Phase 06
+stopped_at: "Phase 06 Plan 01 complete (Wave 0 test scaffolds — four Jest files, 45 test.todo entries across three moderation component scaffolds + 3 real QUAL-01 translation-parity assertions. 3 commits: test for Task 1 (UserStatusBanner 16 todos), test for Task 2 (FeatureGateOverlay 10 todos + GatedScreenWrapper 13 todos with apply_as_provider alias + all_writes sentinel branches), test for Task 3 (translation-parity.test.ts with set-equality). Component scaffolds: 39 todo / 0 failed / 0 passed (expected RED). translation-parity: 3/3 green against 459=459 RU/EN baseline. Zero deviations; all done-criteria met on first run; zero source file changes)."
+last_updated: "2026-04-19T08:18:08Z"
+last_activity: 2026-04-19 -- Phase 06 Plan 01 complete
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 39
-  completed_plans: 37
-  percent: 95
+  total_plans: 51
+  completed_plans: 38
+  percent: 75
 ---
 
 # Project State
@@ -21,17 +21,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-17)
 
 **Core value:** Admins can act on bad-actor users after they're already in the system — without losing the audit trail or breaking in-flight orders for legitimate counterparties.
-**Current focus:** Phase 06 — Affected-User UX + Security Review (context gathered, awaiting planning)
+**Current focus:** Phase null
 
 ## Current Position
 
-Phase: 06 (Affected-User UX + Security Review) — CONTEXT GATHERED (06-CONTEXT.md + 06-DISCUSSION-LOG.md committed; 8 decisions D-01..D-08 locked). Phase 5 mobile scope is complete (12/12); backend 05-0a/0b still outstanding in carEx-services.
-Next: /gsd-plan-phase 6 (discussion-to-plan handoff). Execution blocked on backend 05-0a/0b landing.
-Last activity: 2026-04-18 -- Phase 06 discuss-phase complete (tinted+left-accent banner, faded+disabled FeatureGateOverlay with capability-key copy mapping, severity-aware overlay for all non-active severities, mailto appeal CTA with UID+reason+timestamp prefill and Alert+copy-to-clipboard fallback; quality-gates execution deferred to Claude's Discretion)
-Resume file: .planning/phases/06-affected-user-ux-security-review/06-CONTEXT.md
-Resume file: .planning/phases/06-affected-user-ux/ (pending creation)
+Phase: 06-affected-user-ux-security-review — EXECUTING
+Plan: 2 of 12 (01 complete)
+Next: /gsd-execute-phase 06 (Plan 02 — 32 RU + 32 EN translation keys per UI-SPEC Copywriting). Plan 02 can proceed Wave 1 without backend blockers since scaffolds compile and translation-parity.test.ts is green.
+Last activity: 2026-04-19 -- Phase 06 Plan 01 complete (Wave 0 scaffolds)
+Resume file: .planning/phases/06-affected-user-ux-security-review/06-02-PLAN.md
 
-Progress: [██████████] 100% (Phase 05 mobile execution, 12/12 plans complete)
+Progress: [███████▌░░] 75% (38/51 plans; Phase 06 1/12)
 
 ## Performance Metrics
 
@@ -77,6 +77,7 @@ Progress: [██████████] 100% (Phase 05 mobile execution, 12/1
 | Phase 05 P10 | ~10m | 4 tasks | 8 files |
 | Phase 05 P11 | 5m48s | 3 tasks | 5 files (+2 deleted) |
 | Phase 05 P12 | 8m46s | 4 tasks (+1 auto-fix) | 6 files |
+| Phase 06 P01 | 2m26s | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -180,6 +181,11 @@ Recent decisions affecting current work:
 - [Phase 05]: Plan 05-12: `saveToken` preserved in source for back-compat but DROPPED from both AuthContext test mocks (regression lock) — any future reintroduction via a caller would break Test 11 (`expect((AuthService as any).saveToken).toBeUndefined()`) instead of silently bypassing the new persistence path
 - [Phase 05]: Plan 05-12: `refreshIdToken` stays on plain axios (not apiClient) per Firebase Identity Toolkit convention — key-in-query-string surface uses a different auth model than Bearer-in-header; Test 10 asserts `apiClient.post` was NOT called to lock this contract
 - [Phase 05]: Plan 05-12: Rule 1 auto-fix — `__tests__/moderation.e2e.integration.test.tsx` mock extended to mirror the new `saveAuthSession` contract after Plan 05-12 migrated AuthContext off `saveToken`. Foreseeable side-effect; 3 previously-green e2e tests (3.1 / 4.1 / 4.3) restored in commit `1cfb50e`; final e2e suite 18/18 green
+- [Phase 06]: Plan 06-01: Wave 0 test scaffolds land four files under `__tests__/` — three component scaffolds import from `src/components/moderation/{UserStatusBanner,FeatureGateOverlay,GatedScreenWrapper}` module paths that do not resolve until Wave 2, intentionally coupling the Wave 2 implementation to a compile-time wiring check
+- [Phase 06]: Plan 06-01: `GatedScreenWrapper.test.tsx` locks BOTH the `apply_as_provider` frontend alias (resolves to `request_broker_role ∪ request_logistics_role`) AND the `all_writes` sentinel branch via explicit `test.todo` entries — prevents Wave 2 implementers from copying UI-SPEC's buggy implementation sketch; tests will fail if the capability predicate regresses to the single-key-only form (RESEARCH §Capability Contract Verification + §Pitfall 6)
+- [Phase 06]: Plan 06-01: `translation-parity.test.ts` ships with REAL assertions (not `test.todo`) — 3/3 green against current 459-key baseline. Uses set-equality (Object.keys + filter) instead of hardcoded count; RESEARCH §Pitfall 8 confirms UI-SPEC's 455 figure is stale
+- [Phase 06]: Plan 06-01: 45 combined `test.todo` entries across 3 component scaffolds (16+10+13+6 Task-1-extra beyond plan floor) cover AFF-01 render contract, AFF-02 reason + note, AFF-03 mailto + fallback (encodeURIComponent + setAt literal grep-verifiable), AFF-04 overlay + wrapper predicate. Zero `src/*` changes; zero deviations
+- [Phase 06]: Plan 06-01: Requirement IDs AFF-01..04 + QUAL-01 NOT yet marked complete in REQUIREMENTS.md — scaffolds lock the contract but don't implement behavior. Later waves (06-03..06-09) convert `test.todo` → real assertions and land the components; requirement tickoff belongs to those plans
 
 ### Pending Todos
 
@@ -206,6 +212,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-19T06:02:31Z
-Stopped at: Phase 05 Plan 12 complete (UAT Test 8 gap closure — Firebase idToken refresh via securetoken.googleapis.com + single-flight 401 response interceptor in apiClient + proactive 5-min-pre-expiry refresh on AppState foreground via refreshUserInternal head-of-function. 6 commits: test→feat pair for Task 1, single feat for Tasks 2+3 (integration-tested in Task 4), test for Task 4, plus a Rule 1 auto-fix extending the moderation e2e test mock after saveToken→saveAuthSession migration. AuthService 14/14 green (9+5); AuthContext 15/15 green (8+7); moderation e2e 18/18 green; full suite 161/162 (only pre-existing App.test.tsx navigation-stack failure remains, logged in deferred-items.md). Zero new deps; zero new tsc errors; no hardcoded secrets added). PHASE 5 MOBILE SCOPE 12/12 COMPLETE; blocked on backend 05-0a/0b for production readiness.
-Resume file: (next) .planning/phases/06-affected-user-ux/ — pending planning once backend routes land
+Last session: 2026-04-19T08:18:08Z
+Stopped at: Phase 06 Plan 01 complete (Wave 0 test scaffolds — four Jest files, 45 test.todo entries across three moderation component scaffolds + 3 real QUAL-01 translation-parity assertions. 3 commits: test for Task 1 (UserStatusBanner 16 todos), test for Task 2 (FeatureGateOverlay 10 todos + GatedScreenWrapper 13 todos with apply_as_provider alias + all_writes sentinel branches), test for Task 3 (translation-parity.test.ts with set-equality against 459=459 RU/EN baseline). Component scaffolds: 39 todo / 0 failed / 0 passed (expected RED). Zero deviations; all done-criteria met on first run; zero source file changes.
+Resume file: (next) .planning/phases/06-affected-user-ux-security-review/06-02-PLAN.md — 32 RU + 32 EN translation keys per UI-SPEC Copywriting (QUAL-01)
