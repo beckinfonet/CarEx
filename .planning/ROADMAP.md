@@ -136,7 +136,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 06-04-PLAN.md — FeatureGateOverlay component + capability-key-driven copy lookup tests (AFF-04)
   - [x] 06-05-PLAN.md — GatedScreenWrapper with CAPABILITY_ALIASES + all_writes sentinel (AFF-04)
   - [x] 06-06-PLAN.md — Wrap SellCarScreen + ServiceCartScreen + ServiceApplicationScreen (AFF-04)
-  - [ ] 06-07-PLAN.md — CarDetailsScreen inline contact_seller gate on TWO CTAs + fade Modal (AFF-04)
+  - [x] 06-07-PLAN.md — CarDetailsScreen inline contact_seller gate on TWO CTAs + fade Modal (AFF-04)
   - [ ] 06-08-PLAN.md — Mount UserStatusBanner in App.tsx + Android LayoutAnimation enable (AFF-01)
   - [ ] 06-09-PLAN.md — Jest literal scanner for new moderation components (QUAL-01)
   - [ ] 06-0a-PLAN.md — Backend seed 10k users + verify-indexes.sh (cross-repo) (QUAL-02)
@@ -156,4 +156,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
 | 4. Mobile Plumbing (Mobile) | 7/7 | Complete | 2026-04-18 |
 | 5. Admin Moderation UI (Mobile) | 12/14 | In progress (mobile scope 12/12; backend 05-0a/0b deferred to cross-repo) | - |
-| 6. Affected-User UX + Security Review (Both) | 6/12 | In Progress|  |
+| 6. Affected-User UX + Security Review (Both) | 7/12 | In Progress|  |

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: "Phase 06 Plan 06 complete (Wave 3 screen integration — 3 of 4 full-screen gated surfaces wrapped). 2 atomic commits: feat 19e6f40 (SellCarScreen body wrapped with <GatedScreenWrapper capability=\"create_listing\"> — 3 insertions / 0 deletions; import placed after MakeModelFormField and before RootStackParamList); feat 64192b1 (ServiceCartScreen body wrapped with capability=\"create_order\" at main return only — submitted short-circuit at lines 92-106 INTENTIONALLY NOT wrapped because it renders an order-success view AFTER createOrders() succeeded; ServiceApplicationScreen body wrapped with capability=\"apply_as_provider\" — single alias key, zero per-route-type branching, leveraging Plan 06-05's CAPABILITY_ALIASES[apply_as_provider] → [request_broker_role, request_logistics_role]). Each of 3 files: 1 import + 2 JSX tag lines (3 insertions / 0 deletions) — minimal-diff policy exactly held. npx tsc --noEmit clean on all 3 files; 215/216 jest tests green (same as baseline; only pre-existing App.test.tsx failure deferred from Plan 05-11). Negative invariant locked: grep -c 'request_broker_role|request_logistics_role' src/screens/ServiceApplicationScreen.tsx = 0 (alias-only dispatch). Zero deviations — plan executed exactly as written. 3 of 4 AFF-04 full-screen surfaces delivered; CarDetailsScreen contact_seller CTA-only inline gating is Plan 06-07's separate shape (not a GatedScreenWrapper wrap). App.tsx UserStatusBanner global mount is Plan 06-08 (independent). Wave 7 UAT manual check still owed: RESEARCH §Open Question 1 Android ScrollView pointerEvents cascade verification on all 3 wrapped screens."
-last_updated: "2026-04-19T09:05:17.000Z"
-last_activity: 2026-04-19 -- Phase 06 Plan 06 complete
+stopped_at: "Phase 06 Plan 07 complete (Wave 3 inline CTA gate — fourth and final AFF-04 surface delivered). 1 atomic commit: feat f745f00 (CarDetailsScreen.tsx +46/-3 — Pressable + FeatureGateOverlay imports, contactGateVisible state, isContactGated predicate mirroring GatedScreenWrapper shape-for-shape, Telegram + WhatsApp TouchableOpacity props expanded with opacity:0.4 conditional dim + conditional onPress swap + testIDs + accessibilityState, fade Modal containing <FeatureGateOverlay capability=\"contact_seller\" /> adjacent to existing paymentWarning Modal). Predicate: state !== 'active' AND (restricted.includes('all_writes') OR restricted.includes('contact_seller')). disabled={false} kept explicit — tap-to-divert via conditional onPress, not tap-suppression. Full CarDetailsScreen body (images, specs, seller info, favorite, share) remains byte-identical and interactive for moderated users per D-04 context preservation. All 8 plan acceptance greps match: isContactGated=7, FeatureGateOverlay capability=\"contact_seller\"=1, testIDs=3, all_writes=1, contact_seller=1, GatedScreenWrapper=0, GatedButtonGate=0. contactGateVisible case-sensitive count = 2 (plan criterion documented as a plan-authoring edge case — setter is setContactGateVisible with capital C, does not match lowercase-c substring; intent count = 6 references). 2 auto-fixed deviations: Rule 1 (plan criterion mechanical mismatch documented in SUMMARY), Rule 3 (comment rephrased from 'GatedScreenWrapper' to 'full-screen wrapper' to hit grep=0). 215/216 jest tests green (unchanged baseline; only pre-existing App.test.tsx deferred failure). Zero new TS errors on CarDetailsScreen.tsx. AFF-04 complete across all 4 ROADMAP-named gated surfaces (SellCar + ServiceCart + ServiceApplication from 06-06 + CarDetails from 06-07). Next: Plan 06-08 (App.tsx UserStatusBanner global mount + Android LayoutAnimation enable — AFF-01). Wave 7 UAT hook owed: manual iOS + Android verification of CTA dim + modal divert + backdrop dismiss."
+last_updated: "2026-04-19T09:14:30.000Z"
+last_activity: 2026-04-19 -- Phase 06 Plan 07 complete
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 51
-  completed_plans: 43
-  percent: 84
+  completed_plans: 44
+  percent: 86
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 06-affected-user-ux-security-review — EXECUTING
-Plan: 7 of 12 (01, 02, 03, 04, 05, 06 complete)
-Next: /gsd-execute-phase 06 (Plan 07 — CarDetailsScreen inline contact_seller gate on two CTAs at lines 683-691 + fade Modal; separate shape from GatedScreenWrapper per RESEARCH §Open Question 3). Full-screen wraps landed on SellCar + ServiceCart + ServiceApplication via Plan 06-06; CTA-only inline gating is Plan 06-07.
-Last activity: 2026-04-19 -- Phase 06 Plan 06 complete
-Resume file: .planning/phases/06-affected-user-ux-security-review/06-07-PLAN.md
+Plan: 8 of 12 (01, 02, 03, 04, 05, 06, 07 complete)
+Next: /gsd-execute-phase 06 (Plan 08 — App.tsx UserStatusBanner global mount + Android LayoutAnimation enable per RESEARCH §Open Question 2; independent shape from 06-07). AFF-04 now complete across all 4 ROADMAP-named gated surfaces (SellCar + ServiceCart + ServiceApplication + CarDetails); 06-08 delivers AFF-01 banner visibility globally.
+Last activity: 2026-04-19 -- Phase 06 Plan 07 complete
+Resume file: .planning/phases/06-affected-user-ux-security-review/06-08-PLAN.md
 
-Progress: [████████░░] 84% (43/51 plans; Phase 06 6/12)
+Progress: [████████░░] 86% (44/51 plans; Phase 06 7/12)
 
 ## Performance Metrics
 
@@ -83,6 +83,7 @@ Progress: [████████░░] 84% (43/51 plans; Phase 06 6/12)
 | Phase 06 P04 | 3m43s | 2 tasks | 2 files |
 | Phase 06 P05 | 5m46s | 2 tasks (+2 auto-fix) | 2 files |
 | Phase 06 P06 | ~3m | 2 tasks | 3 files |
+| Phase 06 P07 | ~4m | 1 tasks (+2 auto-fix) | 1 files |
 
 ## Accumulated Context
 
@@ -219,6 +220,11 @@ Recent decisions affecting current work:
 - [Phase 06]: Plan 06-06: ServiceApplicationScreen uses a single frontend-alias capability key `apply_as_provider` — zero branching on route.params.type ∈ {broker, logistics} at the wrap site. Plan 06-05's CAPABILITY_ALIASES[apply_as_provider] = [request_broker_role, request_logistics_role] handles the OR-predicate against the backend STATUS_POLICY keys. Negative invariant locked: grep -c 'request_broker_role|request_logistics_role' src/screens/ServiceApplicationScreen.tsx = 0. Alias-only dispatch is the codified pattern for any future multi-role screen wrap
 - [Phase 06]: Plan 06-06: Import placement consistent across all 3 screens — new `import { GatedScreenWrapper } from '../components/moderation/GatedScreenWrapper'` lands AFTER the last project/service import and BEFORE the type-only RootStackParamList import. Matches existing per-file import ordering without introducing a new group break. SellCar: after MakeModelFormField; ServiceCart: after AuthService; ServiceApplication: after useAuth. Zero new TS errors on any of the 3 files after the wrap
 - [Phase 06]: Plan 06-06: Zero deviations — plan executed exactly as written. All grep-verifiable `<done>` criteria (3 GatedScreenWrapper open tags with correct capability key, 3 close tags, 2 new imports on ServiceCart/ServiceApplication + 1 new import on SellCar, 0 per-role branch in ServiceApplicationScreen) PASS on first run. 215/216 jest tests green (baseline unchanged; only pre-existing deferred App.test.tsx navigation/native-stack failure remains)
+- [Phase 06]: Plan 06-07: Inline CTA gate canonical shape codified — 4 scaffolding pieces required: (1) predicate local + visible state near top of component body, (2) dim style conditional on button style arrays (`isContactGated && { opacity: 0.4 }`), (3) conditional onPress swap (`isContactGated ? () => setContactGateVisible(true) : handleOriginal`), (4) fade Modal with `<FeatureGateOverlay capability='...' />` inside outer `<Pressable>`. Skipping any one breaks either dim-disabled look, divert behavior, or informational feedback. Pattern codified for any future single-use-site gate need — extract to a GatedButtonGate component only when a SECOND use-site emerges
+- [Phase 06]: Plan 06-07: Predicate mirrors GatedScreenWrapper shape-for-shape — `state !== 'active' && (restricted.includes('all_writes') || restricted.includes('contact_seller'))`. Copied verbatim from GatedScreenWrapper.tsx:58-59 so any future predicate refactor has a mechanically-findable peer at the inline site. T-06-03 mitigation: frontend predicate cannot drift without visible diff; backend ENF-01 remains authoritative
+- [Phase 06]: Plan 06-07: disabled={false} kept explicit on gated TouchableOpacity — tap-to-divert via conditional onPress, NOT tap-suppression via disabled={true}. `disabled={true}` would prevent the informational modal from ever surfacing. accessibilityState={{ disabled: isContactGated }} surfaces the semantic to screen readers without breaking the tap-to-explain flow. Matches UI-SPEC §Component 4 'lightweight GatedButtonGate' intent (dim + divert, not hide + block)
+- [Phase 06]: Plan 06-07: Comment-level grep invariant enforced — source-level docstring that originally said 'Predicate mirrors GatedScreenWrapper' was rephrased to 'Predicate mirrors the full-screen wrapper' so `grep -c 'GatedScreenWrapper' src/screens/CarDetailsScreen.tsx` = 0 invariant holds mechanically. Semantic intent (predicate parity via Plan 06-05 reference) preserved; grep invariant protects against copy-paste drift that accidentally wraps the full screen
+- [Phase 06]: Plan 06-07: Plan §done criterion `grep -c 'contactGateVisible' >= 4` documented as plan-authoring edge case — case-sensitive substring does NOT match `setContactGateVisible` (capital C). Case-sensitive count = 2 (state decl + visible prop); intent count = 6 when case-insensitive. Implementation matches plan action text verbatim; no artificial reference added to force count higher. Future plan authors: use case-insensitive greps or anchor to both state+setter patterns explicitly
 
 ### Pending Todos
 
@@ -245,6 +251,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-19T09:05:17.000Z
-Stopped at: Phase 06 Plan 06 complete (Wave 3 screen integration — 3 of 4 full-screen gated surfaces wrapped). 2 atomic commits: feat 19e6f40 (SellCarScreen — 1 import + 2 JSX tag lines around SafeAreaView body with capability="create_listing"); feat 64192b1 (ServiceCartScreen wrapped at main return with capability="create_order" — `submitted` short-circuit intentionally NOT wrapped because it renders AFTER createOrders() succeeds; ServiceApplicationScreen wrapped with single alias capability="apply_as_provider" — zero per-route-type branching, leveraging Plan 06-05's CAPABILITY_ALIASES[apply_as_provider] = [request_broker_role, request_logistics_role]). All 3 files: exactly 3 insertions / 0 deletions (minimal-diff policy held). npx tsc --noEmit produced zero new errors on any of the 3 files; 215/216 jest tests green (baseline unchanged; only pre-existing deferred App.test.tsx failure remains). Negative invariant locked: grep -c 'request_broker_role|request_logistics_role' in ServiceApplicationScreen = 0 (alias-only dispatch). Zero deviations — plan executed exactly as written; all grep-verifiable <done> criteria PASS on first run. AFF-04 delivered on 3 of 4 full-screen surfaces; CarDetailsScreen contact_seller CTA-only inline gating remains (Plan 06-07 — different shape per RESEARCH §Open Question 3). Phase 6 at 6/12 plans complete.
-Resume file: (next) .planning/phases/06-affected-user-ux-security-review/06-07-PLAN.md — CarDetailsScreen inline contact_seller gate on TWO CTAs at lines 683-691 + fade Modal
+Last session: 2026-04-19T09:14:30.000Z
+Stopped at: Phase 06 Plan 07 complete (Wave 3 inline CTA gate — 4th and final AFF-04 surface delivered; full-screen wraps already landed in 06-06). 1 atomic commit: feat f745f00 (CarDetailsScreen.tsx +46/-3 — Pressable + FeatureGateOverlay imports, contactGateVisible state, isContactGated predicate mirroring GatedScreenWrapper shape-for-shape [state !== 'active' AND (restricted.includes('all_writes') OR restricted.includes('contact_seller'))], Telegram + WhatsApp TouchableOpacity expanded with opacity:0.4 conditional dim + conditional onPress swap [tap-to-divert, not tap-suppress] + testIDs [car-details-telegram-cta / car-details-whatsapp-cta / car-details-contact-gate-modal] + accessibilityState, fade Modal containing <FeatureGateOverlay capability="contact_seller" /> adjacent to existing paymentWarning Modal). disabled={false} kept explicit so tap opens informational modal instead of being suppressed. Full CarDetailsScreen body (images, specs, seller info, favorite, share) remains byte-identical and interactive for moderated users per D-04 context preservation. All 8 plan acceptance greps match: isContactGated=7, FeatureGateOverlay capability="contact_seller"=1, testIDs=3, all_writes=1, contact_seller=1, GatedScreenWrapper=0, GatedButtonGate=0. contactGateVisible case-sensitive count = 2 (plan criterion documented as plan-authoring edge case — setter is setContactGateVisible with capital C; intent count = 6 case-insensitive). 2 auto-fixed deviations: Rule 1 (plan criterion mechanical mismatch documented in SUMMARY), Rule 3 (comment rephrased from 'GatedScreenWrapper' to 'full-screen wrapper' to hit grep=0 invariant). 215/216 jest tests green (unchanged baseline; only pre-existing App.test.tsx deferred failure). Zero new TS errors on CarDetailsScreen.tsx after diff. AFF-04 complete across all 4 ROADMAP-named gated surfaces (SellCar + ServiceCart + ServiceApplication from 06-06 + CarDetails from this plan). Phase 6 at 7/12 plans complete.
+Resume file: (next) .planning/phases/06-affected-user-ux-security-review/06-08-PLAN.md — App.tsx UserStatusBanner global mount + Android LayoutAnimation enable (AFF-01)
