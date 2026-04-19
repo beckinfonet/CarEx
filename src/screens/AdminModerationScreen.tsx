@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
+  TextInput,
   TouchableOpacity,
   FlatList,
   RefreshControl,
@@ -19,13 +20,11 @@ import axios from 'axios';
 import { COLORS, SIZES, TYPOGRAPHY } from '../constants/theme';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { SearchBar } from '../components/SearchBar';
 import { SeverityBadge } from '../components/moderation/SeverityBadge';
 import { EmptyState } from '../components/moderation/EmptyState';
 import { QuickActionSheet, QuickActionSelection } from '../components/moderation/QuickActionSheet';
 import { ModerationActionModal, ModerationActionType, ModerationActionPayload } from '../components/moderation/ModerationActionModal';
 import { TypedConfirmationModal, DestructiveAction } from '../components/moderation/TypedConfirmationModal';
-import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { MODERATION_ERROR_KEY_MAP } from '../utils/moderationErrorKeyMap';
 import {
   ModerationService,
@@ -78,8 +77,14 @@ export const AdminModerationScreen: React.FC = () => {
   };
 
   // ---- query state ----
+  // `query` is the in-flight TEXT INPUT draft (mutates per keystroke; never
+  // triggers a fetch). `submittedQuery` is the LAST USER-SUBMITTED value;
+  // it (plus the role/state filter chips) is the source of truth for the
+  // search request. Decoupling them is the gap-1 UAT fix — the previous
+  // debounced path fired a fetch per keystroke, which surfaced
+  // CanceledError as a red LogBox overlay on every superseded request.
   const [query, setQuery] = useState('');
-  const debouncedQuery = useDebouncedValue(query, 300);
+  const [submittedQuery, setSubmittedQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('all');
   const [stateFilter, setStateFilter] = useState<StateFilter>('all');
 
@@ -108,13 +113,13 @@ export const AdminModerationScreen: React.FC = () => {
 
   const buildQuery = useCallback(
     (cursor?: string): SearchUsersQuery => ({
-      q: debouncedQuery || undefined,
+      q: submittedQuery || undefined,
       role: roleFilter === 'all' ? undefined : roleFilter,
       state: stateFilter === 'all' ? undefined : stateFilter,
       cursor,
       limit: PAGE_SIZE,
     }),
-    [debouncedQuery, roleFilter, stateFilter],
+    [submittedQuery, roleFilter, stateFilter],
   );
 
   const runSearch = useCallback(
@@ -180,6 +185,16 @@ export const AdminModerationScreen: React.FC = () => {
     setRefreshing(true);
     runSearch(true);
   }, [runSearch]);
+
+  // ---- search submit ----
+  // Fired by the Search button OR by TextInput onSubmitEditing. Commits the
+  // draft `query` into `submittedQuery`, which (via buildQuery) drives the
+  // next runSearch through the existing useEffect dep chain. No direct
+  // searchUsers call here — keeps the data path single-sourced through the
+  // effect so abort/refresh/retry all funnel through one runSearch entry.
+  const handleSubmitSearch = useCallback(() => {
+    setSubmittedQuery(query.trim());
+  }, [query]);
 
   // ---- mutation handlers ----
 
@@ -406,19 +421,39 @@ export const AdminModerationScreen: React.FC = () => {
     />
   ) : (
     <EmptyState
-      icon={debouncedQuery ? Search : Users}
-      title={debouncedQuery ? T.emptySearchTitle : T.searchPromptTitle}
-      body={debouncedQuery ? T.emptySearchBody : T.searchPromptBody}
+      icon={submittedQuery ? Search : Users}
+      title={submittedQuery ? T.emptySearchTitle : T.searchPromptTitle}
+      body={submittedQuery ? T.emptySearchBody : T.searchPromptBody}
     />
   );
 
   const ListHeader = (
     <View>
-      <SearchBar
-        value={query}
-        onChangeText={setQuery}
-        placeholder={T.searchEmailOrUid}
-      />
+      <View style={styles.searchRow}>
+        <View style={styles.searchInputWrap}>
+          <Search size={20} color={COLORS.textSecondary} style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={T.searchEmailOrUid}
+            placeholderTextColor={COLORS.textSecondary}
+            value={query}
+            onChangeText={setQuery}
+            onSubmitEditing={handleSubmitSearch}
+            returnKeyType="search"
+            autoCorrect={false}
+            autoCapitalize="none"
+            accessibilityLabel={T.searchEmailOrUid}
+          />
+        </View>
+        <TouchableOpacity
+          style={styles.searchButton}
+          onPress={handleSubmitSearch}
+          accessibilityRole="button"
+          accessibilityLabel={T.actionSearch}
+        >
+          <Text style={styles.searchButtonText}>{T.actionSearch}</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -629,5 +664,42 @@ const styles = StyleSheet.create({
     height: SIZES.minTapTarget,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SIZES.spacingSm,
+    marginBottom: SIZES.spacingSm,
+  },
+  searchInputWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.searchBackground,
+    borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+  },
+  searchIcon: { marginRight: 10 },
+  searchInput: {
+    flex: 1,
+    color: COLORS.textPrimary,
+    fontSize: 16,
+    padding: 0,
+  },
+  searchButton: {
+    paddingHorizontal: SIZES.spacingMd,
+    paddingVertical: SIZES.spacingMd,
+    borderRadius: SIZES.borderRadius,
+    backgroundColor: COLORS.accent,
+    minHeight: SIZES.minTapTarget,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  searchButtonText: {
+    ...TYPOGRAPHY.labelStrong,
+    color: COLORS.background,
   },
 });

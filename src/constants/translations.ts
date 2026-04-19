@@ -440,6 +440,7 @@ export const TRANSLATIONS = {
     actionRevokeRole: 'Отозвать роль',
     actionDeleteProfile: 'Удалить профиль',
     actionEditProfile: 'Редактировать профиль',
+    actionSearch: 'Найти',
 
     // Dual-role delete labels (QuickActionSheet — two rows when target has BOTH broker AND logistics)
     deleteBrokerProfile: 'Удалить профиль брокера',
@@ -970,6 +971,7 @@ export const TRANSLATIONS = {
     actionRevokeRole: 'Revoke role',
     actionDeleteProfile: 'Delete profile',
     actionEditProfile: 'Edit profile',
+    actionSearch: 'Search',
 
     // Dual-role delete labels (QuickActionSheet — two rows when target has BOTH broker AND logistics)
     deleteBrokerProfile: 'Delete broker profile',
