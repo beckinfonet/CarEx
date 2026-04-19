@@ -65,7 +65,84 @@ export const AuthService = {
 
   logout: async () => {
     await AsyncStorage.removeItem('userToken');
+    await AsyncStorage.removeItem('userRefreshToken');
+    await AsyncStorage.removeItem('userIdTokenExpiresAt');
     await AsyncStorage.removeItem('userData');
+  },
+
+  // --- Firebase token refresh (Plan 05-12 / UAT Test 8) ---
+  //
+  // Firebase Identity Toolkit issues idTokens with a 1-hour TTL. After expiry,
+  // every protected backend call returns 401 until a new idToken is minted via
+  // the securetoken endpoint using the long-lived refreshToken obtained at
+  // sign-in. This method is the only mobile-side caller of that endpoint.
+  //
+  // Endpoint: POST https://securetoken.googleapis.com/v1/token?key=API_KEY
+  // Content-Type: application/x-www-form-urlencoded
+  // Body: grant_type=refresh_token&refresh_token=<token>
+  // Returns SNAKE_CASE { id_token, refresh_token, expires_in, ... } —
+  // normalized to camelCase here so the rest of AuthService stays consistent.
+  //
+  // Errors:
+  //   - 400 INVALID_REFRESH_TOKEN / TOKEN_EXPIRED / USER_DISABLED → permanent
+  //     failure. Caller (AuthContext) should logout the user.
+  //   - Network error → transient. Caller may retry.
+  refreshIdToken: async (refreshToken: string) => {
+    try {
+      const body = `grant_type=refresh_token&refresh_token=${encodeURIComponent(refreshToken)}`;
+      const response = await axios.post(
+        `https://securetoken.googleapis.com/v1/token?key=${API_KEY}`,
+        body,
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+      );
+      // Normalize snake_case → camelCase to match signIn/signUp shape.
+      return {
+        idToken: response.data.id_token,
+        refreshToken: response.data.refresh_token,
+        expiresIn: response.data.expires_in,
+      };
+    } catch (error: any) {
+      // Permanent-failure shape: rethrow with the Firebase error message so
+      // AuthContext can branch on it (TOKEN_EXPIRED → logout vs network →
+      // retry-later).
+      throw error.response ? error.response.data.error : error;
+    }
+  },
+
+  // --- Session persistence helpers (Plan 05-12) ---
+  //
+  // saveAuthSession extends the original saveToken (kept for back-compat) by
+  // also persisting refreshToken + idTokenExpiresAt. Called by AuthContext
+  // login/signup AND by the refresh path so the new idToken survives a cold
+  // start.
+  saveAuthSession: async (
+    idToken: string,
+    refreshToken: string | null,
+    expiresInSeconds: number | string,
+    userData: any,
+  ) => {
+    const seconds =
+      typeof expiresInSeconds === 'string'
+        ? parseInt(expiresInSeconds, 10)
+        : expiresInSeconds;
+    const expiresAt = Date.now() + (Number.isFinite(seconds) ? seconds : 3600) * 1000;
+    await AsyncStorage.setItem('userToken', idToken);
+    if (refreshToken) {
+      await AsyncStorage.setItem('userRefreshToken', refreshToken);
+    }
+    await AsyncStorage.setItem('userIdTokenExpiresAt', String(expiresAt));
+    if (userData !== undefined) {
+      await AsyncStorage.setItem('userData', JSON.stringify(userData));
+    }
+  },
+
+  getRefreshToken: async (): Promise<string | null> => {
+    return await AsyncStorage.getItem('userRefreshToken');
+  },
+
+  getIdTokenExpiresAt: async (): Promise<number> => {
+    const raw = await AsyncStorage.getItem('userIdTokenExpiresAt');
+    return raw ? parseInt(raw, 10) : 0;
   },
 
   // Backend User Methods
