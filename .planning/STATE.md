@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: In progress
-stopped_at: Phase 5 Plan 11 complete (UAT Test 3 gap-closure — submit-driven search + CanceledError suppression + dead-hook deletion); mobile scope 11/11; backend 05-0a/0b deferred to separate repo
-last_updated: "2026-04-19T05:50:00Z"
-last_activity: 2026-04-19 -- Phase 05 Plan 11 complete (submit-driven search on AdminModerationScreen; isAbortError guard on ModerationService searchUsers+getHistory; useDebouncedValue retired; 12 ModerationService tests + 9 screen tests green; Phase 5 scope 149 tests green minus pre-existing App.test.tsx navigation-stack failure)
+stopped_at: Phase 5 Plan 12 complete (UAT Test 8 gap-closure — Firebase idToken refresh via securetoken.googleapis.com + single-flight 401 interceptor + proactive 5-min-pre-expiry refresh); mobile scope 12/12; backend 05-0a/0b deferred to separate repo
+last_updated: "2026-04-19T06:02:31Z"
+last_activity: 2026-04-19 -- Phase 05 Plan 12 complete (AuthService.refreshIdToken + saveAuthSession + 401 interceptor in http/client.ts + AuthContext refresh lifecycle wiring; 14 AuthService tests + 15 AuthContext tests green; 18 moderation e2e tests green after Rule 1 auto-fix for saveToken→saveAuthSession migration; zero new deps; zero new tsc errors)
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 38
-  completed_plans: 36
+  total_plans: 39
+  completed_plans: 37
   percent: 95
 ---
 
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 ## Current Position
 
-Phase: 05 (Admin Moderation UI (Mobile)) — MOBILE SCOPE COMPLETE (11/11 plans including 05-11 UAT gap closure; backend 05-0a/0b deferred to separate repo)
-Next: Phase 6 — Affected-User UX + Security Review (blocked on backend 05-0a/0b landing in carEx-services). Plan 05-12 runs in parallel by a sibling executor.
-Last activity: 2026-04-19 -- Phase 05 Plan 11 complete (submit-driven search; isAbortError guard on ModerationService; useDebouncedValue retired; 12 ModerationService + 9 AdminModerationScreen tests green)
+Phase: 05 (Admin Moderation UI (Mobile)) — MOBILE SCOPE COMPLETE (12/12 plans including 05-11 UAT Test 3 gap closure AND 05-12 UAT Test 8 gap closure; backend 05-0a/0b deferred to separate repo)
+Next: Phase 6 — Affected-User UX + Security Review (blocked on backend 05-0a/0b landing in carEx-services).
+Last activity: 2026-04-19 -- Phase 05 Plan 12 complete (AuthService.refreshIdToken + saveAuthSession + apiClient 401 interceptor + AuthContext idToken refresh lifecycle; 29 unit tests + 18 e2e tests green; zero new deps)
 Resume file: .planning/phases/06-affected-user-ux/ (pending creation)
 
-Progress: [██████████] 100% (Phase 05 mobile execution, 11/11 plans complete)
+Progress: [██████████] 100% (Phase 05 mobile execution, 12/12 plans complete)
 
 ## Performance Metrics
 
@@ -75,6 +75,7 @@ Progress: [██████████] 100% (Phase 05 mobile execution, 11/1
 | Phase 05 P09 | 8m54s | 5 tasks | 10 files |
 | Phase 05 P10 | ~10m | 4 tasks | 8 files |
 | Phase 05 P11 | 5m48s | 3 tasks | 5 files (+2 deleted) |
+| Phase 05 P12 | 8m46s | 4 tasks (+1 auto-fix) | 6 files |
 
 ## Accumulated Context
 
@@ -172,6 +173,12 @@ Recent decisions affecting current work:
 - [Phase 05]: Plan 05-11: UAT Test 3 gap closed (D-11-01 through D-11-05) — AdminModerationScreen migrated from `useDebouncedValue`-driven auto-search to submit-driven search (raw TextInput + Search button + `onSubmitEditing`). `ModerationService.searchUsers` + `getHistory` gain a narrowly-scoped `isAbortError()` guard covering `axios.isCancel` + `CanceledError` + `AbortError`; write methods (suspend/revoke/delete/edit) continue to log all errors intentionally. Initial load STILL fires one `searchUsers({q: undefined})` to preserve "show all users matching filters" UX — the bug was per-keystroke fires, not initial load. `useDebouncedValue` hook + test deleted (zero in-tree consumers). RU/EN `actionSearch` added with parity. Grep invariants green: `useDebouncedValue` in `src/` = 0; `isAbortError(error)` in ModerationService = 2; `submittedQuery` in AdminModerationScreen = 8; `T.actionSearch` = 2; `actionSearch:` in translations = 2
 - [Phase 05]: Plan 05-11: TDD RED/GREEN gates honored on both service + screen changes — 5 commits total (test→fix for Task 1; test→feat for Task 2; chore for Task 3). ModerationService 12/12 (was 10, +2 CanceledError tests); AdminModerationScreen 9/9 (was 5, +1 renamed mount test + 3 new submit-contract tests). Full Phase 5 suite minus pre-existing App.test.tsx navigation-stack failure: 20 suites / 149 tests green
 - [Phase 05]: Plan 05-11: One deviation auto-fixed — inline comment that mentioned `useDebouncedValue` literally tripped the plan's `grep -c useDebouncedValue = 0` acceptance criterion; comment rephrased to "the previous debounced path" to satisfy the grep-verifiable invariant without losing explanatory intent. One pre-existing failure logged to deferred-items.md (`__tests__/App.test.tsx` — navigation/native-stack `usesNewAndroidHeaderHeightImplementation` TypeError; reproduces on clean main before any 05-11 change)
+- [Phase 05]: Plan 05-12: Proactive refresh piggybacks on `refreshUserInternal` head-of-function (not standalone RN timer) — AppState `active` transition fires refreshUser (Plan 04-06); adding the 5-min-pre-expiry check there adds zero new lifecycle surface and inherits single-flight dedupe via the shared `idTokenRefreshInFlightRef`
+- [Phase 05]: Plan 05-12: `logoutRef` forward-declaration pattern — mount useEffect registers refresh listener BEFORE `logout` is defined as a useCallback; `useRef<(() => Promise<void>) | null>(null)` + `useEffect([logout])` keeps listener closures stable. Plan's own action text called out this solution explicitly
+- [Phase 05]: Plan 05-12: Two separate listener exports (`setIdTokenRefreshListener` + `setLogoutTrigger`) not one combined — cleanly separates "N parallel 401s share ONE refresh" from "second-401-in-a-row means session revoked, logout". Listener returns Promise<string | null>; trigger returns Promise<void>
+- [Phase 05]: Plan 05-12: `saveToken` preserved in source for back-compat but DROPPED from both AuthContext test mocks (regression lock) — any future reintroduction via a caller would break Test 11 (`expect((AuthService as any).saveToken).toBeUndefined()`) instead of silently bypassing the new persistence path
+- [Phase 05]: Plan 05-12: `refreshIdToken` stays on plain axios (not apiClient) per Firebase Identity Toolkit convention — key-in-query-string surface uses a different auth model than Bearer-in-header; Test 10 asserts `apiClient.post` was NOT called to lock this contract
+- [Phase 05]: Plan 05-12: Rule 1 auto-fix — `__tests__/moderation.e2e.integration.test.tsx` mock extended to mirror the new `saveAuthSession` contract after Plan 05-12 migrated AuthContext off `saveToken`. Foreseeable side-effect; 3 previously-green e2e tests (3.1 / 4.1 / 4.3) restored in commit `1cfb50e`; final e2e suite 18/18 green
 
 ### Pending Todos
 
@@ -198,6 +205,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-19T05:50:00Z
-Stopped at: Phase 05 Plan 11 complete (UAT Test 3 gap closure — submit-driven search on AdminModerationScreen + axios CanceledError suppression in ModerationService.searchUsers+getHistory + deletion of dead useDebouncedValue hook and its test. 5 commits: test→fix pair for Task 1, test→feat pair for Task 2, chore for Task 3. ModerationService 12/12 green; AdminModerationScreen 9/9 green; RU+EN parity on new actionSearch key; zero useDebouncedValue residue in src/). PHASE 5 MOBILE SCOPE 11/11 COMPLETE; blocked on backend 05-0a/0b for production readiness. Plan 05-12 runs in parallel under a sibling executor.
+Last session: 2026-04-19T06:02:31Z
+Stopped at: Phase 05 Plan 12 complete (UAT Test 8 gap closure — Firebase idToken refresh via securetoken.googleapis.com + single-flight 401 response interceptor in apiClient + proactive 5-min-pre-expiry refresh on AppState foreground via refreshUserInternal head-of-function. 6 commits: test→feat pair for Task 1, single feat for Tasks 2+3 (integration-tested in Task 4), test for Task 4, plus a Rule 1 auto-fix extending the moderation e2e test mock after saveToken→saveAuthSession migration. AuthService 14/14 green (9+5); AuthContext 15/15 green (8+7); moderation e2e 18/18 green; full suite 161/162 (only pre-existing App.test.tsx navigation-stack failure remains, logged in deferred-items.md). Zero new deps; zero new tsc errors; no hardcoded secrets added). PHASE 5 MOBILE SCOPE 12/12 COMPLETE; blocked on backend 05-0a/0b for production readiness.
 Resume file: (next) .planning/phases/06-affected-user-ux/ — pending planning once backend routes land

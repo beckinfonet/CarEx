@@ -100,7 +100,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `AdminModerationScreen` is reachable from navigation and supports searching users by email substring or Firebase UID prefix, filtering by role and moderation state, and paginated results, backed by `GET /api/admin/users/search`
   3. Opening a user from `AdminModerationScreen` shows a detail panel with full moderation history (every `ModerationAction` row for that user, most recent first) displaying action type, severity, admin who acted, timestamp, reason category, and note, backed by `GET /api/admin/moderation/:targetUid/history`
   4. The moderation history view has an Unsuspend button that, when tapped on a suspended user, calls `ModerationService.unsuspend`, appends a new audit entry to history (the prior rows are unchanged), and the user's current state transitions to `active`
-**Plans**: 12 plans
+**Plans**: 13 plans
   - [ ] 05-0a-PLAN.md — Backend `GET /api/admin/moderation/:targetUid/history` route + jest+supertest coverage (cross-repo) (UI-03, UI-04)
   - [ ] 05-0b-PLAN.md — Backend `GET /api/admin/users/search` route with ReDoS-escape + allowlisted filters + cursor pagination + jest+supertest coverage (cross-repo) (UI-02)
   - [x] 05-01-PLAN.md — Wave 0 test scaffolds for service+hook+util+component+screen layers (includes 3 dual-role delete test.todo entries; useDebouncedValue scaffold uses react-test-renderer)
@@ -114,6 +114,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 05-09-PLAN.md — Repurpose AdminManagementScreen (with `pendingDeleteRole` pass-through) + AdminDashboardScreen nav card + App.tsx wiring + fill Wave 0 service+hook+util tests + populate 05-VALIDATION.md + final guardrails
   - [x] 05-10-PLAN.md — Fill Wave 0 component+screen test scaffolds (8 files) with real assertions locking the dual-role delete contract end-to-end
   - [x] 05-11-PLAN.md — Gap closure: submit-driven search on AdminModerationScreen + axios CanceledError suppression in ModerationService + delete dead useDebouncedValue (UAT Test 3 fix) (UI-02)
+  - [x] 05-12-PLAN.md — Gap closure: Firebase idToken refresh (securetoken.googleapis.com + single-flight 401 interceptor + proactive 5-min-pre-expiry check) (UAT Test 8 fix) (SEC-01, MOB-02, MOB-03)
 **UI hint**: yes
 
 ### Phase 6: Affected-User UX + Security Review (Both)
@@ -142,5 +143,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Admin Moderation Endpoints (Backend) | 0/TBD | Not started | - |
 | 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
 | 4. Mobile Plumbing (Mobile) | 7/7 | Complete | 2026-04-18 |
-| 5. Admin Moderation UI (Mobile) | 11/13 | In progress (mobile scope 11/11; backend 05-0a/0b deferred to cross-repo) | - |
+| 5. Admin Moderation UI (Mobile) | 12/14 | In progress (mobile scope 12/12; backend 05-0a/0b deferred to cross-repo) | - |
 | 6. Affected-User UX + Security Review (Both) | 0/TBD | Not started | - |
