@@ -52,9 +52,9 @@ Requirements for this milestone. Each maps to a roadmap phase.
 
 ### Affected-User UX
 
-- [ ] **AFF-01**: A global `UserStatusBanner` component renders above the navigator whenever `user.moderationStatus.state !== 'active'`. Banner is non-dismissable and severity-aware (resolvable message / appeal message / permanent-ban message)
-- [ ] **AFF-02**: Banner displays the admin-selected preset reason category plus the optional note verbatim (full transparency — matches milestone decision)
-- [ ] **AFF-03**: For `blocked_with_review` severity, the banner shows a CTA that opens a mailto to `support@carexmarket.com` prefilled with the user's UID and current reason category; `permanently_banned` shows no appeal CTA
+- [x] **AFF-01**: A global `UserStatusBanner` component renders above the navigator whenever `user.moderationStatus.state !== 'active'`. Banner is non-dismissable and severity-aware (resolvable message / appeal message / permanent-ban message)
+- [x] **AFF-02**: Banner displays the admin-selected preset reason category plus the optional note verbatim (full transparency — matches milestone decision)
+- [x] **AFF-03**: For `blocked_with_review` severity, the banner shows a CTA that opens a mailto to `support@carexmarket.com` prefilled with the user's UID and current reason category; `permanently_banned` shows no appeal CTA
 - [ ] **AFF-04**: For `feature_limited` severity, restricted screens (as defined by the capability map) render a `FeatureGateOverlay` explaining what the user must do to resolve; buyer features remain usable when a provider role is the only thing gated
 
 ### Quality
@@ -148,9 +148,9 @@ Populated during roadmap creation. Every requirement maps to exactly one phase.
 | MOB-02 | Phase 4 | Pending |
 | MOB-03 | Phase 4 | Pending |
 | MOB-04 | Phase 4 | Pending |
-| AFF-01 | Phase 6 | Pending |
-| AFF-02 | Phase 6 | Pending |
-| AFF-03 | Phase 6 | Pending |
+| AFF-01 | Phase 6 | Complete |
+| AFF-02 | Phase 6 | Complete |
+| AFF-03 | Phase 6 | Complete |
 | AFF-04 | Phase 6 | Pending |
 | QUAL-01 | Phase 6 | Pending |
 | QUAL-02 | Phase 6 | Pending |

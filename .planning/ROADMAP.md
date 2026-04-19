@@ -132,7 +132,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 11 plans
   - [x] 06-01-PLAN.md — Wave 0 test scaffolds (banner/overlay/wrapper + translation-parity) (AFF-01..04, QUAL-01)
   - [x] 06-02-PLAN.md — Add 35 RU + 35 EN translation keys per UI-SPEC Copywriting (QUAL-01)
-  - [ ] 06-03-PLAN.md — UserStatusBanner component + real assertions (mailto encode + severity icons) (AFF-01, AFF-02, AFF-03)
+  - [x] 06-03-PLAN.md — UserStatusBanner component + real assertions (mailto encode + severity icons) (AFF-01, AFF-02, AFF-03)
   - [ ] 06-04-PLAN.md — FeatureGateOverlay component + capability-key-driven copy lookup tests (AFF-04)
   - [ ] 06-05-PLAN.md — GatedScreenWrapper with CAPABILITY_ALIASES + all_writes sentinel (AFF-04)
   - [ ] 06-06-PLAN.md — Wrap SellCarScreen + ServiceCartScreen + ServiceApplicationScreen (AFF-04)
@@ -156,4 +156,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
 | 4. Mobile Plumbing (Mobile) | 7/7 | Complete | 2026-04-18 |
 | 5. Admin Moderation UI (Mobile) | 12/14 | In progress (mobile scope 12/12; backend 05-0a/0b deferred to cross-repo) | - |
-| 6. Affected-User UX + Security Review (Both) | 2/12 | In progress | - |
+| 6. Affected-User UX + Security Review (Both) | 3/12 | In Progress|  |

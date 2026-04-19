@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Executing Phase 06
-stopped_at: "Phase 06 Plan 02 complete (Wave 1 translations additions — 35 Phase 6 keys landed in both RU and EN blocks of src/constants/translations.ts per UI-SPEC §Copywriting Contract. 2 commits: feat for Task 1 (RU 35 entries, 459→494), feat for Task 2 (EN 35 entries mirrored 1:1, 459→494). QUAL-01 parity test green: 3/3 passed with set-equality RU=EN=494. Phase 6 scaffolds still green: 39 todo + 3 passed / 0 failed. One label-level deviation auto-fixed: plan objective said '32 keys' but enumerated action block lists 35; followed enumerated block since grep-verifiable done criteria (gate*×6 per lang) force all 35. Zero functional deviations; UI-SPEC D-05 locked copy preserved verbatim. Struck keys (appealCopyEmail/appealCopied/appealCancel) confirmed absent)."
-last_updated: "2026-04-19T08:25:20Z"
-last_activity: 2026-04-19 -- Phase 06 Plan 02 complete
+status: Ready to execute
+stopped_at: "Phase 06 Plan 03 complete (Wave 2 UserStatusBanner component + 19 real test assertions). 2 commits: feat b8207e6 (UserStatusBanner.tsx 314 lines — non-dismissable severity-aware banner, mailto appeal CTA with encodeURIComponent + setAt + Alert fallback, LayoutAnimation expand, useFocusEffect collapse on blur), test ec11163 (16 test.todo → 19 real assertions, all GREEN first run). Delivers AFF-01/02/03. 3 label-level deviations auto-fixed (all comment-only to satisfy strict grep acceptance criteria on encodeURIComponent=2, canOpenURL=0, mailto-url literal); zero functional deviations. Phase 6 test surface: 23 todo (FeatureGateOverlay + GatedScreenWrapper scaffolds — future plans) + 22 passed (UserStatusBanner 19 + translation-parity 3) / 0 failed."
+last_updated: "2026-04-19T08:38:15.749Z"
+last_activity: 2026-04-19
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 51
-  completed_plans: 39
-  percent: 76
+  completed_plans: 40
+  percent: 78
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 06-affected-user-ux-security-review — EXECUTING
-Plan: 3 of 12 (01, 02 complete)
-Next: /gsd-execute-phase 06 (Plan 03 — UserStatusBanner component + real assertions). 35 Phase 6 translation keys now live; Wave 2 components can reference t.bannerTitle*, t.appeal*, t.gate*, t.restoreProfile.
-Last activity: 2026-04-19 -- Phase 06 Plan 02 complete (Wave 1 translations +35/+35)
-Resume file: .planning/phases/06-affected-user-ux-security-review/06-03-PLAN.md
+Plan: 4 of 12 (01, 02, 03 complete)
+Next: /gsd-execute-phase 06 (Plan 04 — FeatureGateOverlay + GatedScreenWrapper). UserStatusBanner shipped; FeatureGateOverlay reuses the severity palette + icon map; GatedScreenWrapper wires the apply_as_provider alias + all_writes sentinel predicate.
+Last activity: 2026-04-19 -- Phase 06 Plan 03 complete
+Resume file: .planning/phases/06-affected-user-ux-security-review/06-04-PLAN.md
 
-Progress: [███████▌░░] 76% (39/51 plans; Phase 06 2/12)
+Progress: [████████░░] 78% (40/51 plans; Phase 06 3/12)
 
 ## Performance Metrics
 
@@ -79,6 +79,7 @@ Progress: [███████▌░░] 76% (39/51 plans; Phase 06 2/12)
 | Phase 05 P12 | 8m46s | 4 tasks (+1 auto-fix) | 6 files |
 | Phase 06 P01 | 2m26s | 3 tasks | 4 files |
 | Phase 06 P02 | 2m45s | 2 tasks | 1 file |
+| Phase 06 P03 | 4m25s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -191,6 +192,11 @@ Recent decisions affecting current work:
 - [Phase 06]: Plan 06-02: UI-SPEC §Copywriting D-05 strings copied verbatim into both RU and EN blocks — zero paraphrasing, zero wordsmithing. Wave 2 component tests can assert literal string matches against t.bannerTitleFeatureLimited ('Доступ ограничен' / 'Access limited'), etc. if needed
 - [Phase 06]: Plan 06-02: Struck keys (appealCopyEmail / appealCopied / appealCancel) confirmed absent (grep count = 0) — UI-SPEC Clipboard Decision definitive; RN 0.83 removed legacy @react-native-community/clipboard and CLAUDE.md forbids new libs this milestone. Single Alert button `appealOk` handles mailto-fallback UX per D-08
 - [Phase 06]: Plan 06-02: Phase 5 and earlier keys preserved byte-identical — diff shows only additions at end of each language block; `reasonSpam` / `reasonPolicyViolation` / `reasonFraud` / `reasonOther` NOT re-added (Phase 5 ships them). Banner comment `// ---- Phase 6 — Affected-User UX (UI-SPEC §Copywriting) ----` appears exactly twice (one per language block)
+- [Phase 06]: Plan 06-03: UserStatusBanner consumes useAuth() + useLanguage() directly (no moderation props threaded from App.tsx) — mirrors OfflineNotice.tsx global-banner pattern; self-gates on context state so parent mount is a single <UserStatusBanner /> line at Plan 06-06
+- [Phase 06]: Plan 06-03: 4px left-accent bar implemented as absolute-positioned sibling View (not borderLeftWidth) so the accent color extends through the insets.top safe-area padding cleanly; UI-SPEC §Component 1 visual contract locked
+- [Phase 06]: Plan 06-03: T-06-02 mitigation locked with grep count exactly 2 for encodeURIComponent — subject + body call sites only. Comment mentions scrubbed from source to keep mechanical acceptance grep accurate. Test decodes mailto body and asserts all three required lines (User ID / Reason category / Suspended setAt) present
+- [Phase 06]: Plan 06-03: Severity icon + palette + title maps (STATE_TO_PALETTE_KEY / SEVERITY_ICON / STATE_TO_TITLE_KEY) copied verbatim from SeverityBadge.tsx to establish cross-surface consistency; FeatureGateOverlay (06-04) and GatedScreenWrapper (06-05) reuse AlertTriangle/ShieldAlert/Ban + COLORS.moderation
+- [Phase 06]: Plan 06-03: Wave-0 scaffold's 16 test.todo entries converted to 19 real GREEN assertions on first run — split note-empty/note-null into two tests and added a third null-render guard for no-moderationStatus; all covered by react-test-renderer + stable Proxy mockT with a small known-overlay for keys needing literal post-interpolation assertions
 
 ### Pending Todos
 
@@ -217,6 +223,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-19T08:25:20Z
-Stopped at: Phase 06 Plan 02 complete (Wave 1 translations additions — 35 Phase 6 keys added to both RU and EN blocks of src/constants/translations.ts per UI-SPEC §Copywriting Contract. 2 commits: feat for Task 1 (RU 35 entries, 459→494), feat for Task 2 (EN 35 entries mirrored 1:1, 459→494). QUAL-01 parity test green 3/3 with set-equality RU=EN=494. Phase 6 scaffolds still green: 39 todo + 3 passed / 0 failed. One label-level deviation auto-fixed: plan objective said '32 keys' but enumerated action block lists 35. Zero functional deviations; UI-SPEC D-05 locked copy preserved verbatim; struck keys (appealCopyEmail/appealCopied/appealCancel) confirmed absent.
+Last session: 2026-04-19T08:38:15.744Z
+Stopped at: Phase 06 Plan 03 complete (Wave 2 UserStatusBanner component + 19 real test assertions). 2 commits: feat b8207e6 (UserStatusBanner.tsx 314 lines — non-dismissable severity-aware banner, mailto appeal CTA with encodeURIComponent + setAt + Alert fallback, LayoutAnimation expand, useFocusEffect collapse on blur), test ec11163 (16 test.todo → 19 real assertions, all GREEN first run). Delivers AFF-01/02/03. 3 label-level deviations auto-fixed (all comment-only to satisfy strict grep acceptance criteria on encodeURIComponent=2, canOpenURL=0, mailto-url literal); zero functional deviations. Phase 6 test surface: 23 todo (FeatureGateOverlay + GatedScreenWrapper scaffolds — future plans) + 22 passed (UserStatusBanner 19 + translation-parity 3) / 0 failed.
 Resume file: (next) .planning/phases/06-affected-user-ux-security-review/06-03-PLAN.md — UserStatusBanner component + real assertions (AFF-01, AFF-02, AFF-03)
