@@ -59,7 +59,7 @@ Requirements for this milestone. Each maps to a roadmap phase.
 
 ### Quality
 
-- [ ] **QUAL-01**: Every new user-facing string (admin UI labels, banner copy, overlay copy, reason-category labels) lands in `src/constants/translations.ts` under both `RU` (default) and `EN`
+- [x] **QUAL-01**: Every new user-facing string (admin UI labels, banner copy, overlay copy, reason-category labels) lands in `src/constants/translations.ts` under both `RU` (default) and `EN`
 - [ ] **QUAL-02**: Backend passes a load test with 10,000 synthetic users against the admin search + moderation history endpoints; add any missing indexes surfaced by the test
 - [ ] **QUAL-03**: Dedicated security review before merging to `main`: verify idToken verification, admin-only enforcement, transaction safety on suspend + payment confirm, audit log append-only at the application layer (and DB layer if Atlas tier supports it), no hardcoded secrets introduced
 
@@ -152,7 +152,7 @@ Populated during roadmap creation. Every requirement maps to exactly one phase.
 | AFF-02 | Phase 6 | Complete |
 | AFF-03 | Phase 6 | Complete |
 | AFF-04 | Phase 6 | Complete |
-| QUAL-01 | Phase 6 | Pending |
+| QUAL-01 | Phase 6 | Complete |
 | QUAL-02 | Phase 6 | Pending |
 | QUAL-03 | Phase 6 | Pending |
 
