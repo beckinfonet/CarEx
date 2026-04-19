@@ -1115,6 +1115,61 @@ export const TRANSLATIONS = {
     capItemCreateOrder: 'place orders',
     capItemContactSeller: 'message sellers',
     capItemWithdrawFunds: 'withdraw funds',
+
+    // ---- Phase 6 — Affected-User UX (UI-SPEC §Copywriting) ----
+
+    // Banner severity titles (per D-01 / UI-SPEC §Banner severity copy)
+    bannerTitleFeatureLimited: 'Access limited',
+    bannerTitleBlockedWithReview: 'Account blocked',
+    bannerTitlePermanentlyBanned: 'Account permanently banned',
+
+    // Appeal CTA (banner, blocked_with_review only, per D-07)
+    appealCta: 'Appeal',
+
+    // Appeal mailto fallback Alert (per D-08 / UI-SPEC Clipboard Decision)
+    appealNoMailTitle: 'No mail app installed',
+    appealNoMailBody: 'Please email support@carexmarket.com and include your user ID: {uid}',
+    appealOk: 'OK',
+    appealPlaceholder: '[Your message here]',
+
+    // Banner expand hints (per D-02)
+    expandNote: 'Tap to expand',
+    collapseNote: 'Tap to collapse',
+
+    // Gate overlay CTA (feature_limited only, per UI-SPEC §Component 2 card content #4)
+    restoreProfile: 'Restore profile',
+
+    // Gate overlay copy — create_listing (capability × severity × field)
+    gateCreateListingFeatureLimitedTitle: 'Listing creation restricted',
+    gateCreateListingFeatureLimitedBody: 'Re-verify your profile to restore listing access.',
+    gateCreateListingBlockedTitle: 'Listing creation unavailable',
+    gateCreateListingBlockedBody: 'Your account is under review. Use the Appeal link above to contact support.',
+    gateCreateListingBannedTitle: 'Listing creation permanently disabled',
+    gateCreateListingBannedBody: 'Your account is permanently banned.',
+
+    // Gate overlay copy — create_order
+    gateCreateOrderFeatureLimitedTitle: 'Booking restricted',
+    gateCreateOrderFeatureLimitedBody: 'Restore your account status to place orders.',
+    gateCreateOrderBlockedTitle: 'Booking unavailable',
+    gateCreateOrderBlockedBody: 'Your account is under review. Use the Appeal link above to contact support.',
+    gateCreateOrderBannedTitle: 'Booking permanently disabled',
+    gateCreateOrderBannedBody: 'Your account is permanently banned.',
+
+    // Gate overlay copy — apply_as_provider (FRONTEND ALIAS per RESEARCH §Capability Contract Verification)
+    gateApplyProviderFeatureLimitedTitle: 'Provider applications restricted',
+    gateApplyProviderFeatureLimitedBody: 'Restore your account status to apply as a provider.',
+    gateApplyProviderBlockedTitle: 'Provider applications unavailable',
+    gateApplyProviderBlockedBody: 'Your account is under review. Use the Appeal link above to contact support.',
+    gateApplyProviderBannedTitle: 'Provider applications permanently disabled',
+    gateApplyProviderBannedBody: 'Your account is permanently banned.',
+
+    // Gate overlay copy — contact_seller
+    gateContactSellerFeatureLimitedTitle: 'Contacting seller restricted',
+    gateContactSellerFeatureLimitedBody: 'Restore your account status to contact the seller.',
+    gateContactSellerBlockedTitle: 'Contacting seller unavailable',
+    gateContactSellerBlockedBody: 'Your account is under review. Use the Appeal link above to contact support.',
+    gateContactSellerBannedTitle: 'Contacting seller permanently disabled',
+    gateContactSellerBannedBody: 'Your account is permanently banned.',
   }
 };
 
