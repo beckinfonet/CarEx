@@ -129,7 +129,19 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Every new user-facing string introduced across phases 5 and 6 (admin labels, banner copy, overlay copy, reason categories, severity messages) has both RU and EN keys in `src/constants/translations.ts`; grep finds no untranslated literal strings in new moderation components
   5. Backend load test with 10,000 seeded users shows admin search + moderation history endpoints respond < 200ms P95 with `explain()` confirming index use on `moderationStatus.state`, `ModerationAction.targetUid+createdAt`, and `ModerationAction.adminUid+createdAt`
   6. Security review sign-off confirms (a) `verifyIdToken` runs on every admin route, (b) no `callerUid` body param is trusted for authorization on any new route, (c) suspend and confirm-booking mutations are transactional, (d) the `ModerationAction` collection rejects updates and deletes at the application layer, (e) no new hardcoded secrets were introduced
-**Plans**: TBD
+**Plans**: 11 plans
+  - [ ] 06-01-PLAN.md — Wave 0 test scaffolds (banner/overlay/wrapper + translation-parity) (AFF-01..04, QUAL-01)
+  - [ ] 06-02-PLAN.md — Add 32 RU + 32 EN translation keys per UI-SPEC Copywriting (QUAL-01)
+  - [ ] 06-03-PLAN.md — UserStatusBanner component + real assertions (mailto encode + severity icons) (AFF-01, AFF-02, AFF-03)
+  - [ ] 06-04-PLAN.md — FeatureGateOverlay component + capability-key-driven copy lookup tests (AFF-04)
+  - [ ] 06-05-PLAN.md — GatedScreenWrapper with CAPABILITY_ALIASES + all_writes sentinel (AFF-04)
+  - [ ] 06-06-PLAN.md — Wrap SellCarScreen + ServiceCartScreen + ServiceApplicationScreen (AFF-04)
+  - [ ] 06-07-PLAN.md — CarDetailsScreen inline contact_seller gate on TWO CTAs + fade Modal (AFF-04)
+  - [ ] 06-08-PLAN.md — Mount UserStatusBanner in App.tsx + Android LayoutAnimation enable (AFF-01)
+  - [ ] 06-09-PLAN.md — Jest literal scanner for new moderation components (QUAL-01)
+  - [ ] 06-0a-PLAN.md — Backend seed 10k users + verify-indexes.sh (cross-repo) (QUAL-02)
+  - [ ] 06-0b-PLAN.md — Backend k6 harness with P95<200ms threshold + .gitignore (cross-repo) (QUAL-02)
+  - [ ] 06-10-PLAN.md — Security review artifact 06-SECURITY.md (5 sections a-e) (QUAL-03)
 **UI hint**: yes
 
 ## Progress
@@ -144,4 +156,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Backend Enforcement (Backend) | 0/6 | Not started | - |
 | 4. Mobile Plumbing (Mobile) | 7/7 | Complete | 2026-04-18 |
 | 5. Admin Moderation UI (Mobile) | 12/14 | In progress (mobile scope 12/12; backend 05-0a/0b deferred to cross-repo) | - |
-| 6. Affected-User UX + Security Review (Both) | 0/TBD | Not started | - |
+| 6. Affected-User UX + Security Review (Both) | 0/12 | Planned | - |
