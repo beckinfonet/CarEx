@@ -669,6 +669,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SIZES.spacingSm,
+    paddingTop: SIZES.spacingMd,
     marginBottom: SIZES.spacingSm,
   },
   searchInputWrap: {
@@ -690,11 +691,11 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   searchButton: {
-    paddingHorizontal: SIZES.spacingMd,
-    paddingVertical: SIZES.spacingMd,
-    borderRadius: SIZES.borderRadius,
+    paddingHorizontal: SIZES.spacingSm,
+    paddingVertical: 10,
+    borderRadius: SIZES.radiusSm,
     backgroundColor: COLORS.accent,
-    minHeight: SIZES.minTapTarget,
+    minHeight: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
