@@ -1,9 +1,11 @@
 ---
 slug: listing-images-blank-android
-status: fix_applied
+status: resolved
 created: 2026-04-30
 updated: 2026-04-30
 fix_applied: 2026-04-30
+resolved: 2026-04-30
+verified_on: "TestFlight (iOS 1.0.45/46) + Google Play internal testing (Android 1.0.48/49)"
 trigger: "When a user creates a listing, obviously there are pictures of vehicles on the listing, 10-25 images. Most often than not, the listing initially renders a few random pictures, the rest of the pictures are just dark blank pages. User has to force close the app, re-open again in order to see the images. This happens mostly on android. Wifi or cell connection is not an issue when this happens, we have run a speed test, very stable and high speed connection."
 ---
 
