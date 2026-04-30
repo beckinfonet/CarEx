@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import NetInfo from '@react-native-community/netinfo';
-import axios from 'axios';
 
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Alert, ActivityIndicator, Modal, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { COLORS, SIZES } from '../constants/theme';
-import { API_URL } from '../constants/config';
+import { apiClient } from '../services/http/client';
 import { ArrowLeft, Camera, X, ChevronDown, AlertTriangle, CheckCircle, Clock, Smartphone } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -90,7 +89,7 @@ export const SellCarScreen = () => {
       const fetchCar = async () => {
         setLoadingCar(true);
         try {
-          const res = await axios.get(`${API_URL}/api/cars/${carId}`);
+          const res = await apiClient.get(`/api/cars/${carId}`);
           const c = res.data;
           if (c.sellerId !== user?.localId) {
             Alert.alert(t.error, 'Not authorized to edit this listing.');
@@ -434,14 +433,14 @@ export const SellCarScreen = () => {
 
     try {
       if (isEditMode) {
-        await axios.put(`${API_URL}/api/cars/${carId}`, data, {
+        await apiClient.put(`/api/cars/${carId}`, data, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         Alert.alert(t.success, 'Listing updated successfully!', [
           { text: 'OK', onPress: () => navigation.goBack() }
         ]);
       } else {
-        await axios.post(`${API_URL}/api/cars`, data, {
+        await apiClient.post(`/api/cars`, data, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         Alert.alert(t.success, 'Car listed successfully!', [
