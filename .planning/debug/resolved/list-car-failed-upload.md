@@ -1,9 +1,10 @@
 ---
 slug: list-car-failed-upload
-status: awaiting_deploy_verification
+status: resolved
 trigger: after recent moderation milestone changes, pressing "List Car" on the sell-car form shows "Failed to upload car listing." error — every attempt fails
 created: 2026-04-29
 updated: 2026-04-29
+resolved: 2026-04-29
 platform: android
 ---
 
@@ -95,3 +96,14 @@ tdd_checkpoint: null
 2. Review backend commit `91524a1` and push (`git push origin main` in `/Users/beckmaldinVL/development/mobileApps/backend-services/carEx-services`); wait for Railway redeploy.
 3. Re-run prod curl probe — expect a different failure mode (no longer `user_not_found`), confirming the reorder shipped.
 4. Real Android signed-in seller submits a "List Car" form end-to-end → expect success. If it succeeds, mark this session `resolved` and move the file to `.planning/debug/resolved/list-car-failed-upload.md`.
+
+---
+
+## Verification (2026-04-29 — RESOLVED)
+
+- Both commits pushed; Railway redeployed (deploy `3cc6ce60` Active).
+- Curl probe `POST /api/cars` with fake `sellerId=nope` still returns `404 user_not_found`, BUT Railway deploy logs now show:
+  `[requireNotSuspended] deprecated body-uid fallback used { route: '/api/cars', uid: 'nope' }`
+  This proves multer parsed the multipart body BEFORE `requireNotSuspended` ran (the fallback could not have extracted `sellerId='nope'` otherwise). Same status code, different — and benign — cause: DB lookup with a fake uid.
+- **End-to-end verification:** user reported successfully posting a real listing from Android. Fix confirmed working.
+- The deprecation warning is the expected QUAL-03 follow-up signal — real users now hit the Bearer-auth path via `apiClient` and bypass the body-uid fallback entirely; only Bearer-less clients (like the curl probe) trigger the warning.
