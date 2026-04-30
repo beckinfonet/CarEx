@@ -259,6 +259,9 @@ export const SellCarScreen = () => {
     const result = await launchImageLibrary({
       mediaType: 'photo',
       selectionLimit: 25 - currentTotal,
+      maxWidth: 2048,
+      maxHeight: 2048,
+      quality: 0.8,
     });
 
     const assets = result.assets ?? [];
