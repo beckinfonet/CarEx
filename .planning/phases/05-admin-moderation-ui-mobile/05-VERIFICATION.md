@@ -1,10 +1,11 @@
 ---
 phase: 05-admin-moderation-ui-mobile
 verified: 2026-04-18T00:00:00Z
-status: gaps_found
-score: 10/12 must-haves verified (10 mobile plans PASS; 2 backend plans NOT executed by explicit scope reduction)
+re_verified: 2026-04-30T00:00:00Z
+status: passed
+score: 12/12 must-haves verified (10 mobile plans PASS + 2 backend plans VERIFIED on 2026-04-30 against the live backend implementation in carEx-services repo)
 overrides_applied: 0
-re_verification: null
+re_verification: "Backend Plans 05-0a and 05-0b verified on 2026-04-30 — implementations shipped to backend repo on 2026-04-18 (commits a240e41 + 387039f). Live grep confirms all plan acceptance criteria pass. 27 jest tests green (9 in history.test.js + 18 in searchUsers.test.js). Retroactive SUMMARY.md files written to .planning/phases/05-admin-moderation-ui-mobile/05-0a-SUMMARY.md + 05-0b-SUMMARY.md (commit 624d2bf). Mobile ModerationService.getHistory and ModerationService.searchUsers now hit real endpoints (no 404s)."
 gaps:
   - truth: "Backend route GET /api/admin/moderation/:targetUid/history exists (required by UI-03, UI-04; consumed by ModerationService.getHistory + AdminUserDetailScreen)"
     status: failed

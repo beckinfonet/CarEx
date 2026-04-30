@@ -1,10 +1,12 @@
 ---
 phase: 04-mobile-plumbing-mobile
 verified: 2026-04-18T00:00:00Z
-status: human_needed
-score: 4/4 must-haves verified (structurally)
+human_uat_completed: 2026-04-30T00:00:00Z
+status: passed
+score: 4/4 must-haves verified (structurally) + 4/4 human UAT passed on real devices
 overrides_applied: 0
 gaps: []
+human_uat_summary: "All 4 device-bound tests passed on TestFlight (iOS 1.0.45) + Google Play internal testing (Android 1.0.48) on 2026-04-30. See 04-HUMAN-UAT.md. One cross-phase observation captured: UserStatusBanner visibility cramped (Phase 06 03 styling, not Phase 04 plumbing)."
 human_verification:
   - test: "Real-device end-to-end suspension propagation via 403 interceptor"
     expected: "With admin suspending user A on live backend, any API call from user A's logged-in mobile session surfaces ModerationError, AuthContext.refreshUser fires, and user.moderationStatus.state transitions to the new value inside user A's running session with no app restart and no navigation loop"

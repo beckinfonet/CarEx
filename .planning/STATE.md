@@ -1,33 +1,46 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
-status: Ready to execute
-stopped_at: "Phase 06 Plan 10 complete (QUAL-03 security review artifact 06-SECURITY.md — merge-gate sign-off). 1 atomic commit: docs ccb5962 (.planning/phases/06-affected-user-ux-security-review/06-SECURITY.md +254/-0 — 5 sections (a)-(e) verbatim from ROADMAP §Phase 6 Success Criterion 6 + Optional Hardening Notes auxiliary section; frontmatter status=APPROVED; reviewed_by=self per 06-CONTEXT D-QUAL-03 informal review). All 5 verdicts PASS: (a) verifyIdToken + requireAdmin on every new admin route — moderationRouter chain at server.js:850 + users/search chain at src/admin/router.js:93; (b) zero req.body.callerUid hits on new moderation/admin surface — legacy server.js:848-1196 hits pre-date milestone and are explicitly scoped-out by server.js:848 comment; (c) session.withTransaction on suspend (6 moderation handlers at service.js:64/161/247/355/485) + confirmBooking refund-first-throw-second at confirmBooking.js:124-126; (d) 6 append-only pre-hooks on ModerationAction (updateOne+updateMany+findOneAndUpdate+deleteOne+deleteMany+findOneAndDelete) + zero production mutation call sites; (e) backend git diff main clean (0 new hardcoded secrets across 48 files / 13,458 insertions on feat/moderation-baseline), mobile git grep only hits Phase 5 CONCERNS.md pre-existing entries (AIza Firebase web API key in AuthService.ts:9 blamed to cd5f6ac 2026-01-30, Stripe pk_test_ in App.tsx:93). T-06-05 load-test credential check: scripts/load-test/ does not exist because Plan 06-0b deferred — no exposure surface, disposition revised to 'accept with deferred verification'. 3 Rule 3 auto-fixed deviations (all documentation-substitution, zero functional impact): (1) backend uses flat src/<domain>/ layout not src/routes/+src/middleware/, broadened grep path; (2) mobile on main means git diff main empty, substituted git grep + git log -S age cross-check; (3) scripts/load-test/ absent, recorded exit-code-2 honestly. QUAL-03 CLOSED. Milestone merge-gate cleared. Phase 6 at 10/12 plans complete (06-0a + 06-0b deferred by operator 2026-04-19 — NOT incomplete-pending; will revisit in future milestone)."
-last_updated: "2026-04-19T15:53:20.000Z"
-last_activity: 2026-04-19 -- Phase 06 Plan 10 complete
+milestone_name: "Admin Moderation"
+milestone_status: shipped
+shipped_at: "2026-04-30"
+status: Awaiting next milestone
+stopped_at: "v1.0 Admin Moderation milestone shipped on 2026-04-30. Distribution: TestFlight 1.0.45 + Google Play internal testing 1.0.48 (verified live). 31/32 v1 requirements validated; QUAL-02 10k-user load test deferred by operator 2026-04-19. Archive: .planning/milestones/v1.0-ROADMAP.md + .planning/milestones/v1.0-REQUIREMENTS.md. Tag: v1.0."
+last_updated: "2026-04-30T00:00:00.000Z"
+last_activity: 2026-04-30 -- v1.0 Admin Moderation milestone shipped + tagged
 progress:
   total_phases: 6
-  completed_phases: 4
-  total_plans: 51
-  completed_plans: 47
-  percent: 92
+  completed_phases: 6
+  total_plans: 47
+  completed_plans: 45
+  deferred_plans: 2
+  percent: 100
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-17)
+See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 **Core value:** Admins can act on bad-actor users after they're already in the system — without losing the audit trail or breaking in-flight orders for legitimate counterparties.
-**Current focus:** Phase null
+**Current focus:** Planning next milestone (run `/gsd-new-milestone` to scope v1.1+)
 
 ## Current Position
 
-Phase: 06-affected-user-ux-security-review — EXECUTING (10/12 plans; 06-0a + 06-0b deferred by operator 2026-04-19)
-Plan: 10 of 12 complete (01, 02, 03, 04, 05, 06, 07, 08, 09, 10 complete)
-Next: /gsd-verify-phase 06 (phase-close / merge-to-main gate). Plans 06-0a (QUAL-02 10k-user seed) + 06-0b (QUAL-02 k6 harness) DEFERRED by operator 2026-04-19 — not blocking merge per 06-SECURITY.md Section (e) + Optional Hardening; re-visit in future milestone. QUAL-03 closed end-to-end via 06-SECURITY.md (status: APPROVED, all 5 verdicts PASS).
+Milestone: v1.0 Admin Moderation — ✅ SHIPPED 2026-04-30
+Tag: v1.0
+Next: Plan next milestone via `/gsd-new-milestone` (questioning → research → requirements → roadmap).
+
+## Deferred Items
+
+Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
+
+| Category | Item | Status |
+|----------|------|--------|
+| backend-load-test | Plan 06-0a (10k-user seed) | deferred by operator 2026-04-19 |
+| backend-load-test | Plan 06-0b (k6 harness with P95<200ms) | deferred by operator 2026-04-19 |
+| ux-followup | UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 06 03 styling) | captured 2026-04-30 during Phase 04 UAT — to be addressed in next milestone |
 Last activity: 2026-04-19 -- Phase 06 Plan 10 complete
 Resume file: (phase-close) .planning/phases/06-affected-user-ux-security-review/
 
