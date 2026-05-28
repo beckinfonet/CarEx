@@ -8,7 +8,7 @@
 
 ## 1. Context & goal
 
-The design team delivered a high-fidelity "Option C — Editorial / Photo-forward" handoff (`CarExHandoff.zip` → `design_handoff_carex_option_c/`) for a refreshed Home + a new Search Results screen. The handoff includes a full token system, component-level JSX references, and a "promoted listings" placement strategy where **card size (Big vs Small) is the only signal of paid placement** — no `Ad` / `Sponsored` / `VIP` / `Реклама` labels.
+The design team delivered a high-fidelity "Option C — Editorial / Photo-forward" handoff (committed to this repo at `docs/design-handoff/`) for a refreshed Home + a new Search Results screen. The handoff includes a full token system, component-level JSX references, and a "promoted listings" placement strategy where **card size (Big vs Small) is the only signal of paid placement** — no `Ad` / `Sponsored` / `VIP` / `Реклама` labels.
 
 CarEx has existing customers in production. Forcing the redesign on them risks regressions of muscle memory and complaints. The product decision is to **preserve the current Home screen as v1, ship the redesign as v2, and let each user choose** via a Settings toggle. New users default to v1 too (conservative); we promote v2 only via a one-shot opt-in banner on Home.
 
