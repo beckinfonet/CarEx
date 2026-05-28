@@ -6,8 +6,8 @@ milestone_status: shipped
 shipped_at: "2026-04-30"
 status: Awaiting next milestone
 stopped_at: "v1.0 Admin Moderation milestone shipped on 2026-04-30. Distribution: TestFlight 1.0.45 + Google Play internal testing 1.0.48 (verified live). 31/32 v1 requirements validated; QUAL-02 10k-user load test deferred by operator 2026-04-19. Archive: .planning/milestones/v1.0-ROADMAP.md + .planning/milestones/v1.0-REQUIREMENTS.md. Tag: v1.0."
-last_updated: "2026-04-30T00:00:00.000Z"
-last_activity: 2026-04-30 -- v1.0 Admin Moderation milestone shipped + tagged
+last_updated: "2026-05-28T15:50:00.000Z"
+last_activity: 2026-05-28 -- Completed quick task 260528-c4q: Make FloatingSearchPill sticky at top of HomeScreenV2
 progress:
   total_phases: 6
   completed_phases: 6
@@ -267,6 +267,12 @@ None yet.
 - Atlas cluster tier — confirm M10+ for txn + auditing support before Phase 1
 - Audit note visibility (super-admin vs. all-admin) — decision needed at Phase 2 (Pitfall 12); if no super-admin tier, treat all admins as equal for this milestone
 - Railway instance count — if >1 instance, rate limiter must use `rate-limit-redis` (relevant Phase 2)
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260528-c4q | Make FloatingSearchPill sticky at top of HomeScreenV2 | 2026-05-28 | 9020cf1 | [260528-c4q-make-floatingsearchpill-sticky-at-top-of](./quick/260528-c4q-make-floatingsearchpill-sticky-at-top-of/) |
 
 ## Deferred Items
 
