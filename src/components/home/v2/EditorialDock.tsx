@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   navLabel: { fontSize: 10, letterSpacing: -0.1 },
   fabSlot:  { width: 80, alignItems: 'center', justifyContent: 'center' },
-  fab:      { position: 'absolute', top: -16, alignItems: 'center', justifyContent: 'center' },
+  fab:      { position: 'absolute', top: -8, alignItems: 'center', justifyContent: 'center' },
   fabGradient: {
     width: 60, height: 60, borderRadius: 30,
     alignItems: 'center', justifyContent: 'center',
@@ -89,5 +89,5 @@ const styles = StyleSheet.create({
     shadowColor: V2.blue, shadowOpacity: 0.42, shadowRadius: 26, shadowOffset: { width: 0, height: 10 },
     elevation: 12,
   },
-  fabLabel: { fontSize: 10, color: V2.text, fontWeight: '700', marginTop: 38 },
+  fabLabel: { fontSize: 10, color: V2.text, fontWeight: '700', marginTop: 30 },
 });
