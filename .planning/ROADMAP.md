@@ -22,13 +22,17 @@
 
 Use `/gsd-new-milestone` to start the next milestone cycle (questioning → research → requirements → roadmap).
 
-Carry-forward candidates documented in `.planning/milestones/v1.0-REQUIREMENTS.md` v2 section:
+#### Pre-designed scope (ready for spec-phase)
+
+- **LIST-01 — Admin Listing Moderation** — design decisions captured 2026-05-28 in [.planning/notes/listing-moderation-design.md](notes/listing-moderation-design.md). Four distinct admin actions (Edit / Suspend / Archive / Delete-soft) on a single `status` field, reuses v1.0 audit + auth patterns, inline on `CarDetails`. Pending research: does the existing seller `EditCarScreen` cover all admin-edit fields ([.planning/research/questions.md](research/questions.md)).
+
+#### Other carry-forward candidates (documented in `.planning/milestones/v1.0-REQUIREMENTS.md` v2 section)
 
 - DEBT-01..04 — AuthService split, typed User, expanded test coverage, error handling
 - REL-01, REL-03 — Stripe live key, env-config cleanup
 - MOD2-01..06 — Extended moderation (CSV export, IP/device fingerprint, bulk select, super-admin tier, etc.)
 - NOTF-01..03 — Email + push + in-app appeal ticket system
-- LIST-01..02 — Listing-level moderation + automated flagging queue
+- LIST-02 — Automated listing-flagging queue (paired with LIST-01)
 - QUAL-02 — 10k-user backend load test (deferred from v1.0)
 - UX: UserStatusBanner visibility cramped by navbar avatar + logo (captured during Phase 04 UAT 2026-04-30)
 
