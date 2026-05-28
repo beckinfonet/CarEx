@@ -64,7 +64,7 @@ export const V2InviteBanner: React.FC<V2InviteBannerProps> = ({ headline, tryLab
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginHorizontal: 16, marginTop: 8, padding: 12,
+    marginHorizontal: 16, marginTop: 8, marginBottom: 12, padding: 12,
     borderRadius: 14,
     backgroundColor: V2.surface,
     borderWidth: 1, borderColor: 'rgba(77,163,255,0.32)',
