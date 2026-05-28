@@ -150,6 +150,16 @@ jest.mock('react-native-image-picker', () => ({
   launchImageLibrary: jest.fn(),
 }));
 
+// react-native-linear-gradient — stub to a passthrough View so v2 components
+// that wrap content in <LinearGradient> can render in tests.
+jest.mock('react-native-linear-gradient', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const LinearGradient = (props) => React.createElement(View, props, props.children);
+  LinearGradient.displayName = 'LinearGradient';
+  return { __esModule: true, default: LinearGradient, LinearGradient };
+});
+
 // react-native-safe-area-context — lightweight passthrough + zero insets.
 jest.mock('react-native-safe-area-context', () => {
   const React = require('react');
