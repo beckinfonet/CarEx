@@ -7,7 +7,8 @@ import { useTypography } from '../../../hooks/useTypography';
 export interface GreetingBlockProps {
   /** Localized morning/afternoon/evening string, e.g. "Доброе утро". */
   timeOfDay: string;
-  city: string;
+  /** Optional contextual subject for the kicker (e.g. "Becky · Москва"). When omitted, only the time-of-day is shown. */
+  subject?: string;
   /** Localized headline, e.g. "Найдём ваше идеальное авто." */
   headline: string;
   /** Live count of listings currently displayed. */
@@ -19,13 +20,14 @@ export interface GreetingBlockProps {
 }
 
 export const GreetingBlock: React.FC<GreetingBlockProps> = ({
-  timeOfDay, city, headline, listingsCount, listingsNoun, trailing,
+  timeOfDay, subject, headline, listingsCount, listingsNoun, trailing,
 }) => {
   const typo = useTypography();
+  const kicker = subject && subject.trim() ? `${timeOfDay} · ${subject}` : timeOfDay;
   return (
     <View style={styles.wrapper}>
       <Text style={[styles.kicker, { fontFamily: typo.display }]}>
-        {timeOfDay} · {city}
+        {kicker}
       </Text>
       <Text style={[styles.headline, { fontFamily: typo.display }]}>
         {headline}

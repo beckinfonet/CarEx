@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { View, FlatList, StyleSheet, StatusBar, Text, Platform, BackHandler, ToastAndroid, RefreshControl } from 'react-native';
 import { useNavigation, useRoute, useIsFocused, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -6,9 +6,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useHomeListings } from '../hooks/useHomeListings';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { useTypography } from '../hooks/useTypography';
 import { CATEGORIES } from '../constants/mockData';
 import { V2 } from '../components/home/v2/theme';
+import { getCityFromTimezone, buildGreetingSubject } from '../utils/greetingSubject';
 
 import { FloatingSearchPill } from '../components/home/v2/FloatingSearchPill';
 import { GreetingBlock } from '../components/home/v2/GreetingBlock';
@@ -39,6 +41,7 @@ export const HomeScreenV2 = () => {
   const route      = useRoute<RouteT>();
   const isFocused  = useIsFocused();
   const { t, language, setLanguage } = useLanguage();
+  const { user } = useAuth();
   const typo       = useTypography();
 
   const {
@@ -80,6 +83,14 @@ export const HomeScreenV2 = () => {
     return () => sub.remove();
   }, [isFocused, t.pressBackAgainToExit, selectedMake, selectedModel, selectedCategory, activeFilters, setSelectedModel, clearAll]);
 
+  // Compose greeting kicker subject: firstName + IANA-timezone-derived city when available.
+  const subject = useMemo(() => {
+    let tz: string | null = null;
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { tz = null; }
+    const city = tz ? getCityFromTimezone(tz, t) : null;
+    return buildGreetingSubject({ firstName: user?.firstName, city });
+  }, [user?.firstName, t]);
+
   // Slice displayedCars into hero / shelf / feed bands
   const heroCars  = displayedCars.slice(0, 5);
   const shelfCars = displayedCars.slice(5, 13);
@@ -94,7 +105,7 @@ export const HomeScreenV2 = () => {
     <>
       <GreetingBlock
         timeOfDay={timeOfDayKey(t)}
-        city={t.moscow}
+        subject={subject}
         headline={t.findYourCar}
         listingsCount={displayedCars.length}
         listingsNoun={t.listingsCount}
