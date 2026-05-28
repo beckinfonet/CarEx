@@ -12,6 +12,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { HomeScreenRouter } from './src/screens/HomeScreenRouter';
+import { SearchResultsRouter } from './src/screens/SearchResultsRouter';
 import { CarDetailsScreen } from './src/screens/CarDetailsScreen';
 import { SellCarScreen } from './src/screens/SellCarScreen';
 import { AboutScreen } from './src/screens/AboutScreen';
@@ -104,6 +105,7 @@ function App() {
                 }}
               >
                 <Stack.Screen name="Home" component={HomeScreenRouter} />
+                <Stack.Screen name="SearchResults" component={SearchResultsRouter} />
                 <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
                 <Stack.Screen name="SellCar" component={SellCarScreen} />
                 <Stack.Screen name="About" component={AboutScreen} />
