@@ -5,4 +5,5 @@ module.exports = {
       packageName: 'com.carex.market',
     },
   },
+  assets: ['./src/assets/fonts/'],
 };
