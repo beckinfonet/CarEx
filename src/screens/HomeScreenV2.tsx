@@ -98,6 +98,7 @@ export const HomeScreenV2 = () => {
         headline={t.findYourCar}
         listingsCount={displayedCars.length}
         listingsNoun={t.listingsCount}
+        trailing={<LangSwitchV2 language={language} setLanguage={setLanguage} />}
       />
       <ActiveFilterChips
         selectedMake={selectedMake}
@@ -142,7 +143,6 @@ export const HomeScreenV2 = () => {
         placeholder={t.searchPlaceholderV2}
         onPress={handleSearchPress}
         onFiltersPress={handleFiltersPress}
-        trailing={<LangSwitchV2 language={language} setLanguage={setLanguage} />}
       />
       <FlatList
         style={styles.list}
