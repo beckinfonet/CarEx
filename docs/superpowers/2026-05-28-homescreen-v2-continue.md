@@ -7,6 +7,40 @@
 
 ---
 
+## Resolution log — 2026-05-28 (later session)
+
+All blocker bugs fixed in a follow-up session. **Merge to main approved by operator.**
+
+| # | Bug | Resolution | Commit |
+|---|-----|------------|--------|
+| 4 | FloatingSearchPill scrolled away with the feed | Hoisted out of FlatList `ListHeaderComponent` into a sibling of the FlatList inside SafeAreaView | `9020cf1` (260528-c4q) |
+| 3 | EditorialDock FAB visually off / "Ещё" navigated to Profile instead of opening a popup | First tried numeric FAB alignment (260528-cfe `8240dfe` — superseded), then swapped EditorialDock for the v1 BottomBar verbatim per operator preference | `bc7c80e` (260528-cr4) + `8836ca7` cleanup |
+| — | BottomBar clipped by iPhone home indicator after the swap | Added `'bottom'` to SafeAreaView edges in HomeScreenV2 | `4eccbda` (gsd-fast) |
+| 2 | RU/EN language toggle removed in v2 | New `LangSwitchV2` v2-tokens-styled pill component; placed in `GreetingBlock`'s `chipRow` to share a row with the "50 объявлений" pill (matching pill heights). Earlier iterations placed it above GreetingBlock (260528-d9a `555cb40` — superseded) and inside FloatingSearchPill (260528-dj9 `8486f4c` — superseded) | `d047081` (260528-dqz) |
+| 1 | v2 search pill navigated to a page instead of presenting the v1-style dropdown | Operator opted to keep SearchResultsV2 as a dedicated search page (for future paid content + refined search); added v1 `MakeModelFilterBar` dropdown picker inside SearchResultsV2 and wired Android `BackHandler` to `navigation.goBack()`; chevron-back preserved | `cd56521` (260528-evg) |
+| 1b | HeroRotator cards clipped on the right when swiping | `marginHorizontal: -18` on rotator wrapper to negate parent `paddingHorizontal: 18`; pages now snap to full screen width | `c5592db` (gsd-fast) |
+
+### Quick-task artifacts under `.planning/quick/`
+- `260528-c4q-make-floatingsearchpill-sticky-at-top-of/`
+- `260528-cfe-align-center-fab-in-editorialdock-with-s/` (superseded by cr4)
+- `260528-cr4-swap-editorialdock-for-v1-bottombar-in-h/`
+- `260528-d9a-re-add-ru-en-language-toggle-to-v2-home-/` (superseded by dj9 → dqz)
+- `260528-dj9-inline-langswitchv2-into-floatingsearchp/` (superseded by dqz)
+- `260528-dqz-move-langswitchv2-to-greetingblock-chipr/`
+- `260528-evg-add-makemodelfilterbar-android-back-hand/`
+
+### Still NOT in the branch (intentionally, per original handoff)
+- Font binaries (`src/assets/fonts/README.md` documents the download)
+- Manual UAT runbook completion (`docs/superpowers/uat/2026-05-28-homescreen-v2-uat.md`) — operator confirmed each fix interactively during this session
+- Promoted-listings backend (out of scope per spec §13)
+- The `EditorialDock` component file is left in place as dead code (unused but kept for possible v2 design revival)
+
+### Test status at merge time
+- Component-level tests for `FloatingSearchPill` and `GreetingBlock` still pass after the new optional `trailing` prop work — no test file edits were made
+- Pre-existing failing test `__tests__/App.test.tsx` (`Cannot use 'in' operator to search for 'usesNewAndroidHeaderHeightImplementation' in undefined`) remains untouched — already failing on main before this branch, deferred separately
+
+---
+
 ## Where we are
 
 The implementation plan at `docs/superpowers/plans/2026-05-28-homescreen-v2-toggle.md` was executed task-by-task. All 28 execution tasks (Phases 0–4) plus the UAT runbook (Phase 5) shipped as atomic commits. The spec is at `docs/superpowers/specs/2026-05-28-homescreen-v2-toggle-design.md`.
