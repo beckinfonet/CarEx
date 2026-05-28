@@ -53,7 +53,14 @@ Use `/gsd-new-milestone` to start the next milestone cycle (questioning → rese
   2. A request to any `/api/admin/moderation/listings/*` route without a valid Firebase ID token returns `401`; with a valid token but non-admin role returns `403`
   3. The 31st listing-moderation action by the same admin within 15 minutes is rejected with `429`
   4. Direct attempts to update or delete a row in the listing audit collection are rejected at the application layer (Mongoose pre-hook error), not silently allowed
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+- [ ] 07-01-PLAN.md — Extend `Car` schema with `status` + audit fields + `{sellerId,status}` index; D-08 naming-collision lock (LDATA-01, LDATA-02)
+- [ ] 07-02-PLAN.md — Create `ListingModerationAction` sibling audit collection with 6 append-only pre-hooks (LDATA-03)
+- [ ] 07-03-PLAN.md — Create `LISTING_STATUS_POLICY` capability map + `resolveBlockedBuyerActions` resolver with schema-equality lock (LDATA-01 foundation for Phase 9/11)
+- [ ] 07-04-PLAN.md — Create `listingModerationRateLimiter` with `listing-admin:` keyGenerator prefix (D-04 separate bucket) (LSEC-03 mechanism)
+- [ ] 07-05-PLAN.md — Land `listingRouter` `/ping` scaffold + `server.js` mount line + middleware test + rate-limit test with D-04 separate-bucket proof (LSEC-01, LSEC-02, LSEC-03)
+- [ ] 07-06-PLAN.md — Land `migrate-listing-moderation.js` script + extend `ensureBaseline.js` with Car.status check + migration test (LDATA-04)
 
 ### Phase 8: Admin Listing Moderation Endpoints (Backend)
 **Goal**: Admins can Edit, Suspend, Archive, Soft-Delete, and Restore any listing via rate-limited HTTP endpoints, each transitioning the `status` field and writing an append-only audit row atomically
@@ -112,7 +119,7 @@ Use `/gsd-new-milestone` to start the next milestone cycle (questioning → rese
 | 4. Mobile Plumbing | v1.0 | 7/7 | Complete | 2026-04-18 |
 | 5. Admin Moderation UI | v1.0 | 14/14 | Complete | 2026-04-18 |
 | 6. Affected-User UX + Security Review | v1.0 | 10/12 (2 deferred) | Complete | 2026-04-30 |
-| 7. Listing Schema + Security Baseline | v1.1 | 0/? | Not started | - |
+| 7. Listing Schema + Security Baseline | v1.1 | 0/6 | Planned | - |
 | 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
 | 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
 | 10. Mobile Plumbing + Admin Listing UI | v1.1 | 0/? | Not started | - |
