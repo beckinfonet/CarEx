@@ -14,10 +14,12 @@ export interface GreetingBlockProps {
   listingsCount: number;
   /** Localized noun "объявлений" / "listings". */
   listingsNoun: string;
+  /** Optional element rendered at the right edge of the chip row (used for LangSwitchV2). */
+  trailing?: React.ReactNode;
 }
 
 export const GreetingBlock: React.FC<GreetingBlockProps> = ({
-  timeOfDay, city, headline, listingsCount, listingsNoun,
+  timeOfDay, city, headline, listingsCount, listingsNoun, trailing,
 }) => {
   const typo = useTypography();
   return (
@@ -35,6 +37,7 @@ export const GreetingBlock: React.FC<GreetingBlockProps> = ({
             {listingsCount} {listingsNoun}
           </Text>
         </View>
+        {trailing}
       </View>
     </View>
   );
@@ -50,7 +53,7 @@ const styles = StyleSheet.create({
     fontSize: 30, fontWeight: '800', letterSpacing: -1.05,
     color: V2.text, lineHeight: 30,
   },
-  chipRow:   { flexDirection: 'row', marginTop: 12, gap: 8 },
+  chipRow:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, gap: 8 },
   chip: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingHorizontal: 12, paddingVertical: 6,

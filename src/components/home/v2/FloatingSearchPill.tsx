@@ -8,11 +8,10 @@ export interface FloatingSearchPillProps {
   placeholder: string;
   onPress: () => void;
   onFiltersPress: () => void;
-  trailing?: React.ReactNode;
 }
 
 export const FloatingSearchPill: React.FC<FloatingSearchPillProps> = ({
-  placeholder, onPress, onFiltersPress, trailing,
+  placeholder, onPress, onFiltersPress,
 }) => {
   const typo = useTypography();
   return (
@@ -26,7 +25,6 @@ export const FloatingSearchPill: React.FC<FloatingSearchPillProps> = ({
           <SlidersHorizontal size={16} color="#04101f" strokeWidth={2.4} />
         </TouchableOpacity>
       </TouchableOpacity>
-      {trailing}
     </View>
   );
 };
@@ -35,12 +33,8 @@ const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: 18,
     paddingTop: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
   },
   pill: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     height: 48,
