@@ -16,6 +16,7 @@ import { ArrowLeft, User, SlidersHorizontal } from 'lucide-react-native';
 import { FilterModal } from '../components/FilterModal';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { V2InviteBanner } from '../components/home/v2/V2InviteBanner';
 import { useHomeListings } from '../hooks/useHomeListings';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -129,6 +130,11 @@ export const HomeScreen = () => {
           )}
           ListHeaderComponent={
             <>
+              <V2InviteBanner
+                headline={t.newDesignAvailable}
+                tryLabel={t.tryNow}
+                notNowLabel={t.notNow}
+              />
               <View style={styles.searchSection}>
                 <View style={styles.searchRow}>
                   <View style={styles.searchBarWrapper}>
