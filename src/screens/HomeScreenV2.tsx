@@ -7,7 +7,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHomeListings } from '../hooks/useHomeListings';
 import { useLanguage } from '../context/LanguageContext';
 import { useTypography } from '../hooks/useTypography';
-import { useAuth } from '../context/AuthContext';
 import { CATEGORIES } from '../constants/mockData';
 import { V2 } from '../components/home/v2/theme';
 
@@ -39,7 +38,6 @@ export const HomeScreenV2 = () => {
   const route      = useRoute<RouteT>();
   const isFocused  = useIsFocused();
   const { t }      = useLanguage();
-  const { user }   = useAuth();
   const typo       = useTypography();
 
   const {
