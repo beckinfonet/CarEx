@@ -71,7 +71,14 @@ Plans:
   2. Archive and Delete-soft transition `status` to `archived` and `deleted` respectively, each capturing the reason category + optional note, with the listing document still present in the DB after delete-soft
   3. Restoring any non-active listing flips `status` back to `active` and appends a new audit row — the original transition rows are never edited or removed
   4. Admin Edit updates the listing fields, stamps `lastEditedBy`, and writes an audit row containing the `fieldDiff` of changed fields
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+- [ ] 08-01-PLAN.md — Substrate: extract multer-S3 upload + listingSchemas + listingErrors + denySelfModerationListing + listingService skeleton + 3 Wave-0 tests (LADM-01..05 substrate)
+- [ ] 08-02-PLAN.md — Suspend endpoint: PATCH /:carId/suspend + KNOWN_LISTING_ERRORS + handleListingServiceError + suspendListing.test.js (LADM-02)
+- [ ] 08-03-PLAN.md — Archive endpoint: PATCH /:carId/archive + archiveListing.test.js (LADM-03)
+- [ ] 08-04-PLAN.md — Delete-soft endpoint: PATCH /:carId/delete with soft-delete invariant (LADM-04)
+- [ ] 08-05-PLAN.md — Restore endpoint: PATCH /:carId/restore with clear-on-restore + not_moderated distinct code (LADM-05)
+- [ ] 08-06-PLAN.md — Edit endpoint: PATCH /:carId multipart + fieldDiff + makeId/modelId validation + D-A-3 stamp distinction (LADM-01)
 
 ### Phase 9: Backend Read-time + TOCTOU Enforcement
 **Goal**: Non-active listings disappear from all public reads without any denormalized flag mutation, listing-detail GET returns a status-aware thin payload to non-admin viewers, and cart-add + confirm-booking re-verify listing status inside the same transaction with refund-first-throw-second semantics
