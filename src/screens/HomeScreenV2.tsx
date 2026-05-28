@@ -97,11 +97,6 @@ export const HomeScreenV2 = () => {
 
   const Header = (
     <>
-      <FloatingSearchPill
-        placeholder={t.searchPlaceholderV2}
-        onPress={handleSearchPress}
-        onFiltersPress={handleFiltersPress}
-      />
       <GreetingBlock
         timeOfDay={timeOfDayKey(t)}
         city={t.moscow}
@@ -148,6 +143,11 @@ export const HomeScreenV2 = () => {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={V2.bg} />
+      <FloatingSearchPill
+        placeholder={t.searchPlaceholderV2}
+        onPress={handleSearchPress}
+        onFiltersPress={handleFiltersPress}
+      />
       <FlatList
         style={styles.list}
         data={feedCars}
