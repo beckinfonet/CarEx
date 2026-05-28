@@ -11,7 +11,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { HomeScreen } from './src/screens/HomeScreen';
+import { HomeScreenRouter } from './src/screens/HomeScreenRouter';
 import { CarDetailsScreen } from './src/screens/CarDetailsScreen';
 import { SellCarScreen } from './src/screens/SellCarScreen';
 import { AboutScreen } from './src/screens/AboutScreen';
@@ -103,7 +103,7 @@ function App() {
                   animation: 'slide_from_right'
                 }}
               >
-                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Home" component={HomeScreenRouter} />
                 <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
                 <Stack.Screen name="SellCar" component={SellCarScreen} />
                 <Stack.Screen name="About" component={AboutScreen} />
