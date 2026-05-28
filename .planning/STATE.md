@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin Listing Moderation
 status: planning
-last_updated: "2026-05-28T20:40:35.701Z"
-last_activity: 2026-05-28
+stopped_at: Phase 7 context gathered
+last_updated: "2026-05-28T21:02:51.111Z"
+last_activity: 2026-05-28 — v1.1 ROADMAP.md created (Phases 7-11), 28/28 requirements mapped
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
-  percent: 0
 ---
 
 # Project State
@@ -39,7 +39,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 | backend-load-test | Plan 06-0b (k6 harness with P95<200ms) | deferred by operator 2026-04-19 |
 | ux-followup | UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 06 03 styling) | captured 2026-04-30 during Phase 04 UAT — to be addressed in next milestone |
 Last activity: 2026-05-28 - Completed quick task 260528-hmt: Rotating playful greeting + headline variants on HomeScreenV2
-Resume file: (phase-close) .planning/phases/06-affected-user-ux-security-review/
+Resume file: .planning/phases/07-listing-schema-security-baseline-backend/07-CONTEXT.md
 
 Progress: v1.0 SHIPPED (47/47 executed; 2 operator-deferred). v1.1: 0/5 phases — Phase 7 next.
 
@@ -296,6 +296,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-19T15:53:20.000Z
-Stopped at: Phase 06 Plan 10 complete (QUAL-03 security review artifact 06-SECURITY.md — merge-gate sign-off). 1 atomic commit: docs ccb5962 (.planning/phases/06-affected-user-ux-security-review/06-SECURITY.md +254/-0 — frontmatter status=APPROVED, reviewed_by=self per 06-CONTEXT D-QUAL-03 informal review; 5 verbatim criterion sections (a)-(e) from ROADMAP §Phase 6 Success Criterion 6 + Optional Hardening Notes auxiliary + Review Sign-Off footer). All 5 verdicts PASS: (a) verifyIdToken + requireAdmin chain on every new admin route (server.js:850 moderation mount + admin/router.js:93 users/search); (b) zero req.body.callerUid hits on new moderation/admin surface; (c) session.withTransaction on suspend + confirmBooking with refund-first-throw-second; (d) 6 append-only pre-hooks on ModerationAction + zero production mutation call sites; (e) backend git diff main clean, mobile git grep hits only Phase 5 CONCERNS.md pre-existing entries (AIza blamed to cd5f6ac 2026-01-30, Stripe pk_test_ in App.tsx:93). T-06-05 scripts/load-test/ does not exist (Plan 06-0b deferred) — no exposure surface, disposition 'accept with deferred verification'. 3 Rule 3 auto-fixed deviations (all documentation-substitution, zero functional impact): (1) backend uses flat src/<domain>/ layout not src/routes/+src/middleware/ — broadened grep path; (2) mobile on main branch means git diff main is empty — substituted git grep + git log -S + git blame age cross-check; (3) scripts/load-test/ absent — recorded exit-code-2 honestly. Legacy /api/admin/* callerUid-in-body pattern (server.js:848-1196) pre-dates milestone, explicitly scoped-out by server.js:848 comment, flagged in Optional Hardening Notes as recommended future tech-debt sweep NOT a Section (b) FAIL. QUAL-03 CLOSED. Milestone merge-gate cleared. Phase 6 at 10/12 plans complete (06-0a + 06-0b operator-deferred 2026-04-19 — NOT incomplete-pending; revisit in future milestone).
+Last session: 2026-05-28T21:02:51.104Z
+Stopped at: Phase 7 context gathered
 Resume file: (phase-close) /gsd-verify-phase 06 — all 3 Phase 6 requirements complete (QUAL-01 via 06-01/06-09 + QUAL-03 via 06-10; QUAL-02 operator-deferred)
