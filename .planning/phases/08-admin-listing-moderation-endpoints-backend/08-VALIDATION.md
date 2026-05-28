@@ -1,10 +1,11 @@
 ---
 phase: 8
 slug: admin-listing-moderation-endpoints-backend
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: approved
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-05-28
+approved: 2026-05-28
 ---
 
 # Phase 8 — Validation Strategy
@@ -38,11 +39,26 @@ created: 2026-05-28
 
 ## Per-Task Verification Map
 
-> Filled in by the planner once PLAN.md files exist. Each task in PLAN.md must list an automated verify command OR a Wave 0 dependency that lands the test stub.
-
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 08-XX-YY | XX | N | LADM-0X | — / T-08-NN | {behavior} | unit / integration | `npx jest __tests__/listing-moderation/<file>.test.js` | ⬜ W0 | ⬜ pending |
+| 08-01-01 | 01 | 1 | LADM-01..05 (substrate) | T-08-07 | Extracted multer-S3 upload importable by both seller PUT and admin Edit | source assert | `node -e "require('./src/uploads/carImages').upload.array"` | ⬜ W0 | ⬜ pending |
+| 08-01-02 | 01 | 1 | LADM-01..05 (substrate) | T-08-03, T-08-05 | listingErrors + listingSchemas + denySelfModerationListing + listingService skeleton in place | source assert | `node -e "require('./src/moderation/listingService')"` | ⬜ W0 | ⬜ pending |
+| 08-01-03 | 01 | 1 | LADM-01..05 (substrate) | T-08-01, T-08-02, T-08-03 | Wave-0 tests green (schemas, denySelfMod, atomicity) | integration | `npx jest __tests__/listing-moderation/listingSchemas.test.js __tests__/listing-moderation/denySelfModerationListing.test.js __tests__/listing-moderation/listingTransaction.atomicity.test.js` | ⬜ W0 | ⬜ pending |
+| 08-02-01 | 02 | 2 | LADM-02 | T-08-02 | suspendListing fills canonical session.withTransaction audit-then-Car pattern | source assert | `node -e "/session.withTransaction/.test(...) && /ListingModerationAction.create\\(\\[/.test(...)"` | ⬜ W0 | ⬜ pending |
+| 08-02-02 | 02 | 2 | LADM-02 | T-08-01 | KNOWN_LISTING_ERRORS + handleListingServiceError + PATCH /:carId/suspend route with denySelfModerationListing middleware | source assert + Phase 7 ping regression | `node -e "..." && npx jest __tests__/listing-moderation/listingModerationRateLimiter.test.js` | ⬜ W0 | ⬜ pending |
+| 08-02-03 | 02 | 2 | LADM-02 | T-08-01, T-08-02 | suspendListing.test.js — happy + cross-state + same-state-reject + reason-required + self-mod | integration | `npx jest __tests__/listing-moderation/suspendListing.test.js` | ⬜ W0 | ⬜ pending |
+| 08-03-01 | 03 | 3 | LADM-03 | T-08-02 | archiveListing mirror of suspendListing with target='archived' + action='archive' | source assert | `node -e "..."` | ⬜ W0 | ⬜ pending |
+| 08-03-02 | 03 | 3 | LADM-03 | T-08-01 | PATCH /:carId/archive route with denySelfModerationListing middleware, JSON-only (no multer) | source assert | `node -e "..."` | ⬜ W0 | ⬜ pending |
+| 08-03-03 | 03 | 3 | LADM-03 | T-08-01, T-08-02 | archiveListing.test.js — happy + cross-state + same-state + self-mod | integration | `npx jest __tests__/listing-moderation/archiveListing.test.js` | ⬜ W0 | ⬜ pending |
+| 08-04-01 | 04 | 4 | LADM-04 | T-08-02 | deleteListing soft-delete pattern: status flip only, NO Car.deleteOne / .deleteMany / findOneAndDelete | source assert (negative grep) | `node -e "..."` | ⬜ W0 | ⬜ pending |
+| 08-04-02 | 04 | 4 | LADM-04 | T-08-01 | PATCH /:carId/delete route with denySelfModerationListing middleware, JSON-only | source assert | `node -e "..."` | ⬜ W0 | ⬜ pending |
+| 08-04-03 | 04 | 4 | LADM-04 | T-08-02 | deleteListing.test.js — happy + Car.countDocuments==1 invariant + cross-state + same-state | integration | `npx jest __tests__/listing-moderation/deleteListing.test.js` | ⬜ W0 | ⬜ pending |
+| 08-05-01 | 05 | 5 | LADM-05 | T-08-02 | restoreListing clear-on-restore + not_moderated + moderatedBy update | source assert | `node -e "..."` | ⬜ W0 | ⬜ pending |
+| 08-05-02 | 05 | 5 | LADM-05 | T-08-01 | PATCH /:carId/restore route, reasonCategory absent (D-C), JSON-only (no multer) | source assert (regex + Phase 7 ping regression) | `node -e "..." && npx jest __tests__/listing-moderation/listingModerationRateLimiter.test.js` | ⬜ W0 | ⬜ pending |
+| 08-05-03 | 05 | 5 | LADM-05 | T-08-02, T-08-05 | restoreListing.test.js — 3 starting states + not_moderated + field-clear + original-row history preserved | integration | `npx jest __tests__/listing-moderation/restoreListing.test.js` | ⬜ W0 | ⬜ pending |
+| 08-06-01 | 06 | 6 | LADM-01 | T-08-03, T-08-04 | editListing fieldDiff + image merge + makeId/modelId lazy validation + lastEditedBy stamp + no moderatedBy mutation | source assert | `node -e "..."` | ⬜ W0 | ⬜ pending |
+| 08-06-02 | 06 | 6 | LADM-01 | T-08-01, T-08-03 | PATCH /:carId route with upload.array('images', 25) BEFORE denySelfModerationListing; Zod unknown-key → 400 invalid_field | source assert | `node -e "..."` | ⬜ W0 | ⬜ pending |
+| 08-06-03 | 06 | 6 | LADM-01 | T-08-02, T-08-03, T-08-04 | editListing.test.js — fieldDiff shape + image cases + unknown-field + no-changes + works on any status + makeId/modelId bad refs + D-A-3 stamp distinction | integration | `npx jest __tests__/listing-moderation/editListing.test.js` | ⬜ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -76,11 +92,11 @@ Test stubs Phase 8 must create before Wave 1 implementation begins. Each maps to
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (8 test files above)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 40s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All 18 tasks have `<automated>` verify (verified by gsd-plan-checker against plans 08-01..06)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify (100% verified per gsd-plan-checker Dimension 8c)
+- [x] Wave 0 covers all MISSING references (8 test files; 3 land in 08-01, 5 land per-endpoint in 08-02..06)
+- [x] No watch-mode flags (per-task verify uses single-file `npx jest <file>`; no `--watch`)
+- [x] Feedback latency < 40s (per-task ~1-3s; full suite ~25-40s)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-05-28 (gsd-plan-checker Dimension 8a/b/c/d/e all PASS)

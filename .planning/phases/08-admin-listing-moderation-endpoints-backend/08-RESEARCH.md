@@ -831,22 +831,27 @@ if (JSON.stringify(beforeImages) !== JSON.stringify(afterImages)) {
 
 All other claims in this research are tagged `[VERIFIED: ...]` against actual backend source files read this session.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Pitfall 1 resolution (multer upload sharing)**
+> All three questions resolved by the planner during the Phase 8 planning pass (2026-05-28). The planner's resolutions are noted inline per question. See PLAN files 08-01..08-06 for the landed implementation choices.
+
+1. **Pitfall 1 resolution (multer upload sharing)** — **RESOLVED:** Extract to `src/uploads/carImages.js` (Option 1).
    - What we know: server.js:52–64 declares `upload` as a module-local const; not exported.
    - What's unclear: which resolution path the planner picks (extract vs. factory).
    - Recommendation: **Extract to `src/uploads/carImages.js`** (Pitfall 1 Option 1). It's cleaner, doesn't touch Phase 7 tests, and matches the "single source of truth" discipline Phase 7 used for `listingCapabilities.js`. The substrate plan (proposed Plan 08-01) should include the extraction; the Edit plan (proposed 08-06) then `require`s it.
+   - **Landed in:** Plan 08-01 Task 1 (`src/uploads/carImages.js` shipped; `server.js` modified to `require` it; `uploadAvatar` preserved unchanged).
 
-2. **Error class vs. error message pattern**
+2. **Error class vs. error message pattern** — **RESOLVED:** Adopt D-12's `ListingServiceError extends Error { code }`.
    - What we know: v1.0 uses `new Error('already_at_severity')` + `err.message` matching (router.js:72). Phase 8 D-12 introduces `class ListingServiceError extends Error { code }`.
    - What's unclear: whether the planner wants Phase 8 to be a clean break or to stay symmetric with v1.0.
    - Recommendation: **Commit to D-12's `ListingServiceError` class.** It's cleaner, more discriminable (a generic `Error('listing_not_found')` from a downstream dep would also match `KNOWN_LISTING_ERRORS` — `.code` discriminates). Document in the substrate plan; reference v1.0 service.js as the "prior art we're improving on." The Phase 8 router's `handleListingServiceError` reads `err.code` (with `err.message` fallback for defensive compat).
+   - **Landed in:** Plan 08-01 substrate (`src/moderation/listingErrors.js` ships the class); Plans 08-02..06 throw `new ListingServiceError(code)`; `handleListingServiceError` reads `err.code` first with `err.message` fallback.
 
-3. **Whether to emit `invalid_transition` at all in v1.1**
+3. **Whether to emit `invalid_transition` at all in v1.1** — **RESOLVED:** Include in `KNOWN_LISTING_ERRORS` as forward-compat marker; never thrown in v1.1.
    - What we know: D-B-2 explicitly says `invalid_transition` is forward-compat only and the v1.1 matrix is fully open.
    - What's unclear: should the code even be in `KNOWN_LISTING_ERRORS` if it's never thrown?
    - Recommendation: **Include it in the Set, document the forward-compat intent inline.** If a future super-admin tier (D-B-2) adds the code, the router already routes it correctly. Cost = 1 line.
+   - **Landed in:** Plan 08-02 (router substrate gains `KNOWN_LISTING_ERRORS` set including `invalid_transition` with inline `// forward-compat for D-B-2 super-admin tier` comment).
 
 ## Environment Availability
 
