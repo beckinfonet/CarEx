@@ -50,7 +50,10 @@ type Nav = NativeStackNavigationProp<RootStackParamList, 'AdminManagement'>;
 
 export const AdminManagementScreen: React.FC = () => {
   const { t } = useLanguage();
-  const T = t as Record<string, string>;
+  // `t` now contains string[] fields (260528-hmt greeting variant pools); the bare
+  // `as Record<string, string>` cast no longer overlaps. Route via `unknown` per the
+  // TS diagnostic — matches the `useAuth() as unknown as {...}` pattern below.
+  const T = t as unknown as Record<string, string>;
   const navigation = useNavigation<Nav>();
   // refreshUserForced exists on AuthContext (Plan 04-04) but may not be enumerated
   // on the public AuthContextType; access defensively via cast.
