@@ -92,9 +92,6 @@ export const HomeScreenV2 = () => {
 
   const Header = (
     <>
-      <View style={{ alignItems: 'flex-end', paddingTop: 8 }}>
-        <LangSwitchV2 language={language} setLanguage={setLanguage} />
-      </View>
       <GreetingBlock
         timeOfDay={timeOfDayKey(t)}
         city={t.moscow}
@@ -145,6 +142,7 @@ export const HomeScreenV2 = () => {
         placeholder={t.searchPlaceholderV2}
         onPress={handleSearchPress}
         onFiltersPress={handleFiltersPress}
+        trailing={<LangSwitchV2 language={language} setLanguage={setLanguage} />}
       />
       <FlatList
         style={styles.list}
