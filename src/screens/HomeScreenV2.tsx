@@ -20,6 +20,7 @@ import { SmallFeedCard } from '../components/home/v2/SmallFeedCard';
 import { FeedLoader } from '../components/home/v2/FeedLoader';
 import { BottomBar } from '../components/BottomBar';
 import { FilterModal } from '../components/FilterModal';
+import { LangSwitchV2 } from '../components/home/v2/LangSwitchV2';
 
 import { RootStackParamList } from '../types/navigation';
 
@@ -37,7 +38,7 @@ export const HomeScreenV2 = () => {
   const navigation = useNavigation<Nav>();
   const route      = useRoute<RouteT>();
   const isFocused  = useIsFocused();
-  const { t }      = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const typo       = useTypography();
 
   const {
@@ -91,6 +92,9 @@ export const HomeScreenV2 = () => {
 
   const Header = (
     <>
+      <View style={{ alignItems: 'flex-end', paddingTop: 8 }}>
+        <LangSwitchV2 language={language} setLanguage={setLanguage} />
+      </View>
       <GreetingBlock
         timeOfDay={timeOfDayKey(t)}
         city={t.moscow}
