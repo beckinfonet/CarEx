@@ -19,7 +19,7 @@ import { SmartShelf } from '../components/home/v2/SmartShelf';
 import { BigFeedCard } from '../components/home/v2/BigFeedCard';
 import { SmallFeedCard } from '../components/home/v2/SmallFeedCard';
 import { FeedLoader } from '../components/home/v2/FeedLoader';
-import { EditorialDock } from '../components/home/v2/EditorialDock';
+import { BottomBar } from '../components/BottomBar';
 import { FilterModal } from '../components/FilterModal';
 
 import { RootStackParamList } from '../types/navigation';
@@ -90,10 +90,6 @@ export const HomeScreenV2 = () => {
   const handleCarPress  = (car: any) => navigation.navigate('CarDetails', { carId: car.id, carData: car });
   const handleSearchPress = () => navigation.navigate('SearchResults', { initialQuery: '' });
   const handleFiltersPress = () => { setCurrentFilterType('Год'); setFilterModalVisible(true); };
-  const handleMorePress = () => {
-    if (user) navigation.navigate('Profile');
-    else navigation.navigate('Login');
-  };
 
   const Header = (
     <>
@@ -168,12 +164,7 @@ export const HomeScreenV2 = () => {
         windowSize={11}
         initialNumToRender={8}
       />
-      <EditorialDock
-        homeLabel={t.home}
-        sellLabel={t.sellCar}
-        moreLabel={t.more}
-        onMorePress={handleMorePress}
-      />
+      <BottomBar t={t} />
       <FilterModal
         visible={filterModalVisible}
         type={currentFilterType}
