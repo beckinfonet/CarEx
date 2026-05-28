@@ -54,5 +54,5 @@ export const HeroRotator: React.FC<HeroRotatorProps> = ({
 };
 
 const styles = StyleSheet.create({
-  wrapper: { marginTop: 8 },
+  wrapper: { marginTop: 8, marginHorizontal: -18 }, // negate parent HomeScreenV2 FlatList paddingHorizontal: 18 so pagingEnabled snaps at full screen width
 });
