@@ -41,7 +41,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 | backend-load-test | Plan 06-0a (10k-user seed) | deferred by operator 2026-04-19 |
 | backend-load-test | Plan 06-0b (k6 harness with P95<200ms) | deferred by operator 2026-04-19 |
 | ux-followup | UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 06 03 styling) | captured 2026-04-30 during Phase 04 UAT — to be addressed in next milestone |
-Last activity: 2026-05-28 - Completed quick task 260528-h2r: Home V2 polish (banner margin + smart greeting)
+Last activity: 2026-05-28 - Completed quick task 260528-hmt: Rotating playful greeting + headline variants on HomeScreenV2
 Resume file: (phase-close) .planning/phases/06-affected-user-ux-security-review/
 
 Progress: [█████████░] 92% (47/51 plans; Phase 06 10/12; 2 operator-deferred)
@@ -280,6 +280,7 @@ None yet.
 | 260528-dqz | Move LangSwitchV2 to GreetingBlock chipRow next to listings pill (height mismatch with search pill in 260528-dj9; greeting chip row gives matching pill heights) | 2026-05-28 | d047081 | [260528-dqz-move-langswitchv2-to-greetingblock-chipr](./quick/260528-dqz-move-langswitchv2-to-greetingblock-chipr/) |
 | 260528-evg | Add v1 MakeModelFilterBar dropdown picker + Android hardware back handler to SearchResultsV2 (preserves chevron-back; user keeps dedicated search page for future paid/refined search) | 2026-05-28 | cd56521 | [260528-evg-add-makemodelfilterbar-android-back-hand](./quick/260528-evg-add-makemodelfilterbar-android-back-hand/) |
 | 260528-h2r | Home V2 polish: marginBottom on V2InviteBanner + smart greeting subject (firstName + IANA-timezone-derived city, four fallback states) | 2026-05-28 | fae3744 | [260528-h2r-home-v2-polish-banner-margin-smart-greet](./quick/260528-h2r-home-v2-polish-banner-margin-smart-greet/) |
+| 260528-hmt | Rotating playful greeting + headline variants on HomeScreenV2 (80 strings: 10 per slot × 8 slots; triggers: refresh, focus, AppState active; random no-back-to-back) | 2026-05-28 | fadf376 | [260528-hmt-rotate-playful-greeting-and-headline-var](./quick/260528-hmt-rotate-playful-greeting-and-headline-var/) |
 
 ## Deferred Items
 
