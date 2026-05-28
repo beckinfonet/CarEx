@@ -6,8 +6,8 @@ milestone_status: shipped
 shipped_at: "2026-04-30"
 status: Awaiting next milestone
 stopped_at: "v1.0 Admin Moderation milestone shipped on 2026-04-30. Distribution: TestFlight 1.0.45 + Google Play internal testing 1.0.48 (verified live). 31/32 v1 requirements validated; QUAL-02 10k-user load test deferred by operator 2026-04-19. Archive: .planning/milestones/v1.0-ROADMAP.md + .planning/milestones/v1.0-REQUIREMENTS.md. Tag: v1.0."
-last_updated: "2026-05-28T16:05:00.000Z"
-last_activity: 2026-05-28 -- Completed quick task 260528-cfe: Align center FAB (+) in EditorialDock with side nav items
+last_updated: "2026-05-28T16:20:00.000Z"
+last_activity: 2026-05-28 -- Completed quick task 260528-cr4: Swap EditorialDock for v1 BottomBar in HomeScreenV2
 progress:
   total_phases: 6
   completed_phases: 6
@@ -274,6 +274,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 260528-c4q | Make FloatingSearchPill sticky at top of HomeScreenV2 | 2026-05-28 | 9020cf1 | [260528-c4q-make-floatingsearchpill-sticky-at-top-of](./quick/260528-c4q-make-floatingsearchpill-sticky-at-top-of/) |
 | 260528-cfe | Align center FAB (+) in EditorialDock with side nav items | 2026-05-28 | 8240dfe | [260528-cfe-align-center-fab-in-editorialdock-with-s](./quick/260528-cfe-align-center-fab-in-editorialdock-with-s/) |
+| 260528-cr4 | Swap EditorialDock for v1 BottomBar in HomeScreenV2 (260528-cfe didn't resolve UX; user opted for v1 dock verbatim) | 2026-05-28 | bc7c80e | [260528-cr4-swap-editorialdock-for-v1-bottombar-in-h](./quick/260528-cr4-swap-editorialdock-for-v1-bottombar-in-h/) |
 
 ## Deferred Items
 
