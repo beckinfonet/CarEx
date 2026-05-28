@@ -67,7 +67,9 @@ export const ModerationActionModal: React.FC<ModerationActionModalProps> = ({
 }) => {
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
-  const T = t as Record<string, string>;
+  // `t` now contains string[] fields (260528-hmt greeting variant pools); route via
+  // `unknown` so the index-signature cast still compiles. Runtime behavior unchanged.
+  const T = t as unknown as Record<string, string>;
 
   // ---- per-action state ----
   const [severity, setSeverity] = useState<Severity | null>(null);

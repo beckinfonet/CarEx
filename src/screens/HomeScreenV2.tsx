@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { View, FlatList, StyleSheet, StatusBar, Text, Platform, BackHandler, ToastAndroid, RefreshControl } from 'react-native';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import { View, FlatList, StyleSheet, StatusBar, Text, Platform, BackHandler, ToastAndroid, RefreshControl, AppState, AppStateStatus } from 'react-native';
 import { useNavigation, useRoute, useIsFocused, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,6 +11,7 @@ import { useTypography } from '../hooks/useTypography';
 import { CATEGORIES } from '../constants/mockData';
 import { V2 } from '../components/home/v2/theme';
 import { getCityFromTimezone, buildGreetingSubject } from '../utils/greetingSubject';
+import { rotateVariant, GreetingSlot } from '../utils/greetingVariants';
 
 import { FloatingSearchPill } from '../components/home/v2/FloatingSearchPill';
 import { GreetingBlock } from '../components/home/v2/GreetingBlock';
@@ -36,12 +37,75 @@ function timeOfDayKey(t: any): string {
   return t.goodEvening;
 }
 
+// ---- Quick 260528-hmt — time-of-day pool selector for the rotating greeting kicker ----
+type GreetingTimeSlot = Exclude<GreetingSlot, 'headline'>;
+
+function currentGreetingSlot(): GreetingTimeSlot {
+  const h = new Date().getHours();
+  if (h < 12) return 'morning';
+  if (h < 18) return 'afternoon';
+  return 'evening';
+}
+
+function pickGreetingPool(t: any): { slot: GreetingTimeSlot; pool: string[] } {
+  const slot = currentGreetingSlot();
+  const pool =
+    slot === 'morning'   ? t.greetingVariantsMorning :
+    slot === 'afternoon' ? t.greetingVariantsAfternoon :
+                           t.greetingVariantsEvening;
+  return { slot, pool };
+}
+
 export const HomeScreenV2 = () => {
   const navigation = useNavigation<Nav>();
   const route      = useRoute<RouteT>();
   const isFocused  = useIsFocused();
   const { t, language, setLanguage } = useLanguage();
   const { user } = useAuth();
+
+  // ---- Quick 260528-hmt — Rotating greeting + headline ----
+  const [greetingText, setGreetingText] = useState<string>(() => {
+    const { slot, pool } = pickGreetingPool(t);
+    return rotateVariant(slot, pool);
+  });
+  const [headlineText, setHeadlineText] = useState<string>(() =>
+    rotateVariant('headline', t.headlineVariants),
+  );
+
+  const rotate = useCallback(() => {
+    const { slot, pool } = pickGreetingPool(t);
+    setGreetingText(rotateVariant(slot, pool));
+    setHeadlineText(rotateVariant('headline', t.headlineVariants));
+  }, [t]);
+
+  // Re-pick whenever the language flips so the displayed copy matches the active locale.
+  // We intentionally depend on `language` (a stable primitive) rather than `t` (object identity).
+  const langMountRef = useRef(true);
+  useEffect(() => {
+    if (langMountRef.current) { langMountRef.current = false; return; }
+    rotate();
+  }, [language, rotate]);
+
+  // Rotate when the screen regains focus (e.g. user returns from CarDetails).
+  // Skip the initial mount so the initial useState pick isn't immediately replaced.
+  const focusMountRef = useRef(true);
+  useEffect(() => {
+    if (focusMountRef.current) { focusMountRef.current = false; return; }
+    if (isFocused) rotate();
+  }, [isFocused, rotate]);
+
+  // Rotate when the app returns from background to foreground.
+  // Skip the very first 'active' transition (some Android builds fire it at launch).
+  useEffect(() => {
+    let skippedFirst = false;
+    const sub = AppState.addEventListener('change', (s: AppStateStatus) => {
+      if (s !== 'active') return;
+      if (!skippedFirst) { skippedFirst = true; return; }
+      rotate();
+    });
+    return () => sub.remove();
+  }, [rotate]);
+
   const typo       = useTypography();
 
   const {
@@ -54,6 +118,12 @@ export const HomeScreenV2 = () => {
     applyFilter,
     clearAll,
   } = useHomeListings();
+
+  // Pull-to-refresh: rotate copy AND fetch listings.
+  const onRefresh = useCallback(() => {
+    rotate();
+    return refresh();
+  }, [rotate, refresh]);
 
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [currentFilterType, setCurrentFilterType] = useState<string | null>(null);
@@ -104,9 +174,9 @@ export const HomeScreenV2 = () => {
   const Header = (
     <>
       <GreetingBlock
-        timeOfDay={timeOfDayKey(t)}
+        timeOfDay={greetingText}
         subject={subject}
-        headline={t.findYourCar}
+        headline={headlineText}
         listingsCount={displayedCars.length}
         listingsNoun={t.listingsCount}
         trailing={<LangSwitchV2 language={language} setLanguage={setLanguage} />}
@@ -169,7 +239,7 @@ export const HomeScreenV2 = () => {
         ItemSeparatorComponent={() => <View style={{ height: 11 }} />}
         ListFooterComponent={refreshing ? <FeedLoader caption={t.pickingMore} /> : null}
         ListEmptyComponent={!loading ? <Text style={[styles.empty, { fontFamily: typo.display }]}>{t.noCars}</Text> : null}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={V2.blue} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={V2.blue} />}
         removeClippedSubviews={Platform.OS === 'android'}
         maxToRenderPerBatch={10}
         windowSize={11}

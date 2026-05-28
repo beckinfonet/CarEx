@@ -31,7 +31,9 @@ export const SeverityBadge: React.FC<{ state: ModerationState }> = ({ state }) =
   const paletteKey = STATE_TO_PALETTE_KEY[state];
   const palette = COLORS.moderation[paletteKey];
   const labelKey = STATE_TO_LABEL_KEY[state];
-  const label = (t as Record<string, string>)[labelKey] ?? state;
+  // `t` now contains string[] fields (260528-hmt greeting variant pools); route the
+  // index-signature cast via `unknown` so TS accepts the non-overlapping cast.
+  const label = (t as unknown as Record<string, string>)[labelKey] ?? state;
 
   return (
     <View

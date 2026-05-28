@@ -28,7 +28,9 @@ export const TypedConfirmationModal: React.FC<TypedConfirmationModalProps> = ({
   visible, action, targetEmail, submitting = false, onConfirm, onClose,
 }) => {
   const { t } = useLanguage();
-  const T = t as Record<string, string>;
+  // `t` now contains string[] fields (260528-hmt greeting variant pools); route via
+  // `unknown` so the index-signature cast still compiles. Runtime behavior unchanged.
+  const T = t as unknown as Record<string, string>;
   const [typed, setTyped] = useState('');
 
   // Reset on open
