@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: "Admin Moderation"
-milestone_status: shipped
-shipped_at: "2026-04-30"
-status: Awaiting next milestone
-stopped_at: "v1.0 Admin Moderation milestone shipped on 2026-04-30. Distribution: TestFlight 1.0.45 + Google Play internal testing 1.0.48 (verified live). 31/32 v1 requirements validated; QUAL-02 10k-user load test deferred by operator 2026-04-19. Archive: .planning/milestones/v1.0-ROADMAP.md + .planning/milestones/v1.0-REQUIREMENTS.md. Tag: v1.0."
-last_updated: "2026-05-28T17:20:00.000Z"
-last_activity: 2026-05-28 -- Completed quick task 260528-evg: Add MakeModelFilterBar + Android back handler to SearchResultsV2
+milestone: v1.1
+milestone_name: Admin Listing Moderation
+status: planning
+last_updated: "2026-05-28T20:40:35.701Z"
+last_activity: 2026-05-28
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 47
-  completed_plans: 45
-  deferred_plans: 2
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -28,9 +24,10 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 ## Current Position
 
-Milestone: v1.0 Admin Moderation — ✅ SHIPPED 2026-04-30
-Tag: v1.0
-Next: Plan next milestone via `/gsd-new-milestone` (questioning → research → requirements → roadmap).
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-28 — Milestone v1.1 started
 
 ## Deferred Items
 
