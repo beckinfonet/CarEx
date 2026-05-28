@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, StatusBar, TouchableOpacity, Platform } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, StatusBar, TouchableOpacity, Platform, BackHandler } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,6 +15,7 @@ import { BigFeedCard } from '../components/home/v2/BigFeedCard';
 import { SmallFeedCard } from '../components/home/v2/SmallFeedCard';
 import { SortSheet, SortOption } from '../components/home/v2/SortSheet';
 import { FilterModal } from '../components/FilterModal';
+import { MakeModelFilterBar } from '../components/MakeModelFilterBar';
 import { RootStackParamList } from '../types/navigation';
 
 type Nav    = NativeStackNavigationProp<RootStackParamList, 'SearchResults'>;
@@ -47,6 +48,10 @@ export const SearchResultsV2 = () => {
     displayedCars,
     activeFilters,
     applyFilter,
+    selectedMake,
+    setSelectedMake,
+    selectedModel,
+    setSelectedModel,
   } = useHomeListings({ initialFilters: route.params.initialFilters });
 
   const [revealed, setRevealed] = useState(25);
@@ -54,6 +59,15 @@ export const SearchResultsV2 = () => {
   const [sortVisible, setSortVisible] = useState(false);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [currentFilterType, setCurrentFilterType] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      navigation.goBack();
+      return true;
+    });
+    return () => sub.remove();
+  }, [navigation]);
 
   const stats = useMemo(() => formatStats(displayedCars), [displayedCars]);
   const visibleResults = displayedCars.slice(0, revealed);
@@ -104,6 +118,16 @@ export const SearchResultsV2 = () => {
           </Text>
         </View>
       </View>
+      <MakeModelFilterBar
+        selectedMake={selectedMake}
+        selectedModel={selectedModel}
+        onSelect={(make, model) => {
+          setSelectedMake(make);
+          setSelectedModel(model);
+        }}
+        t={{ selectMake: t.selectMake, selectModel: t.selectModel, make: t.brand, model: t.model, searchWithMake: t.searchWithMake }}
+        containerStyle={{ paddingHorizontal: 16, marginTop: 8, marginBottom: 4 }}
+      />
       <MarketStatsStrip
         avgLabel={t.marketAvg}
         yearLabel={t.yearLabelV2}
