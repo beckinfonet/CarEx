@@ -35,6 +35,7 @@ import { OfflineNotice } from './src/components/OfflineNotice';
 import { UserStatusBanner } from './src/components/moderation/UserStatusBanner';
 import { RootStackParamList } from './src/types/navigation';
 import { LanguageProvider } from './src/context/LanguageContext';
+import { UIVersionProvider } from './src/context/UIVersionContext';
 import { AuthProvider } from './src/context/AuthContext';
 import { CartProvider } from './src/context/CartContext';
 import { StripeProvider } from '@stripe/stripe-react-native';
@@ -92,6 +93,7 @@ function App() {
           <CartProvider>
             <StripeProvider publishableKey="pk_test_51TEgrOJAS81xgsxjpbIvgoGw67eODe91yRPnNTpRcQrweRvUFBLX5wknw3XsAN2um4bFUsAG7HvFZqPArAQS5Ruf00MUNqZQLy">
             <LanguageProvider>
+            <UIVersionProvider>
             <NavigationContainer linking={linking}>
               <UserStatusBanner />
               <OfflineNotice />
@@ -126,6 +128,7 @@ function App() {
                 <Stack.Screen name="AdminUserDetail" component={AdminUserDetailScreen} />
               </Stack.Navigator>
             </NavigationContainer>
+            </UIVersionProvider>
             </LanguageProvider>
             </StripeProvider>
           </CartProvider>
