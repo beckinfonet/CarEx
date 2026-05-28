@@ -135,7 +135,7 @@ export const HomeScreenV2 = () => {
   );
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <StatusBar barStyle="light-content" backgroundColor={V2.bg} />
       <FloatingSearchPill
         placeholder={t.searchPlaceholderV2}
