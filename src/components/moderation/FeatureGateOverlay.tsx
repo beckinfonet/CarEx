@@ -130,8 +130,11 @@ export const FeatureGateOverlay: React.FC<Props> = ({
     SEVERITY_TO_KEY_PART[state as keyof typeof SEVERITY_TO_KEY_PART];
   const titleKey = `gate${capPart}${sevPart}Title`;
   const bodyKey = `gate${capPart}${sevPart}Body`;
-  const title: string = (t as Record<string, string>)[titleKey] ?? '';
-  const body: string = (t as Record<string, string>)[bodyKey] ?? '';
+  // `t` now contains string[] fields (260528-hmt greeting variant pools); route the
+  // index-signature cast via `unknown` so TS accepts the non-overlapping cast (matches
+  // the diagnostic's own suggestion). Runtime behavior unchanged.
+  const title: string = (t as unknown as Record<string, string>)[titleKey] ?? '';
+  const body: string = (t as unknown as Record<string, string>)[bodyKey] ?? '';
 
   // CTA visibility — only on feature_limited. blocked_with_review and
   // permanently_banned cede the action affordance to UserStatusBanner's
