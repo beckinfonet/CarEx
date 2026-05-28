@@ -13,6 +13,7 @@ import { useStripe } from '@stripe/stripe-react-native';
 import { AuthService } from '../services/AuthService';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useTypography } from '../hooks/useTypography';
 import { useCart } from '../context/CartContext';
 import { FeatureGateOverlay } from '../components/moderation/FeatureGateOverlay';
 import { LISTING_URL, API_URL } from '../constants/config';
@@ -23,6 +24,7 @@ export const CarDetailsScreen = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { setCar } = useCart();
+  const typo = useTypography();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const route = useRoute();
@@ -190,9 +192,9 @@ export const CarDetailsScreen = () => {
     return (
       <View style={styles.errorContainer}>
         {carLoading ? (
-          <Text style={styles.errorText}>{t.loading || 'Loading...'}</Text>
+          <Text style={[styles.errorText, { fontFamily: typo.display }]}>{t.loading || 'Loading...'}</Text>
         ) : (
-          <Text style={styles.errorText}>{t.carNotFound || 'Car not found'}</Text>
+          <Text style={[styles.errorText, { fontFamily: typo.display }]}>{t.carNotFound || 'Car not found'}</Text>
         )}
       </View>
     );
@@ -207,8 +209,8 @@ export const CarDetailsScreen = () => {
 
   const renderSpecItem = (label: string, value: string | number) => (
     <View style={styles.specItem}>
-      <Text style={styles.specLabel}>{label}</Text>
-      <Text style={styles.specValue}>{value || '-'}</Text>
+      <Text style={[styles.specLabel, { fontFamily: typo.display }]}>{label}</Text>
+      <Text style={[styles.specValue, { fontFamily: typo.display }]}>{value || '-'}</Text>
     </View>
   );
 
@@ -445,7 +447,7 @@ export const CarDetailsScreen = () => {
         >
           <ArrowLeft size={24} color={COLORS.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{car.make} {car.model}</Text>
+        <Text style={[styles.headerTitle, { fontFamily: typo.display }]}>{car.make} {car.model}</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
             <Share2 size={24} color={COLORS.accent} />
@@ -514,12 +516,12 @@ export const CarDetailsScreen = () => {
         <View style={styles.detailsContainer}>
           {(listingStatus === 'booked' || listingStatus === 'sold') && (
             <View style={[styles.statusBadge, listingStatus === 'sold' && styles.statusBadgeSold]}>
-              <Text style={styles.statusBadgeText}>{listingStatus === 'sold' ? t.sold : t.booked}</Text>
+              <Text style={[styles.statusBadgeText, { fontFamily: typo.display }]}>{listingStatus === 'sold' ? t.sold : t.booked}</Text>
             </View>
           )}
           {isOwner && (
             <View style={styles.statusActions}>
-              <Text style={styles.statusLabel}>{t.listingStatus || 'Status'}:</Text>
+              <Text style={[styles.statusLabel, { fontFamily: typo.display }]}>{t.listingStatus || 'Status'}:</Text>
               <View style={styles.statusButtons}>
                 {listingStatus !== 'active' && (
                   <TouchableOpacity
@@ -527,7 +529,7 @@ export const CarDetailsScreen = () => {
                     onPress={() => updateListingStatus('active')}
                     disabled={statusUpdating}
                   >
-                    <Text style={styles.statusBtnText}>{t.markAsAvailable}</Text>
+                    <Text style={[styles.statusBtnText, { fontFamily: typo.display }]}>{t.markAsAvailable}</Text>
                   </TouchableOpacity>
                 )}
                 {listingStatus !== 'booked' && (
@@ -536,7 +538,7 @@ export const CarDetailsScreen = () => {
                     onPress={() => updateListingStatus('booked')}
                     disabled={statusUpdating}
                   >
-                    <Text style={styles.statusBtnText}>{t.markAsBooked}</Text>
+                    <Text style={[styles.statusBtnText, { fontFamily: typo.display }]}>{t.markAsBooked}</Text>
                   </TouchableOpacity>
                 )}
                 {listingStatus !== 'sold' && (
@@ -545,7 +547,7 @@ export const CarDetailsScreen = () => {
                     onPress={() => updateListingStatus('sold')}
                     disabled={statusUpdating}
                   >
-                    <Text style={styles.statusBtnText}>{t.markAsSold}</Text>
+                    <Text style={[styles.statusBtnText, { fontFamily: typo.display }]}>{t.markAsSold}</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -554,15 +556,15 @@ export const CarDetailsScreen = () => {
           <View style={styles.titleBlock}>
             <View style={styles.titleRow}>
               <View style={styles.titleContainer}>
-                <Text style={styles.title} numberOfLines={3}>{car.make} {car.model}{car.trimLevel ? ` ${car.trimLevel}` : ''} {car.year}</Text>
+                <Text style={[styles.title, { fontFamily: typo.display }]} numberOfLines={3}>{car.make} {car.model}{car.trimLevel ? ` ${car.trimLevel}` : ''} {car.year}</Text>
               </View>
-              <Text style={styles.price}>{car.currency}{car.price.toLocaleString()}</Text>
+              <Text style={[styles.price, { fontFamily: typo.mono }]}>{car.currency}{car.price.toLocaleString()}</Text>
             </View>
             <View style={styles.subtitleRow}>
-              <Text style={styles.subtitle}>{car.mileage.toLocaleString()} км • {car.fuel}</Text>
+              <Text style={[styles.subtitle, { fontFamily: typo.mono }]}>{car.mileage.toLocaleString()} км • {car.fuel}</Text>
               {car.listingId && (
                 <View style={styles.listingIdPill}>
-                  <Text style={styles.listingId}>ID: {car.listingId}</Text>
+                  <Text style={[styles.listingId, { fontFamily: typo.mono }]}>ID: {car.listingId}</Text>
                 </View>
               )}
             </View>
@@ -582,9 +584,9 @@ export const CarDetailsScreen = () => {
                   )}
                 </View>
                 <View style={styles.sellerInfo}>
-                  <Text style={styles.sellerLabel}>{t.listingOwner}</Text>
-                  <Text style={styles.sellerName}>{sellerName || t.seller}</Text>
-                  <Text style={styles.sellerViewAll}>{t.viewAllListings}</Text>
+                  <Text style={[styles.sellerLabel, { fontFamily: typo.display }]}>{t.listingOwner}</Text>
+                  <Text style={[styles.sellerName, { fontFamily: typo.display }]}>{sellerName || t.seller}</Text>
+                  <Text style={[styles.sellerViewAll, { fontFamily: typo.display }]}>{t.viewAllListings}</Text>
                 </View>
                 <ChevronRight size={22} color={COLORS.accent} style={styles.sellerChevron} />
               </TouchableOpacity>
@@ -610,7 +612,7 @@ export const CarDetailsScreen = () => {
                     navigation.navigate('Services');
                   }}>
                   <Briefcase size={18} color={COLORS.accent} />
-                  <Text style={styles.getServicesText}>{t.getServices}</Text>
+                  <Text style={[styles.getServicesText, { fontFamily: typo.display }]}>{t.getServices}</Text>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
@@ -622,7 +624,7 @@ export const CarDetailsScreen = () => {
                 ) : (
                   <>
                     <CreditCard size={18} color={listingStatus === 'booked' ? 'rgba(255,255,255,0.4)' : '#22c55e'} />
-                    <Text style={[styles.bookItText, listingStatus === 'booked' && styles.bookItTextDisabled]}>
+                    <Text style={[styles.bookItText, listingStatus === 'booked' && styles.bookItTextDisabled, { fontFamily: typo.display }]}>
                       {listingStatus === 'booked' ? t.booked : t.bookIt}
                     </Text>
                   </>
@@ -632,7 +634,7 @@ export const CarDetailsScreen = () => {
           )}
 
           <View style={styles.specsContainer}>
-            <Text style={styles.sectionTitle}>{t.specs}</Text>
+            <Text style={[styles.sectionTitle, { fontFamily: typo.display }]}>{t.specs}</Text>
             <View style={styles.specsGrid}>
               {(car.trimLevel || car.wheelbase) && (
                 <>
@@ -652,12 +654,12 @@ export const CarDetailsScreen = () => {
           </View>
 
           <View style={styles.specsContainer}>
-            <Text style={styles.sectionTitle}>{t.condition}</Text>
+            <Text style={[styles.sectionTitle, { fontFamily: typo.display }]}>{t.condition}</Text>
             <View style={styles.specsGrid}>
               {renderSpecItem(t.condition, car.condition)}
               <View style={styles.fullWidthItem}>
-                <Text style={styles.specLabel}>{t.knownIssues}</Text>
-                <Text style={styles.specValue}>
+                <Text style={[styles.specLabel, { fontFamily: typo.display }]}>{t.knownIssues}</Text>
+                <Text style={[styles.specValue, { fontFamily: typo.display }]}>
                   {car.knownIssues && car.knownIssues.length > 0 ? car.knownIssues.join(', ') : 'Нет'}
                 </Text>
               </View>
@@ -665,7 +667,7 @@ export const CarDetailsScreen = () => {
           </View>
 
           <View style={styles.specsContainer}>
-            <Text style={styles.sectionTitle}>{t.extInt}</Text>
+            <Text style={[styles.sectionTitle, { fontFamily: typo.display }]}>{t.extInt}</Text>
             <View style={styles.specsGrid}>
               {renderSpecItem(t.exteriorColor, car.exteriorColor)}
               {renderSpecItem(t.interiorColor, car.interiorColor)}
@@ -676,8 +678,8 @@ export const CarDetailsScreen = () => {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.description}</Text>
-            <Text style={styles.description}>
+            <Text style={[styles.sectionTitle, { fontFamily: typo.display }]}>{t.description}</Text>
+            <Text style={[styles.description, { fontFamily: typo.display }]}>
               {car.description || t.noDescription}
             </Text>
           </View>
@@ -687,11 +689,11 @@ export const CarDetailsScreen = () => {
       <View style={styles.footer}>
         {listingStatus === 'sold' ? (
           <View style={styles.soldMessage}>
-            <Text style={styles.soldMessageText}>{t.sold}</Text>
+            <Text style={[styles.soldMessageText, { fontFamily: typo.display }]}>{t.sold}</Text>
           </View>
         ) : canAccessBookedCar ? (
           <>
-            <Text style={styles.contactLabel}>{t.contactVia}</Text>
+            <Text style={[styles.contactLabel, { fontFamily: typo.display }]}>{t.contactVia}</Text>
             <View style={styles.contactButtonsRow}>
               {car.telegramUsername && (
                 <TouchableOpacity
@@ -701,7 +703,7 @@ export const CarDetailsScreen = () => {
                   testID="car-details-telegram-cta"
                   accessibilityState={{ disabled: isContactGated }}>
                   <Send size={20} color="#FFF" />
-                  <Text style={[styles.contactButtonText, { color: '#FFF' }]}>Telegram</Text>
+                  <Text style={[styles.contactButtonText, { color: '#FFF', fontFamily: typo.display }]}>Telegram</Text>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
@@ -716,13 +718,13 @@ export const CarDetailsScreen = () => {
                 testID="car-details-whatsapp-cta"
                 accessibilityState={{ disabled: isContactGated }}>
                 <MessageCircle size={20} color="#FFF" />
-                <Text style={[styles.contactButtonText, { color: '#FFF' }]}>{t.whatsapp}</Text>
+                <Text style={[styles.contactButtonText, { color: '#FFF', fontFamily: typo.display }]}>{t.whatsapp}</Text>
               </TouchableOpacity>
             </View>
           </>
         ) : (
           <View style={styles.soldMessage}>
-            <Text style={styles.soldMessageText}>{t.booked}</Text>
+            <Text style={[styles.soldMessageText, { fontFamily: typo.display }]}>{t.booked}</Text>
           </View>
         )}
       </View>
@@ -752,14 +754,14 @@ export const CarDetailsScreen = () => {
             <View style={styles.warningIconWrap}>
               <AlertTriangle size={32} color="#F59E0B" />
             </View>
-            <Text style={styles.warningTitle}>{t.paymentWarningTitle}</Text>
-            <Text style={styles.warningMessage}>{t.paymentWarningMessage}</Text>
+            <Text style={[styles.warningTitle, { fontFamily: typo.display }]}>{t.paymentWarningTitle}</Text>
+            <Text style={[styles.warningMessage, { fontFamily: typo.display }]}>{t.paymentWarningMessage}</Text>
             <View style={styles.warningCardRow}>
               <View style={styles.warningBadge}>
-                <Text style={styles.warningBadgeText}>Visa</Text>
+                <Text style={[styles.warningBadgeText, { fontFamily: typo.display }]}>Visa</Text>
               </View>
               <View style={styles.warningBadge}>
-                <Text style={styles.warningBadgeText}>Mastercard</Text>
+                <Text style={[styles.warningBadgeText, { fontFamily: typo.display }]}>Mastercard</Text>
               </View>
             </View>
             <TouchableOpacity
@@ -769,13 +771,13 @@ export const CarDetailsScreen = () => {
                 setPaymentWarningVisible(false);
                 setTimeout(() => setCurrencyPickerVisible(true), 300);
               }}>
-              <Text style={styles.warningConfirmText}>{t.paymentWarningConfirm}</Text>
+              <Text style={[styles.warningConfirmText, { fontFamily: typo.display }]}>{t.paymentWarningConfirm}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.warningCancelBtn}
               activeOpacity={0.7}
               onPress={() => setPaymentWarningVisible(false)}>
-              <Text style={styles.warningCancelText}>{t.cancel}</Text>
+              <Text style={[styles.warningCancelText, { fontFamily: typo.display }]}>{t.cancel}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -793,8 +795,8 @@ export const CarDetailsScreen = () => {
           onPress={() => setCurrencyPickerVisible(false)}>
           <View style={styles.currencySheet}>
             <View style={styles.currencyHandle} />
-            <Text style={styles.currencyTitle}>{t.chooseCurrency}</Text>
-            <Text style={styles.currencySubtitle}>
+            <Text style={[styles.currencyTitle, { fontFamily: typo.display }]}>{t.chooseCurrency}</Text>
+            <Text style={[styles.currencySubtitle, { fontFamily: typo.display }]}>
               {car.make} {car.model} {car.year}
             </Text>
 
@@ -806,10 +808,10 @@ export const CarDetailsScreen = () => {
                 <Text style={styles.currencyFlag}>🇰🇬</Text>
               </View>
               <View style={styles.currencyInfo}>
-                <Text style={styles.currencyName}>KGS</Text>
-                <Text style={styles.currencyDesc}>Кыргызский сом</Text>
+                <Text style={[styles.currencyName, { fontFamily: typo.mono }]}>KGS</Text>
+                <Text style={[styles.currencyDesc, { fontFamily: typo.display }]}>Кыргызский сом</Text>
               </View>
-              <Text style={styles.currencyAmount}>5 000 сом</Text>
+              <Text style={[styles.currencyAmount, { fontFamily: typo.mono }]}>5 000 сом</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -820,16 +822,16 @@ export const CarDetailsScreen = () => {
                 <Text style={styles.currencyFlag}>🇺🇸</Text>
               </View>
               <View style={styles.currencyInfo}>
-                <Text style={styles.currencyName}>USD</Text>
-                <Text style={styles.currencyDesc}>US Dollar</Text>
+                <Text style={[styles.currencyName, { fontFamily: typo.mono }]}>USD</Text>
+                <Text style={[styles.currencyDesc, { fontFamily: typo.display }]}>US Dollar</Text>
               </View>
-              <Text style={styles.currencyAmount}>~$58</Text>
+              <Text style={[styles.currencyAmount, { fontFamily: typo.mono }]}>~$58</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.currencyCancelBtn}
               onPress={() => setCurrencyPickerVisible(false)}>
-              <Text style={styles.currencyCancelText}>{t.cancel}</Text>
+              <Text style={[styles.currencyCancelText, { fontFamily: typo.display }]}>{t.cancel}</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>

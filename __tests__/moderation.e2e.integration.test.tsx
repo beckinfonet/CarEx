@@ -678,19 +678,15 @@ describe('Phase 4 Integration: Success-Criterion Coverage', () => {
     });
 
     it('Test G.2: no new production dependencies added to package.json for Phase 4', () => {
-      // Baseline pre-Phase-4: 19 production deps (per package.json snapshot
-      // at Phase 4 planning time — matches the CLAUDE.md §Technology Stack
-      // listing). Phase 4 adds ZERO new production deps — it reuses axios
-      // 1.13.4 + AsyncStorage 2.2.0 + react-native's AppState. If this
-      // assertion fails, a plan introduced a new runtime dep that CLAUDE.md
-      // + PROJECT.md forbid.
+      // Baseline pre-Phase-4: 19 production deps. Phase 4 added ZERO. The
+      // HomeScreen v2 milestone (2026-05-28) added react-native-linear-gradient
+      // intentionally per its approved spec/plan, bumping the count to 20.
+      // Any further additions still require a deliberate update to this test.
       const pkg = JSON.parse(
         fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8'),
       );
       const deps = Object.keys(pkg.dependencies || {});
-      // Hardcoded expected count. Keep in sync with the dependency list in
-      // package.json; any change requires a deliberate update to this test.
-      expect(deps.length).toBe(19);
+      expect(deps.length).toBe(20);
     });
   });
 });

@@ -12,10 +12,41 @@
 
 /* eslint-disable no-undef */
 
-// react-native-reanimated — official mock entrypoint.
-jest.mock('react-native-reanimated', () =>
-  require('react-native-reanimated/mock'),
-);
+// react-native-reanimated — self-contained stub. (The library's own
+// `react-native-reanimated/mock` entrypoint uses ESM, which conflicts with
+// Jest's CommonJS require() in this project's setup. The stub below covers
+// every API the codebase currently uses across moderation banners + v2
+// FeedLoader + v2 V2InviteBanner.)
+jest.mock('react-native-reanimated', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const noop = () => {};
+  const ident = (v) => v;
+  const View_ = (props) => React.createElement(View, props, props.children);
+  View_.displayName = 'Animated.View';
+  const sharedValue = (initial) => ({ value: initial });
+  return {
+    __esModule: true,
+    default: { View: View_, createAnimatedComponent: (C) => C },
+    View: View_,
+    createAnimatedComponent: (C) => C,
+    useSharedValue: (initial) => sharedValue(initial),
+    useAnimatedStyle: () => ({}),
+    useAnimatedRef: () => ({ current: null }),
+    withTiming: (toValue, _opts, callback) => {
+      if (typeof callback === 'function') callback(true);
+      return toValue;
+    },
+    withSpring:  (toValue) => toValue,
+    withRepeat:  (animation) => animation,
+    withDelay:   (_delay, animation) => animation,
+    runOnJS:     (fn) => fn,
+    runOnUI:     (fn) => fn,
+    Easing:      { linear: ident, inOut: ident, out: ident, in: ident, ease: ident },
+    interpolate: (v) => v,
+    Extrapolation: { CLAMP: 'clamp', EXTEND: 'extend', IDENTITY: 'identity' },
+  };
+});
 
 // react-native-screens — stub to no-op components.
 jest.mock('react-native-screens', () => {
@@ -149,6 +180,16 @@ jest.mock('react-native-image-picker', () => ({
   launchCamera: jest.fn(),
   launchImageLibrary: jest.fn(),
 }));
+
+// react-native-linear-gradient — stub to a passthrough View so v2 components
+// that wrap content in <LinearGradient> can render in tests.
+jest.mock('react-native-linear-gradient', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const LinearGradient = (props) => React.createElement(View, props, props.children);
+  LinearGradient.displayName = 'LinearGradient';
+  return { __esModule: true, default: LinearGradient, LinearGradient };
+});
 
 // react-native-safe-area-context — lightweight passthrough + zero insets.
 jest.mock('react-native-safe-area-context', () => {

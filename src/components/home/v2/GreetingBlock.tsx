@@ -1,0 +1,65 @@
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { Sparkles } from 'lucide-react-native';
+import { V2 } from './theme';
+import { useTypography } from '../../../hooks/useTypography';
+
+export interface GreetingBlockProps {
+  /** Localized morning/afternoon/evening string, e.g. "Доброе утро". */
+  timeOfDay: string;
+  city: string;
+  /** Localized headline, e.g. "Найдём ваше идеальное авто." */
+  headline: string;
+  /** Live count of listings currently displayed. */
+  listingsCount: number;
+  /** Localized noun "объявлений" / "listings". */
+  listingsNoun: string;
+  /** Optional element rendered at the right edge of the chip row (used for LangSwitchV2). */
+  trailing?: React.ReactNode;
+}
+
+export const GreetingBlock: React.FC<GreetingBlockProps> = ({
+  timeOfDay, city, headline, listingsCount, listingsNoun, trailing,
+}) => {
+  const typo = useTypography();
+  return (
+    <View style={styles.wrapper}>
+      <Text style={[styles.kicker, { fontFamily: typo.display }]}>
+        {timeOfDay} · {city}
+      </Text>
+      <Text style={[styles.headline, { fontFamily: typo.display }]}>
+        {headline}
+      </Text>
+      <View style={styles.chipRow}>
+        <View style={styles.chip}>
+          <Sparkles size={12} color={V2.blue} strokeWidth={2.4} />
+          <Text style={[styles.chipText, { fontFamily: typo.display, color: V2.blue }]}>
+            {listingsCount} {listingsNoun}
+          </Text>
+        </View>
+        {trailing}
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  wrapper:   { paddingHorizontal: 22, paddingTop: 16, paddingBottom: 6 },
+  kicker:    {
+    fontSize: 12, fontWeight: '700', letterSpacing: 1.4,
+    textTransform: 'uppercase', color: V2.textMuted, marginBottom: 6,
+  },
+  headline:  {
+    fontSize: 30, fontWeight: '800', letterSpacing: -1.05,
+    color: V2.text, lineHeight: 30,
+  },
+  chipRow:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, gap: 8 },
+  chip: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 12, paddingVertical: 6,
+    borderRadius: V2.radius.pill,
+    backgroundColor: 'rgba(77,163,255,0.12)',
+    borderWidth: 1, borderColor: 'rgba(77,163,255,0.28)',
+  },
+  chipText:  { fontSize: 12, fontWeight: '700' },
+});
