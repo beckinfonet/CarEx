@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-05-28T20:40:35.701Z"
 last_activity: 2026-05-28
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 **Core value:** Admins can act on bad-actor users after they're already in the system — without losing the audit trail or breaking in-flight orders for legitimate counterparties.
-**Current focus:** Planning next milestone (run `/gsd-new-milestone` to scope v1.1+)
+**Current focus:** v1.1 Admin Listing Moderation — roadmap shipped (Phases 7-11); Phase 7 (Listing Schema + Security Baseline — Backend) is next. Run `/gsd-plan-phase 7` to begin.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-05-28 — Milestone v1.1 started
+Phase: 7 — Listing Schema + Security Baseline (Backend)
+Plan: — (not yet planned)
+Status: v1.1 roadmap shipped; ready to plan Phase 7
+Last activity: 2026-05-28 — v1.1 ROADMAP.md created (Phases 7-11), 28/28 requirements mapped
 
 ## Deferred Items
 
@@ -41,7 +41,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 Last activity: 2026-05-28 - Completed quick task 260528-hmt: Rotating playful greeting + headline variants on HomeScreenV2
 Resume file: (phase-close) .planning/phases/06-affected-user-ux-security-review/
 
-Progress: [█████████░] 92% (47/51 plans; Phase 06 10/12; 2 operator-deferred)
+Progress: v1.0 SHIPPED (47/47 executed; 2 operator-deferred). v1.1: 0/5 phases — Phase 7 next.
 
 ## Performance Metrics
 
@@ -105,6 +105,10 @@ Progress: [█████████░] 92% (47/51 plans; Phase 06 10/12; 2 o
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v1.1 Roadmap]: 5-phase structure mirrors v1.0 backend-first execution shape: Phase 7 schema+auth → Phase 8 endpoints → Phase 9 read-time+TOCTOU enforcement → Phase 10 mobile plumbing+admin UI → Phase 11 buyer UX+quality+security review
+- [v1.1 Roadmap]: Mobile plumbing + Admin Listing UI merged into a single Phase 10 (v1.0 split these into Phases 4+5); justified because LIST-01 ships ONE admin surface (CarDetails bottom sheet) vs. v1.0's two screens (AdminModeration + AdminUserDetail + AdminManagement repurpose) — the LMOB-01..02 plumbing work is materially smaller (5 new methods on the existing ModerationService module, no new shared apiClient or AppState handler) and tightly coupled to LUI-01..04. Splitting would create a phase boundary mid-feature
+- [v1.1 Roadmap]: Buyer UX + Quality + Security Review merged into Phase 11 (mirrors v1.0 Phase 6) — keeps merge-gate at the end of the milestone with a single sign-off artifact (LIST-SECURITY.md)
+- [v1.1 Roadmap]: Phase 7 carries 7 requirements (heaviest phase); Phase 9 carries 3 (lightest). Asymmetric by design — Phase 7 bundles all foundation work (schema + audit + auth + rate-limit + migration) so endpoint+enforcement phases ride a stable substrate
 - Roadmap: Backend-first 6-phase sequence forced by hard deps (verifyIdToken before endpoints; capability map before enforcement; providerSnapshot before delete; ModerationService before UI)
 - Roadmap: Schema + security baseline merged into one phase (Phase 1) since both are small foundation work
 - Roadmap: QUAL-01 translations audit owned by Phase 6 as cross-cutting gate; earlier phases still write translations as they go

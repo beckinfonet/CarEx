@@ -92,40 +92,47 @@ Updated by `gsd-roadmapper` during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LSEC-01 | TBD | Pending |
-| LSEC-02 | TBD | Pending |
-| LSEC-03 | TBD | Pending |
-| LDATA-01 | TBD | Pending |
-| LDATA-02 | TBD | Pending |
-| LDATA-03 | TBD | Pending |
-| LDATA-04 | TBD | Pending |
-| LADM-01 | TBD | Pending |
-| LADM-02 | TBD | Pending |
-| LADM-03 | TBD | Pending |
-| LADM-04 | TBD | Pending |
-| LADM-05 | TBD | Pending |
-| LENF-01 | TBD | Pending |
-| LENF-02 | TBD | Pending |
-| LENF-03 | TBD | Pending |
-| LUI-01 | TBD | Pending |
-| LUI-02 | TBD | Pending |
-| LUI-03 | TBD | Pending |
-| LUI-04 | TBD | Pending |
-| LMOB-01 | TBD | Pending |
-| LMOB-02 | TBD | Pending |
-| LBUY-01 | TBD | Pending |
-| LBUY-02 | TBD | Pending |
-| LBUY-03 | TBD | Pending |
-| LBUY-04 | TBD | Pending |
-| LQUAL-01 | TBD | Pending |
-| LQUAL-02 | TBD | Pending |
-| LQUAL-03 | TBD | Pending |
+| LSEC-01 | Phase 7 | Pending |
+| LSEC-02 | Phase 7 | Pending |
+| LSEC-03 | Phase 7 | Pending |
+| LDATA-01 | Phase 7 | Pending |
+| LDATA-02 | Phase 7 | Pending |
+| LDATA-03 | Phase 7 | Pending |
+| LDATA-04 | Phase 7 | Pending |
+| LADM-01 | Phase 8 | Pending |
+| LADM-02 | Phase 8 | Pending |
+| LADM-03 | Phase 8 | Pending |
+| LADM-04 | Phase 8 | Pending |
+| LADM-05 | Phase 8 | Pending |
+| LENF-01 | Phase 9 | Pending |
+| LENF-02 | Phase 9 | Pending |
+| LENF-03 | Phase 9 | Pending |
+| LUI-01 | Phase 10 | Pending |
+| LUI-02 | Phase 10 | Pending |
+| LUI-03 | Phase 10 | Pending |
+| LUI-04 | Phase 10 | Pending |
+| LMOB-01 | Phase 10 | Pending |
+| LMOB-02 | Phase 10 | Pending |
+| LBUY-01 | Phase 11 | Pending |
+| LBUY-02 | Phase 11 | Pending |
+| LBUY-03 | Phase 11 | Pending |
+| LBUY-04 | Phase 11 | Pending |
+| LQUAL-01 | Phase 11 | Pending |
+| LQUAL-02 | Phase 11 | Pending |
+| LQUAL-03 | Phase 11 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 28 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 28 ⚠️ (will be resolved by `gsd-roadmapper`)
+- Mapped to phases: 28 ✓
+- Unmapped: 0
+
+**Phase totals:**
+- Phase 7: 7 requirements (LSEC-01..03, LDATA-01..04)
+- Phase 8: 5 requirements (LADM-01..05)
+- Phase 9: 3 requirements (LENF-01..03)
+- Phase 10: 6 requirements (LUI-01..04, LMOB-01..02)
+- Phase 11: 7 requirements (LBUY-01..04, LQUAL-01..03)
 
 ---
 *Requirements defined: 2026-05-28*
-*Last updated: 2026-05-28 after milestone v1.1 kickoff*
+*Last updated: 2026-05-28 — traceability mapped to v1.1 roadmap by gsd-roadmapper*
