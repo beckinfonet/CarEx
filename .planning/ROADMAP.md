@@ -178,4 +178,4 @@ Plans:
 | 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
 | 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
 | 10. Mobile Plumbing + Admin Listing UI | v1.1 | 12/12 | Complete   | 2026-05-29 |
-| 11. Buyer-affected UX + Quality + Security Review | v1.1 | 2/8 | In Progress|  |
+| 11. Buyer-affected UX + Quality + Security Review | v1.1 | 3/8 | In Progress|  |
