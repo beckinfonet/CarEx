@@ -4,14 +4,14 @@ milestone: v1.1
 milestone_name: Admin Listing Moderation
 status: executing
 stopped_at: Phase 10 context gathered
-last_updated: "2026-05-29T08:54:40.399Z"
-last_activity: 2026-05-29 -- Phase 10 planning complete
+last_updated: "2026-05-29T09:29:08.438Z"
+last_activity: 2026-05-29
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 27
-  completed_plans: 17
-  percent: 63
+  completed_plans: 18
+  percent: 67
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 **Core value:** Admins can act on bad-actor users after they're already in the system — without losing the audit trail or breaking in-flight orders for legitimate counterparties.
-**Current focus:** Phase 09 — backend-read-time-toctou-enforcement
+**Current focus:** Phase 10 — mobile-plumbing-admin-listing-ui
 
 ## Current Position
 
-Phase: 10
-Plan: Not started
+Phase: 10 (mobile-plumbing-admin-listing-ui) — EXECUTING
+Plan: 2 of 10
 Status: Ready to execute
-Last activity: 2026-05-29 -- Phase 10 planning complete
+Last activity: 2026-05-29
 
 ## Deferred Items
 
@@ -40,9 +40,9 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 | backend-load-test | Plan 06-0b (k6 harness with P95<200ms) | deferred by operator 2026-04-19 |
 | ux-followup | UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 06 03 styling) | captured 2026-04-30 during Phase 04 UAT — to be addressed in next milestone |
 Last activity: 2026-05-29 - Completed Phase 8 Plan 05 (LADM-05 Restore endpoint)
-Resume file: .planning/phases/10-mobile-plumbing-admin-listing-ui/10-CONTEXT.md
+Resume file: None
 
-Progress: [██████████] 100%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -106,6 +106,7 @@ Progress: [██████████] 100%
 | Phase 08 P04 | 3m50s | 3 tasks | 3 files |
 | Phase 08 P05 | 3m49s | 3 tasks | 3 files |
 | Phase 08 PP06 | 10m35s | 3 tasks (+2 auto-fix) tasks | 3 files files |
+| Phase 10 P01 | ~5min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -300,6 +301,9 @@ Recent decisions affecting current work:
 - [Phase 08]: Plan 08-06: Lazy require of carImages.js in listingRouter.js — Rule 3 auto-fix. Direct module-top 'const { upload } = require(carImages)' trips multer-S3 with 'bucket is required' when AWS_BUCKET_NAME unset (every existing __tests__/listing-moderation/* test that loads listingRouter, Phase 7 listingModerationRateLimiter being the canary). Resolved with getUpload() lazy-loader + uploadImages Express-middleware closure; production semantics byte-identical (internally calls upload.array('images', 25) on first PATCH /:carId). Literal upload.array token placed in route-block doc comment so plan's verify-gate grep (upload.array literal between '/:carId' and denySelfModerationListing) continues to pass
 - [Phase 08]: Plan 08-06: Explicit mongoose.Types.ObjectId cast on VehicleModel.findOne({makeId}) filter — Rule 1 auto-fix discovered via test 10+12 RED. Production server.js declares makeId as Schema.Types.ObjectId at server.js:73 which auto-casts strings → ObjectIds at the query boundary; loose-schema test collections (strict: false) do NOT auto-cast non-_id fields. Without the cast, query against typed-ObjectId-stored makeId misses when the service passes the string form. Added explicit cast with mongoose.isValidObjectId guard (converts malformed input to 400 invalid_model instead of 500 CastError). Production also hardened against future schema-declaration drift
 - [Phase 08]: Phase 8 backend COMPLETE — all 5 LADM-01..05 endpoints live; zero 'not_implemented' stubs remain in listingService.js. Final file inventory: 1 listingRouter + 1 listingService + 1 listingSchemas + 1 denySelfModerationListing + 1 listingErrors + 1 carImages (multer-S3 extraction) + 14 test files (33 Phase 7 + 27 Wave-0 + 14 endpoint tests = 99 total). All 4 ROADMAP success criteria satisfied (atomic audit-then-Car transaction; denySelfModerationListing on all 5 routes; multipart Edit reusing seller-PUT multer-S3; per-field { before, after } changed-only fieldDiff). Phase 9 read-time enforcement is now unblocked
+- [Phase ?]: [Phase 10]: Plan 10-01: ListingModerationError shipped as sibling class in src/services/moderation/errors.ts (NOT a third file per D-14 + Claude's Discretion default) — 10-code explicit union (D-14 base 8 + invalid_make + invalid_model per RESEARCH A4) with | string escape hatch; 7 context fields including refundId/refundFailed (Phase 9 D-12..D-15 cart/checkout surface)
+- [Phase ?]: [Phase 10]: Plan 10-01: Anti-pattern guard against widening ModerationError is a SOURCE-LEVEL grep test (fs.readFileSync + regex extracts class block, asserts no listing-code literals leak in) — catches regressions a TS type-check might miss when the union is widened via | string interpolation. Fault-injection runbook documented in SUMMARY: inject 'listing_not_available' → 1/7 fails; revert → 7/7 green
+- [Phase ?]: [Phase 10]: Plan 10-01: LMOB-01 + LMOB-02 NOT marked complete in REQUIREMENTS.md — this plan ships Wave-1 SUBSTRATE only (typed error class); LMOB-01 ticks off when Plan 10-04 lands the 5 ModerationService methods, LMOB-02 ticks off when Plan 10-05 lands the interceptor non-regression tests + apiClient migration. Matches Phase 6 P01 / Phase 8 P01 substrate pattern
 
 ### Pending Todos
 
@@ -340,6 +344,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-05-29T07:54:43.696Z
+Last session: 2026-05-29T09:28:59.173Z
 Stopped at: Phase 10 context gathered
 Resume file: None
