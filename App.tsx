@@ -39,6 +39,7 @@ import { LanguageProvider } from './src/context/LanguageContext';
 import { UIVersionProvider } from './src/context/UIVersionContext';
 import { AuthProvider } from './src/context/AuthContext';
 import { CartProvider } from './src/context/CartContext';
+import { FavoritesProvider } from './src/context/FavoritesContext';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { ServiceCartScreen } from './src/screens/ServiceCartScreen';
 import { MyOrdersScreen } from './src/screens/MyOrdersScreen';
@@ -92,6 +93,7 @@ function App() {
         <AuthProvider>
           <AppStateRefreshEffect />
           <CartProvider>
+            <FavoritesProvider>
             <StripeProvider publishableKey="pk_test_51TEgrOJAS81xgsxjpbIvgoGw67eODe91yRPnNTpRcQrweRvUFBLX5wknw3XsAN2um4bFUsAG7HvFZqPArAQS5Ruf00MUNqZQLy">
             <LanguageProvider>
             <UIVersionProvider>
@@ -133,6 +135,7 @@ function App() {
             </UIVersionProvider>
             </LanguageProvider>
             </StripeProvider>
+            </FavoritesProvider>
           </CartProvider>
         </AuthProvider>
       </SafeAreaProvider>
