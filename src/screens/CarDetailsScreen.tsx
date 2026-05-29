@@ -18,6 +18,7 @@ import { useCart } from '../context/CartContext';
 import { FeatureGateOverlay } from '../components/moderation/FeatureGateOverlay';
 import { ListingModerationBottomSheet, ListingModerationAction } from '../components/moderation/ListingModerationBottomSheet';
 import { ListingModerationReasonModal, ListingReasonAction } from '../components/moderation/ListingModerationReasonModal';
+import ListingStatusBanner from '../components/moderation/ListingStatusBanner';
 import { ListingRestoreModal } from '../components/moderation/ListingRestoreModal';
 import { TypedConfirmationModal } from '../components/moderation/TypedConfirmationModal';
 import { ModerationService } from '../services/moderation/ModerationService';
@@ -74,6 +75,11 @@ export const CarDetailsScreen = () => {
   const isContactGated =
     state !== 'active' &&
     (restricted.includes('all_writes') || restricted.includes('contact_seller'));
+
+  // Phase 11 LBUY-01: gate buyer CTAs when listing is non-active for non-admin viewers (D-04 amended).
+  // isAdmin is preserved verbatim from existing AuthContext.
+  const isListingNonActive =
+    !isAdmin && !!fetchedCar?.status && fetchedCar.status !== 'active';
 
   const car = CARS.find(c => c.id === carId) || (route.params as any).carData || fetchedCar;
   const listingStatus = (localListingStatus ?? car?.listingStatus ?? 'active') as string;
@@ -430,6 +436,18 @@ export const CarDetailsScreen = () => {
 
       Alert.alert(t.paymentSuccess, t.paymentSuccessDesc);
     } catch (err: any) {
+      // Phase 11 LBUY-01 — TOCTOU 409 from Book-it surfaces as banner state, not generic Alert.
+      // The 409 body shape matches Phase 9 D-11 — see literal-string check below.
+      if (err?.response?.status === 409 && err.response.data?.error === 'listing_not_available') {
+        const body = err.response.data;
+        setFetchedCar((c: any) => c ? ({
+          ...c,
+          status: body.status,
+          reasonCategory: body.reasonCategory,
+          banner: body.banner,
+        }) : c);
+        return;
+      }
       const msg = err?.response?.data?.message || err.message || t.error;
       Alert.alert(t.paymentFailed, msg);
     } finally {
@@ -653,6 +671,18 @@ export const CarDetailsScreen = () => {
         </View>
 
         <View style={styles.detailsContainer}>
+          {/* Phase 11 LBUY-01 — Non-admin buyer-facing banner above hero (D-02).
+              Mutually exclusive with the admin status banner below via the
+              !isAdmin / isAdmin predicate pair. Renders for suspended /
+              archived / deleted listings via the Phase 9 D-05 thin payload. */}
+          {!isAdmin && fetchedCar?.status && fetchedCar.status !== 'active' && fetchedCar?.banner && (
+            <ListingStatusBanner
+              status={fetchedCar.status as 'suspended' | 'archived' | 'deleted'}
+              reasonCategory={fetchedCar.reasonCategory ?? null}
+              bannerHints={fetchedCar.banner}
+              variant="detail"
+            />
+          )}
           {/* Phase 10 Plan 08 — Admin status banner (D-17). Admin-only +
               moderationBadge presence-gated. Renders status/reasonCategory
               chip/moderationReason free-text/setBy admin info. Distinct from
@@ -786,8 +816,8 @@ export const CarDetailsScreen = () => {
             <View style={styles.actionButtonsRow}>
               {canAccessBookedCar && (
                 <TouchableOpacity
-                  style={styles.getServicesButton}
-                  onPress={() => {
+                  style={[styles.getServicesButton, (isContactGated || isListingNonActive) && { opacity: 0.4 }]}
+                  onPress={isListingNonActive ? undefined : () => {
                     setCar({
                       id: car._id || car.id || '',
                       makeName: car.makeName || car.make || '',
@@ -799,15 +829,24 @@ export const CarDetailsScreen = () => {
                       listingId: car.listingId || '',
                     });
                     navigation.navigate('Services');
-                  }}>
+                  }}
+                  disabled={isListingNonActive}
+                  testID="car-details-get-services-cta"
+                  accessibilityState={{ disabled: isContactGated || isListingNonActive }}>
                   <Briefcase size={18} color={COLORS.accent} />
                   <Text style={[styles.getServicesText, { fontFamily: typo.display }]}>{t.getServices}</Text>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
-                style={[styles.bookItButton, listingStatus === 'booked' && styles.bookItButtonDisabled]}
-                onPress={handleBookIt}
-                disabled={bookingLoading || listingStatus === 'booked'}>
+                style={[
+                  styles.bookItButton,
+                  listingStatus === 'booked' && styles.bookItButtonDisabled,
+                  (isContactGated || isListingNonActive) && { opacity: 0.4 },
+                ]}
+                onPress={isListingNonActive ? undefined : handleBookIt}
+                disabled={bookingLoading || listingStatus === 'booked' || isListingNonActive}
+                testID="car-details-book-it-cta"
+                accessibilityState={{ disabled: isContactGated || isListingNonActive || listingStatus === 'booked' }}>
                 {bookingLoading ? (
                   <ActivityIndicator size="small" color="#22c55e" />
                 ) : (
@@ -886,11 +925,15 @@ export const CarDetailsScreen = () => {
             <View style={styles.contactButtonsRow}>
               {car.telegramUsername && (
                 <TouchableOpacity
-                  style={[styles.contactButton, styles.telegramButton, isContactGated && { opacity: 0.4 }]}
-                  onPress={isContactGated ? () => setContactGateVisible(true) : handleTelegram}
-                  disabled={false}
+                  style={[styles.contactButton, styles.telegramButton, (isContactGated || isListingNonActive) && { opacity: 0.4 }]}
+                  onPress={
+                    isListingNonActive ? undefined
+                    : isContactGated ? () => setContactGateVisible(true)
+                    : handleTelegram
+                  }
+                  disabled={isListingNonActive}
                   testID="car-details-telegram-cta"
-                  accessibilityState={{ disabled: isContactGated }}>
+                  accessibilityState={{ disabled: isContactGated || isListingNonActive }}>
                   <Send size={20} color="#FFF" />
                   <Text style={[styles.contactButtonText, { color: '#FFF', fontFamily: typo.display }]}>Telegram</Text>
                 </TouchableOpacity>
@@ -900,12 +943,16 @@ export const CarDetailsScreen = () => {
                   styles.contactButton,
                   styles.whatsappButton,
                   car.telegramUsername ? { flex: 1, marginLeft: 2 } : { width: '100%' },
-                  isContactGated && { opacity: 0.4 },
+                  (isContactGated || isListingNonActive) && { opacity: 0.4 },
                 ]}
-                onPress={isContactGated ? () => setContactGateVisible(true) : handleCallSeller}
-                disabled={false}
+                onPress={
+                  isListingNonActive ? undefined
+                  : isContactGated ? () => setContactGateVisible(true)
+                  : handleCallSeller
+                }
+                disabled={isListingNonActive}
                 testID="car-details-whatsapp-cta"
-                accessibilityState={{ disabled: isContactGated }}>
+                accessibilityState={{ disabled: isContactGated || isListingNonActive }}>
                 <MessageCircle size={20} color="#FFF" />
                 <Text style={[styles.contactButtonText, { color: '#FFF', fontFamily: typo.display }]}>{t.whatsapp}</Text>
               </TouchableOpacity>
