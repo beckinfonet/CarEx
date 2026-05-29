@@ -124,7 +124,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 10-08-PLAN.md — CarDetailsScreen wiring: badge + status banner + error banner + optimistic-flip + Delete escalation (LUI-01, LUI-02, LUI-03, LMOB-02)
-- [ ] 10-09-PLAN.md — SellCarScreen adminEdit route flag: 4+ gate bypasses + endpoint swap to ModerationService.adminEditListing (LUI-02)
+- [x] 10-09-PLAN.md — SellCarScreen adminEdit route flag: 4+ gate bypasses + endpoint swap to ModerationService.adminEditListing (LUI-02)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 - [ ] 10-10-PLAN.md — AdminModerationScreen Users|Listings tabs + Listings panel + per-row Recover (LUI-04)
@@ -155,5 +155,5 @@ Plans:
 | 7. Listing Schema + Security Baseline | v1.1 | 0/6 | Planned | - |
 | 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
 | 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
-| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 7/10 | In Progress|  |
+| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 8/10 | In Progress|  |
 | 11. Buyer-affected UX + Quality + Security Review | v1.1 | 0/? | Not started | - |
