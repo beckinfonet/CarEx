@@ -1335,7 +1335,15 @@ try {
 | A7 | `searchListings` `firstPhotoUrl` field can be sourced from `Car.imageUrls[0]` directly (matches Phase 9 D-05 thin-payload convention) | Backend GET sketch | VERIFIED: Phase 9 D-05 explicit + `server.js:399-401` implements this for thin payload — same approach safe for listings tab |
 | A8 | EN-only placeholders for new translation keys are acceptable in Phase 10 per CONTEXT `<deferred>` "RU+EN translation strings + jest literal scanner sweep — Phase 11 LQUAL-01" | Project Constraints | LOW risk — explicit in CONTEXT |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All 5 open questions below are resolved by the Phase 10 plans:
+> - Q1 → Plan 07 adds optional `keyboardType?: KeyboardTypeOptions` prop to `TypedConfirmationModal` (default `'email-address'`); CarDetailsScreen passes `keyboardType="default"` so the listing-title sentinel keyboard has a spacebar.
+> - Q2 → Plan 10 reuses `ListingRestoreModal` for the per-row Recover action (not `Alert.alert`) for consistency with the CarDetails Restore flow.
+> - Q3 → Plan 08 places the Moderate badge in the CarDetails header alongside the existing Share/Edit affordances (line ~451 area) per RESEARCH §3 recommendation.
+> - Q4 → MyListings → CarDetails surfaces the Moderate badge naturally because the gate is `useAuth().isAdmin`, not source-of-navigation; Plan 08 acceptance criteria assert this.
+> - Q5 → The 200–500ms `useAuth().isAdmin` cold-start loading window is acceptable; Plan 08 mirrors existing AccountSettings behavior (no skeleton needed; the badge simply appears once admin state resolves).
+
 
 1. **Should `TypedConfirmationModal` gain a `keyboardType` prop, or should Phase 10 build a sibling `TypedListingConfirmationModal`?**
    - What we know: existing user-mod call sites use email sentinel → email keyboard correct.
