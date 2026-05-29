@@ -116,7 +116,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [x] 10-04-PLAN.md — Extend ModerationService with 5 listing writes + searchListings read + anti-pattern guards (LMOB-01)
-- [ ] 10-05-PLAN.md — LMOB-02 interceptor non-regression tests + CarDetailsScreen axios.get → apiClient.get migration (LMOB-02, LUI-01)
+- [x] 10-05-PLAN.md — LMOB-02 interceptor non-regression tests + CarDetailsScreen axios.get → apiClient.get migration (LMOB-02, LUI-01)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 10-06-PLAN.md — ListingModerationBottomSheet (4 actions for active / Restore + chip for non-active) (LUI-01, LUI-02, LUI-03)
@@ -155,5 +155,5 @@ Plans:
 | 7. Listing Schema + Security Baseline | v1.1 | 0/6 | Planned | - |
 | 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
 | 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
-| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 4/10 | In Progress|  |
+| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 5/10 | In Progress|  |
 | 11. Buyer-affected UX + Quality + Security Review | v1.1 | 0/? | Not started | - |

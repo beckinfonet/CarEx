@@ -46,7 +46,7 @@ Requirements for milestone v1.1. Each maps to exactly one roadmap phase.
 ### Mobile Architecture
 
 - [ ] **LMOB-01**: All listing moderation HTTP calls live in `src/services/moderation/ModerationService.ts` (the v1.0 module) — not glued onto `AuthService.ts`. Five new methods: `adminEditListing`, `suspendListing`, `archiveListing`, `deleteListing`, `restoreListing`
-- [ ] **LMOB-02**: Listing-moderation 409/403 response handling: the existing apiClient 403 interceptor is NOT triggered for listing-moderation responses (this is listing state, not user state); errors surface as UI banners on `CarDetailsScreen` / cart
+- [x] **LMOB-02**: Listing-moderation 409/403 response handling: the existing apiClient 403 interceptor is NOT triggered for listing-moderation responses (this is listing state, not user state); errors surface as UI banners on `CarDetailsScreen` / cart
 
 ### Buyer-affected UX
 
@@ -112,7 +112,7 @@ Updated by `gsd-roadmapper` during roadmap creation.
 | LUI-03 | Phase 10 | Pending |
 | LUI-04 | Phase 10 | Complete |
 | LMOB-01 | Phase 10 | Pending |
-| LMOB-02 | Phase 10 | Pending |
+| LMOB-02 | Phase 10 | Complete |
 | LBUY-01 | Phase 11 | Pending |
 | LBUY-02 | Phase 11 | Pending |
 | LBUY-03 | Phase 11 | Pending |

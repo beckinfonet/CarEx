@@ -4,14 +4,14 @@ milestone: v1.1
 milestone_name: Admin Listing Moderation
 status: executing
 stopped_at: Phase 10 context gathered
-last_updated: "2026-05-29T09:57:19.282Z"
+last_updated: "2026-05-29T10:03:11.408Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 27
-  completed_plans: 21
-  percent: 78
+  completed_plans: 22
+  percent: 81
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 10 (mobile-plumbing-admin-listing-ui) — EXECUTING
-Plan: 5 of 10
+Plan: 6 of 10
 Status: Ready to execute
 Last activity: 2026-05-29
 
@@ -42,7 +42,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 Last activity: 2026-05-29 - Completed Phase 8 Plan 05 (LADM-05 Restore endpoint)
 Resume file: None
 
-Progress: [████████░░] 78%
+Progress: [████████░░] 81%
 
 ## Performance Metrics
 
@@ -110,6 +110,7 @@ Progress: [████████░░] 78%
 | Phase 10 P02 | 1m37s | 2 tasks | 2 files |
 | Phase 10 P03 | 8m0s | 3 tasks (+1 auto-fix) tasks | 4 files files |
 | Phase 10 P04 | 4m20s | 3 tasks | 2 files |
+| Phase 10 P05 | ~3m | 2 tasks tasks | 3 files files |
 
 ## Accumulated Context
 
@@ -318,6 +319,8 @@ Recent decisions affecting current work:
 - [Phase 10]: Plan 10-03: PII whitelist for q substring is 3 fields ONLY — makeName (case-insensitive substring), modelName (case-insensitive substring), listingId (PREFIX). description/phoneNumber/telegramUsername/email NEVER searched. Block 6 seeds unique_telltale_string_xyz/555-0101/secret_handle and asserts each probe returns 0 rows. T-10-03 mitigation locked at the behavior level.
 - [Phase ?]: [Phase 10]: Plan 10-04: ModerationService extended with 5 listing write methods (adminEditListing, suspendListing, archiveListing, deleteListing, restoreListing) + searchListings read + toListingModerationError helper. Write methods wrap axios 4xx into ListingModerationError; searchListings re-throws raw so 500-class bugs surface to screen EmptyState (RESEARCH 916-921). Multipart adminEditListing uses structured input + explicit Content-Type header (Pitfall 9).
 - [Phase ?]: [Phase 10]: Plan 10-04: Anti-pattern guardrails locked at filesystem level inside listingMethods.test.ts — 3 fs.readFileSync assertions verify AuthService.ts has 0 listing-mod names, http/client.ts keeps exactly 2 interceptors (no third for listing errors per T-10-02), and ModerationError class block in errors.ts has 0 listing codes (sibling discipline duplicated across Plans 10-01 + 10-04 for double lock).
+- [Phase ?]: Phase 10 Plan 05: LMOB-02 regression suite (5 tests) + LOAD-BEARING apiClient.get migration on CarDetailsScreen deep-link fetch (line 112). Test 4 grep-locks interceptors.response.use count at 2; Test 5 accepts 3 canonical discriminator forms. Bearer header now flows on admin deep-link views → Phase 9 D-07 moderationBadge payload reaches CarDetailsScreen → Plan 10-08 banner unblocked.
+- [Phase ?]: Phase 10 Plan 05: Adapter-mock pattern (override apiClient.defaults.adapter with canned-response) reused verbatim from sibling client.test.ts — axios-mock-adapter is NOT a project devDep and CLAUDE.md forbids new networking libs this milestone. Anti-pattern guardrails (interceptor count == 2 + discriminator literal preserved) implemented via fs.readFileSync source-level grep — catches future drift regardless of runtime introspection.
 
 ### Pending Todos
 
@@ -358,6 +361,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-05-29T09:57:08.466Z
+Last session: 2026-05-29T10:02:56.128Z
 Stopped at: Phase 10 context gathered
 Resume file: None
