@@ -93,8 +93,8 @@ Plans:
 - [x] 09-01-PLAN.md — Wave 0 prerequisites: 5 RED jest scaffolds + refundAndThrow helper + ListingNotAvailableError + lookupAdminIfPresent middleware (LENF-03 helper substrate)
 - [x] 09-02-PLAN.md — LENF-01 pre(/^find/) hide hook on Car + includeAllListingStatuses bypass + 4 GREEN integration cases
 - [x] 09-03-PLAN.md — LENF-02 status-aware GET /api/cars/:id (D-05 thin payload / D-07 admin badge / D-08 single endpoint) + 6 GREEN supertest cases
-- [ ] 09-04-PLAN.md — LENF-03 part A: create-payment-intent early 409 gate + ListingNotAvailableError route-error-map branch + 5 GREEN supertest cases
-- [ ] 09-05-PLAN.md — LENF-03 part B: confirm-booking step-4 transactional TOCTOU + refund-first-throw-second + 6 GREEN integration cases + Phase 3 regression
+- [x] 09-04-PLAN.md — LENF-03 part A: create-payment-intent early 409 gate + ListingNotAvailableError route-error-map branch + 5 GREEN supertest cases
+- [x] 09-05-PLAN.md — LENF-03 part B: confirm-booking step-4 transactional TOCTOU + refund-first-throw-second + 6 GREEN integration cases + Phase 3 regression
 
 ### Phase 10: Mobile Plumbing + Admin Listing UI
 **Goal**: Admins can moderate listings inline on `CarDetailsScreen` via a bottom-sheet of four visually-distinct actions, Restore non-active listings from the same surface, and find soft-deleted listings in an admin-only Deleted view — all via five new `ModerationService` methods that bypass the existing 403 user-suspension interceptor
