@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { ListingModerationError, ModerationError } from '../errors';
 
 describe('ListingModerationError', () => {
@@ -78,5 +80,31 @@ describe('ListingModerationError', () => {
     // Both are-a Error so existing top-level catch blocks still work.
     expect(listingErr instanceof Error).toBe(true);
     expect(userErr instanceof Error).toBe(true);
+  });
+
+  it('does not widen ModerationError to accept listing codes (sibling discipline guard)', () => {
+    // Source-level invariant per RESEARCH §Anti-Pattern Guardrails: any future
+    // edit that adds a listing code into the ModerationError union literal
+    // (instead of using the sibling ListingModerationError) breaks here.
+    // Read errors.ts from disk and extract the ModerationError class block,
+    // then assert it contains none of the listing-domain code literals.
+    const errorsPath = path.join(__dirname, '..', 'errors.ts');
+    const source = fs.readFileSync(errorsPath, 'utf8');
+    const match = source.match(/class ModerationError[\s\S]*?\n\}/);
+    expect(match).not.toBeNull();
+    const modBlock = match![0];
+
+    const forbiddenListingCodes = [
+      'listing_not_available',
+      'listing_not_found',
+      'cannot_moderate_own_listing',
+      'already_in_state',
+      'not_moderated',
+      'invalid_make',
+      'invalid_model',
+    ];
+    for (const codeLiteral of forbiddenListingCodes) {
+      expect(modBlock.includes(`'${codeLiteral}'`)).toBe(false);
+    }
   });
 });
