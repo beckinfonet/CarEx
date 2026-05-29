@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin Listing Moderation
-status: verifying
+status: completed
 stopped_at: Phase 8 backend COMPLETE — all 5 LADM-01..05 endpoints live (suspend / archive / delete / restore / edit). Zero stubs remaining. Ready for Phase 9 (read-time enforcement).
-last_updated: "2026-05-29T01:05:17.001Z"
-last_activity: 2026-05-29
+last_updated: "2026-05-29T01:12:21.648Z"
+last_activity: 2026-05-29 -- Phase 08 marked complete
 progress:
-  total_phases: 5
-  completed_phases: 2
-  total_plans: 12
-  completed_plans: 12
-  percent: 100
+  total_phases: 8
+  completed_phases: 7
+  total_plans: 63
+  completed_plans: 61
+  percent: 88
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 ## Current Position
 
-Phase: 08 (admin-listing-moderation-endpoints-backend) — EXECUTING
+Phase: 08 — COMPLETE
 Plan: 6 of 6
-Status: Phase complete — ready for verification
-Last activity: 2026-05-29
+Status: Phase 08 complete
+Last activity: 2026-05-29 -- Phase 08 marked complete
 
 ## Deferred Items
 
