@@ -151,10 +151,10 @@ const SELLER_USER = {
 };
 
 async function settle() {
-  await new Promise((r) => setImmediate(r));
-  await new Promise((r) => setImmediate(r));
+  await new Promise<void>((r) => setImmediate(() => r()));
+  await new Promise<void>((r) => setImmediate(() => r()));
   act(() => {});
-  await new Promise((r) => setImmediate(r));
+  await new Promise<void>((r) => setImmediate(() => r()));
   act(() => {});
 }
 
