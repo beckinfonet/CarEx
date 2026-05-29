@@ -694,6 +694,22 @@ export const TRANSLATIONS = {
     cityMagadan: 'Магадан',
     cityKamchatka: 'Петропавловск-Камчатский',
     kmShort: 'км',
+    // ---- Phase 11 — Listing buyer-affected banner (LBUY-01..04) ----
+    listingStatusBannerSuspendedTitle: 'Объявление приостановлено',
+    listingStatusBannerSuspendedBody: 'Это объявление временно недоступно.',
+    listingStatusBannerArchivedTitle: 'Объявление в архиве',
+    listingStatusBannerArchivedBody: 'Это объявление больше не активно.',
+    listingStatusBannerDeletedTitle: 'Объявление удалено',
+    listingStatusBannerDeletedBody: 'Это объявление больше не доступно.',
+    listingStatusBannerReasonSpam: 'Спам',
+    listingStatusBannerReasonPolicyViolation: 'Нарушение правил',
+    listingStatusBannerReasonFraud: 'Мошенничество',
+    listingStatusBannerReasonInactiveSeller: 'Неактивный продавец',
+    listingStatusBannerReasonOther: 'Другое',
+    cartListingUnavailableTitle: 'Автомобиль больше не доступен',
+    cartListingUnavailableBody: 'Удалите автомобиль из корзины, чтобы продолжить.',
+    cartListingUnavailableRemove: 'Удалить из корзины',
+    cartListingUnavailableCheckoutHint: 'Удалите недоступное объявление, чтобы оформить остальные услуги.',
   },
   EN: {
     // Header & Navigation
@@ -1390,6 +1406,22 @@ export const TRANSLATIONS = {
     cityMagadan: 'Magadan',
     cityKamchatka: 'Petropavlovsk-Kamchatsky',
     kmShort: 'km',
+    // ---- Phase 11 — Listing buyer-affected banner (LBUY-01..04) ----
+    listingStatusBannerSuspendedTitle: 'Listing suspended',
+    listingStatusBannerSuspendedBody: 'This listing is temporarily unavailable.',
+    listingStatusBannerArchivedTitle: 'Listing archived',
+    listingStatusBannerArchivedBody: 'This listing is no longer active.',
+    listingStatusBannerDeletedTitle: 'Listing removed',
+    listingStatusBannerDeletedBody: 'This listing is no longer available.',
+    listingStatusBannerReasonSpam: 'Spam',
+    listingStatusBannerReasonPolicyViolation: 'Policy violation',
+    listingStatusBannerReasonFraud: 'Fraud',
+    listingStatusBannerReasonInactiveSeller: 'Inactive seller',
+    listingStatusBannerReasonOther: 'Other',
+    cartListingUnavailableTitle: 'This vehicle is no longer available',
+    cartListingUnavailableBody: 'Remove the vehicle from your cart to continue.',
+    cartListingUnavailableRemove: 'Remove from cart',
+    cartListingUnavailableCheckoutHint: 'Remove the unavailable listing to check out remaining services.',
   }
 };
 
