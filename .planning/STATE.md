@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin Listing Moderation
 status: executing
-stopped_at: Phase 8 Plan 02 (LADM-02 Suspend endpoint) complete; ready to execute Plan 03 (LADM-03 Archive)
-last_updated: "2026-05-29T00:23:52.097Z"
+stopped_at: Phase 8 Plan 04 (LADM-04 Delete-soft endpoint) complete; ready to execute Plan 05 (LADM-05 Restore)
+last_updated: "2026-05-29T00:29:30.000Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 12
-  completed_plans: 9
-  percent: 75
+  completed_plans: 11
+  percent: 92
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 08 (admin-listing-moderation-endpoints-backend) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-05-29
 
@@ -39,10 +39,10 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 | backend-load-test | Plan 06-0a (10k-user seed) | deferred by operator 2026-04-19 |
 | backend-load-test | Plan 06-0b (k6 harness with P95<200ms) | deferred by operator 2026-04-19 |
 | ux-followup | UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 06 03 styling) | captured 2026-04-30 during Phase 04 UAT — to be addressed in next milestone |
-Last activity: 2026-05-28 - Completed quick task 260528-hmt: Rotating playful greeting + headline variants on HomeScreenV2
+Last activity: 2026-05-29 - Completed Phase 8 Plan 04 (LADM-04 Delete-soft endpoint)
 Resume file: None
 
-Progress: [████████░░] 75%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -102,6 +102,7 @@ Progress: [████████░░] 75%
 | Phase 08 P01 | 6m11s | 3 tasks | 9 files |
 | Phase 08 P02 | 3m23s | 3 tasks | 3 files |
 | Phase 08 P03 | 2m39s | 3 tasks | 3 files |
+| Phase 08 P04 | 3m50s | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -278,6 +279,11 @@ Recent decisions affecting current work:
 - [Phase 08]: Plan 08-03: Cross-state suspended→archive + deleted→archive tests landed — symmetric pair to Plan 08-02's archived→suspend + deleted→suspend; D-B open matrix now proved bidirectionally
 - [Phase 08]: Plan 08-03: Missing-reasonCategory defensive test dropped vs. Plan 08-02 catalog — service-level guard is byte-shared with Suspend so coverage transitive; Plan Task 3 action note explicitly allowed this discretion
 - [Phase 08]: Plan 08-03: Happy-path uses 'inactive_seller' reasonCategory — canonical Archive reason per D-09; semantically distinct from Suspend's punitive choices but schema layer permits any reasonCategory value (D-A-1 permissive validation)
+- [Phase 08]: Plan 08-04: deleteListing body is third substitution-only mirror of the canonical Phase-8 transition shape — only target='deleted' + action='delete' differ from Plan 08-02 suspendListing / Plan 08-03 archiveListing. Canonical pattern now proven to generalize across three labels with zero structural deviation
+- [Phase 08]: Plan 08-04: LADM-04 SOFT-DELETE invariant locked at THREE enforcement layers — (1) source-level header comment forbidding Mongoose document-removal APIs on Car; (2) automated grep gate at zero matches for the literal API token family; (3) integration Test 2 asserts Car.countDocuments({_id}) === 1 BOTH pre- and post-call + persisted doc has seeded sellerId/createdAt preserved. Any future refactor introducing a runtime removal call trips both gate and test
+- [Phase 08]: Plan 08-04: Inline header comment rephrased to avoid literal API token strings — plan's verify script is a literal grep that does not distinguish source comments from runtime code. Rephrased "Car.deleteOne / Car.deleteMany / Car.findOneAndDelete" to "any of Mongoose's document-removal APIs on the Car model (the *.delete*One, *.delete*Many, *.findOne*AndDelete family)". Prescriptive intent preserved; grep gate satisfied. Documented as deviation in SUMMARY
+- [Phase 08]: Plan 08-04: Cross-state suspended→delete + archived→delete tests landed — completes D-B open-matrix proof across all three Wave-2 transition labels (Plan 08-02 covered archived/deleted→suspend; Plan 08-03 covered suspended/deleted→archive; this plan covers suspended/archived→delete). Catalog uses 'spam'/'fraud'/'policy_violation' reasonCategories to exercise all three punitive enum values
+- [Phase 08]: Plan 08-04: TDD task ordering pivot (third consecutive in Phase 8) — service-body/router/tests author-order pivoted to RED test → GREEN service → router substrate. Mandatory under MVP+TDD gate when tdd="true" set on behavior-adding tasks
 
 ### Pending Todos
 
@@ -318,6 +324,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-05-29T00:20:06.565Z
-Stopped at: Phase 8 Plan 02 (LADM-02 Suspend endpoint) complete; ready to execute Plan 03 (LADM-03 Archive)
-Resume file: (phase-close) /gsd-verify-phase 06 — all 3 Phase 6 requirements complete (QUAL-01 via 06-01/06-09 + QUAL-03 via 06-10; QUAL-02 operator-deferred)
+Last session: 2026-05-29T00:29:30.000Z
+Stopped at: Phase 8 Plan 04 (LADM-04 Delete-soft endpoint) complete; ready to execute Plan 05 (LADM-05 Restore)
+Resume file: None
