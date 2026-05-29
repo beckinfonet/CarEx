@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, useWin
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Zoomable } from '@likashefqet/react-native-image-zoom';
 import { OptimizedImage } from '../components/OptimizedImage';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -15,6 +14,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useTypography } from '../hooks/useTypography';
 import { useCart } from '../context/CartContext';
+import { useFavorites } from '../context/FavoritesContext';
 import { FeatureGateOverlay } from '../components/moderation/FeatureGateOverlay';
 import { ListingModerationBottomSheet, ListingModerationAction } from '../components/moderation/ListingModerationBottomSheet';
 import { ListingModerationReasonModal, ListingReasonAction } from '../components/moderation/ListingModerationReasonModal';
@@ -33,13 +33,13 @@ export const CarDetailsScreen = () => {
   const { t } = useLanguage();
   const { user, isAdmin } = useAuth() as any;
   const { setCar } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const typo = useTypography();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const route = useRoute();
   const { carId } = route.params as { carId: string };
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [galleryVisible, setGalleryVisible] = useState(false);
   const [fullScreenVisible, setFullScreenVisible] = useState(false);
   const fullScreenScrollRef = useRef<ScrollView>(null);
@@ -121,10 +121,6 @@ export const CarDetailsScreen = () => {
     setGalleryVisible(false);
   };
 
-  useEffect(() => {
-    checkFavoriteStatus();
-  }, [carId]);
-
   // Fetch car from API when opened via deep link (no carData) OR when viewer is admin
   // (admin always needs the Phase 9 D-07 `moderationBadge` payload — see Plan 10-12 CR-04 fix).
   // Non-admin viewers with prefilled carData skip the fetch (existing fast-path preserved).
@@ -183,36 +179,6 @@ export const CarDetailsScreen = () => {
         setSellerAvatarUrl(null);
       });
   }, [car?.sellerId]);
-
-  const checkFavoriteStatus = async () => {
-    try {
-      const favorites = await AsyncStorage.getItem('favorites');
-      if (favorites) {
-        const parsed = JSON.parse(favorites);
-        setIsFavorite(parsed.includes(carId));
-      }
-    } catch (e) {
-      console.error('Failed to load favorites');
-    }
-  };
-
-  const toggleFavorite = async () => {
-    try {
-      const favorites = await AsyncStorage.getItem('favorites');
-      let parsed = favorites ? JSON.parse(favorites) : [];
-
-      if (isFavorite) {
-        parsed = parsed.filter((id: string) => id !== carId);
-      } else {
-        parsed.push(carId);
-      }
-
-      await AsyncStorage.setItem('favorites', JSON.stringify(parsed));
-      setIsFavorite(!isFavorite);
-    } catch (e) {
-      console.error('Failed to toggle favorite');
-    }
-  };
 
   // Normalize images to an array
   const images = car?.imageUrls || (car?.image ? [car.image] : []);
@@ -621,11 +587,11 @@ export const CarDetailsScreen = () => {
               <TouchableOpacity style={styles.iconButton} onPress={handleReport}>
                 <AlertTriangle size={24} color={COLORS.textSecondary} />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.iconButton} onPress={toggleFavorite}>
+              <TouchableOpacity style={styles.iconButton} onPress={() => toggleFavorite(carId)}>
                 <Heart
                   size={24}
-                  color={isFavorite ? '#EF4444' : COLORS.accent}
-                  fill={isFavorite ? '#EF4444' : 'none'}
+                  color={isFavorite(carId) ? '#EF4444' : COLORS.accent}
+                  fill={isFavorite(carId) ? '#EF4444' : 'none'}
                 />
               </TouchableOpacity>
             </>

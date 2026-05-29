@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHomeListings } from '../hooks/useHomeListings';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useFavorites } from '../context/FavoritesContext';
 import { useTypography } from '../hooks/useTypography';
 import { CATEGORIES } from '../constants/mockData';
 import { V2 } from '../components/home/v2/theme';
@@ -62,6 +63,7 @@ export const HomeScreenV2 = () => {
   const isFocused  = useIsFocused();
   const { t, language, setLanguage } = useLanguage();
   const { user } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   // ---- Quick 260528-hmt — Rotating greeting + headline ----
   const [greetingText, setGreetingText] = useState<string>(() => {
@@ -233,8 +235,8 @@ export const HomeScreenV2 = () => {
         ListHeaderComponent={Header}
         renderItem={({ item }) => (
           item.promoted
-            ? <BigFeedCard car={item} kmSuffix={t.kmShort} ctaLabel={t.open} faved={!!item.faved} onPress={handleCarPress} onToggleFav={() => {}} />
-            : <SmallFeedCard car={item} kmSuffix={t.kmShort} faved={!!item.faved} onPress={handleCarPress} onToggleFav={() => {}} />
+            ? <BigFeedCard car={item} kmSuffix={t.kmShort} ctaLabel={t.open} faved={isFavorite(item.id)} onPress={handleCarPress} onToggleFav={(car) => toggleFavorite(car.id)} />
+            : <SmallFeedCard car={item} kmSuffix={t.kmShort} faved={isFavorite(item.id)} onPress={handleCarPress} onToggleFav={(car) => toggleFavorite(car.id)} />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 11 }} />}
         ListFooterComponent={refreshing ? <FeedLoader caption={t.pickingMore} /> : null}
