@@ -1159,12 +1159,19 @@ export const CarDetailsScreen = () => {
         />
       )}
 
+      {/* Plan 10-11 CR-01 fix — pass listing-specific copy via override props so admin
+          sees "This listing will be permanently deleted" instead of the user-profile
+          delete copy. Sentinel match semantics unchanged (targetEmail still carries
+          listingTitle; case-insensitive trimmed equality per D-08a). */}
       {typedConfirmVisible && fetchedCar && pendingDeletePayload && (
         <TypedConfirmationModal
           visible={true}
           action="delete_profile"
           targetEmail={listingTitle}
           keyboardType="default"
+          bodyKey="typedConfirmListingDeleteBody"
+          hintKey="typedConfirmListingHint"
+          placeholderKey="typedConfirmListingPlaceholder"
           onConfirm={() => {
             setTypedConfirmVisible(false);
             setReasonModalAction(null);

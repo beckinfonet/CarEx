@@ -447,6 +447,10 @@ describe('CarDetailsScreen — admin moderation surface (Plan 10-08)', () => {
     expect(typed.props.visible).toBe(true);
     expect(typed.props.keyboardType).toBe('default');
     expect(typed.props.targetEmail).toBe('2018 Toyota Camry');
+    // Plan 10-11 CR-01 fix — assert listing-specific override props reach the modal
+    expect(typed.props.bodyKey).toBe('typedConfirmListingDeleteBody');
+    expect(typed.props.hintKey).toBe('typedConfirmListingHint');
+    expect(typed.props.placeholderKey).toBe('typedConfirmListingPlaceholder');
     // Service NOT yet called (gate is the typed-confirm match)
     expect(ModerationService.deleteListing).not.toHaveBeenCalled();
     // Trigger onConfirm directly (UI sentinel match is tested separately by TypedConfirmationModal)

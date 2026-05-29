@@ -141,4 +141,34 @@ describe('TypedConfirmationModal', () => {
     const input = tree.root.findByType(TextInput);
     expect(input.props.keyboardType).toBe('default');
   });
+
+  // Phase 10 Plan 11 — CR-01 fix: additive bodyKey / hintKey / placeholderKey override props.
+  // The mock useLanguage Proxy returns the key as the value, so a serialized tree containing
+  // 'typedConfirmListingDeleteBody' proves the new override key reached the render.
+  test('bodyKey override renders listing body key (CR-01 — Plan 10-11)', () => {
+    const tree = render({ action: 'delete_profile', bodyKey: 'typedConfirmListingDeleteBody' });
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).toContain('typedConfirmListingDeleteBody');
+    // KEY assertion: user-profile-delete copy is GONE when the override is in play.
+    expect(json).not.toContain('typedConfirmWarningBodyDelete');
+  });
+
+  test('bodyKey default preserves user-domain BODY_KEY_FOR_ACTION mapping (no override = no behavior change)', () => {
+    const tree = render({ action: 'delete_profile' }); // No bodyKey
+    const json = JSON.stringify(tree.toJSON());
+    // User-mod call sites continue to render this default-mapped key.
+    expect(json).toContain('typedConfirmWarningBodyDelete');
+  });
+
+  test('hintKey override renders listing hint key (CR-01 — Plan 10-11)', () => {
+    const tree = render({ targetEmail: '2018 Toyota Camry', hintKey: 'typedConfirmListingHint' });
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).toContain('typedConfirmListingHint');
+  });
+
+  test('placeholderKey override sets the TextInput placeholder via the new key', () => {
+    const tree = render({ placeholderKey: 'typedConfirmListingPlaceholder' });
+    const input = tree.root.findByType(TextInput);
+    expect(input.props.placeholder).toBe('typedConfirmListingPlaceholder');
+  });
 });
