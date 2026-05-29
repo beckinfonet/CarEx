@@ -120,7 +120,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 10-06-PLAN.md — ListingModerationBottomSheet (4 actions for active / Restore + chip for non-active) (LUI-01, LUI-02, LUI-03)
-- [ ] 10-07-PLAN.md — ListingModerationReasonModal + ListingRestoreModal + TypedConfirmationModal keyboardType prop (LUI-02, LUI-03)
+- [x] 10-07-PLAN.md — ListingModerationReasonModal + ListingRestoreModal + TypedConfirmationModal keyboardType prop (LUI-02, LUI-03)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 10-08-PLAN.md — CarDetailsScreen wiring: badge + status banner + error banner + optimistic-flip + Delete escalation (LUI-01, LUI-02, LUI-03, LMOB-02)
@@ -155,5 +155,5 @@ Plans:
 | 7. Listing Schema + Security Baseline | v1.1 | 0/6 | Planned | - |
 | 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
 | 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
-| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 5/10 | In Progress|  |
+| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 6/10 | In Progress|  |
 | 11. Buyer-affected UX + Quality + Security Review | v1.1 | 0/? | Not started | - |

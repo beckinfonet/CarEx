@@ -40,7 +40,7 @@ Requirements for milestone v1.1. Each maps to exactly one roadmap phase.
 
 - [ ] **LUI-01**: `CarDetailsScreen` shows an admin-only "Moderate" badge for admin users; tapping it opens a bottom sheet with four action rows (Edit / Suspend / Archive / Delete) plus a status banner reflecting current state
 - [x] **LUI-02**: The four action buttons in the bottom sheet are visually distinct: Edit (neutral, pencil icon), Suspend (warning orange), Archive (neutral gray), Delete (destructive red with confirmation dialog)
-- [ ] **LUI-03**: When a listing is already in a non-active state, the bottom sheet replaces the four actions with a single Restore button + the current reason category surfaced for context
+- [x] **LUI-03**: When a listing is already in a non-active state, the bottom sheet replaces the four actions with a single Restore button + the current reason category surfaced for context
 - [x] **LUI-04**: Soft-deleted listings are surfaced in an admin-only "Deleted listings" filter view (within the admin moderation surface) with a Recover action per row; default browse hides them entirely
 
 ### Mobile Architecture
@@ -109,7 +109,7 @@ Updated by `gsd-roadmapper` during roadmap creation.
 | LENF-03 | Phase 9 | Pending |
 | LUI-01 | Phase 10 | Pending |
 | LUI-02 | Phase 10 | Complete |
-| LUI-03 | Phase 10 | Pending |
+| LUI-03 | Phase 10 | Complete |
 | LUI-04 | Phase 10 | Complete |
 | LMOB-01 | Phase 10 | Pending |
 | LMOB-02 | Phase 10 | Complete |
