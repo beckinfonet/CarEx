@@ -18,6 +18,7 @@ import { useCart } from '../context/CartContext';
 import { FeatureGateOverlay } from '../components/moderation/FeatureGateOverlay';
 import { LISTING_URL, API_URL } from '../constants/config';
 import axios from 'axios';
+import { apiClient } from '../services/http/client';
 
 export const CarDetailsScreen = () => {
   const { width, height } = useWindowDimensions();
@@ -109,7 +110,13 @@ export const CarDetailsScreen = () => {
     const existingCar = CARS.find(c => c.id === carId) || (route.params as any).carData;
     if (carId && !existingCar) {
       setCarLoading(true);
-      axios.get(`${API_URL}/api/cars/${carId}`)
+      // Plan 10-05 / RESEARCH §Assumption A6: use the shared apiClient so the
+      // request interceptor (Phase 4 D-02) attaches the Bearer header.
+      // Without it, the backend's status-aware listing GET (Phase 9 D-08)
+      // treats this request as unauthenticated → admin viewers never see
+      // the Phase 9 D-07 moderationBadge payload, and Plan 10-08's
+      // CarDetails status banner cannot render. baseURL is API_URL.
+      apiClient.get(`/api/cars/${carId}`)
         .then(res => {
           const c = res.data;
           setFetchedCar({
