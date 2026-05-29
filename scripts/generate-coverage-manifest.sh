@@ -44,36 +44,38 @@ for dir in "${TEST_DIRS[@]}"; do
   while IFS=$'\n' read -r match; do
     file=$(echo "$match" | cut -d: -f1)
     rest=$(echo "$match" | cut -d: -f3-)
-    # Extract the LXXX-NN identifier from describe('LXXX-NN: ...').
-    # The regex is intentionally L(...)- with no leading optional `L?` — the bare
-    # `QUAL-01` from Phase 6 substrate is NOT a LIST-* ID and must not claim LIST-* coverage.
-    # Plan 11-06 compound describe IDs like 'QUAL-01 / LQUAL-01: ...' match on the LQUAL-01
-    # substring; the leading QUAL-01 (no leading L) is correctly ignored.
-    id=$(echo "$rest" | grep -oE "L(BUY|QUAL|MOB|UI|ADM|DATA|ENF|SEC)-[0-9]+" | head -1)
-    [ -z "$id" ] && continue
+    # Extract ALL LXXX-NN identifiers from the describe string. A single describe
+    # block may carry compound coverage (e.g. '(LSEC-01 + LSEC-02)' or
+    # 'QUAL-01 / LQUAL-01: ...'); we count each LIST-ID independently. The regex is
+    # intentionally L(...)- with no leading optional `L?` — the bare `QUAL-01` from
+    # Phase 6 substrate is NOT a LIST-* ID and must not claim LIST-* coverage.
+    ids=$(echo "$rest" | grep -oE "L(BUY|QUAL|MOB|UI|ADM|DATA|ENF|SEC)-[0-9]+" | sort -u)
+    [ -z "$ids" ] && continue
     # Normalize path relative to cwd when possible (GNU-only flag — fallback retained).
     rel=$(realpath --relative-to=. "$file" 2>/dev/null || echo "$file")
-    key="${id}|${rel}"
-    # Dedupe per (ID, file) pair.
-    already=0
-    for existing in "${PATHS[@]:-}"; do
-      if [ "$existing" = "$key" ]; then
-        already=1
-        break
-      fi
-    done
-    if [ "$already" -eq 0 ]; then
-      PATHS+=("$key")
-      # Track unique IDs.
-      id_seen=0
-      for existing_id in "${IDS[@]:-}"; do
-        if [ "$existing_id" = "$id" ]; then
-          id_seen=1
+    for id in $ids; do
+      key="${id}|${rel}"
+      # Dedupe per (ID, file) pair.
+      already=0
+      for existing in "${PATHS[@]:-}"; do
+        if [ "$existing" = "$key" ]; then
+          already=1
           break
         fi
       done
-      [ "$id_seen" -eq 0 ] && IDS+=("$id")
-    fi
+      if [ "$already" -eq 0 ]; then
+        PATHS+=("$key")
+        # Track unique IDs.
+        id_seen=0
+        for existing_id in "${IDS[@]:-}"; do
+          if [ "$existing_id" = "$id" ]; then
+            id_seen=1
+            break
+          fi
+        done
+        [ "$id_seen" -eq 0 ] && IDS+=("$id")
+      fi
+    done
   done < <(grep -rEn "describe\(['\"][^'\"]*L(BUY|QUAL|MOB|UI|ADM|DATA|ENF|SEC)-[0-9]+" "$dir" || true)
 done
 
