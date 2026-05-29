@@ -142,7 +142,27 @@ Plans:
   4. The jest literal scanner (extended from v1.0 06-09) finds zero new untranslated strings and the RU/EN key-set diff is empty for all v1.1 additions
   5. `LIST-SECURITY.md` ships with status `APPROVED`, all five verdicts (auth / authz / audit / TOCTOU / deferred-verification disposition) marked PASS, before tagging v1.1
 **UI hint**: yes
-**Plans**: TBD
+**Plans**: 8 plans
+Plans:
+**Wave 1**
+- [ ] 11-01-PLAN.md — Translation keys (15 RU+EN pairs) + shared F1..F9 mock fixtures substrate (LQUAL-01 substrate for all downstream plans)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 11-02-PLAN.md — ListingStatusBanner.tsx component (variant=detail|cartRow, severity-aware) + tests (LBUY-01, LBUY-04)
+- [ ] 11-05-PLAN.md — LBUY-03 source-grep audit test (no auto-cancel logic on order screens) (LBUY-03)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 11-03-PLAN.md — CarDetailsScreen non-admin banner mount above hero + 4 buyer CTA gating + Book-it 409 catch banner-state flip + tests (LBUY-01, LBUY-04)
+- [ ] 11-04-PLAN.md — ServiceCartScreen useFocusEffect re-fetch + inline cart-row banner + global checkout-disable + tests (LBUY-02)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 11-06-PLAN.md — Extend translation-parity.test.ts with placeholder-token parity + extend moderation-literals.test.ts SCAN_FILES (LQUAL-01)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+- [ ] 11-07-PLAN.md — Coverage manifest generator (scripts/generate-coverage-manifest.sh) + generate 11-COVERAGE.md (LQUAL-02)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+- [ ] 11-08-PLAN.md — Pre-merge security review document 11-LIST-SECURITY.md (5 verdicts: auth/authz/audit/TOCTOU/deferred-verification) (LQUAL-03)
 
 ## Progress
 
@@ -158,4 +178,4 @@ Plans:
 | 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
 | 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
 | 10. Mobile Plumbing + Admin Listing UI | v1.1 | 12/12 | Complete   | 2026-05-29 |
-| 11. Buyer-affected UX + Quality + Security Review | v1.1 | 0/? | Not started | - |
+| 11. Buyer-affected UX + Quality + Security Review | v1.1 | 0/8 | Planned | - |

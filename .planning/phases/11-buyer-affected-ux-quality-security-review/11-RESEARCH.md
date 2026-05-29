@@ -978,34 +978,36 @@ All 5 verdicts above PASS → ready for merge to `main` and v1.1 tag.
 | A9 | Phase 11 introduces zero new HTTP routes (security review (e) clean) | §Code Examples 11-LIST-SECURITY template | [VERIFIED via CONTEXT.md "In scope" / "Out of scope" — phase scope is mobile-only + doc artifacts]. Risk: zero. |
 | A10 | The existing `errorContainer` empty-state at CarDetailsScreen.tsx:214-224 is acceptable for "carId truly doesn't exist" 404 | §Pitfall 9 | [VERIFIED via source read; uses `t.carNotFound || 'Car not found'` fallback]. Risk: copy may need an update for tone, but no new component needed. |
 
-## Open Questions
+## Open Questions (RESOLVED 2026-05-29)
 
-1. **D-03 deleted → 404 vs Phase 9 D-08 deleted → 200 thin-payload**
+*All 6 questions resolved during /gsd-plan-phase 11 reconciliation. CONTEXT.md amended accordingly.*
+
+1. **[RESOLVED — D-03 amended]** **D-03 deleted → 404 vs Phase 9 D-08 deleted → 200 thin-payload**
    - What we know: CONTEXT D-03 prescribes 404 → empty-state for deleted; Phase 9 D-08/D-06 explicitly says 200+thin-payload + "Do NOT 404 deep-link viewers" (09-CONTEXT.md:208).
    - What's unclear: Which is authoritative for Phase 11 planning? D-03 was authored later; Phase 9 contract is what the backend actually does.
    - Recommendation: **Honor Phase 9 (backend reality)**. Render banner-with-destructive-tone for `deleted`. Reserve the existing empty-state for true `carId doesn't exist` 404. Surface to operator at plan-discuss time for one-line CONTEXT amendment.
 
-2. **D-15 audit of buyer CTAs — are "Get services" + "Add to cart" actually present, and should they be disabled?**
+2. **[RESOLVED — D-04 + D-15 amended]** **D-15 audit of buyer CTAs — are "Get services" + "Add to cart" actually present, and should they be disabled?**
    - What we know: CONTEXT D-15 lists Contact seller / Add to cart / Buy now / Reserve, but CarDetailsScreen's actual CTAs (verified) are: Telegram (line 887), WhatsApp (line 898), Book it (line 807), Get services (line 787). No literal "Add to cart" button on detail screen — that flow is "Get services" → ServicesScreen → ServiceDetails Add. Reserve doesn't exist either.
    - What's unclear: Whether "Get services" should be disabled when the listing is non-active. Argument FOR: services are tied to the cart's car slot; if the car is non-active, services flow is moot. Argument AGAINST: services are independent providers; user might want to book broker for a different listing later.
    - Recommendation: **Disable Telegram + WhatsApp + Book it** (clearly transactional/commitment). **Leave "Get services" enabled** — it's navigation to ServicesScreen, no commitment yet; if the buyer then attempts to add the car to cart (via setCar in ServiceCartScreen), the next focus re-fetch will surface the banner. Document in plan for review.
 
-3. **Cart banner — single shared component or split `ListingCartRowBanner`?**
+3. **[RESOLVED — D-12 amended, single component with variant prop]** **Cart banner — single shared component or split `ListingCartRowBanner`?**
    - What we know: D-12 leaves split decision to planner.
    - What's unclear: Is the cart-row visual sufficiently distinct from detail-screen banner that a split is justified? Detail banner: tinted bg + 4px accent + top-level full-width. Cart row: same tone but INSIDE the existing carCard at line 137-152 (constrained width, may need compact icon-less variant).
    - Recommendation: **Start with a single `ListingStatusBanner` component with a `variant: 'detail' | 'cartRow'` prop**, as in Pattern 1 sketch above. Split only if the variant prop accretes more than 3 visual branches (D-12 escape hatch).
 
-4. **Cart subtitle copy when service items exist but car is non-active — exact wording**
+4. **[RESOLVED — D-07 copy locked in CONTEXT.md]** **Cart subtitle copy when service items exist but car is non-active — exact wording**
    - What we know: D-07 prescribes `"Remove the unavailable listing to check out remaining services."`
    - What's unclear: That copy implies services CAN check out independently after removing the car — true in code (CartContext supports car=null + items), but is the FE submit path tested for that branch?
    - Recommendation: Plan includes a Validation §edge case for "car removed → services-only checkout proceeds via existing handleSubmit." If existing handleSubmit doesn't gracefully handle car=null (line 54: `car: car ? {...} : null`), confirm backend `/api/orders` accepts that shape. Currently `/api/orders` is 410 Gone (deferred concern); flag at plan-discuss.
 
-5. **Should `MyOrdersScreen` get a tiny inline note (D-08 last sentence allows discretion)?**
+5. **[RESOLVED — D-08 discretion: defer to v1.2]** **Should `MyOrdersScreen` get a tiny inline note (D-08 last sentence allows discretion)?**
    - What we know: D-08 says "no banner, no badge, no behavior change" but allows "small inline note inside the order detail screen if it's a one-line change."
    - What's unclear: Is there an OrderDetailScreen, and is the note a one-line addition?
    - Recommendation: Audit during planning; if one line, add it; if it ripples into multiple screens, defer per D-08 to v1.2.
 
-6. **Severity icon picks for listing domain**
+6. **[RESOLVED — icon map locked in PATTERNS.md]** **Severity icon picks for listing domain**
    - What we know: User-domain uses `AlertTriangle / ShieldAlert / Ban` (UserStatusBanner.tsx:34).
    - What's unclear: Best icon for listing severities (warning/neutral/destructive)?
    - Recommendation: `AlertTriangle` (warning), `Archive` (neutral), `Ban` (destructive). Mirrors visual semantics; all available in `lucide-react-native`. Plan locks the map at module-scope.
