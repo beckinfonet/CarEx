@@ -107,7 +107,18 @@ Plans:
   4. Soft-deleted listings appear in an admin-only "Deleted listings" filter view with a per-row Recover action; default buyer browse hides them entirely
   5. A `409 listing_not_available` response surfaces as a UI banner on `CarDetailsScreen` (or cart) without triggering the user-suspension 403 interceptor or logging the admin out
 **UI hint**: yes
-**Plans**: TBD
+**Plans**: 10 plans
+Plans:
+- [ ] 10-01-PLAN.md — ListingModerationError sibling class + Wave-0 tests (LMOB-01, LMOB-02 substrate)
+- [ ] 10-02-PLAN.md — buildListingTitle pure helper + sentinel-match util (LUI-02 Pitfall 6 substrate)
+- [ ] 10-03-PLAN.md — Cross-repo backend: GET /api/admin/moderation/listings + Zod schema + service + tests (LUI-04 backend)
+- [ ] 10-04-PLAN.md — Extend ModerationService with 5 listing writes + searchListings read + anti-pattern guards (LMOB-01)
+- [ ] 10-05-PLAN.md — LMOB-02 interceptor non-regression tests + CarDetailsScreen axios.get → apiClient.get migration (LMOB-02, LUI-01)
+- [ ] 10-06-PLAN.md — ListingModerationBottomSheet (4 actions for active / Restore + chip for non-active) (LUI-01, LUI-02, LUI-03)
+- [ ] 10-07-PLAN.md — ListingModerationReasonModal + ListingRestoreModal + TypedConfirmationModal keyboardType prop (LUI-02, LUI-03)
+- [ ] 10-08-PLAN.md — CarDetailsScreen wiring: badge + status banner + error banner + optimistic-flip + Delete escalation (LUI-01, LUI-02, LUI-03, LMOB-02)
+- [ ] 10-09-PLAN.md — SellCarScreen adminEdit route flag: 4+ gate bypasses + endpoint swap to ModerationService.adminEditListing (LUI-02)
+- [ ] 10-10-PLAN.md — AdminModerationScreen Users|Listings tabs + Listings panel + per-row Recover (LUI-04)
 
 ### Phase 11: Buyer-affected UX + Quality + Security Review
 **Goal**: Non-admin buyers see a severity-aware banner explaining any non-active listing they encounter (detail screen + cart), already-paid orders proceed normally, all new strings ship with RU/EN parity enforced by jest, every LIST-* requirement is test-covered, and a `LIST-SECURITY.md` review clears the merge-gate
@@ -135,5 +146,5 @@ Plans:
 | 7. Listing Schema + Security Baseline | v1.1 | 0/6 | Planned | - |
 | 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
 | 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
-| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 0/? | Not started | - |
+| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 0/10 | Planned | - |
 | 11. Buyer-affected UX + Quality + Security Review | v1.1 | 0/? | Not started | - |
