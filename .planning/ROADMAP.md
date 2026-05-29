@@ -24,7 +24,7 @@
 - [ ] **Phase 7: Listing Schema + Security Baseline (Backend)** — Listing `status` field + audit collection + admin auth + rate limiting for listing moderation routes
 - [ ] **Phase 8: Admin Listing Moderation Endpoints (Backend)** — Five listing moderation endpoints (edit / suspend / archive / delete-soft / restore) each writing an audit row atomically
 - [ ] **Phase 9: Backend Read-time + TOCTOU Enforcement** — `pre(/^find/)` hide hooks on listings + status-aware listing-detail GET + cart-add + confirm-booking re-verification
-- [ ] **Phase 10: Mobile Plumbing + Admin Listing UI** — Five `ModerationService` methods + admin-only Moderate badge + bottom-sheet actions on `CarDetailsScreen` + Restore flow + admin Deleted-listings view (10/10 plans executed 2026-05-29; verification `gaps_found` — CR-01 + CR-04 block, see `10-VERIFICATION.md`)
+- [ ] **Phase 10: Mobile Plumbing + Admin Listing UI** — Five `ModerationService` methods + admin-only Moderate badge + bottom-sheet actions on `CarDetailsScreen` + Restore flow + admin Deleted-listings view (10/10 plans executed 2026-05-29; 2 gap-closure plans 10-11 + 10-12 added 2026-05-29 to close CR-01 + CR-04, see `10-VERIFICATION.md`)
 - [ ] **Phase 11: Buyer-affected UX + Quality + Security Review** — Severity-aware banner on listing detail + cart banner + RU/EN parity + jest coverage + `LIST-SECURITY.md` merge-gate review
 
 ### 📋 Next Milestone (after v1.1)
@@ -107,7 +107,7 @@ Plans:
   4. Soft-deleted listings appear in an admin-only "Deleted listings" filter view with a per-row Recover action; default buyer browse hides them entirely
   5. A `409 listing_not_available` response surfaces as a UI banner on `CarDetailsScreen` (or cart) without triggering the user-suspension 403 interceptor or logging the admin out
 **UI hint**: yes
-**Plans**: 10 plans
+**Plans**: 12 plans (10 initial + 2 gap-closure)
 Plans:
 **Wave 1**
 - [x] 10-01-PLAN.md — ListingModerationError sibling class + Wave-0 tests (LMOB-01, LMOB-02 substrate)
@@ -128,6 +128,8 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 - [x] 10-10-PLAN.md — AdminModerationScreen Users|Listings tabs + Listings panel + per-row Recover (LUI-04)
+- [ ] 10-11-PLAN.md — Gap closure CR-01: TypedConfirmationModal bodyKey/hintKey/placeholderKey override props + listing-delete RU+EN strings + CarDetailsScreen mount swap (LUI-02)
+- [ ] 10-12-PLAN.md — Gap closure CR-04: always-fetch-when-isAdmin gate change + regression test for carData-prefilled admin entry (LUI-01, LUI-03)
 
 ### Phase 11: Buyer-affected UX + Quality + Security Review
 **Goal**: Non-admin buyers see a severity-aware banner explaining any non-active listing they encounter (detail screen + cart), already-paid orders proceed normally, all new strings ship with RU/EN parity enforced by jest, every LIST-* requirement is test-covered, and a `LIST-SECURITY.md` review clears the merge-gate
@@ -155,5 +157,5 @@ Plans:
 | 7. Listing Schema + Security Baseline | v1.1 | 0/6 | Planned | - |
 | 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
 | 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
-| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 10/10 | Gaps found (CR-01, CR-04) | - |
+| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 10/12 (gap closure pending) | Gaps found (CR-01, CR-04); 2 gap plans added | - |
 | 11. Buyer-affected UX + Quality + Security Review | v1.1 | 0/? | Not started | - |
