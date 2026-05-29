@@ -139,7 +139,7 @@ async function switchToListingsTab(tree: TestRenderer.ReactTestRenderer) {
 
 // ---- Tests ----
 
-describe('AdminModerationScreen — Users|Listings tabs (Plan 10-10)', () => {
+describe('LUI-04: AdminModerationScreen — Users|Listings tabs (Plan 10-10)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (ModerationService.searchUsers as jest.Mock).mockResolvedValue({
