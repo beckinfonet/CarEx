@@ -119,10 +119,12 @@ export const CarDetailsScreen = () => {
     checkFavoriteStatus();
   }, [carId]);
 
-  // Fetch car from API when opened via deep link (no carData)
+  // Fetch car from API when opened via deep link (no carData) OR when viewer is admin
+  // (admin always needs the Phase 9 D-07 `moderationBadge` payload — see Plan 10-12 CR-04 fix).
+  // Non-admin viewers with prefilled carData skip the fetch (existing fast-path preserved).
   useEffect(() => {
     const existingCar = CARS.find(c => c.id === carId) || (route.params as any).carData;
-    if (carId && !existingCar) {
+    if (carId && (!existingCar || isAdmin)) {
       setCarLoading(true);
       // Plan 10-05 / RESEARCH §Assumption A6: use the shared apiClient so the
       // request interceptor (Phase 4 D-02) attaches the Bearer header.
@@ -157,7 +159,7 @@ export const CarDetailsScreen = () => {
         .catch(() => setFetchedCar(null))
         .finally(() => setCarLoading(false));
     }
-  }, [carId]);
+  }, [carId, isAdmin]);
 
   // Fetch seller profile (name, avatar) when car has sellerId
   useEffect(() => {
