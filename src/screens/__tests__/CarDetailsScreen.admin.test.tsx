@@ -17,7 +17,7 @@
 
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { TouchableOpacity, Alert } from 'react-native';
+import { Alert } from 'react-native';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -222,10 +222,6 @@ async function mount() {
   });
   await settle();
   return tree!;
-}
-
-function findByTestID(root: TestRenderer.ReactTestInstance, testID: string) {
-  return root.findAllByProps({ testID }).find((n) => typeof n.type !== 'string' || true);
 }
 
 function findAllByTestID(root: TestRenderer.ReactTestInstance, testID: string) {

@@ -38,3 +38,24 @@ present" + "listing-domain methods exactly present" pair). Note that the
 "exactly 14 methods" or two grouped assertions.
 
 **Action:** owner of Plan 10-04 (or Phase 10 verifier) to amend.
+
+---
+
+## DEF-10-08-01: `__tests__/App.test.tsx` fails with React Navigation `usesNewAndroidHeaderHeightImplementation` undefined error
+
+**Discovered during:** Plan 10-08 (Task 2 full mobile suite regression check — `npm test`)
+**Status:** pre-existing — confirmed via `git stash` baseline check on commit `eaed0e1` (one commit BEFORE any Plan 10-08 edits to CarDetailsScreen.tsx). Failure exists on main pre-edit; not caused by this plan.
+
+**Test:** `__tests__/App.test.tsx > renders correctly`
+
+**Failure:**
+```
+TypeError: Cannot use 'in' operator to search for 'usesNewAndroidHeaderHeightImplementation' in undefined
+  at SceneView (node_modules/@react-navigation/native-stack/src/views/NativeStackView.native.tsx:222:47)
+```
+
+**Root cause (best guess):** `@react-navigation/native-stack` 7.11.0 added a new platform-detection check (`usesNewAndroidHeaderHeightImplementation`) that expects a native module to be defined; the test environment doesn't have the native binding mocked. Likely needs an addition to `jest.setup.ts` to stub the native module, or a mock for `@react-navigation/native-stack`.
+
+**Scope:** out of scope for Plan 10-08. Plan 10-08's source changes are scoped to `src/screens/CarDetailsScreen.tsx`; the test mounts `App` which sits above the navigation stack. The failure cannot have been introduced by this plan and persists when Plan 10-08's edits are stashed.
+
+**Action:** Phase 10 verifier or Phase 11 LQUAL-* cleanup to amend the test setup (likely a `jest.mock('react-native', () => ({...}))` extension for the native header module).
