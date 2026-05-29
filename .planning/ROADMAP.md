@@ -77,7 +77,7 @@ Plans:
 - [x] 08-02-PLAN.md — Suspend endpoint: PATCH /:carId/suspend + KNOWN_LISTING_ERRORS + handleListingServiceError + suspendListing.test.js (LADM-02)
 - [x] 08-03-PLAN.md — Archive endpoint: PATCH /:carId/archive + archiveListing.test.js (LADM-03)
 - [x] 08-04-PLAN.md — Delete-soft endpoint: PATCH /:carId/delete with soft-delete invariant (LADM-04)
-- [ ] 08-05-PLAN.md — Restore endpoint: PATCH /:carId/restore with clear-on-restore + not_moderated distinct code (LADM-05)
+- [x] 08-05-PLAN.md — Restore endpoint: PATCH /:carId/restore with clear-on-restore + not_moderated distinct code (LADM-05)
 - [ ] 08-06-PLAN.md — Edit endpoint: PATCH /:carId multipart + fieldDiff + makeId/modelId validation + D-A-3 stamp distinction (LADM-01)
 
 ### Phase 9: Backend Read-time + TOCTOU Enforcement

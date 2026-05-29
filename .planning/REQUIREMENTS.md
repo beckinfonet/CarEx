@@ -28,7 +28,7 @@ Requirements for milestone v1.1. Each maps to exactly one roadmap phase.
 - [x] **LADM-02**: Admin can Suspend a listing (`PATCH /api/admin/moderation/listings/:carId/suspend`) with a reason category + optional note, in a single Mongoose transaction; status transitions `active → suspended`
 - [x] **LADM-03**: Admin can Archive a listing (`PATCH /api/admin/moderation/listings/:carId/archive`) with a reason category + optional note; status transitions `active → archived`. Archive is semantically distinct from Suspend (non-punitive, for inactive sellers)
 - [x] **LADM-04**: Admin can Soft-Delete a listing (`PATCH /api/admin/moderation/listings/:carId/delete`) with a reason category + optional note; status transitions to `deleted`. Does NOT remove the document from the database
-- [ ] **LADM-05**: Admin can Restore any non-active listing (`PATCH /api/admin/moderation/listings/:carId/restore`) back to `status: 'active'`; a new audit row is appended (history is never edited or rewritten)
+- [x] **LADM-05**: Admin can Restore any non-active listing (`PATCH /api/admin/moderation/listings/:carId/restore`) back to `status: 'active'`; a new audit row is appended (history is never edited or rewritten)
 
 ### Backend Enforcement
 
@@ -103,7 +103,7 @@ Updated by `gsd-roadmapper` during roadmap creation.
 | LADM-02 | Phase 8 | Complete |
 | LADM-03 | Phase 8 | Complete |
 | LADM-04 | Phase 8 | Complete |
-| LADM-05 | Phase 8 | Pending |
+| LADM-05 | Phase 8 | Complete |
 | LENF-01 | Phase 9 | Pending |
 | LENF-02 | Phase 9 | Pending |
 | LENF-03 | Phase 9 | Pending |

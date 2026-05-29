@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin Listing Moderation
 status: executing
-stopped_at: Phase 8 Plan 04 (LADM-04 Delete-soft endpoint) complete; ready to execute Plan 05 (LADM-05 Restore)
-last_updated: "2026-05-29T00:29:30.000Z"
+stopped_at: Phase 8 Plan 05 (LADM-05 Restore endpoint) complete; ready to execute Plan 06 (LADM-01 Edit endpoint — Phase 8 closer)
+last_updated: "2026-05-29T00:39:20.000Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 12
-  completed_plans: 11
+  total_plans: 13
+  completed_plans: 12
   percent: 92
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 08 (admin-listing-moderation-endpoints-backend) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-05-29
 
@@ -39,7 +39,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 | backend-load-test | Plan 06-0a (10k-user seed) | deferred by operator 2026-04-19 |
 | backend-load-test | Plan 06-0b (k6 harness with P95<200ms) | deferred by operator 2026-04-19 |
 | ux-followup | UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 06 03 styling) | captured 2026-04-30 during Phase 04 UAT — to be addressed in next milestone |
-Last activity: 2026-05-29 - Completed Phase 8 Plan 04 (LADM-04 Delete-soft endpoint)
+Last activity: 2026-05-29 - Completed Phase 8 Plan 05 (LADM-05 Restore endpoint)
 Resume file: None
 
 Progress: [█████████░] 92%
@@ -103,6 +103,7 @@ Progress: [█████████░] 92%
 | Phase 08 P02 | 3m23s | 3 tasks | 3 files |
 | Phase 08 P03 | 2m39s | 3 tasks | 3 files |
 | Phase 08 P04 | 3m50s | 3 tasks | 3 files |
+| Phase 08 P05 | 3m49s | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -284,6 +285,14 @@ Recent decisions affecting current work:
 - [Phase 08]: Plan 08-04: Inline header comment rephrased to avoid literal API token strings — plan's verify script is a literal grep that does not distinguish source comments from runtime code. Rephrased "Car.deleteOne / Car.deleteMany / Car.findOneAndDelete" to "any of Mongoose's document-removal APIs on the Car model (the *.delete*One, *.delete*Many, *.findOne*AndDelete family)". Prescriptive intent preserved; grep gate satisfied. Documented as deviation in SUMMARY
 - [Phase 08]: Plan 08-04: Cross-state suspended→delete + archived→delete tests landed — completes D-B open-matrix proof across all three Wave-2 transition labels (Plan 08-02 covered archived/deleted→suspend; Plan 08-03 covered suspended/deleted→archive; this plan covers suspended/archived→delete). Catalog uses 'spam'/'fraud'/'policy_violation' reasonCategories to exercise all three punitive enum values
 - [Phase 08]: Plan 08-04: TDD task ordering pivot (third consecutive in Phase 8) — service-body/router/tests author-order pivoted to RED test → GREEN service → router substrate. Mandatory under MVP+TDD gate when tdd="true" set on behavior-adding tasks
+- [Phase 08]: Plan 08-05: restoreListing body is the fourth substitution mirror of canonical Phase-8 pattern, with FIVE intentional Restore-specific divergences locked in source + grep + test layers — (1) signature has NO reasonCategory parameter (D-C body shape); (2) same-state guard throws not_moderated NOT already_in_state (Pitfall 10); (3) audit row reasonCategory: null (D-C); (4) Car $set CLEARS moderationReason + moderationNote to null (D-C-1); (5) Car $set UPDATES moderatedBy + moderatedAt to the restoring admin (D-C-2). Canonical pattern now proven to generalize across all four state-transition labels
+- [Phase 08]: Plan 08-05: LADM-05 history-preservation invariant locked at TWO independent layers — schema-layer (Phase 7's 6 append-only pre-hooks on ListingModerationAction prevent any in-handler bug from editing prior rows) AND test-layer (Test 5 seeds one prior audit row via collection.insertOne, captures _id from insertOne result, runs Restore, then asserts the original _id round-trips byte-identical post-Restore AND countDocuments({listingId}) === 2). Any future refactor introducing in-place audit updates trips Test 5 immediately (action would change OR countDocuments would drop)
+- [Phase 08]: Plan 08-05: Inline rationale comments inside restoreListing function body rephrased to avoid the literal 'already_in_state' token — plan's verify script is a literal grep forbidding that token anywhere in the restoreListing body (Pitfall 10 grep-lock against accidental cross-action no-op use). Rephrased two comment blocks to use 'the cross-action no-op code' descriptor. Same Rule 1 trade-off Plan 08-04 made for its LADM-04 soft-delete comment block — preserve gate machine-checkability over verbatim prose. Documented as deviation in SUMMARY
+- [Phase 08]: Plan 08-05: D-C body-shape invariant locked at THREE layers — (1) Plan 08-01 schema (restoreListingSchema is .strict() with only { note? }; Zod rejects reasonCategory as unrecognized_keys); (2) Plan 08-05 service signature destructures only { adminUid, adminEmail, carId, note }; (3) Plan 08-05 router dispatch object passes only those four named keys (no reasonCategory). Defense-in-depth: regression at any one layer caught by the next
+- [Phase 08]: Plan 08-05: Test 1 happy-path asserts moderatedAt.getTime() !== priorTimestamp.getTime() — locks D-C-2 (fresh Date stamp). Without this assertion, a regression that preserves the prior moderatedAt value alongside flipping moderationReason/moderationNote to null would silently pass the other assertions
+- [Phase 08]: Plan 08-05: Three explicit happy-path tests (suspended/archived/deleted → active) over test.each — plan's <action> allowed author discretion ("loop with test.each or three explicit tests"); explicit form gives diagnostic clarity on failure. Deleted → active test specifically locks the Plan 08-04 soft-delete invariant interlock (a Car at status='deleted' is both findable AND restorable). Total restoreListing.test.js: 7 tests (matches plan floor)
+- [Phase 08]: Plan 08-05: Router NO multer addition + NO KNOWN_LISTING_ERRORS amendment — Plan 08-02's foresight (registering all 10 Wave 2/3 codes upfront) paid off for the fourth consecutive Wave-2 plan; Restore's three error codes (listing_not_found / not_moderated / cannot_moderate_own_listing) all pre-registered. grep -c "upload.array" still 0 (D-D-1 lock preserved)
+- [Phase 08]: Plan 08-05: TDD task ordering pivot (fourth consecutive in Phase 8) — author-order service→router→tests pivoted to RED test → GREEN service → router substrate. Mandatory under MVP+TDD gate when tdd="true" set on behavior-adding tasks. Phase 8 pattern is now stable across four plans
 
 ### Pending Todos
 
@@ -324,6 +333,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-05-29T00:29:30.000Z
-Stopped at: Phase 8 Plan 04 (LADM-04 Delete-soft endpoint) complete; ready to execute Plan 05 (LADM-05 Restore)
+Last session: 2026-05-29T00:39:20.000Z
+Stopped at: Phase 8 Plan 05 (LADM-05 Restore endpoint) complete; ready to execute Plan 06 (LADM-01 Edit endpoint — Phase 8 closer)
 Resume file: None
