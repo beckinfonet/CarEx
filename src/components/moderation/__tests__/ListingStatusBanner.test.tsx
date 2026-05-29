@@ -13,7 +13,7 @@
 
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { Text, Pressable } from 'react-native';
+import { Text } from 'react-native';
 import { ListingStatusBanner } from '../ListingStatusBanner';
 import {
   F2_suspendedSpam,
