@@ -64,7 +64,7 @@ afterAll(() => {
   (global as any).FormData = realFormData;
 });
 
-describe('ModerationService listing methods (Plan 10-04)', () => {
+describe('LMOB-01: ModerationService listing methods (Plan 10-04)', () => {
   beforeEach(() => {
     mockedApiClient.post.mockReset();
     mockedApiClient.patch.mockReset();
