@@ -43,6 +43,7 @@ const SCAN_FILES = [
   'src/components/moderation/UserStatusBanner.tsx',
   'src/components/moderation/FeatureGateOverlay.tsx',
   'src/components/moderation/GatedScreenWrapper.tsx',
+  'src/components/moderation/ListingStatusBanner.tsx',  // Phase 11 LQUAL-01 (D-09): banner copy fully encapsulated; CarDetailsScreen.tsx + ServiceCartScreen.tsx deliberately NOT added per Pitfall 12.
 ];
 
 // Tokens that are legitimate to appear as a <Text> child without translation.
@@ -80,7 +81,7 @@ function scanFile(absPath: string): Array<{ line: number; literal: string }> {
   return offenders;
 }
 
-describe('QUAL-01: moderation components — no untranslated literals', () => {
+describe('QUAL-01 / LQUAL-01: moderation components — no untranslated literals', () => {
   for (const relPath of SCAN_FILES) {
     test(`${relPath} contains no user-facing <Text> literals outside t.*`, () => {
       const absPath = path.resolve(__dirname, '..', relPath);
