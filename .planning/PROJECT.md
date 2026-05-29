@@ -167,4 +167,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-29 — v1.1 Phase 9 (backend read-time + TOCTOU enforcement) complete*
+*Last updated: 2026-05-29 — v1.1 Phase 11 (buyer-affected UX + quality + security review) complete; v1.1 milestone fully executed, ready for ship/cut*
