@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin Listing Moderation
-status: verifying
-stopped_at: Completed 10-10-PLAN.md
+status: gaps_found
+stopped_at: Phase 10 verification — gaps_found (CR-01 modal copy, CR-04 fetchedCar gate); run /gsd-plan-phase 10 --gaps
 last_updated: "2026-05-29T11:37:40.662Z"
 last_activity: 2026-05-29
 progress:
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 ## Current Position
 
-Phase: 10 (mobile-plumbing-admin-listing-ui) — EXECUTING
-Plan: 10 of 10
-Status: Phase complete — ready for verification
+Phase: 10 (mobile-plumbing-admin-listing-ui) — GAPS FOUND
+Plan: 10 of 10 executed
+Status: 2 blockers from VERIFICATION.md — CR-01 (delete modal copy reuses account-deletion strings) + CR-04 (admin moderation surface inert when CarDetails receives carData via route params). CR-02 (RU i18n) + CR-03 (buyer CTA status gate) deferred to Phase 11 per LQUAL/LBUY scope.
 Last activity: 2026-05-29
 
 ## Deferred Items
