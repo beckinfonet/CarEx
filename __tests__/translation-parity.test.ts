@@ -30,7 +30,8 @@ function leafStrings(val: unknown): string[] {
   return [];
 }
 
-describe('QUAL-01: translation parity', () => {
+// describe ID covers both the original Phase 6 QUAL-01 substrate and the Phase 11 LQUAL-01 extension; coverage manifest (Plan 11-07) reads both.
+describe('QUAL-01 / LQUAL-01: translation parity', () => {
   const ru = Object.keys((TRANSLATIONS as any).RU).sort();
   const en = Object.keys((TRANSLATIONS as any).EN).sort();
 
@@ -72,5 +73,41 @@ describe('QUAL-01: translation parity', () => {
         }
       }
     }
+  });
+
+  test('LQUAL-01: placeholder tokens are identical across RU and EN for every key', () => {
+    // D-09 (c): if RU has `{title}` for a key, EN must have `{title}` for the same key.
+    // Per Pitfall 7: same-set semantics PASS; differing-set FAILS as a real bug.
+    const PLACEHOLDER = /\{([a-zA-Z][a-zA-Z0-9]*)\}/g;
+    function extract(value: unknown): Set<string> {
+      const set = new Set<string>();
+      const visit = (v: unknown) => {
+        if (typeof v === 'string') {
+          let m;
+          PLACEHOLDER.lastIndex = 0;
+          while ((m = PLACEHOLDER.exec(v)) !== null) set.add(m[1]);
+        } else if (Array.isArray(v)) v.forEach(visit);
+      };
+      visit(value);
+      return set;
+    }
+    const ruObj = (TRANSLATIONS as any).RU;
+    const enObj = (TRANSLATIONS as any).EN;
+    const mismatches: Array<{ key: string; ru: string[]; en: string[] }> = [];
+    for (const key of Object.keys(ruObj)) {
+      const ruTokens = extract(ruObj[key]);
+      const enTokens = extract(enObj[key]);
+      if (
+        ruTokens.size !== enTokens.size ||
+        [...ruTokens].some((tok) => !enTokens.has(tok))
+      ) {
+        mismatches.push({
+          key,
+          ru: [...ruTokens].sort(),
+          en: [...enTokens].sort(),
+        });
+      }
+    }
+    expect(mismatches).toEqual([]);
   });
 });
