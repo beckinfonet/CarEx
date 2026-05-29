@@ -4,14 +4,14 @@ milestone: v1.1
 milestone_name: Admin Listing Moderation
 status: executing
 stopped_at: Phase 10 context gathered
-last_updated: "2026-05-29T09:48:05.957Z"
+last_updated: "2026-05-29T09:57:19.282Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 27
-  completed_plans: 20
-  percent: 74
+  completed_plans: 21
+  percent: 78
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 10 (mobile-plumbing-admin-listing-ui) — EXECUTING
-Plan: 4 of 10
+Plan: 5 of 10
 Status: Ready to execute
 Last activity: 2026-05-29
 
@@ -42,7 +42,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 Last activity: 2026-05-29 - Completed Phase 8 Plan 05 (LADM-05 Restore endpoint)
 Resume file: None
 
-Progress: [███████░░░] 74%
+Progress: [████████░░] 78%
 
 ## Performance Metrics
 
@@ -109,6 +109,7 @@ Progress: [███████░░░] 74%
 | Phase 10 P01 | ~5min | 3 tasks | 2 files |
 | Phase 10 P02 | 1m37s | 2 tasks | 2 files |
 | Phase 10 P03 | 8m0s | 3 tasks (+1 auto-fix) tasks | 4 files files |
+| Phase 10 P04 | 4m20s | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -315,6 +316,8 @@ Recent decisions affecting current work:
 - [Phase 10]: Plan 10-03: Invalid cursor returns 200 + empty rows + null nextCursor (not 400) — diverges from user-search at admin/router.js:113-115 which fails loud with invalid_cursor. Stale mobile cursor pointing at a hard-deleted row should not break the admin list. Block 8 tests lock this.
 - [Phase 10]: Plan 10-03: [Rule 1 auto-fix] Chained BOTH includeAllListingStatuses AND includeAllUsers on Car.find — plan literal said deliberately NOT includeAllUsers, but Phase 3 seller-cascade hook unconditionally calls mongoose.model('User') (throws MissingSchemaError in narrow tests) AND admin moderation needs visibility on listings whose seller is moderated (cleanup workflow). Matches the Phase 8 admin-handler convention.
 - [Phase 10]: Plan 10-03: PII whitelist for q substring is 3 fields ONLY — makeName (case-insensitive substring), modelName (case-insensitive substring), listingId (PREFIX). description/phoneNumber/telegramUsername/email NEVER searched. Block 6 seeds unique_telltale_string_xyz/555-0101/secret_handle and asserts each probe returns 0 rows. T-10-03 mitigation locked at the behavior level.
+- [Phase ?]: [Phase 10]: Plan 10-04: ModerationService extended with 5 listing write methods (adminEditListing, suspendListing, archiveListing, deleteListing, restoreListing) + searchListings read + toListingModerationError helper. Write methods wrap axios 4xx into ListingModerationError; searchListings re-throws raw so 500-class bugs surface to screen EmptyState (RESEARCH 916-921). Multipart adminEditListing uses structured input + explicit Content-Type header (Pitfall 9).
+- [Phase ?]: [Phase 10]: Plan 10-04: Anti-pattern guardrails locked at filesystem level inside listingMethods.test.ts — 3 fs.readFileSync assertions verify AuthService.ts has 0 listing-mod names, http/client.ts keeps exactly 2 interceptors (no third for listing errors per T-10-02), and ModerationError class block in errors.ts has 0 listing codes (sibling discipline duplicated across Plans 10-01 + 10-04 for double lock).
 
 ### Pending Todos
 
@@ -355,6 +358,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-05-29T09:44:29.549Z
+Last session: 2026-05-29T09:57:08.466Z
 Stopped at: Phase 10 context gathered
 Resume file: None

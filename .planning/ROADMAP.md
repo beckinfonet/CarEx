@@ -115,7 +115,7 @@ Plans:
 - [x] 10-03-PLAN.md — Cross-repo backend: GET /api/admin/moderation/listings + Zod schema + service + tests (LUI-04 backend)
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 10-04-PLAN.md — Extend ModerationService with 5 listing writes + searchListings read + anti-pattern guards (LMOB-01)
+- [x] 10-04-PLAN.md — Extend ModerationService with 5 listing writes + searchListings read + anti-pattern guards (LMOB-01)
 - [ ] 10-05-PLAN.md — LMOB-02 interceptor non-regression tests + CarDetailsScreen axios.get → apiClient.get migration (LMOB-02, LUI-01)
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -155,5 +155,5 @@ Plans:
 | 7. Listing Schema + Security Baseline | v1.1 | 0/6 | Planned | - |
 | 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
 | 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
-| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 3/10 | In Progress|  |
+| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 4/10 | In Progress|  |
 | 11. Buyer-affected UX + Quality + Security Review | v1.1 | 0/? | Not started | - |
