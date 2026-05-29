@@ -8,8 +8,7 @@ the plan that found them. Each entry includes who must address it.
 ## DEF-10-05-01: `__tests__/moderation.e2e.integration.test.tsx` Test 1.2 stale assertion
 
 **Discovered during:** Plan 10-05 (Task 2 regression check — `npx jest --bail`)
-**Status:** pre-existing failure on `main` BEFORE Plan 10-05 changes (verified
-via `git stash` + re-run; reproduces with zero local changes)
+**Status:** RESOLVED 2026-05-29 — commit 3cfa9d1 expanded the assertion to 14 methods (8 user-mod + 6 listing-mod). Test now green.
 **Test:** `Phase 4 Integration: Success-Criterion Coverage › ROADMAP Criterion #1 › Test 1.2: ModerationService exposes exactly the 8 methods from 04-CONTEXT D-05 + Plan 05-03`
 
 **Root cause:** Plan 10-04 added 6 listing methods to `ModerationService`
