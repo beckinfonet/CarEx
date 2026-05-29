@@ -21,7 +21,33 @@ const MANIFEST_PATH = path.join(
   '11-buyer-affected-ux-quality-security-review',
   '11-COVERAGE.md',
 );
-const BACKEND_PATH = path.resolve(REPO_ROOT, '..', 'backend-services', 'carEx-services', '__tests__');
+
+// Anchor the sibling backend off the MAIN repo root (worktree-aware), matching
+// the script's own resolution. `git rev-parse --git-common-dir` returns the
+// worktree's git-dir for a normal checkout and the main repo's git-dir
+// (.git/worktrees/<id>'s grandparent) when run from a worktree.
+function resolveMainRepoRoot(): string {
+  try {
+    const commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+    }).trim();
+    // common-dir may be relative; resolve against REPO_ROOT.
+    const absCommonDir = path.isAbsolute(commonDir)
+      ? commonDir
+      : path.resolve(REPO_ROOT, commonDir);
+    // For `…/.git` it's the main repo's git-dir; parent IS main repo root.
+    if (absCommonDir.endsWith('/.git')) {
+      return path.dirname(absCommonDir);
+    }
+    return REPO_ROOT;
+  } catch {
+    return REPO_ROOT;
+  }
+}
+
+const MAIN_REPO_ROOT = resolveMainRepoRoot();
+const BACKEND_PATH = path.resolve(MAIN_REPO_ROOT, '..', 'backend-services', 'carEx-services', '__tests__');
 
 describe('LQUAL-02: per-requirement coverage manifest self-audit', () => {
   test('generator script exists and is executable', () => {
