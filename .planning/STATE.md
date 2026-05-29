@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin Listing Moderation
-status: milestone_complete
+status: "v1.1 shipped — PR #3"
 stopped_at: Phase 11 context gathered
-last_updated: "2026-05-29T17:33:00.455Z"
-last_activity: 2026-05-29 -- Phase 11 execution started
+last_updated: "2026-05-29T21:33:46.151Z"
+last_activity: 2026-05-29
 progress:
   total_phases: 5
   completed_phases: 5
   total_plans: 37
-  completed_plans: 29
+  completed_plans: 37
   percent: 100
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 Phase: 11
 Plan: Not started
-Status: Milestone complete
+Status: v1.1 shipped — PR #3
 Last activity: 2026-05-29
 
 ## Deferred Items
