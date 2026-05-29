@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 Phase: 11 (buyer-affected-ux-quality-security-review) — EXECUTING
 Plan: 1 of 8
 Status: Executing Phase 11
-Last activity: 2026-05-29 -- Phase 11 execution started
+Last activity: 2026-05-29 - Completed quick task 260529-jqv: Fix Android ScreenFragment restore crash
 
 ## Deferred Items
 
@@ -373,6 +373,7 @@ None yet.
 | 260528-evg | Add v1 MakeModelFilterBar dropdown picker + Android hardware back handler to SearchResultsV2 (preserves chevron-back; user keeps dedicated search page for future paid/refined search) | 2026-05-28 | cd56521 | [260528-evg-add-makemodelfilterbar-android-back-hand](./quick/260528-evg-add-makemodelfilterbar-android-back-hand/) |
 | 260528-h2r | Home V2 polish: marginBottom on V2InviteBanner + smart greeting subject (firstName + IANA-timezone-derived city, four fallback states) | 2026-05-28 | fae3744 | [260528-h2r-home-v2-polish-banner-margin-smart-greet](./quick/260528-h2r-home-v2-polish-banner-margin-smart-greet/) |
 | 260528-hmt | Rotating playful greeting + headline variants on HomeScreenV2 (80 strings: 10 per slot × 8 slots; triggers: refresh, focus, AppState active; random no-back-to-back) | 2026-05-28 | fadf376 | [260528-hmt-rotate-playful-greeting-and-headline-var](./quick/260528-hmt-rotate-playful-greeting-and-headline-var/) |
+| 260529-jqv | Fix Android crash "Screen fragments should never be restored" — override MainActivity.onCreate to super.onCreate(null) (Play Store crash, 13% of v49/1.0.48; native-only, requires new release build to ship) | 2026-05-29 | 6d3f59c | [260529-jqv-fix-android-screenfragment-restore-crash](./quick/260529-jqv-fix-android-screenfragment-restore-crash/) |
 
 ## Deferred Items
 
