@@ -25,7 +25,7 @@
 - [ ] **Phase 8: Admin Listing Moderation Endpoints (Backend)** — Five listing moderation endpoints (edit / suspend / archive / delete-soft / restore) each writing an audit row atomically
 - [ ] **Phase 9: Backend Read-time + TOCTOU Enforcement** — `pre(/^find/)` hide hooks on listings + status-aware listing-detail GET + cart-add + confirm-booking re-verification
 - [x] **Phase 10: Mobile Plumbing + Admin Listing UI** — Five `ModerationService` methods + admin-only Moderate badge + bottom-sheet actions on `CarDetailsScreen` + Restore flow + admin Deleted-listings view (10/10 plans executed 2026-05-29; 2 gap-closure plans 10-11 + 10-12 added 2026-05-29 to close CR-01 + CR-04, see `10-VERIFICATION.md`) (completed 2026-05-29)
-- [ ] **Phase 11: Buyer-affected UX + Quality + Security Review** — Severity-aware banner on listing detail + cart banner + RU/EN parity + jest coverage + `LIST-SECURITY.md` merge-gate review
+- [x] **Phase 11: Buyer-affected UX + Quality + Security Review** — Severity-aware banner on listing detail + cart banner + RU/EN parity + jest coverage + `LIST-SECURITY.md` merge-gate review (completed 2026-05-29)
 
 ### 📋 Next Milestone (after v1.1)
 
@@ -178,4 +178,4 @@ Plans:
 | 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
 | 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
 | 10. Mobile Plumbing + Admin Listing UI | v1.1 | 12/12 | Complete   | 2026-05-29 |
-| 11. Buyer-affected UX + Quality + Security Review | v1.1 | 7/8 | In Progress|  |
+| 11. Buyer-affected UX + Quality + Security Review | v1.1 | 8/8 | Complete   | 2026-05-29 |
