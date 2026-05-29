@@ -24,14 +24,37 @@ Convention: every \`describe('LXXX-NN: …')\` block tags its covering requireme
 EOF
 
 # Per Pitfall 10 + Assumption A5 — backend path is the MEMORY.md sibling location.
-# Script is intended to run from the mobile repo root (where ../backend-services/ resolves).
+# Script is intended to run from the mobile repo root, but it also works from a
+# git worktree: we resolve the sibling backend repo relative to the main repo's
+# common git-dir (so deeply-nested worktrees still find it).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Walk up from scripts/ to find the mobile-repo root. Prefer git common-dir
+# (worktree-safe); fall back to script-parent directory.
+MAIN_REPO_ROOT="$(git --git-dir="$(git rev-parse --git-common-dir 2>/dev/null)" rev-parse --show-toplevel 2>/dev/null || echo "$SCRIPT_DIR/..")"
+# In worktree contexts, --show-toplevel returns the worktree root, not the main
+# repo root. Detect and adjust: when git-common-dir resolves to a path ending
+# in /.git rather than /.git/worktrees/<id>, --show-toplevel above is correct.
+# When it ends in /.git/worktrees/<id>, the common-dir parent IS the main repo.
+GIT_COMMON_DIR="$(git rev-parse --git-common-dir 2>/dev/null || echo "")"
+if [ -n "$GIT_COMMON_DIR" ] && [ -d "$GIT_COMMON_DIR" ]; then
+  case "$GIT_COMMON_DIR" in
+    */.git)
+      MAIN_REPO_ROOT="$(cd "$GIT_COMMON_DIR/.." && pwd)"
+      ;;
+    */.git/*)
+      # Pathological — shouldn't happen for common-dir; leave default
+      ;;
+  esac
+fi
+BACKEND_TESTS_ABS="${MAIN_REPO_ROOT}/../backend-services/carEx-services/__tests__"
+
 TEST_DIRS=(
   "__tests__"
   "src/components/moderation/__tests__"
   "src/screens/__tests__"
   "src/services/moderation/__tests__"
   "src/services/http/__tests__"
-  "../backend-services/carEx-services/__tests__"
+  "$BACKEND_TESTS_ABS"
 )
 
 # Parallel-arrays approach (bash 3.2 compatible — macOS default).
@@ -51,8 +74,18 @@ for dir in "${TEST_DIRS[@]}"; do
     # Phase 6 substrate is NOT a LIST-* ID and must not claim LIST-* coverage.
     ids=$(echo "$rest" | grep -oE "L(BUY|QUAL|MOB|UI|ADM|DATA|ENF|SEC)-[0-9]+" | sort -u)
     [ -z "$ids" ] && continue
-    # Normalize path relative to cwd when possible (GNU-only flag — fallback retained).
-    rel=$(realpath --relative-to=. "$file" 2>/dev/null || echo "$file")
+    # Normalize path so output is stable regardless of cwd: render backend test
+    # files as `../backend-services/carEx-services/__tests__/...` (anchored at
+    # the main repo root) and mobile test files as repo-root-relative paths.
+    case "$file" in
+      "$BACKEND_TESTS_ABS"/*)
+        suffix="${file#$BACKEND_TESTS_ABS/}"
+        rel="../backend-services/carEx-services/__tests__/${suffix}"
+        ;;
+      *)
+        rel=$(realpath --relative-to="$MAIN_REPO_ROOT" "$file" 2>/dev/null || echo "$file")
+        ;;
+    esac
     for id in $ids; do
       key="${id}|${rel}"
       # Dedupe per (ID, file) pair.
@@ -102,7 +135,7 @@ done
 echo ""
 echo "## Coverage check"
 echo ""
-ALL_LIST_IDS=$(grep -oE 'L(BUY|QUAL|MOB|UI|ADM|DATA|ENF|SEC)-[0-9]+' .planning/REQUIREMENTS.md | sort -u)
+ALL_LIST_IDS=$(grep -oE 'L(BUY|QUAL|MOB|UI|ADM|DATA|ENF|SEC)-[0-9]+' "${MAIN_REPO_ROOT}/.planning/REQUIREMENTS.md" | sort -u)
 missing_count=0
 for id in $ALL_LIST_IDS; do
   found=0
