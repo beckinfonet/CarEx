@@ -478,6 +478,11 @@ export const TRANSLATIONS = {
     typedConfirmWarningBodyDelete: 'Профиль провайдера будет удалён навсегда. История заказов сохранится.',
     typedConfirmWarningBodyRevoke: 'Пользователь потеряет роль. Прошлые записи сохранятся, но роль больше не будет отображаться.',
     typedConfirmWarningBodyPermaBan: 'Пользователь будет забанен без возможности апелляции.',
+    // Plan 10-11 CR-01 — listing-domain typed-confirm override copy. Override-prop pattern
+    // (bodyKey/hintKey/placeholderKey) keeps the DestructiveAction union scoped to user-mod.
+    typedConfirmListingDeleteBody: 'Объявление будет удалено навсегда. История заказов сохраняется.',
+    typedConfirmListingHint: 'Введите название объявления {title} для подтверждения',
+    typedConfirmListingPlaceholder: '2018 Toyota Camry',
 
     // Empty states
     emptyUsersTitle: 'Нет пользователей',
@@ -1169,6 +1174,11 @@ export const TRANSLATIONS = {
     typedConfirmWarningBodyDelete: 'The provider profile will be permanently deleted. Order history is preserved.',
     typedConfirmWarningBodyRevoke: 'The user will lose this role. Past records are preserved but the role will no longer appear.',
     typedConfirmWarningBodyPermaBan: 'User will be permanently banned with no appeal path.',
+    // Plan 10-11 CR-01 — listing-domain typed-confirm override copy. Override-prop pattern
+    // (bodyKey/hintKey/placeholderKey) keeps the DestructiveAction union scoped to user-mod.
+    typedConfirmListingDeleteBody: 'This listing will be permanently deleted. Order history is preserved.',
+    typedConfirmListingHint: 'Type the listing title {title} to confirm',
+    typedConfirmListingPlaceholder: '2018 Toyota Camry',
 
     // Empty states
     emptyUsersTitle: 'No users found',
