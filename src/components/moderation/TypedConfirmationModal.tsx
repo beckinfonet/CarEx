@@ -3,6 +3,7 @@ import {
   Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
   KeyboardAvoidingView, Platform, Pressable,
 } from 'react-native';
+import type { KeyboardTypeOptions } from 'react-native';
 import { AlertTriangle } from 'lucide-react-native';
 import { COLORS, SIZES, TYPOGRAPHY } from '../../constants/theme';
 import { useLanguage } from '../../context/LanguageContext';
@@ -16,6 +17,14 @@ export interface TypedConfirmationModalProps {
   submitting?: boolean;
   onConfirm: () => void;
   onClose: () => void;
+  /**
+   * Phase 10 Plan 07 — additive prop. Default 'email-address' preserves the
+   * existing user-mod call sites (Phase 5 surfaces) byte-identical. Plan 08's
+   * Delete-listing path passes 'default' so iOS users get a normal keyboard
+   * (with spacebar) for typing the listing-title sentinel like "2018 Toyota
+   * Camry" — Pitfall 3 mitigation per Phase 10 RESEARCH.md.
+   */
+  keyboardType?: KeyboardTypeOptions;
 }
 
 const BODY_KEY_FOR_ACTION: Record<DestructiveAction, string> = {
@@ -26,6 +35,7 @@ const BODY_KEY_FOR_ACTION: Record<DestructiveAction, string> = {
 
 export const TypedConfirmationModal: React.FC<TypedConfirmationModalProps> = ({
   visible, action, targetEmail, submitting = false, onConfirm, onClose,
+  keyboardType = 'email-address',
 }) => {
   const { t } = useLanguage();
   // `t` now contains string[] fields (260528-hmt greeting variant pools); route via
@@ -75,7 +85,7 @@ export const TypedConfirmationModal: React.FC<TypedConfirmationModalProps> = ({
               onChangeText={setTyped}
               placeholder={T.typedConfirmInputPlaceholder}
               placeholderTextColor={COLORS.textSecondary}
-              keyboardType="email-address"
+              keyboardType={keyboardType}
               autoCapitalize="none"
               autoCorrect={false}
               editable={!submitting}
