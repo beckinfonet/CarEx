@@ -11,26 +11,33 @@ import {
   StatusBar,
   StyleSheet,
   Alert,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AlertTriangle, ArrowLeft, MoreVertical, Search, Users } from 'lucide-react-native';
+import { AlertTriangle, Archive, ArrowLeft, MoreVertical, Search, Users } from 'lucide-react-native';
 import axios from 'axios';
 import { COLORS, SIZES, TYPOGRAPHY } from '../constants/theme';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { SeverityBadge } from '../components/moderation/SeverityBadge';
+import type { ModerationState } from '../components/moderation/SeverityBadge';
 import { EmptyState } from '../components/moderation/EmptyState';
 import { QuickActionSheet, QuickActionSelection } from '../components/moderation/QuickActionSheet';
 import { ModerationActionModal, ModerationActionType, ModerationActionPayload } from '../components/moderation/ModerationActionModal';
 import { TypedConfirmationModal, DestructiveAction } from '../components/moderation/TypedConfirmationModal';
+import { ListingRestoreModal } from '../components/moderation/ListingRestoreModal';
+import type { ListingRestoreModalBody } from '../components/moderation/ListingRestoreModal';
 import { MODERATION_ERROR_KEY_MAP } from '../utils/moderationErrorKeyMap';
+import { buildListingTitle } from '../utils/listingTitle';
 import {
   ModerationService,
   SearchUserItem,
   SearchUsersQuery,
   ProviderRole,
+  ListingSearchItem,
+  SearchListingsQuery,
 } from '../services/moderation/ModerationService';
 import { ModerationError } from '../services/moderation/errors';
 import type { RootStackParamList } from '../types/navigation';
@@ -61,6 +68,55 @@ const STATE_FILTER_OPTIONS: Array<{ value: StateFilter; key: string }> = [
   { value: 'blocked_with_review', key: 'stateFilterBlocked' },
   { value: 'permanently_banned', key: 'stateFilterBanned' },
 ];
+
+// ---- Plan 10-10 (LUI-04): Listings tab ----
+//
+// D-09: AdminModerationScreen gains a top-level Users|Listings tab control —
+// no new route, no new screen file (widen-existing-surface, mirrors v1.0
+// Phase 5 D-03 AdminManagementScreen repurpose). D-12: admin lands on Users
+// tab by default. State buckets for the two tabs are deliberately PARALLEL
+// (Pitfall 7 — see listingsAbortRef below) so a tab switch never pollutes
+// the other tab's request lifecycle.
+
+type ScopeTab = 'users' | 'listings';
+
+type ListingStatusFilter = 'all' | 'active' | 'suspended' | 'archived' | 'deleted';
+
+const LISTING_STATUS_FILTER_OPTIONS: Array<{ value: ListingStatusFilter; key: string }> = [
+  { value: 'all', key: 'listingStatusFilterAll' },
+  { value: 'active', key: 'listingStatusFilterActive' },
+  { value: 'suspended', key: 'listingStatusFilterSuspended' },
+  { value: 'archived', key: 'listingStatusFilterArchived' },
+  { value: 'deleted', key: 'listingStatusFilterDeleted' },
+];
+
+/**
+ * Listing status → SeverityBadge ModerationState mapping. The user-domain
+ * SeverityBadge accepts a fixed 4-value union; listings have a different
+ * 4-value union (active|suspended|archived|deleted). The two share `active`
+ * directly and map the listing-specific states to user-severity palettes
+ * with equivalent visual semantics:
+ *   - 'active' → 'active'                    (green active palette)
+ *   - 'suspended' → 'feature_limited'        (amber warning palette)
+ *   - 'archived' → 'permanently_banned'      (neutral grey palette)
+ *   - 'deleted' → 'blocked_with_review'      (red destructive palette)
+ * Documented so the inverse-intuition (deleted→blockedReview, not permaBanned)
+ * is grep-discoverable for future reviewers.
+ */
+function mapListingStatusToSeverityState(
+  status: 'active' | 'suspended' | 'archived' | 'deleted',
+): ModerationState {
+  switch (status) {
+    case 'active':
+      return 'active';
+    case 'suspended':
+      return 'feature_limited';
+    case 'archived':
+      return 'permanently_banned';
+    case 'deleted':
+      return 'blocked_with_review';
+  }
+}
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'AdminModeration'>;
 
@@ -113,6 +169,28 @@ export const AdminModerationScreen: React.FC = () => {
   // RESEARCH §Pitfall 11 requires this to be explicitly passed through — NEVER defaulted to broker.
   const [pendingDeleteRole, setPendingDeleteRole] = useState<ProviderRole | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // ---- Plan 10-10: Listings-tab parallel state bucket (Pitfall 7) ----
+  // DO NOT collapse these into a single shared bucket with the user-tab hooks
+  // above. The two tabs run independent search lifecycles (different services,
+  // different filter shapes, different pagination cursors) and a shared
+  // abortRef would cause cross-tab aborts on rapid tab switching. Plan 10-10
+  // Test 10 exercises this invariant.
+  const [scopeTab, setScopeTab] = useState<ScopeTab>('users');
+  const [listingsQuery, setListingsQuery] = useState('');
+  const [listingsSubmittedQuery, setListingsSubmittedQuery] = useState('');
+  const [listingsStatusFilter, setListingsStatusFilter] =
+    useState<ListingStatusFilter>('all');
+  const [listings, setListings] = useState<ListingSearchItem[]>([]);
+  const [listingsNextCursor, setListingsNextCursor] = useState<string | null>(null);
+  const [listingsLoading, setListingsLoading] = useState(false);
+  const [listingsLoadingMore, setListingsLoadingMore] = useState(false);
+  const [listingsRefreshing, setListingsRefreshing] = useState(false);
+  const [listingsLoadError, setListingsLoadError] = useState(false);
+  // Pitfall 7: DISTINCT AbortController ref — never collapse with abortRef above.
+  const listingsAbortRef = useRef<AbortController | null>(null);
+  // Recover modal target — set on row-Recover tap, cleared on modal close.
+  const [recoverTarget, setRecoverTarget] = useState<ListingSearchItem | null>(null);
 
   const buildQuery = useCallback(
     (cursor?: string): SearchUsersQuery => ({
@@ -338,6 +416,110 @@ export const AdminModerationScreen: React.FC = () => {
     }
   };
 
+  // ---- Plan 10-10: Listings tab handlers ----
+
+  const buildListingsQuery = useCallback(
+    (cursor?: string): SearchListingsQuery => ({
+      status:
+        listingsStatusFilter === 'all' ? undefined : listingsStatusFilter,
+      q: listingsSubmittedQuery || undefined,
+      cursor,
+      limit: PAGE_SIZE,
+    }),
+    [listingsStatusFilter, listingsSubmittedQuery],
+  );
+
+  const runListingsSearch = useCallback(
+    async (resetList: boolean) => {
+      listingsAbortRef.current?.abort();
+      const controller = new AbortController();
+      listingsAbortRef.current = controller;
+      if (resetList) setListingsLoading(true);
+      setListingsLoadError(false);
+      try {
+        const result = await ModerationService.searchListings(
+          buildListingsQuery(),
+          { signal: controller.signal },
+        );
+        if (controller.signal.aborted) return;
+        setListings(result.rows);
+        setListingsNextCursor(result.nextCursor);
+      } catch (err) {
+        if (
+          axios.isCancel?.(err) ||
+          (err as { name?: string })?.name === 'CanceledError' ||
+          (err as { name?: string })?.name === 'AbortError'
+        ) {
+          return;
+        }
+        setListings([]);
+        setListingsNextCursor(null);
+        setListingsLoadError(true);
+      } finally {
+        if (!controller.signal.aborted) {
+          setListingsLoading(false);
+          setListingsRefreshing(false);
+        }
+      }
+    },
+    [buildListingsQuery],
+  );
+
+  // Fires on tab switch into Listings + on submitted-query change + on filter change.
+  useEffect(() => {
+    if (scopeTab !== 'listings') return;
+    runListingsSearch(true);
+    return () => listingsAbortRef.current?.abort();
+  }, [scopeTab, runListingsSearch]);
+
+  const fetchNextListingsPage = useCallback(async () => {
+    if (listingsLoadingMore || !listingsNextCursor) return;
+    setListingsLoadingMore(true);
+    try {
+      const result = await ModerationService.searchListings(
+        buildListingsQuery(listingsNextCursor),
+      );
+      setListings((curr) => [...curr, ...result.rows]);
+      setListingsNextCursor(result.nextCursor);
+    } catch {
+      // Pagination errors surface silently; pull-to-refresh recovers.
+    } finally {
+      setListingsLoadingMore(false);
+    }
+  }, [listingsLoadingMore, listingsNextCursor, buildListingsQuery]);
+
+  const onRefreshListings = useCallback(() => {
+    setListingsRefreshing(true);
+    runListingsSearch(true);
+  }, [runListingsSearch]);
+
+  const handleSubmitListingsSearch = useCallback(() => {
+    setListingsSubmittedQuery(listingsQuery.trim());
+  }, [listingsQuery]);
+
+  // Recover row action — optimistic flip, rollback on error.
+  // Reuses ModerationService.restoreListing (Phase 8 D-B: single path back to
+  // active) — there is NO separate route for the Listings-tab Recover button;
+  // it shares the same code path as CarDetails Restore. Plan 10-10 grep guard
+  // forbids any future drift introducing a distinct method here.
+  const handleRecoverListing = async (
+    row: ListingSearchItem,
+    body: ListingRestoreModalBody,
+  ) => {
+    const prev = listings;
+    setListings((curr) =>
+      curr.map((l) => (l._id === row._id ? { ...l, status: 'active' } : l)),
+    );
+    setRecoverTarget(null);
+    try {
+      await ModerationService.restoreListing(row._id, body);
+    } catch (err) {
+      setListings(prev);
+      const code = (err as { code?: string } | null)?.code;
+      Alert.alert(T.error ?? 'Error', code ?? T.errGeneric ?? 'Restore failed');
+    }
+  };
+
   // Bridge: ModerationActionModal Submit → either fire directly or escalate to TypedConfirmationModal
   const handleActionSubmit = (payload: ModerationActionPayload) => {
     if (!actionTarget) return;
@@ -488,6 +670,112 @@ export const AdminModerationScreen: React.FC = () => {
     </View>
   );
 
+  // ---- Plan 10-10: Listings tab body ----
+
+  const renderListing = ({ item }: { item: ListingSearchItem }) => {
+    const title = buildListingTitle(item);
+    const isDeleted = item.status === 'deleted';
+    return (
+      <TouchableOpacity
+        testID={`listing-row-${item._id}`}
+        style={styles.listingRow}
+        onPress={() => navigation.navigate('CarDetails', { carId: item._id })}
+        accessibilityRole="button"
+        accessibilityLabel={title}
+      >
+        {item.firstPhotoUrl ? (
+          <Image source={{ uri: item.firstPhotoUrl }} style={styles.listingThumb} />
+        ) : (
+          <View style={[styles.listingThumb, styles.listingThumbPlaceholder]} />
+        )}
+        <View style={styles.listingRowBody}>
+          <Text style={styles.listingTitle} numberOfLines={1}>
+            {title}
+          </Text>
+          {item.price != null && (
+            <Text style={styles.listingPrice}>${item.price.toLocaleString()}</Text>
+          )}
+          <SeverityBadge state={mapListingStatusToSeverityState(item.status)} />
+        </View>
+        {isDeleted && (
+          <TouchableOpacity
+            testID={`listing-row-recover-${item._id}`}
+            style={styles.recoverButton}
+            onPress={() => setRecoverTarget(item)}
+            accessibilityRole="button"
+            accessibilityLabel={T.listingActionRestore ?? 'Recover'}
+          >
+            <Text style={styles.recoverButtonText}>
+              {T.listingActionRestore ?? 'Recover'}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </TouchableOpacity>
+    );
+  };
+
+  const ListingsListEmpty = listingsLoadError ? (
+    <EmptyState
+      icon={AlertTriangle}
+      title={T.errorLoadTitle}
+      body={T.errorLoadBody}
+      action={{ label: T.retry, onPress: () => runListingsSearch(true) }}
+    />
+  ) : (
+    <EmptyState
+      icon={Archive}
+      title={T.listingsEmpty ?? T.emptySearchTitle}
+      body={T.listingsEmptyBody ?? T.emptySearchBody}
+    />
+  );
+
+  const ListingsListHeader = (
+    <View>
+      <View style={styles.searchRow}>
+        <View style={styles.searchInputWrap}>
+          <Search size={20} color={COLORS.textSecondary} style={styles.searchIcon} />
+          <TextInput
+            testID="listings-search-input"
+            style={styles.searchInput}
+            placeholder={T.listingsSearchPlaceholder ?? T.searchEmailOrUid}
+            placeholderTextColor={COLORS.textSecondary}
+            value={listingsQuery}
+            onChangeText={setListingsQuery}
+            onSubmitEditing={handleSubmitListingsSearch}
+            returnKeyType="search"
+            autoCorrect={false}
+            autoCapitalize="none"
+            accessibilityLabel={T.listingsSearchPlaceholder ?? T.searchEmailOrUid}
+          />
+        </View>
+        <TouchableOpacity
+          testID="listings-search-submit"
+          style={styles.searchButton}
+          onPress={handleSubmitListingsSearch}
+          accessibilityRole="button"
+          accessibilityLabel={T.actionSearch}
+        >
+          <Text style={styles.searchButtonText}>{T.actionSearch}</Text>
+        </TouchableOpacity>
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.chipRow}
+      >
+        {LISTING_STATUS_FILTER_OPTIONS.map((opt) => (
+          <ChipButton
+            key={opt.value}
+            testID={`listing-filter-${opt.value}`}
+            label={T[opt.key] ?? opt.value}
+            active={listingsStatusFilter === opt.value}
+            onPress={() => setListingsStatusFilter(opt.value)}
+          />
+        ))}
+      </ScrollView>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
@@ -505,37 +793,97 @@ export const AdminModerationScreen: React.FC = () => {
         <View style={{ width: 24 }} />
       </View>
 
-      {loading && users.length === 0 ? (
+      {/* Plan 10-10: Top-level Users|Listings tab control (D-09, D-12 default Users) */}
+      <View style={styles.scopeTabRow}>
+        <ChipButton
+          testID="tab-users"
+          label={T.tabUsers ?? 'Users'}
+          active={scopeTab === 'users'}
+          onPress={() => setScopeTab('users')}
+        />
+        <ChipButton
+          testID="tab-listings"
+          label={T.tabListings ?? 'Listings'}
+          active={scopeTab === 'listings'}
+          onPress={() => setScopeTab('listings')}
+        />
+      </View>
+
+      {scopeTab === 'users' ? (
+        loading && users.length === 0 ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={COLORS.accent} />
+          </View>
+        ) : (
+          <FlatList
+            data={users}
+            keyExtractor={(u) => u.localId}
+            renderItem={renderUser}
+            ListHeaderComponent={ListHeader}
+            ListEmptyComponent={!loading ? ListEmpty : null}
+            ListFooterComponent={
+              loadingMore ? (
+                <ActivityIndicator
+                  color={COLORS.accent}
+                  style={{ marginVertical: SIZES.spacingMd }}
+                />
+              ) : null
+            }
+            onEndReached={fetchNextPage}
+            onEndReachedThreshold={0.5}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={COLORS.accent}
+                colors={[COLORS.accent]}
+              />
+            }
+            contentContainerStyle={styles.listContent}
+            ItemSeparatorComponent={() => <View style={{ height: SIZES.spacingSm }} />}
+          />
+        )
+      ) : listingsLoading && listings.length === 0 ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.accent} />
         </View>
       ) : (
         <FlatList
-          data={users}
-          keyExtractor={(u) => u.localId}
-          renderItem={renderUser}
-          ListHeaderComponent={ListHeader}
-          ListEmptyComponent={!loading ? ListEmpty : null}
+          data={listings}
+          keyExtractor={(l) => l._id}
+          renderItem={renderListing}
+          ListHeaderComponent={ListingsListHeader}
+          ListEmptyComponent={!listingsLoading ? ListingsListEmpty : null}
           ListFooterComponent={
-            loadingMore ? (
+            listingsLoadingMore ? (
               <ActivityIndicator
                 color={COLORS.accent}
                 style={{ marginVertical: SIZES.spacingMd }}
               />
             ) : null
           }
-          onEndReached={fetchNextPage}
+          onEndReached={fetchNextListingsPage}
           onEndReachedThreshold={0.5}
           refreshControl={
             <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
+              refreshing={listingsRefreshing}
+              onRefresh={onRefreshListings}
               tintColor={COLORS.accent}
               colors={[COLORS.accent]}
             />
           }
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={{ height: SIZES.spacingSm }} />}
+        />
+      )}
+
+      {/* Recover modal — reuses Plan 07 ListingRestoreModal + Plan 04 restoreListing */}
+      {recoverTarget && (
+        <ListingRestoreModal
+          visible={true}
+          carId={recoverTarget._id}
+          onSubmit={(body) => handleRecoverListing(recoverTarget, body)}
+          onClose={() => setRecoverTarget(null)}
         />
       )}
 
@@ -598,8 +946,10 @@ const ChipButton: React.FC<{
   label: string;
   active: boolean;
   onPress: () => void;
-}> = ({ label, active, onPress }) => (
+  testID?: string;
+}> = ({ label, active, onPress, testID }) => (
   <TouchableOpacity
+    testID={testID}
     style={[styles.chip, active && styles.chipActive]}
     onPress={onPress}
     accessibilityRole="button"
@@ -704,6 +1054,61 @@ const styles = StyleSheet.create({
   },
   searchButtonText: {
     ...TYPOGRAPHY.labelStrong,
+    color: COLORS.background,
+  },
+  // --- Plan 10-10: Listings tab + tab control ---
+  scopeTabRow: {
+    flexDirection: 'row',
+    gap: SIZES.spacingSm,
+    paddingHorizontal: SIZES.spacingMd,
+    paddingTop: SIZES.spacingSm,
+    paddingBottom: SIZES.spacingSm,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  listingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: SIZES.radiusMd,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: SIZES.spacingMd,
+    gap: SIZES.spacingSm,
+  },
+  listingThumb: {
+    width: 60,
+    height: 60,
+    borderRadius: SIZES.radiusSm,
+    backgroundColor: COLORS.searchBackground,
+  },
+  listingThumbPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  listingRowBody: {
+    flex: 1,
+    gap: SIZES.spacingXs,
+  },
+  listingTitle: {
+    ...TYPOGRAPHY.labelStrong,
+    color: COLORS.textPrimary,
+  },
+  listingPrice: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.textSecondary,
+  },
+  recoverButton: {
+    paddingHorizontal: SIZES.spacingMd,
+    paddingVertical: SIZES.spacingSm,
+    borderRadius: SIZES.radiusSm,
+    backgroundColor: COLORS.successFg,
+    minHeight: SIZES.minTapTarget,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recoverButtonText: {
+    ...TYPOGRAPHY.bodyStrong,
     color: COLORS.background,
   },
 });
