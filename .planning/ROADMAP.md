@@ -88,7 +88,13 @@ Plans:
   1. Public browse, search, and related-listings endpoints return zero non-active listings; an admin call with `includeAllListingStatuses: true` returns the full set
   2. Listing-detail GET for a `suspended`/`archived`/`deleted` listing returns a thin payload (status + reason category only, no seller PII or moderation notes) to non-admin viewers; admin viewers receive the full document plus status badge
   3. Adding a non-active listing to the cart returns `409 listing_not_available`; a status change between cart-add and `confirm-booking` aborts the booking inside the transaction and refunds the Stripe charge before throwing
-**Plans**: TBD
+**Plans**: 5 plans
+Plans:
+- [ ] 09-01-PLAN.md — Wave 0 prerequisites: 5 RED jest scaffolds + refundAndThrow helper + ListingNotAvailableError + lookupAdminIfPresent middleware (LENF-03 helper substrate)
+- [ ] 09-02-PLAN.md — LENF-01 pre(/^find/) hide hook on Car + includeAllListingStatuses bypass + 4 GREEN integration cases
+- [ ] 09-03-PLAN.md — LENF-02 status-aware GET /api/cars/:id (D-05 thin payload / D-07 admin badge / D-08 single endpoint) + 6 GREEN supertest cases
+- [ ] 09-04-PLAN.md — LENF-03 part A: create-payment-intent early 409 gate + ListingNotAvailableError route-error-map branch + 5 GREEN supertest cases
+- [ ] 09-05-PLAN.md — LENF-03 part B: confirm-booking step-4 transactional TOCTOU + refund-first-throw-second + 6 GREEN integration cases + Phase 3 regression
 
 ### Phase 10: Mobile Plumbing + Admin Listing UI
 **Goal**: Admins can moderate listings inline on `CarDetailsScreen` via a bottom-sheet of four visually-distinct actions, Restore non-active listings from the same surface, and find soft-deleted listings in an admin-only Deleted view — all via five new `ModerationService` methods that bypass the existing 403 user-suspension interceptor
