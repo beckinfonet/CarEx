@@ -47,24 +47,18 @@ function findReasonRow(root: TestRenderer.ReactTestInstance, value: string) {
 }
 
 describe('ListingModerationReasonModal', () => {
-  test('Test 1: nothing renders when visible=false', () => {
+  test('Test 1: nothing user-visible renders when visible=false', () => {
     const tree = render({ visible: false });
-    // Modal still in the tree but its visible prop must be false
-    const json = tree.toJSON();
-    // When Modal is hidden, the contents should not render (react-native test
-    // renderer renders Modal as a host node but its children render only when
-    // visible). The reasonable assertion is that no listing-reason-* testIDs
-    // are findable.
+    // With visible=false the RN Modal returns null in the test renderer, so
+    // no reason rows / confirm button / note input should be findable.
     const rows = tree.root
       .findAllByType(TouchableOpacity)
       .filter((n) => typeof n.props.testID === 'string'
         && (n.props.testID as string).startsWith('listing-reason-'));
-    // With visible=false the inner content may or may not render depending on
-    // RN Modal implementation; assert serialized output does NOT include any
-    // reason-row testID labels visible to the user.
-    expect(rows.length === 0 || JSON.stringify(json).includes('listing-reason-')).toBeTruthy();
-    // Stronger: assert Modal's visible prop is false somewhere in the tree.
-    expect(JSON.stringify(json)).toContain('"visible":false');
+    expect(rows).toHaveLength(0);
+    expect(findConfirmButton(tree.root)).toBeUndefined();
+    const inputs = tree.root.findAllByType(TextInput);
+    expect(inputs).toHaveLength(0);
   });
 
   test('Test 2: header reflects each action variant', () => {
