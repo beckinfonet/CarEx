@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin Listing Moderation
 status: executing
-stopped_at: Phase 8 context gathered
-last_updated: "2026-05-29T00:05:06.421Z"
+stopped_at: Phase 8 Plan 02 (LADM-02 Suspend endpoint) complete; ready to execute Plan 03 (LADM-03 Archive)
+last_updated: "2026-05-29T00:14:10.562Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 12
-  completed_plans: 7
-  percent: 58
+  completed_plans: 8
+  percent: 67
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 08 (admin-listing-moderation-endpoints-backend) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-05-29
 
@@ -42,7 +42,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 Last activity: 2026-05-28 - Completed quick task 260528-hmt: Rotating playful greeting + headline variants on HomeScreenV2
 Resume file: None
 
-Progress: [██████░░░░] 58%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -100,6 +100,7 @@ Progress: [██████░░░░] 58%
 | Phase 06 P09 | 2m27s | 1 tasks (+1 auto-fix) | 1 files |
 | Phase 06 P10 | ~8m | 2 tasks (+3 auto-fix) | 1 files |
 | Phase 08 P01 | 6m11s | 3 tasks | 9 files |
+| Phase 08 P02 | 3m23s | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -264,6 +265,14 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 08 P01: Wave-0 atomicity test uses HAND-ROLLED runMockSuspend helper mirroring canonical audit-then-Car withTransaction pattern — locks the atomicity contract BEFORE Wave 2 plans land bodies; any Wave-2 implementation that reverses ordering, drops { session }, or uses single-doc create (Pitfall 2) fails this test
 - [Phase ?]: Phase 08 P01: denySelfModerationListing reads chain BOTH setOptions bypass flags ({ includeAllListingStatuses: true, includeAllUsers: true }) — Phase 9 listing-status hide hook + existing Phase 3 seller-cascade hook bypass; Phase 9 lands its hook without retroactively touching Phase 8 code
 - [Phase ?]: Phase 08 P01: LADM-01..05 requirements NOT marked complete in REQUIREMENTS.md despite plan frontmatter listing them — Plan-01 ships the Wave-1 SUBSTRATE only (listingService stubs throw not_implemented; no real handler bodies); Wave 2 (Suspend/Archive/Delete/Restore) and Wave 3 (Edit) land the real implementations that fulfill LADM-01..05. Premature requirement tickoff would falsely report shipped features. Pattern matches Phase 06 P01 substrate handling (AFF-01..04 deferred to landing waves)
+- [Phase ?]: Phase 08 P02: TDD task ordering pivot — plan tasks reordered to canonical RED-GREEN (tests RED first, service GREEN second, router substrate third); substantive deliverables unchanged
+- [Phase ?]: Phase 08 P02: suspendListing canonical pattern locked — defensive arg-check + pre-txn read with double-bypass setOptions + same-state fast-path BEFORE startSession + withTransaction(audit-then-Car) + finally endSession + thin D-02 response from in-memory state. Plans 08-03/04/05 copy verbatim diverging only on toStatus + action verb
+- [Phase ?]: Phase 08 P02: D-02 thin response built from in-memory $set payload (no post-commit Car.findById round-trip) — listing carries _id/status/moderatedBy/moderatedAt only; action carries _id/action/fromStatus/toStatus/createdAt only. Test 7 exact Object.keys assertion locks the key set against future refactor widening
+- [Phase ?]: Phase 08 P02: KNOWN_LISTING_ERRORS Set in listingRouter.js pre-populated with all 10 Wave 2/3 codes — invalid_transition explicitly inline-documented as v1.1-never-emits (reserved for super-admin restricted matrix per D-B-2); Plans 08-03..06 throw without amending the registry
+- [Phase ?]: Phase 08 P02: same-state guard fires BEFORE session.startSession() — no-op suspend pays zero txn overhead and writes zero audit rows; explicitly verified in test 2 (countDocuments=0 after rejected same-state call)
+- [Phase ?]: Phase 08 P02: matchedCount !== 1 inside the txn throws listing_not_found — covers TOCTOU between pre-txn read + Car.updateOne (concurrent admin delete); withTransaction aborts cleanly and audit row rolls back
+- [Phase ?]: Phase 08 P02: handleListingServiceError reads err.code || err.message — err.code is canonical signal from ListingServiceError constructor; message fallback catches plain Error thrown accidentally so KNOWN-set lookup still works
+- [Phase ?]: Phase 08 P02: test seeds Car via Car.collection.insertOne (NOT Car.create) — bypasses pre-save validators + pre(/^find/) seller-cascade hook during seeding; mirrors editProfile.test.js:54-57 + atomicity test:81-85
 
 ### Pending Todos
 
@@ -304,6 +313,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-05-29T00:04:15.837Z
-Stopped at: Phase 8 context gathered
+Last session: 2026-05-29T00:14:10.556Z
+Stopped at: Phase 8 Plan 02 (LADM-02 Suspend endpoint) complete; ready to execute Plan 03 (LADM-03 Archive)
 Resume file: (phase-close) /gsd-verify-phase 06 — all 3 Phase 6 requirements complete (QUAL-01 via 06-01/06-09 + QUAL-03 via 06-10; QUAL-02 operator-deferred)
