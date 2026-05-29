@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ArrowLeft, ShoppingCart, Trash2, Car, X, Briefcase, Truck, CheckCircle } from 'lucide-react-native';
 import { COLORS, SIZES } from '../constants/theme';
@@ -20,17 +20,89 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { AuthService } from '../services/AuthService';
+import { apiClient } from '../services/http/client';
 import { GatedScreenWrapper } from '../components/moderation/GatedScreenWrapper';
+import ListingStatusBanner from '../components/moderation/ListingStatusBanner';
 import { RootStackParamList } from '../types/navigation';
 
 export const ServiceCartScreen = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const { car, items, removeItem, clearCart, getProviderGroups, itemCount } = useCart();
+  const { car, items, removeItem, clearCart, setCar, getProviderGroups, itemCount } = useCart();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [buyerNote, setBuyerNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // Phase 11 D-05 / D-06 / D-07 — listing-status detection on cart focus.
+  // The cart car may have gone non-active between add-time and focus; the
+  // useFocusEffect re-fetches via apiClient.get and flips banner-state.
+  // Pitfall 6 (cancelled-flag): every then/catch reads `cancelled` and
+  // short-circuits if the focus has blurred or the component unmounted.
+  // Pitfall 5 (admin shape coalescing): cart belongs to a buyer, but if the
+  // buyer is themselves an admin viewing their own cart we read banner from
+  // either res.data.banner (non-admin thin) OR res.data.moderationBadge.banner
+  // (admin extension). Neither shape exposes free-text moderation note.
+  const [carStatus, setCarStatus] = useState<{
+    status?: string;
+    reasonCategory?:
+      | 'spam'
+      | 'policy_violation'
+      | 'fraud'
+      | 'inactive_seller'
+      | 'other'
+      | null;
+    banner?: {
+      titleKey: string;
+      bodyKey: string;
+      severity: 'warning' | 'neutral' | 'destructive';
+    };
+  } | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!car?.id) return;
+      let cancelled = false;
+      apiClient.get(`/api/cars/${car.id}`)
+        .then((res) => {
+          if (cancelled) return;
+          const banner =
+            res.data?.banner ?? res.data?.moderationBadge?.banner ?? null;
+          const reasonCategory =
+            res.data?.reasonCategory ??
+            res.data?.moderationBadge?.reasonCategory ??
+            null;
+          setCarStatus({
+            status: res.data?.status ?? 'active',
+            reasonCategory,
+            banner,
+          });
+        })
+        .catch((err) => {
+          if (cancelled) return;
+          if (err?.response?.status === 404) {
+            // Pitfall 1: true 404 (carId gone) — treat as deleted (destructive).
+            setCarStatus({
+              status: 'deleted',
+              reasonCategory: null,
+              banner: {
+                titleKey: 'listingStatusBannerDeletedTitle',
+                bodyKey: 'listingStatusBannerDeletedBody',
+                severity: 'destructive',
+              },
+            });
+          }
+          // Other errors: preserve previous carStatus; do NOT clear (LBUY-02).
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, [car?.id]),
+  );
+
+  const carIsNonActive = !!(
+    carStatus?.status && carStatus.status !== 'active'
+  );
 
   const providerGroups = getProviderGroups();
 
@@ -135,14 +207,31 @@ export const ServiceCartScreen = () => {
           <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContainer}>
             {car ? (
               <View style={styles.carCard}>
-                <Car size={20} color={COLORS.accent} />
-                <View style={styles.carInfo}>
-                  <Text style={styles.carLabel}>{t.selectedVehicle}</Text>
-                  <Text style={styles.carName}>{car.year} {car.makeName} {car.modelName}</Text>
+                <View style={styles.carCardRow}>
+                  <Car size={20} color={COLORS.accent} />
+                  <View style={styles.carInfo}>
+                    <Text style={styles.carLabel}>{t.selectedVehicle}</Text>
+                    <Text style={styles.carName}>{car.year} {car.makeName} {car.modelName}</Text>
+                  </View>
+                  {car.imageUrl ? (
+                    <Image source={{ uri: car.imageUrl }} style={styles.carThumb} />
+                  ) : null}
                 </View>
-                {car.imageUrl ? (
-                  <Image source={{ uri: car.imageUrl }} style={styles.carThumb} />
-                ) : null}
+                {carIsNonActive && carStatus?.banner && (
+                  <ListingStatusBanner
+                    status={carStatus.status as 'suspended' | 'archived' | 'deleted'}
+                    reasonCategory={carStatus.reasonCategory ?? null}
+                    bannerHints={carStatus.banner}
+                    variant="cartRow"
+                    onRemoveFromCart={() => {
+                      // LBUY-02: clear car slot ONLY, NOT the whole cart.
+                      // Service items remain. CartContext.setCar is the only
+                      // mutator we may call here — clearing the entire cart is
+                      // forbidden by the LBUY-02 anti-pattern.
+                      setCar(null);
+                    }}
+                  />
+                )}
               </View>
             ) : (
               <View style={styles.carCard}>
@@ -209,13 +298,21 @@ export const ServiceCartScreen = () => {
                 {providerGroups.length} {providerGroups.length === 1 ? 'provider' : 'providers'}
               </Text>
             </View>
-            <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={submitting}>
-              {submitting ? (
-                <ActivityIndicator size="small" color="#FFF" />
-              ) : (
-                <Text style={styles.submitText}>{t.submitOrder}</Text>
+            <View style={styles.submitColumn}>
+              <TouchableOpacity
+                style={[styles.submitBtn, (submitting || carIsNonActive) && { opacity: 0.4 }]}
+                onPress={handleSubmit}
+                disabled={submitting || carIsNonActive}>
+                {submitting ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <Text style={styles.submitText}>{t.submitOrder}</Text>
+                )}
+              </TouchableOpacity>
+              {carIsNonActive && (
+                <Text style={styles.checkoutHint}>{t.cartListingUnavailableCheckoutHint}</Text>
               )}
-            </TouchableOpacity>
+            </View>
           </View>
         </>
       )}
@@ -245,9 +342,11 @@ const styles = StyleSheet.create({
   scrollContent: { flex: 1 },
   scrollContainer: { padding: SIZES.padding, paddingBottom: 100 },
   carCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
     backgroundColor: COLORS.cardBackground, borderRadius: SIZES.borderRadius,
     padding: 14, borderWidth: 1, borderColor: COLORS.border, marginBottom: 12,
+  },
+  carCardRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
   },
   carInfo: { flex: 1 },
   carLabel: { color: COLORS.textSecondary, fontSize: 11, fontWeight: '500' },
@@ -295,11 +394,18 @@ const styles = StyleSheet.create({
   footerInfo: {},
   footerItemCount: { color: COLORS.textPrimary, fontSize: 14, fontWeight: '600' },
   footerProviders: { color: COLORS.textSecondary, fontSize: 12, marginTop: 2 },
+  submitColumn: {
+    alignItems: 'flex-end', justifyContent: 'center',
+  },
   submitBtn: {
     backgroundColor: COLORS.accent, paddingVertical: 14, paddingHorizontal: 28,
     borderRadius: 10, minWidth: 140, alignItems: 'center',
   },
   submitText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  checkoutHint: {
+    color: COLORS.textSecondary, fontSize: 12, marginTop: 6,
+    textAlign: 'right', maxWidth: 220,
+  },
   successContainer: {
     flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16, padding: 40,
   },

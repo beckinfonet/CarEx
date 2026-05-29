@@ -3,6 +3,7 @@ import {
   Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
   KeyboardAvoidingView, Platform, Pressable,
 } from 'react-native';
+import type { KeyboardTypeOptions } from 'react-native';
 import { AlertTriangle } from 'lucide-react-native';
 import { COLORS, SIZES, TYPOGRAPHY } from '../../constants/theme';
 import { useLanguage } from '../../context/LanguageContext';
@@ -16,6 +17,42 @@ export interface TypedConfirmationModalProps {
   submitting?: boolean;
   onConfirm: () => void;
   onClose: () => void;
+  /**
+   * Phase 10 Plan 07 — additive prop. Default 'email-address' preserves the
+   * existing user-mod call sites (Phase 5 surfaces) byte-identical. Plan 08's
+   * Delete-listing path passes 'default' so iOS users get a normal keyboard
+   * (with spacebar) for typing the listing-title sentinel like "2018 Toyota
+   * Camry" — Pitfall 3 mitigation per Phase 10 RESEARCH.md.
+   */
+  keyboardType?: KeyboardTypeOptions;
+  /**
+   * Phase 10 Plan 11 — CR-01 fix. Optional override for the warning-body
+   * translation key. When undefined, the existing user-domain
+   * BODY_KEY_FOR_ACTION map is used (byte-identical for Phase 5 surfaces).
+   * Listing-delete surfaces pass `'typedConfirmListingDeleteBody'` so the
+   * admin reads listing-delete copy, not user-profile-delete copy. Grep-bait
+   * for Phase 11 LQUAL-03.
+   */
+  bodyKey?: string;
+  /**
+   * Phase 10 Plan 11 — CR-01 fix. Optional override for the hint translation
+   * key. Default `'typedConfirmHint'` (user-domain) preserves existing
+   * substitution semantics. Listing-delete surfaces pass
+   * `'typedConfirmListingHint'`. The resolver replaces BOTH `{email}` and
+   * `{title}` placeholders against `targetEmail` (which carries the listing
+   * title for listing flows per D-08 sentinel), so the new listing key can
+   * read naturally with `{title}` without breaking the user-domain `{email}`
+   * token.
+   */
+  hintKey?: string;
+  /**
+   * Phase 10 Plan 11 — CR-01 fix. Optional override for the TextInput
+   * placeholder translation key. Default `'typedConfirmInputPlaceholder'`
+   * preserves the existing user-mod email placeholder. Listing-delete
+   * surfaces pass `'typedConfirmListingPlaceholder'`. Grep-bait for Phase 11
+   * LQUAL-03.
+   */
+  placeholderKey?: string;
 }
 
 const BODY_KEY_FOR_ACTION: Record<DestructiveAction, string> = {
@@ -26,6 +63,8 @@ const BODY_KEY_FOR_ACTION: Record<DestructiveAction, string> = {
 
 export const TypedConfirmationModal: React.FC<TypedConfirmationModalProps> = ({
   visible, action, targetEmail, submitting = false, onConfirm, onClose,
+  keyboardType = 'email-address',
+  bodyKey, hintKey, placeholderKey,
 }) => {
   const { t } = useLanguage();
   // `t` now contains string[] fields (260528-hmt greeting variant pools); route via
@@ -45,7 +84,13 @@ export const TypedConfirmationModal: React.FC<TypedConfirmationModalProps> = ({
 
   const borderColor = matches ? COLORS.successFg : (dirty ? COLORS.destructive : COLORS.border);
 
-  const hint = T.typedConfirmHint?.replace('{email}', targetEmail) ?? targetEmail;
+  // Plan 10-11 CR-01 — Option B: replace BOTH `{email}` (user-domain default
+  // key) AND `{title}` (new listing key). `.replace()` is a no-op when the
+  // token is absent, so existing user-mod call sites stay byte-identical.
+  const rawHint = T[hintKey ?? 'typedConfirmHint'];
+  const hint = rawHint
+    ? rawHint.replace('{email}', targetEmail).replace('{title}', targetEmail)
+    : targetEmail;
 
   const handleConfirm = () => {
     if (!matches || submitting) return;
@@ -65,7 +110,7 @@ export const TypedConfirmationModal: React.FC<TypedConfirmationModalProps> = ({
               <Text style={styles.warningHeading}>{T.typedConfirmWarningHeading}</Text>
             </View>
 
-            <Text style={styles.warningBody}>{T[BODY_KEY_FOR_ACTION[action]]}</Text>
+            <Text style={styles.warningBody}>{T[bodyKey ?? BODY_KEY_FOR_ACTION[action]]}</Text>
 
             <Text style={styles.instruction}>{hint}</Text>
 
@@ -73,9 +118,9 @@ export const TypedConfirmationModal: React.FC<TypedConfirmationModalProps> = ({
               style={[styles.input, { borderColor }]}
               value={typed}
               onChangeText={setTyped}
-              placeholder={T.typedConfirmInputPlaceholder}
+              placeholder={T[placeholderKey ?? 'typedConfirmInputPlaceholder']}
               placeholderTextColor={COLORS.textSecondary}
-              keyboardType="email-address"
+              keyboardType={keyboardType}
               autoCapitalize="none"
               autoCorrect={false}
               editable={!submitting}

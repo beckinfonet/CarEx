@@ -478,6 +478,11 @@ export const TRANSLATIONS = {
     typedConfirmWarningBodyDelete: 'Профиль провайдера будет удалён навсегда. История заказов сохранится.',
     typedConfirmWarningBodyRevoke: 'Пользователь потеряет роль. Прошлые записи сохранятся, но роль больше не будет отображаться.',
     typedConfirmWarningBodyPermaBan: 'Пользователь будет забанен без возможности апелляции.',
+    // Plan 10-11 CR-01 — listing-domain typed-confirm override copy. Override-prop pattern
+    // (bodyKey/hintKey/placeholderKey) keeps the DestructiveAction union scoped to user-mod.
+    typedConfirmListingDeleteBody: 'Объявление будет удалено навсегда. История заказов сохраняется.',
+    typedConfirmListingHint: 'Введите название объявления {title} для подтверждения',
+    typedConfirmListingPlaceholder: '2018 Toyota Camry',
 
     // Empty states
     emptyUsersTitle: 'Нет пользователей',
@@ -689,6 +694,22 @@ export const TRANSLATIONS = {
     cityMagadan: 'Магадан',
     cityKamchatka: 'Петропавловск-Камчатский',
     kmShort: 'км',
+    // ---- Phase 11 — Listing buyer-affected banner (LBUY-01..04) ----
+    listingStatusBannerSuspendedTitle: 'Объявление приостановлено',
+    listingStatusBannerSuspendedBody: 'Это объявление временно недоступно.',
+    listingStatusBannerArchivedTitle: 'Объявление в архиве',
+    listingStatusBannerArchivedBody: 'Это объявление больше не активно.',
+    listingStatusBannerDeletedTitle: 'Объявление удалено',
+    listingStatusBannerDeletedBody: 'Это объявление больше не доступно.',
+    listingStatusBannerReasonSpam: 'Спам',
+    listingStatusBannerReasonPolicyViolation: 'Нарушение правил',
+    listingStatusBannerReasonFraud: 'Мошенничество',
+    listingStatusBannerReasonInactiveSeller: 'Неактивный продавец',
+    listingStatusBannerReasonOther: 'Другое',
+    cartListingUnavailableTitle: 'Автомобиль больше не доступен',
+    cartListingUnavailableBody: 'Удалите автомобиль из корзины, чтобы продолжить.',
+    cartListingUnavailableRemove: 'Удалить из корзины',
+    cartListingUnavailableCheckoutHint: 'Удалите недоступное объявление, чтобы оформить остальные услуги.',
   },
   EN: {
     // Header & Navigation
@@ -1169,6 +1190,11 @@ export const TRANSLATIONS = {
     typedConfirmWarningBodyDelete: 'The provider profile will be permanently deleted. Order history is preserved.',
     typedConfirmWarningBodyRevoke: 'The user will lose this role. Past records are preserved but the role will no longer appear.',
     typedConfirmWarningBodyPermaBan: 'User will be permanently banned with no appeal path.',
+    // Plan 10-11 CR-01 — listing-domain typed-confirm override copy. Override-prop pattern
+    // (bodyKey/hintKey/placeholderKey) keeps the DestructiveAction union scoped to user-mod.
+    typedConfirmListingDeleteBody: 'This listing will be permanently deleted. Order history is preserved.',
+    typedConfirmListingHint: 'Type the listing title {title} to confirm',
+    typedConfirmListingPlaceholder: '2018 Toyota Camry',
 
     // Empty states
     emptyUsersTitle: 'No users found',
@@ -1380,6 +1406,22 @@ export const TRANSLATIONS = {
     cityMagadan: 'Magadan',
     cityKamchatka: 'Petropavlovsk-Kamchatsky',
     kmShort: 'km',
+    // ---- Phase 11 — Listing buyer-affected banner (LBUY-01..04) ----
+    listingStatusBannerSuspendedTitle: 'Listing suspended',
+    listingStatusBannerSuspendedBody: 'This listing is temporarily unavailable.',
+    listingStatusBannerArchivedTitle: 'Listing archived',
+    listingStatusBannerArchivedBody: 'This listing is no longer active.',
+    listingStatusBannerDeletedTitle: 'Listing removed',
+    listingStatusBannerDeletedBody: 'This listing is no longer available.',
+    listingStatusBannerReasonSpam: 'Spam',
+    listingStatusBannerReasonPolicyViolation: 'Policy violation',
+    listingStatusBannerReasonFraud: 'Fraud',
+    listingStatusBannerReasonInactiveSeller: 'Inactive seller',
+    listingStatusBannerReasonOther: 'Other',
+    cartListingUnavailableTitle: 'This vehicle is no longer available',
+    cartListingUnavailableBody: 'Remove the vehicle from your cart to continue.',
+    cartListingUnavailableRemove: 'Remove from cart',
+    cartListingUnavailableCheckoutHint: 'Remove the unavailable listing to check out remaining services.',
   }
 };
 

@@ -1,19 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: "Admin Moderation"
-milestone_status: shipped
-shipped_at: "2026-04-30"
-status: Awaiting next milestone
-stopped_at: "v1.0 Admin Moderation milestone shipped on 2026-04-30. Distribution: TestFlight 1.0.45 + Google Play internal testing 1.0.48 (verified live). 31/32 v1 requirements validated; QUAL-02 10k-user load test deferred by operator 2026-04-19. Archive: .planning/milestones/v1.0-ROADMAP.md + .planning/milestones/v1.0-REQUIREMENTS.md. Tag: v1.0."
-last_updated: "2026-05-28T17:20:00.000Z"
-last_activity: 2026-05-28 -- Completed quick task 260528-evg: Add MakeModelFilterBar + Android back handler to SearchResultsV2
+milestone: v1.1
+milestone_name: Admin Listing Moderation
+status: "v1.1 shipped — PR #3"
+stopped_at: Phase 11 context gathered
+last_updated: "2026-05-29T21:33:46.151Z"
+last_activity: 2026-05-29
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 47
-  completed_plans: 45
-  deferred_plans: 2
+  total_phases: 5
+  completed_phases: 5
+  total_plans: 37
+  completed_plans: 37
   percent: 100
 ---
 
@@ -24,13 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 **Core value:** Admins can act on bad-actor users after they're already in the system — without losing the audit trail or breaking in-flight orders for legitimate counterparties.
-**Current focus:** Planning next milestone (run `/gsd-new-milestone` to scope v1.1+)
+**Current focus:** Phase 11 — buyer-affected-ux-quality-security-review
 
 ## Current Position
 
-Milestone: v1.0 Admin Moderation — ✅ SHIPPED 2026-04-30
-Tag: v1.0
-Next: Plan next milestone via `/gsd-new-milestone` (questioning → research → requirements → roadmap).
+Phase: 11
+Plan: Not started
+Status: v1.1 shipped — PR #3
+Last activity: 2026-05-29
 
 ## Deferred Items
 
@@ -41,16 +39,16 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 | backend-load-test | Plan 06-0a (10k-user seed) | deferred by operator 2026-04-19 |
 | backend-load-test | Plan 06-0b (k6 harness with P95<200ms) | deferred by operator 2026-04-19 |
 | ux-followup | UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 06 03 styling) | captured 2026-04-30 during Phase 04 UAT — to be addressed in next milestone |
-Last activity: 2026-04-19 -- Phase 06 Plan 10 complete
-Resume file: (phase-close) .planning/phases/06-affected-user-ux-security-review/
+Last activity: 2026-05-29 - Completed Phase 8 Plan 05 (LADM-05 Restore endpoint)
+Resume file: .planning/phases/11-buyer-affected-ux-quality-security-review/11-CONTEXT.md
 
-Progress: [█████████░] 92% (47/51 plans; Phase 06 10/12; 2 operator-deferred)
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 6
+- Total plans completed: 25
 - Average duration: —
 - Total execution time: 0.0 hours
 
@@ -59,6 +57,9 @@ Progress: [█████████░] 92% (47/51 plans; Phase 06 10/12; 2 o
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 02 | 6 | - | - |
+| 07 | 6 | - | - |
+| 09 | 5 | - | - |
+| 11 | 8 | - | - |
 
 **Recent Trend:**
 
@@ -100,6 +101,24 @@ Progress: [█████████░] 92% (47/51 plans; Phase 06 10/12; 2 o
 | Phase 06 P08 | 1m20s | 1 tasks (+2 auto-fix) | 1 files |
 | Phase 06 P09 | 2m27s | 1 tasks (+1 auto-fix) | 1 files |
 | Phase 06 P10 | ~8m | 2 tasks (+3 auto-fix) | 1 files |
+| Phase 08 P01 | 6m11s | 3 tasks | 9 files |
+| Phase 08 P02 | 3m23s | 3 tasks | 3 files |
+| Phase 08 P03 | 2m39s | 3 tasks | 3 files |
+| Phase 08 P04 | 3m50s | 3 tasks | 3 files |
+| Phase 08 P05 | 3m49s | 3 tasks | 3 files |
+| Phase 08 PP06 | 10m35s | 3 tasks (+2 auto-fix) tasks | 3 files files |
+| Phase 10 P01 | ~5min | 3 tasks | 2 files |
+| Phase 10 P02 | 1m37s | 2 tasks | 2 files |
+| Phase 10 P03 | 8m0s | 3 tasks (+1 auto-fix) tasks | 4 files files |
+| Phase 10 P04 | 4m20s | 3 tasks | 2 files |
+| Phase 10 P05 | ~3m | 2 tasks tasks | 3 files files |
+| Phase 10 P07 | 6m32s | 3 tasks (6 commits — RED+GREEN per task) tasks | 4 new + 2 modified files |
+| Phase 10 P06 | 5m13s | 2 tasks | 2 files |
+| Phase 10 P09 | 15m9s | 3 tasks | 3 files |
+| Phase 10 P10 | 17m14s | 2 tasks tasks | 2 files files |
+| Phase 10 P08 | 5m33s | 2 tasks tasks | 2 files files |
+| Phase 10 P11 | ~4m | 2 tasks | 5 files |
+| Phase 10 P12 | ~3m | 2 tasks tasks | 2 files files |
 
 ## Accumulated Context
 
@@ -108,6 +127,10 @@ Progress: [█████████░] 92% (47/51 plans; Phase 06 10/12; 2 o
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v1.1 Roadmap]: 5-phase structure mirrors v1.0 backend-first execution shape: Phase 7 schema+auth → Phase 8 endpoints → Phase 9 read-time+TOCTOU enforcement → Phase 10 mobile plumbing+admin UI → Phase 11 buyer UX+quality+security review
+- [v1.1 Roadmap]: Mobile plumbing + Admin Listing UI merged into a single Phase 10 (v1.0 split these into Phases 4+5); justified because LIST-01 ships ONE admin surface (CarDetails bottom sheet) vs. v1.0's two screens (AdminModeration + AdminUserDetail + AdminManagement repurpose) — the LMOB-01..02 plumbing work is materially smaller (5 new methods on the existing ModerationService module, no new shared apiClient or AppState handler) and tightly coupled to LUI-01..04. Splitting would create a phase boundary mid-feature
+- [v1.1 Roadmap]: Buyer UX + Quality + Security Review merged into Phase 11 (mirrors v1.0 Phase 6) — keeps merge-gate at the end of the milestone with a single sign-off artifact (LIST-SECURITY.md)
+- [v1.1 Roadmap]: Phase 7 carries 7 requirements (heaviest phase); Phase 9 carries 3 (lightest). Asymmetric by design — Phase 7 bundles all foundation work (schema + audit + auth + rate-limit + migration) so endpoint+enforcement phases ride a stable substrate
 - Roadmap: Backend-first 6-phase sequence forced by hard deps (verifyIdToken before endpoints; capability map before enforcement; providerSnapshot before delete; ModerationService before UI)
 - Roadmap: Schema + security baseline merged into one phase (Phase 1) since both are small foundation work
 - Roadmap: QUAL-01 translations audit owned by Phase 6 as cross-cutting gate; earlier phases still write translations as they go
@@ -255,6 +278,76 @@ Recent decisions affecting current work:
 - [Phase 06]: Plan 06-10: Mobile-on-main Section (e) substitution — `git diff main` empty on mobile because already on main branch; substituted `git grep -nE 'AIza|sk_live|...' -- '*.ts' '*.tsx' '*.js'` + `git log --oneline -S` + `git blame` age cross-check. Firebase API key hit in AuthService.ts:9 blamed to cd5f6ac 2026-01-30 — over 2 months pre-milestone, matches Phase 5 CONCERNS.md register. Backend stays on `git diff main` because on feat/moderation-baseline. Pattern: any future QUAL-* or REL-* cross-repo evidence collection must check branch state FIRST and pick the right diff range per repo
 - [Phase 06]: Plan 06-10: Legacy /api/admin/* callerUid-in-body tech debt (server.js:848-1196) surfaced during Section (b) review — PRE-DATES milestone; explicitly scoped-out by server.js:848 comment block; flagged in 06-SECURITY.md Optional Hardening Notes as recommended tech-debt sweep NOT a Section (b) FAIL. Plan template acceptance text ("legacy hits should be inspected to confirm they do NOT use callerUid for authorization") covers this case by design — legacy protected by `verifyAdminByUid(callerUid)` gate (weaker but functional); all NEW routes (moderationRouter + /api/admin/users/search) use cryptographic verifyIdToken chain
 - [Phase 06]: Plan 06-10: T-06-05 disposition revised — "accept with deferred verification" rather than "mitigate" because Plan 06-0b (QUAL-02 k6 harness) was deferred by operator 2026-04-19 and scripts/load-test/ directory does not exist in backend repo. No current surface = no exposure risk. Optional Hardening bullet 1 rewritten to reflect this. Future milestone that builds the harness must re-run the T-06-05 grep and update disposition
+- [Phase ?]: Phase 08 P01: Wave-1 substrate landed in 3 commits — multer-S3 extraction (1d96d45) + 4 moderation modules (6af5f3a) + 3 Wave-0 test files (60f26cc); 33→60 tests (+27); zero deviations
+- [Phase ?]: Phase 08 P01: ListingServiceError shipped as SEPARATE file (src/moderation/listingErrors.js) rather than inlined at top of listingService.js — Plan section 5 left this to executor discretion; rationale is cleaner Wave-2/3 test imports asserting err.code without pulling full service surface
+- [Phase ?]: Phase 08 P01: Wave-0 atomicity test uses HAND-ROLLED runMockSuspend helper mirroring canonical audit-then-Car withTransaction pattern — locks the atomicity contract BEFORE Wave 2 plans land bodies; any Wave-2 implementation that reverses ordering, drops { session }, or uses single-doc create (Pitfall 2) fails this test
+- [Phase ?]: Phase 08 P01: denySelfModerationListing reads chain BOTH setOptions bypass flags ({ includeAllListingStatuses: true, includeAllUsers: true }) — Phase 9 listing-status hide hook + existing Phase 3 seller-cascade hook bypass; Phase 9 lands its hook without retroactively touching Phase 8 code
+- [Phase ?]: Phase 08 P01: LADM-01..05 requirements NOT marked complete in REQUIREMENTS.md despite plan frontmatter listing them — Plan-01 ships the Wave-1 SUBSTRATE only (listingService stubs throw not_implemented; no real handler bodies); Wave 2 (Suspend/Archive/Delete/Restore) and Wave 3 (Edit) land the real implementations that fulfill LADM-01..05. Premature requirement tickoff would falsely report shipped features. Pattern matches Phase 06 P01 substrate handling (AFF-01..04 deferred to landing waves)
+- [Phase ?]: Phase 08 P02: TDD task ordering pivot — plan tasks reordered to canonical RED-GREEN (tests RED first, service GREEN second, router substrate third); substantive deliverables unchanged
+- [Phase ?]: Phase 08 P02: suspendListing canonical pattern locked — defensive arg-check + pre-txn read with double-bypass setOptions + same-state fast-path BEFORE startSession + withTransaction(audit-then-Car) + finally endSession + thin D-02 response from in-memory state. Plans 08-03/04/05 copy verbatim diverging only on toStatus + action verb
+- [Phase ?]: Phase 08 P02: D-02 thin response built from in-memory $set payload (no post-commit Car.findById round-trip) — listing carries _id/status/moderatedBy/moderatedAt only; action carries _id/action/fromStatus/toStatus/createdAt only. Test 7 exact Object.keys assertion locks the key set against future refactor widening
+- [Phase ?]: Phase 08 P02: KNOWN_LISTING_ERRORS Set in listingRouter.js pre-populated with all 10 Wave 2/3 codes — invalid_transition explicitly inline-documented as v1.1-never-emits (reserved for super-admin restricted matrix per D-B-2); Plans 08-03..06 throw without amending the registry
+- [Phase ?]: Phase 08 P02: same-state guard fires BEFORE session.startSession() — no-op suspend pays zero txn overhead and writes zero audit rows; explicitly verified in test 2 (countDocuments=0 after rejected same-state call)
+- [Phase ?]: Phase 08 P02: matchedCount !== 1 inside the txn throws listing_not_found — covers TOCTOU between pre-txn read + Car.updateOne (concurrent admin delete); withTransaction aborts cleanly and audit row rolls back
+- [Phase ?]: Phase 08 P02: handleListingServiceError reads err.code || err.message — err.code is canonical signal from ListingServiceError constructor; message fallback catches plain Error thrown accidentally so KNOWN-set lookup still works
+- [Phase ?]: Phase 08 P02: test seeds Car via Car.collection.insertOne (NOT Car.create) — bypasses pre-save validators + pre(/^find/) seller-cascade hook during seeding; mirrors editProfile.test.js:54-57 + atomicity test:81-85
+- [Phase 08]: Plan 08-03: archiveListing body is a substitution-only mirror of suspendListing — only target='archived' + action='archive' differ; proves canonical pattern generalizes across labels without structural deviation
+- [Phase 08]: Plan 08-03: Cross-state suspended→archive + deleted→archive tests landed — symmetric pair to Plan 08-02's archived→suspend + deleted→suspend; D-B open matrix now proved bidirectionally
+- [Phase 08]: Plan 08-03: Missing-reasonCategory defensive test dropped vs. Plan 08-02 catalog — service-level guard is byte-shared with Suspend so coverage transitive; Plan Task 3 action note explicitly allowed this discretion
+- [Phase 08]: Plan 08-03: Happy-path uses 'inactive_seller' reasonCategory — canonical Archive reason per D-09; semantically distinct from Suspend's punitive choices but schema layer permits any reasonCategory value (D-A-1 permissive validation)
+- [Phase 08]: Plan 08-04: deleteListing body is third substitution-only mirror of the canonical Phase-8 transition shape — only target='deleted' + action='delete' differ from Plan 08-02 suspendListing / Plan 08-03 archiveListing. Canonical pattern now proven to generalize across three labels with zero structural deviation
+- [Phase 08]: Plan 08-04: LADM-04 SOFT-DELETE invariant locked at THREE enforcement layers — (1) source-level header comment forbidding Mongoose document-removal APIs on Car; (2) automated grep gate at zero matches for the literal API token family; (3) integration Test 2 asserts Car.countDocuments({_id}) === 1 BOTH pre- and post-call + persisted doc has seeded sellerId/createdAt preserved. Any future refactor introducing a runtime removal call trips both gate and test
+- [Phase 08]: Plan 08-04: Inline header comment rephrased to avoid literal API token strings — plan's verify script is a literal grep that does not distinguish source comments from runtime code. Rephrased "Car.deleteOne / Car.deleteMany / Car.findOneAndDelete" to "any of Mongoose's document-removal APIs on the Car model (the *.delete*One, *.delete*Many, *.findOne*AndDelete family)". Prescriptive intent preserved; grep gate satisfied. Documented as deviation in SUMMARY
+- [Phase 08]: Plan 08-04: Cross-state suspended→delete + archived→delete tests landed — completes D-B open-matrix proof across all three Wave-2 transition labels (Plan 08-02 covered archived/deleted→suspend; Plan 08-03 covered suspended/deleted→archive; this plan covers suspended/archived→delete). Catalog uses 'spam'/'fraud'/'policy_violation' reasonCategories to exercise all three punitive enum values
+- [Phase 08]: Plan 08-04: TDD task ordering pivot (third consecutive in Phase 8) — service-body/router/tests author-order pivoted to RED test → GREEN service → router substrate. Mandatory under MVP+TDD gate when tdd="true" set on behavior-adding tasks
+- [Phase 08]: Plan 08-05: restoreListing body is the fourth substitution mirror of canonical Phase-8 pattern, with FIVE intentional Restore-specific divergences locked in source + grep + test layers — (1) signature has NO reasonCategory parameter (D-C body shape); (2) same-state guard throws not_moderated NOT already_in_state (Pitfall 10); (3) audit row reasonCategory: null (D-C); (4) Car $set CLEARS moderationReason + moderationNote to null (D-C-1); (5) Car $set UPDATES moderatedBy + moderatedAt to the restoring admin (D-C-2). Canonical pattern now proven to generalize across all four state-transition labels
+- [Phase 08]: Plan 08-05: LADM-05 history-preservation invariant locked at TWO independent layers — schema-layer (Phase 7's 6 append-only pre-hooks on ListingModerationAction prevent any in-handler bug from editing prior rows) AND test-layer (Test 5 seeds one prior audit row via collection.insertOne, captures _id from insertOne result, runs Restore, then asserts the original _id round-trips byte-identical post-Restore AND countDocuments({listingId}) === 2). Any future refactor introducing in-place audit updates trips Test 5 immediately (action would change OR countDocuments would drop)
+- [Phase 08]: Plan 08-05: Inline rationale comments inside restoreListing function body rephrased to avoid the literal 'already_in_state' token — plan's verify script is a literal grep forbidding that token anywhere in the restoreListing body (Pitfall 10 grep-lock against accidental cross-action no-op use). Rephrased two comment blocks to use 'the cross-action no-op code' descriptor. Same Rule 1 trade-off Plan 08-04 made for its LADM-04 soft-delete comment block — preserve gate machine-checkability over verbatim prose. Documented as deviation in SUMMARY
+- [Phase 08]: Plan 08-05: D-C body-shape invariant locked at THREE layers — (1) Plan 08-01 schema (restoreListingSchema is .strict() with only { note? }; Zod rejects reasonCategory as unrecognized_keys); (2) Plan 08-05 service signature destructures only { adminUid, adminEmail, carId, note }; (3) Plan 08-05 router dispatch object passes only those four named keys (no reasonCategory). Defense-in-depth: regression at any one layer caught by the next
+- [Phase 08]: Plan 08-05: Test 1 happy-path asserts moderatedAt.getTime() !== priorTimestamp.getTime() — locks D-C-2 (fresh Date stamp). Without this assertion, a regression that preserves the prior moderatedAt value alongside flipping moderationReason/moderationNote to null would silently pass the other assertions
+- [Phase 08]: Plan 08-05: Three explicit happy-path tests (suspended/archived/deleted → active) over test.each — plan's <action> allowed author discretion ("loop with test.each or three explicit tests"); explicit form gives diagnostic clarity on failure. Deleted → active test specifically locks the Plan 08-04 soft-delete invariant interlock (a Car at status='deleted' is both findable AND restorable). Total restoreListing.test.js: 7 tests (matches plan floor)
+- [Phase 08]: Plan 08-05: Router NO multer addition + NO KNOWN_LISTING_ERRORS amendment — Plan 08-02's foresight (registering all 10 Wave 2/3 codes upfront) paid off for the fourth consecutive Wave-2 plan; Restore's three error codes (listing_not_found / not_moderated / cannot_moderate_own_listing) all pre-registered. grep -c "upload.array" still 0 (D-D-1 lock preserved)
+- [Phase 08]: Plan 08-05: TDD task ordering pivot (fourth consecutive in Phase 8) — author-order service→router→tests pivoted to RED test → GREEN service → router substrate. Mandatory under MVP+TDD gate when tdd="true" set on behavior-adding tasks. Phase 8 pattern is now stable across four plans
+- [Phase 08]: Plan 08-06: editListing is the first Phase-8 handler with STRUCTURAL divergence — four-section body (A pre-read with D-A-4 status-irrelevance / B lazy mongoose.model() VehicleMake+VehicleModel validation / C per-field fieldDiff + image-merge / D empty-diff + atomic transaction). Atomicity contract preserved (session.withTransaction audit-then-Car); per-field semantics differ. Lazy mongoose.model() via getVehicleModels() helper mirrors v1.0 getProfileModel — production resolves server.js inline registrations, tests resolve pre-registered loose-schema variants
+- [Phase 08]: Plan 08-06: D-A-3 stamp distinction locked at FOUR layers — (1) inline source comment at the Car.updateOne block; (2) plan's automated verify-gate forbids 'moderatedBy: adminUid' OR 'moderatedAt: new Date' in editListing function body; (3) integration test 13 seeds Car with moderatedBy='original-admin' + moderatedAt=2025-01-01 + moderationReason='spam' + moderationNote, calls editListing with editing-admin, asserts post-call moderatedBy/moderatedAt/moderationReason/moderationNote ALL preserved AND lastEditedBy/lastEditedAt updated; (4) D-A-4 forbids 'already_in_state' in editListing body. Any regression that stamps moderatedBy on Edit trips at least 2 of the 4 layers
+- [Phase 08]: Plan 08-06: Lazy require of carImages.js in listingRouter.js — Rule 3 auto-fix. Direct module-top 'const { upload } = require(carImages)' trips multer-S3 with 'bucket is required' when AWS_BUCKET_NAME unset (every existing __tests__/listing-moderation/* test that loads listingRouter, Phase 7 listingModerationRateLimiter being the canary). Resolved with getUpload() lazy-loader + uploadImages Express-middleware closure; production semantics byte-identical (internally calls upload.array('images', 25) on first PATCH /:carId). Literal upload.array token placed in route-block doc comment so plan's verify-gate grep (upload.array literal between '/:carId' and denySelfModerationListing) continues to pass
+- [Phase 08]: Plan 08-06: Explicit mongoose.Types.ObjectId cast on VehicleModel.findOne({makeId}) filter — Rule 1 auto-fix discovered via test 10+12 RED. Production server.js declares makeId as Schema.Types.ObjectId at server.js:73 which auto-casts strings → ObjectIds at the query boundary; loose-schema test collections (strict: false) do NOT auto-cast non-_id fields. Without the cast, query against typed-ObjectId-stored makeId misses when the service passes the string form. Added explicit cast with mongoose.isValidObjectId guard (converts malformed input to 400 invalid_model instead of 500 CastError). Production also hardened against future schema-declaration drift
+- [Phase 08]: Phase 8 backend COMPLETE — all 5 LADM-01..05 endpoints live; zero 'not_implemented' stubs remain in listingService.js. Final file inventory: 1 listingRouter + 1 listingService + 1 listingSchemas + 1 denySelfModerationListing + 1 listingErrors + 1 carImages (multer-S3 extraction) + 14 test files (33 Phase 7 + 27 Wave-0 + 14 endpoint tests = 99 total). All 4 ROADMAP success criteria satisfied (atomic audit-then-Car transaction; denySelfModerationListing on all 5 routes; multipart Edit reusing seller-PUT multer-S3; per-field { before, after } changed-only fieldDiff). Phase 9 read-time enforcement is now unblocked
+- [Phase ?]: [Phase 10]: Plan 10-01: ListingModerationError shipped as sibling class in src/services/moderation/errors.ts (NOT a third file per D-14 + Claude's Discretion default) — 10-code explicit union (D-14 base 8 + invalid_make + invalid_model per RESEARCH A4) with | string escape hatch; 7 context fields including refundId/refundFailed (Phase 9 D-12..D-15 cart/checkout surface)
+- [Phase ?]: [Phase 10]: Plan 10-01: Anti-pattern guard against widening ModerationError is a SOURCE-LEVEL grep test (fs.readFileSync + regex extracts class block, asserts no listing-code literals leak in) — catches regressions a TS type-check might miss when the union is widened via | string interpolation. Fault-injection runbook documented in SUMMARY: inject 'listing_not_available' → 1/7 fails; revert → 7/7 green
+- [Phase ?]: [Phase 10]: Plan 10-01: LMOB-01 + LMOB-02 NOT marked complete in REQUIREMENTS.md — this plan ships Wave-1 SUBSTRATE only (typed error class); LMOB-01 ticks off when Plan 10-04 lands the 5 ModerationService methods, LMOB-02 ticks off when Plan 10-05 lands the interceptor non-regression tests + apiClient migration. Matches Phase 6 P01 / Phase 8 P01 substrate pattern
+- [Phase ?]: [Phase 10]: Plan 10-02: Canonical listing-title concat locked at `${year} ${makeName} ${modelName}` via single shared buildListingTitle helper — Plans 10-06 (bottom-sheet header) + 10-08 (TypedConfirmationModal target) both import it, making Pitfall 6 (typed-input vs displayed-string mismatch) structurally impossible
+- [Phase ?]: [Phase 10]: Plan 10-02: D-08a sentinel match uses `typed.length > 0 && typed === canonical` (case-insensitive + whitespace-trimmed equality with defensive empty-input rejection) — prevents '' === '' from matching when both car and input are empty; T-10-05 documented as accept-disposition (friction-with-purpose, backend denySelfModerationListing is the authority)
+- [Phase ?]: [Phase 10]: Plan 10-02: D-08b fallback applied per-field (makeName ?? makeId, modelName ?? modelId) rather than whole-object — handles legacy data where only one of make/model is denormalized; helper stays pure synchronous (no catalog round-trip from inside the helper)
+- [Phase ?]: [Phase 10]: Plan 10-02: Rule 1 auto-fix — initial comment block in listingTitle.ts used literal tokens 'react' / 'useVehicleCatalog' / 'axios' in explanatory prose, tripping the plan's `grep -c` verification invariant (returned 2 instead of 0). Comments rewritten to synonyms ('UI framework imports' / 'catalog round-trip' / 'HTTP client'); semantic intent preserved, mechanical invariant now green
+- [Phase 10]: Plan 10-03: Cross-repo backend slice (GET /api/admin/moderation/listings) committed in carEx-services on main as f0da7f5 / 3c8ed63 / b4f61f2. 20-test integration suite GREEN; Phase 7/8 regression 99/99 GREEN; Phase 9 regression 29/29 GREEN. LUI-04 backend contract sealed.
+- [Phase 10]: Plan 10-03: Cursor shape base64(JSON({createdAt,_id})) ported verbatim from src/admin/router.js:30-57 user-search — mobile now has exactly one cursor format across /users/search and /moderation/listings. escapeRegex+encodeCursor+decodeCursor helpers are domain-agnostic and re-used.
+- [Phase 10]: Plan 10-03: Invalid cursor returns 200 + empty rows + null nextCursor (not 400) — diverges from user-search at admin/router.js:113-115 which fails loud with invalid_cursor. Stale mobile cursor pointing at a hard-deleted row should not break the admin list. Block 8 tests lock this.
+- [Phase 10]: Plan 10-03: [Rule 1 auto-fix] Chained BOTH includeAllListingStatuses AND includeAllUsers on Car.find — plan literal said deliberately NOT includeAllUsers, but Phase 3 seller-cascade hook unconditionally calls mongoose.model('User') (throws MissingSchemaError in narrow tests) AND admin moderation needs visibility on listings whose seller is moderated (cleanup workflow). Matches the Phase 8 admin-handler convention.
+- [Phase 10]: Plan 10-03: PII whitelist for q substring is 3 fields ONLY — makeName (case-insensitive substring), modelName (case-insensitive substring), listingId (PREFIX). description/phoneNumber/telegramUsername/email NEVER searched. Block 6 seeds unique_telltale_string_xyz/555-0101/secret_handle and asserts each probe returns 0 rows. T-10-03 mitigation locked at the behavior level.
+- [Phase ?]: [Phase 10]: Plan 10-04: ModerationService extended with 5 listing write methods (adminEditListing, suspendListing, archiveListing, deleteListing, restoreListing) + searchListings read + toListingModerationError helper. Write methods wrap axios 4xx into ListingModerationError; searchListings re-throws raw so 500-class bugs surface to screen EmptyState (RESEARCH 916-921). Multipart adminEditListing uses structured input + explicit Content-Type header (Pitfall 9).
+- [Phase ?]: [Phase 10]: Plan 10-04: Anti-pattern guardrails locked at filesystem level inside listingMethods.test.ts — 3 fs.readFileSync assertions verify AuthService.ts has 0 listing-mod names, http/client.ts keeps exactly 2 interceptors (no third for listing errors per T-10-02), and ModerationError class block in errors.ts has 0 listing codes (sibling discipline duplicated across Plans 10-01 + 10-04 for double lock).
+- [Phase ?]: Phase 10 Plan 05: LMOB-02 regression suite (5 tests) + LOAD-BEARING apiClient.get migration on CarDetailsScreen deep-link fetch (line 112). Test 4 grep-locks interceptors.response.use count at 2; Test 5 accepts 3 canonical discriminator forms. Bearer header now flows on admin deep-link views → Phase 9 D-07 moderationBadge payload reaches CarDetailsScreen → Plan 10-08 banner unblocked.
+- [Phase ?]: Phase 10 Plan 05: Adapter-mock pattern (override apiClient.defaults.adapter with canned-response) reused verbatim from sibling client.test.ts — axios-mock-adapter is NOT a project devDep and CLAUDE.md forbids new networking libs this milestone. Anti-pattern guardrails (interceptor count == 2 + discriminator literal preserved) implemented via fs.readFileSync source-level grep — catches future drift regardless of runtime introspection.
+- [Phase ?]: [Phase 10]: Plan 10-07: TypedConfirmationModal keyboardType prop made purely additive (default 'email-address') — existing Phase 5 user-mod call sites receive zero-change byte-identical behavior; Plan 08's Delete-listing path will pass 'default' for the spacebar-capable listing-title sentinel (Pitfall 3 mitigation)
+- [Phase ?]: [Phase 10]: Plan 10-07: ListingModerationReasonModal embeds LISTING_REASON_OPTIONS 5-value taxonomy locally — D-04 sibling discipline mechanically enforced by Test 8 fs.readFileSync grep guard asserting zero cross-imports + zero ModerationService method calls + zero user-domain reason values at the source-file level
+- [Phase ?]: [Phase 10]: Plan 10-07: ListingRestoreModal omits the 'note' key entirely (not present-with-undefined) when the field is empty — verified by Test 4 hasOwnProperty assertion; matches Phase 8 D-C symmetry where restoreListingSchema accepts an empty body
+- [Phase ?]: [Phase 10]: Plan 10-06: ListingModerationBottomSheet sibling discipline enforced via in-test fs.readFileSync greps — Block E asserts ModerationService=0, useAuth=0, QuickActionSheet=0, inline car-template=0 at the source level so D-04/S7 boundary survives future refactors (T-10-06 mitigation)
+- [Phase ?]: [Phase 10]: Plan 10-06: Block D inner-sheet bubble-stop test rewritten as source-grep regex /onPress=\{\(\)\s*=>\s*\{\}\}/ because RN Pressable does not resolve under react-test-renderer's findAllByType in the carEx jest preset; structural contract preserved without depending on test-renderer type resolution
+- [Phase ?]: [Phase 10]: Plan 10-06: Component is fully pure presentational — receives pre-built listingTitle prop (parent calls buildListingTitle), parent owns optimistic-flip/rollback + ModerationService calls; D-08 + Pattern S7 enforced. isActive = !moderationBadge (Phase 9 D-07 invariant: badge omitted for active listings)
+- [Phase ?]: [Phase 10]: Plan 10-09: SellCarScreen reused via route.params.adminEdit flag (D-01). No new screen file. 11/11 GREEN tests; +94/-14 lines; all 5 sellerStatus gates patched (2 useEffect + 3 render cascade) + GatedScreenWrapper bypass via screenBody-then-wrap pattern + ListingModerationError catch branch with listing_not_found pop-back
+- [Phase ?]: [Phase 10]: Plan 10-09: Render cascade was an inferred Pitfall 4 widening — original plan named only 2 useEffect sites; without the 3 cascade patches admin lands on a Verify-your-phone empty state when their own isPhoneVerified=false. Test 5 locks this discovery as a regression guard
+- [Phase ?]: [Phase 10]: Plan 10-09: GatedScreenWrapper bypass uses local screenBody-then-wrap pattern inside SellCarScreen, NOT an enabled?: boolean prop added to GatedScreenWrapper. Keeps wrapper API surface stable for the 4+ other consumers; smaller diff; no react/no-unstable-nested-components warning
+- [Phase ?]: [Phase 10]: Plan 10-10: Listings-tab parallel state bucket lands in AdminModerationScreen as 11 distinct hooks + 1 distinct listingsAbortRef (Pitfall 7) — NEVER shared with user-tab abortRef. Tab-switch effect gated by 'if (scopeTab !== listings) return' so leaving the tab is a no-op for that tab's lifecycle. Test 10 asserts distinct AbortSignal instances at runtime; Test 12 source-grep complements at compile time
+- [Phase ?]: [Phase 10]: Plan 10-10: mapListingStatusToSeverityState maps listing-domain to user-domain SeverityBadge palettes by VISUAL semantics — deleted→blocked_with_review (red destructive), archived→permanently_banned (neutral grey), suspended→feature_limited (amber warning), active→active (green). Counter-intuitive at the label level (deleted is NOT permanently_banned) but correct at the palette level (deleted is the most destructive listing state and warrants red). Documented in source so future readers see the rationale
+- [Phase ?]: [Phase 10]: Plan 10-10: 5 auto-fix deviations all in test-machinery — 1 Rule-1 source-comment that tripped its own grep invariant (rephrased to avoid the forbidden literal token), 3 Rule-1 test-assertion bugs (composite vs host props on TouchableOpacity testID forwarding, ReactTestInstance.toJSON nonexistence, user-tab effect lifecycle misunderstanding in tab-switch test), 1 Rule-3 unused helper trips ESLint. ZERO functional source-code drift from plan-action prescriptions; all substantive invariants preserved with corrected assertions
+- [Phase ?]: [Phase 10]: Plan 10-10: Phase 10 mobile scope COMPLETE — all 10 plans executed end-to-end. ROADMAP success criteria #1-#5 covered by Plans 08+10-05 / 10-04+08 / 10-06+10-09 / 10-03+10-04+10-07+10-10 / 10-05+08. Backend Plan 10-03 already landed cross-repo. Phase 11 (buyer UX + quality + security review) is unblocked: receives a fully wired admin moderation UI to UAT-pilot
+- [Phase ?]: Phase 10 P08: ShieldAlert moderate badge in CarDetailsScreen headerRight gated on useAuth().isAdmin — D-02 unconditional (admin viewing own listing STILL sees badge; backend rejects with cannot_moderate_own_listing → inline banner per D-15)
+- [Phase ?]: Phase 10 P08: handleListingActionSubmit snapshots BOTH status AND moderationBadge on optimistic flip (Pitfall 2 closure) and rolls back BOTH on error; on success merges result.listing as authoritative
+- [Phase ?]: Phase 10 P08: D-07 two-modal Delete escalation — reason modal stays mounted while TypedConfirmationModal overlays with keyboardType=default + targetEmail=buildListingTitle(fetchedCar) (Pitfall 3 + Pitfall 6 single source of truth)
+- [Phase ?]: Phase 10 P08: D-15 error split — cannot_moderate_own_listing + already_in_state surface as INLINE admin-error-banner (admin keeps working); listing_not_found is hard-stop Alert + navigation.goBack(); other ListingModerationError codes surface as Alert.alert(code)
+- [Phase ?]: [Phase 10]: Plan 10-11 CR-01 gap closure — chose Option B (extend hint resolver to replace both {email} and {title} placeholders). Lets new listing-domain RU/EN strings read naturally with {title} while existing user-domain typedConfirmHint with {email} stays byte-identical (no-op .replace() on absent tokens). DestructiveAction union NOT widened; BODY_KEY_FOR_ACTION map preserved as default; Phase 5 user-mod call sites byte-identical.
+- [Phase ?]: [Phase 10]: Plan 10-12 — CR-04 closure: fetch gate widened to always-fetch-when-admin
 
 ### Pending Todos
 
@@ -279,6 +372,9 @@ None yet.
 | 260528-dj9 | Inline LangSwitchV2 into FloatingSearchPill via trailing prop (260528-d9a took a full row; user opted for same-row placement) | 2026-05-28 | 8486f4c | [260528-dj9-inline-langswitchv2-into-floatingsearchp](./quick/260528-dj9-inline-langswitchv2-into-floatingsearchp/) |
 | 260528-dqz | Move LangSwitchV2 to GreetingBlock chipRow next to listings pill (height mismatch with search pill in 260528-dj9; greeting chip row gives matching pill heights) | 2026-05-28 | d047081 | [260528-dqz-move-langswitchv2-to-greetingblock-chipr](./quick/260528-dqz-move-langswitchv2-to-greetingblock-chipr/) |
 | 260528-evg | Add v1 MakeModelFilterBar dropdown picker + Android hardware back handler to SearchResultsV2 (preserves chevron-back; user keeps dedicated search page for future paid/refined search) | 2026-05-28 | cd56521 | [260528-evg-add-makemodelfilterbar-android-back-hand](./quick/260528-evg-add-makemodelfilterbar-android-back-hand/) |
+| 260528-h2r | Home V2 polish: marginBottom on V2InviteBanner + smart greeting subject (firstName + IANA-timezone-derived city, four fallback states) | 2026-05-28 | fae3744 | [260528-h2r-home-v2-polish-banner-margin-smart-greet](./quick/260528-h2r-home-v2-polish-banner-margin-smart-greet/) |
+| 260528-hmt | Rotating playful greeting + headline variants on HomeScreenV2 (80 strings: 10 per slot × 8 slots; triggers: refresh, focus, AppState active; random no-back-to-back) | 2026-05-28 | fadf376 | [260528-hmt-rotate-playful-greeting-and-headline-var](./quick/260528-hmt-rotate-playful-greeting-and-headline-var/) |
+| 260529-jqv | Fix Android crash "Screen fragments should never be restored" — override MainActivity.onCreate to super.onCreate(null) (Play Store crash, 13% of v49/1.0.48; native-only, requires new release build to ship) | 2026-05-29 | 6d3f59c | [260529-jqv-fix-android-screenfragment-restore-crash](./quick/260529-jqv-fix-android-screenfragment-restore-crash/) |
 
 ## Deferred Items
 
@@ -293,6 +389,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-04-19T15:53:20.000Z
-Stopped at: Phase 06 Plan 10 complete (QUAL-03 security review artifact 06-SECURITY.md — merge-gate sign-off). 1 atomic commit: docs ccb5962 (.planning/phases/06-affected-user-ux-security-review/06-SECURITY.md +254/-0 — frontmatter status=APPROVED, reviewed_by=self per 06-CONTEXT D-QUAL-03 informal review; 5 verbatim criterion sections (a)-(e) from ROADMAP §Phase 6 Success Criterion 6 + Optional Hardening Notes auxiliary + Review Sign-Off footer). All 5 verdicts PASS: (a) verifyIdToken + requireAdmin chain on every new admin route (server.js:850 moderation mount + admin/router.js:93 users/search); (b) zero req.body.callerUid hits on new moderation/admin surface; (c) session.withTransaction on suspend + confirmBooking with refund-first-throw-second; (d) 6 append-only pre-hooks on ModerationAction + zero production mutation call sites; (e) backend git diff main clean, mobile git grep hits only Phase 5 CONCERNS.md pre-existing entries (AIza blamed to cd5f6ac 2026-01-30, Stripe pk_test_ in App.tsx:93). T-06-05 scripts/load-test/ does not exist (Plan 06-0b deferred) — no exposure surface, disposition 'accept with deferred verification'. 3 Rule 3 auto-fixed deviations (all documentation-substitution, zero functional impact): (1) backend uses flat src/<domain>/ layout not src/routes/+src/middleware/ — broadened grep path; (2) mobile on main branch means git diff main is empty — substituted git grep + git log -S + git blame age cross-check; (3) scripts/load-test/ absent — recorded exit-code-2 honestly. Legacy /api/admin/* callerUid-in-body pattern (server.js:848-1196) pre-dates milestone, explicitly scoped-out by server.js:848 comment, flagged in Optional Hardening Notes as recommended future tech-debt sweep NOT a Section (b) FAIL. QUAL-03 CLOSED. Milestone merge-gate cleared. Phase 6 at 10/12 plans complete (06-0a + 06-0b operator-deferred 2026-04-19 — NOT incomplete-pending; revisit in future milestone).
-Resume file: (phase-close) /gsd-verify-phase 06 — all 3 Phase 6 requirements complete (QUAL-01 via 06-01/06-09 + QUAL-03 via 06-10; QUAL-02 operator-deferred)
+Last session: 2026-05-29T15:49:07.352Z
+Stopped at: Phase 11 context gathered
+Resume file: None

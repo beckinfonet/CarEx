@@ -12,6 +12,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { MakeModelFormField } from '../components/MakeModelFormField';
 import { GatedScreenWrapper } from '../components/moderation/GatedScreenWrapper';
+import { ModerationService } from '../services/moderation/ModerationService';
+import { ListingModerationError } from '../services/moderation/errors';
 import { RootStackParamList } from '../types/navigation';
 
 const COUNTRIES = [
@@ -29,6 +31,12 @@ export const SellCarScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'SellCar'>>();
   const carId = route.params?.carId;
   const isEditMode = !!carId;
+  // Plan 10-09 — admin-edit mode reuses this screen via the adminEdit route
+  // flag (D-01). When true, ALL seller-only gates bypass: autofill, car-fetch
+  // predicate, ownership check, the empty-state render cascade
+  // (PENDING/NONE/REJECTED/phone-verify), the GatedScreenWrapper overlay, and
+  // the submit endpoint (swaps to the listing-mod admin-edit service method).
+  const adminEdit = route.params?.adminEdit ?? false;
 
   const [loading, setLoading] = useState(false);
   const [requesting, setRequesting] = useState(false);
@@ -73,10 +81,13 @@ export const SellCarScreen = () => {
   });
 
   useEffect(() => {
-    if (user && user.sellerStatus === 'APPROVED') {
+    // Autofill is a seller-onboarding convenience — admin editing someone
+    // else's listing does NOT want their own profile autofilled into the
+    // target's car. Pitfall 4: gate AND adminEdit-bypass.
+    if (!adminEdit && user && user.sellerStatus === 'APPROVED') {
       checkProfileAndAutofill();
     }
-  }, [user]);
+  }, [user, adminEdit]);
 
   useEffect(() => {
     if (isEditMode && existingImageUrls.length > 0 && !imageOrientation) {
@@ -85,13 +96,16 @@ export const SellCarScreen = () => {
   }, [isEditMode, existingImageUrls.length]);
 
   useEffect(() => {
-    if (carId && user?.sellerStatus === 'APPROVED') {
+    // Pitfall 4: admin needs the car-fetch even when sellerStatus !== APPROVED.
+    if (carId && (adminEdit || user?.sellerStatus === 'APPROVED')) {
       const fetchCar = async () => {
         setLoadingCar(true);
         try {
           const res = await apiClient.get(`/api/cars/${carId}`);
           const c = res.data;
-          if (c.sellerId !== user?.localId) {
+          // Admin (D-01) explicitly skips the ownership check — editing
+          // someone else's listing is the entire point of admin-edit mode.
+          if (!adminEdit && c.sellerId !== user?.localId) {
             Alert.alert(t.error, 'Not authorized to edit this listing.');
             navigation.goBack();
             return;
@@ -148,7 +162,7 @@ export const SellCarScreen = () => {
       };
       fetchCar();
     }
-  }, [carId, user?.localId, user?.sellerStatus]);
+  }, [carId, user?.localId, user?.sellerStatus, adminEdit]);
 
   const handleRequestSeller = async () => {
     // Check mandatory fields first
@@ -435,7 +449,54 @@ export const SellCarScreen = () => {
     });
 
     try {
-      if (isEditMode) {
+      if (adminEdit && carId) {
+        // D-01 admin-edit branch: structured input → ModerationService
+        // assembles multipart centrally (Plan 04 / Pitfall 9). NO inline
+        // FormData rebuilding here (CONTEXT anti-pattern + Pitfall 9).
+        const yearNum = parseInt(formData.year, 10);
+        const priceNum = parseInt(formData.price.replace(/\D/g, ''), 10);
+        const mileageNum = parseInt(formData.mileage.replace(/\D/g, ''), 10);
+        const seatsNum = formData.seats ? parseInt(formData.seats, 10) : undefined;
+        const doorsNum = formData.doors ? parseInt(formData.doors, 10) : undefined;
+        await ModerationService.adminEditListing(carId, {
+          fields: {
+            makeId: formData.makeId,
+            modelId: formData.modelId,
+            trimLevel: formData.trimLevel,
+            wheelbase: formData.wheelbase,
+            fuel: formData.fuel,
+            description: formData.description,
+            bodyType: formData.bodyType,
+            engine: formData.engine,
+            transmission: formData.transmission,
+            drivetrain: formData.drivetrain,
+            mpg: mpgForApi,
+            condition: formData.condition,
+            exteriorColor: formData.exteriorColor,
+            interiorColor: formData.interiorColor,
+            interiorMaterial: formData.interiorMaterial,
+            phoneNumber: fullPhoneNumber,
+            telegramUsername: formData.telegramUsername,
+            year: isNaN(yearNum) ? undefined : yearNum,
+            price: isNaN(priceNum) ? undefined : priceNum,
+            mileage: isNaN(mileageNum) ? undefined : mileageNum,
+            seats: seatsNum && !isNaN(seatsNum) ? seatsNum : undefined,
+            doors: doorsNum && !isNaN(doorsNum) ? doorsNum : undefined,
+            knownIssues: formData.knownIssues,
+          },
+          existingImageUrls,
+          newFiles: images
+            .filter((img) => !!img.uri)
+            .map((img, idx) => ({
+              uri: img.uri as string,
+              type: img.type,
+              name: img.fileName || `image_${idx}.jpg`,
+            })),
+        });
+        Alert.alert(t.success, 'Listing updated by admin', [
+          { text: 'OK', onPress: () => navigation.goBack() },
+        ]);
+      } else if (isEditMode) {
         await apiClient.put(`/api/cars/${carId}`, data, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
@@ -452,7 +513,16 @@ export const SellCarScreen = () => {
       }
     } catch (error: any) {
       console.error('Upload Error Details:', error);
-      Alert.alert(t.error, isEditMode ? 'Failed to update listing.' : 'Failed to upload car listing.');
+      if (error instanceof ListingModerationError) {
+        // Surface the code verbatim — translation mapping can come later;
+        // keeps the error path testable today (Test 8 + Test 9).
+        Alert.alert(t.error, error.code);
+        if (error.code === 'listing_not_found') {
+          navigation.goBack();
+        }
+      } else {
+        Alert.alert(t.error, isEditMode ? 'Failed to update listing.' : 'Failed to upload car listing.');
+      }
     } finally {
       setLoading(false);
     }
@@ -496,9 +566,12 @@ export const SellCarScreen = () => {
     );
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <GatedScreenWrapper capability="create_listing">
+  // Pitfall 5: in admin-edit mode, admin must bypass the gated-screen overlay
+  // even if their own restrictedFeatures include 'create_listing'. Build the
+  // screen body once and conditionally wrap with GatedScreenWrapper — keeps
+  // the diff narrow and avoids react/no-unstable-nested-components.
+  const screenBody = (
+    <>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={COLORS.textPrimary} />
@@ -592,13 +665,13 @@ export const SellCarScreen = () => {
             <Text style={styles.requestButtonText}>{t.login}</Text>
           </TouchableOpacity>
         </View>
-      ) : (user.sellerStatus === 'PENDING') ? (
+      ) : (!adminEdit && user.sellerStatus === 'PENDING') ? (
         <View style={styles.statusContainer}>
           <Clock size={64} color={COLORS.accent} />
           <Text style={styles.statusTitle}>{t.requestSent}</Text>
           <Text style={styles.statusDescription}>{t.sellerStatusPending}</Text>
         </View>
-      ) : (user.sellerStatus === 'NONE' || !user.sellerStatus) ? (
+      ) : (!adminEdit && (user.sellerStatus === 'NONE' || !user.sellerStatus)) ? (
         <View style={styles.statusContainer}>
           {!user.isPhoneVerified ? (
             <>
@@ -620,7 +693,7 @@ export const SellCarScreen = () => {
             </>
           )}
         </View>
-      ) : (user.sellerStatus === 'REJECTED') ? (
+      ) : (!adminEdit && user.sellerStatus === 'REJECTED') ? (
         <View style={styles.statusContainer}>
           <AlertTriangle size={64} color="#EF4444" />
           <Text style={styles.statusTitle}>{t.error}</Text>
@@ -948,7 +1021,14 @@ export const SellCarScreen = () => {
           </ScrollView>
         </KeyboardAvoidingView>
       )}
-      </GatedScreenWrapper>
+    </>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {adminEdit ? screenBody : (
+        <GatedScreenWrapper capability="create_listing">{screenBody}</GatedScreenWrapper>
+      )}
     </SafeAreaView>
   );
 };

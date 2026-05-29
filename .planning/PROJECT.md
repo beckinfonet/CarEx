@@ -15,6 +15,22 @@ Admins can act on bad-actor users after they're already in the system — withou
 **Tag:** `v1.0`
 **Archive:** [.planning/milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md) + [.planning/milestones/v1.0-REQUIREMENTS.md](milestones/v1.0-REQUIREMENTS.md)
 
+## Current Milestone: v1.1 Admin Listing Moderation
+
+**Goal:** Extend v1.0's user-moderation model to the listing domain — give admins four distinct, visibly-distinguished actions on car listings (Edit, Suspend, Archive, Delete-soft) with audit trail and buyer-side pause-not-cancel behavior.
+
+**Target features:**
+- Admin Edit on any listing with `lastEditedBy` audit stamp (reuse seller `EditCarScreen` pending field-coverage research — Q-001)
+- Admin Suspend (warning, reversible) — temporary policy/timeout state, reason captured
+- Admin Archive (neutral, reversible) — for inactive/abandoned sellers, not punitive, reason captured
+- Admin Delete-soft (destructive, recoverable from admin-only "Deleted" view) — reason captured
+- Single listing `status` field (`'active' | 'suspended' | 'archived' | 'deleted'`) updated by all four actions
+- Append-only listing moderation audit log (every state transition recorded)
+- Buyer-side banner + disabled checkout on any non-`'active'` listing; in-flight paid orders proceed
+- RU + EN parity for reason taxonomy, button labels, and buyer banner
+
+**Key context:** Design pre-captured in [.planning/notes/listing-moderation-design.md](notes/listing-moderation-design.md) (from `/gsd-explore` 2026-05-28). Mirrors v1.0 patterns: `firebase-admin.verifyIdToken()` admin auth, application-layer append-only audit pre-hooks, `/api/admin/moderation/*` namespace, severity-aware buyer banner. Deferred to v1.2+: bulk admin listings panel, hard-delete UI, LIST-02 automated flagging queue, NOTF-* notification system.
+
 ## Requirements
 
 ### Validated
@@ -60,9 +76,14 @@ Admins can act on bad-actor users after they're already in the system — withou
 
 ### Active
 
-<!-- Next milestone scope — TBD via `/gsd-new-milestone`. -->
+<!-- v1.1 — Admin Listing Moderation. Detailed requirements defined in REQUIREMENTS.md. -->
 
-To be defined when the next milestone is planned. Carry-forward candidates:
+- LIST-01 — Admin Listing Moderation (Edit / Suspend / Archive / Delete-soft) — v1.1 in progress
+- LENF-01..03 — Backend read-time + TOCTOU enforcement (Car hide hook, status-aware listing-detail GET, cart-add + confirm-booking re-verification) — v1.1, Phase 9 complete 2026-05-29
+
+<!-- v1.2+ carry-forward candidates (deferred from v1.0): -->
+
+Still deferred to a future milestone:
 
 - QUAL-02 — 10k-user backend load test (deferred from v1.0 by operator 2026-04-19)
 - DEBT-01 — Split `AuthService.ts` god-module into domain services (pattern established by ModerationService extraction)
@@ -73,7 +94,7 @@ To be defined when the next milestone is planned. Carry-forward candidates:
 - REL-03 — Move `currentEnv` flag out of `src/constants/config.ts` to a proper env-config mechanism
 - MOD2-01..06 — Extended moderation (CSV export, IP/device fingerprint, bulk select, super-admin tier, admin-handoff comments, saved filters)
 - NOTF-01..03 — Email + push + in-app appeal ticket system
-- LIST-01..02 — Listing-level moderation + automated content flagging queue
+- LIST-02 — Automated content flagging queue (paired with LIST-01, deferred to v1.2+)
 - UX — UserStatusBanner overlap with navbar avatar + logo + screen title (captured during Phase 04 UAT 2026-04-30)
 
 ### Out of Scope
@@ -146,4 +167,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-30 after v1.0 milestone close (Admin Moderation shipped)*
+*Last updated: 2026-05-29 — v1.1 Phase 11 (buyer-affected UX + quality + security review) complete; v1.1 milestone fully executed, ready for ship/cut*

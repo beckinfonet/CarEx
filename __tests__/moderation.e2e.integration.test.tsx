@@ -227,16 +227,22 @@ describe('Phase 4 Integration: Success-Criterion Coverage', () => {
       expect(ModerationService).not.toBeNull();
     });
 
-    it('Test 1.2: ModerationService exposes exactly the 8 methods from 04-CONTEXT D-05 + Plan 05-03', () => {
+    it('Test 1.2: ModerationService exposes the 8 user-mod methods (Phase 4/5) + 6 listing-mod methods (Phase 10)', () => {
       const keys = Object.keys(ModerationService).sort();
       expect(keys).toEqual([
+        'adminEditListing',
+        'archiveListing',
+        'deleteListing',
         'deleteProviderProfile',
         'editProviderProfile',
         'getHistory',
+        'restoreListing',
         'restoreRole',
         'revokeRole',
+        'searchListings',
         'searchUsers',
         'suspend',
+        'suspendListing',
         'unsuspend',
       ]);
     });

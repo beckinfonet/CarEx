@@ -8,7 +8,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X, Edit2, Share2, User, ChevronRight, Briefcase, CreditCard } from 'lucide-react-native';
+import { ArrowLeft, Heart, MessageCircle, AlertTriangle, Send, X, Edit2, Share2, User, ChevronRight, Briefcase, CreditCard, ShieldAlert } from 'lucide-react-native';
 import { useStripe } from '@stripe/stripe-react-native';
 import { AuthService } from '../services/AuthService';
 import { useLanguage } from '../context/LanguageContext';
@@ -16,13 +16,22 @@ import { useAuth } from '../context/AuthContext';
 import { useTypography } from '../hooks/useTypography';
 import { useCart } from '../context/CartContext';
 import { FeatureGateOverlay } from '../components/moderation/FeatureGateOverlay';
+import { ListingModerationBottomSheet, ListingModerationAction } from '../components/moderation/ListingModerationBottomSheet';
+import { ListingModerationReasonModal, ListingReasonAction } from '../components/moderation/ListingModerationReasonModal';
+import ListingStatusBanner from '../components/moderation/ListingStatusBanner';
+import { ListingRestoreModal } from '../components/moderation/ListingRestoreModal';
+import { TypedConfirmationModal } from '../components/moderation/TypedConfirmationModal';
+import { ModerationService } from '../services/moderation/ModerationService';
+import { ListingModerationError } from '../services/moderation/errors';
+import { buildListingTitle } from '../utils/listingTitle';
 import { LISTING_URL, API_URL } from '../constants/config';
 import axios from 'axios';
+import { apiClient } from '../services/http/client';
 
 export const CarDetailsScreen = () => {
   const { width, height } = useWindowDimensions();
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth() as any;
   const { setCar } = useCart();
   const typo = useTypography();
   const insets = useSafeAreaInsets();
@@ -46,6 +55,13 @@ export const CarDetailsScreen = () => {
   const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
   const [paymentWarningVisible, setPaymentWarningVisible] = useState(false);
   const [contactGateVisible, setContactGateVisible] = useState(false);
+  // Phase 10 Plan 08 — admin moderation state.
+  const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
+  const [reasonModalAction, setReasonModalAction] = useState<ListingReasonAction | null>(null);
+  const [restoreModalVisible, setRestoreModalVisible] = useState(false);
+  const [typedConfirmVisible, setTypedConfirmVisible] = useState(false);
+  const [pendingDeletePayload, setPendingDeletePayload] = useState<{ reasonCategory: string; note?: string } | null>(null);
+  const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   // Phase 6 Plan 06-07 — inline contact_seller gate on Telegram + WhatsApp CTAs.
@@ -59,6 +75,11 @@ export const CarDetailsScreen = () => {
   const isContactGated =
     state !== 'active' &&
     (restricted.includes('all_writes') || restricted.includes('contact_seller'));
+
+  // Phase 11 LBUY-01: gate buyer CTAs when listing is non-active for non-admin viewers (D-04 amended).
+  // isAdmin is preserved verbatim from existing AuthContext.
+  const isListingNonActive =
+    !isAdmin && !!fetchedCar?.status && fetchedCar.status !== 'active';
 
   const car = CARS.find(c => c.id === carId) || (route.params as any).carData || fetchedCar;
   const listingStatus = (localListingStatus ?? car?.listingStatus ?? 'active') as string;
@@ -104,12 +125,20 @@ export const CarDetailsScreen = () => {
     checkFavoriteStatus();
   }, [carId]);
 
-  // Fetch car from API when opened via deep link (no carData)
+  // Fetch car from API when opened via deep link (no carData) OR when viewer is admin
+  // (admin always needs the Phase 9 D-07 `moderationBadge` payload — see Plan 10-12 CR-04 fix).
+  // Non-admin viewers with prefilled carData skip the fetch (existing fast-path preserved).
   useEffect(() => {
     const existingCar = CARS.find(c => c.id === carId) || (route.params as any).carData;
-    if (carId && !existingCar) {
+    if (carId && (!existingCar || isAdmin)) {
       setCarLoading(true);
-      axios.get(`${API_URL}/api/cars/${carId}`)
+      // Plan 10-05 / RESEARCH §Assumption A6: use the shared apiClient so the
+      // request interceptor (Phase 4 D-02) attaches the Bearer header.
+      // Without it, the backend's status-aware listing GET (Phase 9 D-08)
+      // treats this request as unauthenticated → admin viewers never see
+      // the Phase 9 D-07 moderationBadge payload, and Plan 10-08's
+      // CarDetails status banner cannot render. baseURL is API_URL.
+      apiClient.get(`/api/cars/${carId}`)
         .then(res => {
           const c = res.data;
           setFetchedCar({
@@ -136,7 +165,7 @@ export const CarDetailsScreen = () => {
         .catch(() => setFetchedCar(null))
         .finally(() => setCarLoading(false));
     }
-  }, [carId]);
+  }, [carId, isAdmin]);
 
   // Fetch seller profile (name, avatar) when car has sellerId
   useEffect(() => {
@@ -407,6 +436,18 @@ export const CarDetailsScreen = () => {
 
       Alert.alert(t.paymentSuccess, t.paymentSuccessDesc);
     } catch (err: any) {
+      // Phase 11 LBUY-01 — TOCTOU 409 from Book-it surfaces as banner state, not generic Alert.
+      // The 409 body shape matches Phase 9 D-11 — see literal-string check below.
+      if (err?.response?.status === 409 && err.response.data?.error === 'listing_not_available') {
+        const body = err.response.data;
+        setFetchedCar((c: any) => c ? ({
+          ...c,
+          status: body.status,
+          reasonCategory: body.reasonCategory,
+          banner: body.banner,
+        }) : c);
+        return;
+      }
       const msg = err?.response?.data?.message || err.message || t.error;
       Alert.alert(t.paymentFailed, msg);
     } finally {
@@ -430,6 +471,107 @@ export const CarDetailsScreen = () => {
     }
   };
 
+  // Phase 10 Plan 08 — Single source of truth (Pitfall 6) for both the
+  // bottom-sheet header AND the TypedConfirmationModal sentinel target.
+  // buildListingTitle reads makeName/modelName with makeId/modelId fallbacks
+  // so the same canonical string is rendered and matched against typed input.
+  const listingTitle = fetchedCar
+    ? buildListingTitle(fetchedCar)
+    : buildListingTitle({
+        year: car?.year,
+        makeName: car?.makeName ?? car?.make,
+        modelName: car?.modelName ?? car?.model,
+        makeId: car?.makeId,
+        modelId: car?.modelId,
+      });
+
+  // Phase 10 Plan 08 — Optimistic flip + rollback handler (D-16).
+  // Snapshots BOTH `status` AND `moderationBadge` (Pitfall 2 — without
+  // flipping the badge alongside status, the banner shows a 200ms
+  // "status changed but no banner" gap that looks broken).
+  // On error, restore BOTH fields. Error mapping per D-15:
+  //   - cannot_moderate_own_listing / already_in_state → INLINE banner
+  //   - listing_not_found                             → Alert + goBack
+  //   - other ListingModerationError                  → Alert.alert(code)
+  //   - non-ListingModerationError                    → Alert.alert('Unexpected error')
+  const handleListingActionSubmit = async (
+    action: 'suspend' | 'archive' | 'delete' | 'restore',
+    body?: { reasonCategory?: string; note?: string },
+  ) => {
+    const prevBadge = fetchedCar?.moderationBadge ?? null;
+    const prevStatus = fetchedCar?.status ?? 'active';
+    const nextStatus =
+      action === 'restore' ? 'active' :
+      action === 'delete' ? 'deleted' :
+      action === 'suspend' ? 'suspended' : 'archived';
+
+    // Optimistic flip — capture both status + moderationBadge in one update.
+    setFetchedCar((c: any) => c ? ({
+      ...c,
+      status: nextStatus,
+      moderationBadge: nextStatus === 'active'
+        ? undefined
+        : {
+            status: nextStatus,
+            reasonCategory: body?.reasonCategory,
+            moderatedAt: new Date().toISOString(),
+          },
+    }) : c);
+    setBottomSheetVisible(false);
+    setReasonModalAction(null);
+    setRestoreModalVisible(false);
+
+    try {
+      const fn =
+        action === 'suspend' ? ModerationService.suspendListing :
+        action === 'archive' ? ModerationService.archiveListing :
+        action === 'delete'  ? ModerationService.deleteListing  :
+        ModerationService.restoreListing;
+      const result: any = await fn(carId, (body ?? {}) as any);
+      // Merge authoritative response into fetchedCar (replaces optimistic values).
+      if (result?.listing) {
+        setFetchedCar((c: any) => c ? ({ ...c, ...result.listing }) : c);
+      }
+    } catch (err: any) {
+      // Rollback BOTH status and moderationBadge to pre-flip snapshot.
+      setFetchedCar((c: any) => c ? ({
+        ...c,
+        status: prevStatus,
+        moderationBadge: prevBadge ?? undefined,
+      }) : c);
+      if (err instanceof ListingModerationError) {
+        if (err.code === 'cannot_moderate_own_listing' || err.code === 'already_in_state') {
+          setErrorBanner(err.code);
+        } else if (err.code === 'listing_not_found') {
+          Alert.alert(t.error || 'Error', 'Listing not found');
+          navigation.goBack();
+        } else {
+          Alert.alert(t.error || 'Error', err.code);
+        }
+      } else {
+        Alert.alert(t.error || 'Error', 'Unexpected error');
+      }
+    }
+  };
+
+  // Phase 10 Plan 08 — bottom-sheet → action dispatcher.
+  //  - Edit:    navigation.navigate('SellCar', { carId, adminEdit: true })
+  //             (Plan 09 wires the receiving side)
+  //  - Restore: open ListingRestoreModal
+  //  - 4 active actions: open ListingModerationReasonModal
+  const handleSheetSelect = (action: ListingModerationAction) => {
+    if (action === 'edit') {
+      setBottomSheetVisible(false);
+      navigation.navigate('SellCar', { carId, adminEdit: true });
+    } else if (action === 'restore') {
+      setBottomSheetVisible(false);
+      setRestoreModalVisible(true);
+    } else {
+      setBottomSheetVisible(false);
+      setReasonModalAction(action as ListingReasonAction);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
@@ -449,6 +591,21 @@ export const CarDetailsScreen = () => {
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { fontFamily: typo.display }]}>{car.make} {car.model}</Text>
         <View style={styles.headerRight}>
+          {/* Phase 10 Plan 08 — Admin Moderate badge (D-LUI-01). Gated ONLY on
+              isAdmin; D-02 unconditional — admin viewing their own listing
+              STILL sees the badge. Backend is the authority and rejects
+              own-listing actions with cannot_moderate_own_listing → inline
+              banner per D-15. */}
+          {isAdmin && (
+            <TouchableOpacity
+              testID="moderate-badge"
+              style={styles.iconButton}
+              onPress={() => setBottomSheetVisible(true)}
+              accessibilityLabel="Moderate listing"
+            >
+              <ShieldAlert size={24} color={COLORS.warning} />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
             <Share2 size={24} color={COLORS.accent} />
           </TouchableOpacity>
@@ -514,6 +671,68 @@ export const CarDetailsScreen = () => {
         </View>
 
         <View style={styles.detailsContainer}>
+          {/* Phase 11 LBUY-01 — Non-admin buyer-facing banner above hero (D-02).
+              Mutually exclusive with the admin status banner below via the
+              !isAdmin / isAdmin predicate pair. Renders for suspended /
+              archived / deleted listings via the Phase 9 D-05 thin payload. */}
+          {!isAdmin && fetchedCar?.status && fetchedCar.status !== 'active' && fetchedCar?.banner && (
+            <ListingStatusBanner
+              status={fetchedCar.status as 'suspended' | 'archived' | 'deleted'}
+              reasonCategory={fetchedCar.reasonCategory ?? null}
+              bannerHints={fetchedCar.banner}
+              variant="detail"
+            />
+          )}
+          {/* Phase 10 Plan 08 — Admin status banner (D-17). Admin-only +
+              moderationBadge presence-gated. Renders status/reasonCategory
+              chip/moderationReason free-text/setBy admin info. Distinct from
+              Phase 11 LBUY-01 buyer variant. */}
+          {isAdmin && fetchedCar?.moderationBadge && (
+            <View
+              testID="admin-status-banner"
+              style={[
+                styles.adminStatusBanner,
+                fetchedCar.moderationBadge.banner?.severity === 'warning' && styles.adminBannerWarning,
+                fetchedCar.moderationBadge.banner?.severity === 'neutral' && styles.adminBannerNeutral,
+                fetchedCar.moderationBadge.banner?.severity === 'destructive' && styles.adminBannerDestructive,
+              ]}
+            >
+              <Text style={[styles.adminBannerStatus, { fontFamily: typo.display }]}>
+                {fetchedCar.moderationBadge.status}
+              </Text>
+              {fetchedCar.moderationBadge.reasonCategory ? (
+                <Text style={[styles.adminBannerChip, { fontFamily: typo.display }]}>
+                  {fetchedCar.moderationBadge.reasonCategory}
+                </Text>
+              ) : null}
+              {fetchedCar.moderationBadge.moderationReason ? (
+                <Text style={[styles.adminBannerReason, { fontFamily: typo.display }]}>
+                  {fetchedCar.moderationBadge.moderationReason}
+                </Text>
+              ) : null}
+              {fetchedCar.moderationBadge.moderatedBy ? (
+                <Text style={[styles.adminBannerSetBy, { fontFamily: typo.display }]}>
+                  by {fetchedCar.moderationBadge.moderatedBy}
+                </Text>
+              ) : null}
+            </View>
+          )}
+          {/* Phase 10 Plan 08 — Admin error banner (D-15). Renders for
+              cannot_moderate_own_listing + already_in_state; admin keeps
+              working. listing_not_found surfaces via Alert + goBack. */}
+          {errorBanner && (
+            <View testID="admin-error-banner" style={styles.adminErrorBanner}>
+              <Text style={[styles.adminErrorBannerText, { fontFamily: typo.display }]}>
+                {errorBanner}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setErrorBanner(null)}
+                accessibilityLabel="Dismiss error"
+              >
+                <X size={16} color={COLORS.textPrimary} />
+              </TouchableOpacity>
+            </View>
+          )}
           {(listingStatus === 'booked' || listingStatus === 'sold') && (
             <View style={[styles.statusBadge, listingStatus === 'sold' && styles.statusBadgeSold]}>
               <Text style={[styles.statusBadgeText, { fontFamily: typo.display }]}>{listingStatus === 'sold' ? t.sold : t.booked}</Text>
@@ -597,8 +816,8 @@ export const CarDetailsScreen = () => {
             <View style={styles.actionButtonsRow}>
               {canAccessBookedCar && (
                 <TouchableOpacity
-                  style={styles.getServicesButton}
-                  onPress={() => {
+                  style={[styles.getServicesButton, (isContactGated || isListingNonActive) && { opacity: 0.4 }]}
+                  onPress={isListingNonActive ? undefined : () => {
                     setCar({
                       id: car._id || car.id || '',
                       makeName: car.makeName || car.make || '',
@@ -610,15 +829,24 @@ export const CarDetailsScreen = () => {
                       listingId: car.listingId || '',
                     });
                     navigation.navigate('Services');
-                  }}>
+                  }}
+                  disabled={isListingNonActive}
+                  testID="car-details-get-services-cta"
+                  accessibilityState={{ disabled: isContactGated || isListingNonActive }}>
                   <Briefcase size={18} color={COLORS.accent} />
                   <Text style={[styles.getServicesText, { fontFamily: typo.display }]}>{t.getServices}</Text>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
-                style={[styles.bookItButton, listingStatus === 'booked' && styles.bookItButtonDisabled]}
-                onPress={handleBookIt}
-                disabled={bookingLoading || listingStatus === 'booked'}>
+                style={[
+                  styles.bookItButton,
+                  listingStatus === 'booked' && styles.bookItButtonDisabled,
+                  (isContactGated || isListingNonActive) && { opacity: 0.4 },
+                ]}
+                onPress={isListingNonActive ? undefined : handleBookIt}
+                disabled={bookingLoading || listingStatus === 'booked' || isListingNonActive}
+                testID="car-details-book-it-cta"
+                accessibilityState={{ disabled: isContactGated || isListingNonActive || listingStatus === 'booked' }}>
                 {bookingLoading ? (
                   <ActivityIndicator size="small" color="#22c55e" />
                 ) : (
@@ -697,11 +925,15 @@ export const CarDetailsScreen = () => {
             <View style={styles.contactButtonsRow}>
               {car.telegramUsername && (
                 <TouchableOpacity
-                  style={[styles.contactButton, styles.telegramButton, isContactGated && { opacity: 0.4 }]}
-                  onPress={isContactGated ? () => setContactGateVisible(true) : handleTelegram}
-                  disabled={false}
+                  style={[styles.contactButton, styles.telegramButton, (isContactGated || isListingNonActive) && { opacity: 0.4 }]}
+                  onPress={
+                    isListingNonActive ? undefined
+                    : isContactGated ? () => setContactGateVisible(true)
+                    : handleTelegram
+                  }
+                  disabled={isListingNonActive}
                   testID="car-details-telegram-cta"
-                  accessibilityState={{ disabled: isContactGated }}>
+                  accessibilityState={{ disabled: isContactGated || isListingNonActive }}>
                   <Send size={20} color="#FFF" />
                   <Text style={[styles.contactButtonText, { color: '#FFF', fontFamily: typo.display }]}>Telegram</Text>
                 </TouchableOpacity>
@@ -711,12 +943,16 @@ export const CarDetailsScreen = () => {
                   styles.contactButton,
                   styles.whatsappButton,
                   car.telegramUsername ? { flex: 1, marginLeft: 2 } : { width: '100%' },
-                  isContactGated && { opacity: 0.4 },
+                  (isContactGated || isListingNonActive) && { opacity: 0.4 },
                 ]}
-                onPress={isContactGated ? () => setContactGateVisible(true) : handleCallSeller}
-                disabled={false}
+                onPress={
+                  isListingNonActive ? undefined
+                  : isContactGated ? () => setContactGateVisible(true)
+                  : handleCallSeller
+                }
+                disabled={isListingNonActive}
                 testID="car-details-whatsapp-cta"
-                accessibilityState={{ disabled: isContactGated }}>
+                accessibilityState={{ disabled: isContactGated || isListingNonActive }}>
                 <MessageCircle size={20} color="#FFF" />
                 <Text style={[styles.contactButtonText, { color: '#FFF', fontFamily: typo.display }]}>{t.whatsapp}</Text>
               </TouchableOpacity>
@@ -934,6 +1170,78 @@ export const CarDetailsScreen = () => {
         </View>
         )}
       </Modal>
+
+      {/* Phase 10 Plan 08 — Admin moderation modal stack.
+          Mounted unconditionally (visible prop drives render). Bottom sheet
+          shows 4 actions when fetchedCar has no moderationBadge (active),
+          else swaps to single Restore row. Reason modal opens for
+          suspend/archive/delete; Delete escalates to TypedConfirmationModal
+          (D-07 two-modal stack — reason modal stays mounted while typed
+          confirm overlays with keyboardType="default" for Pitfall 3
+          mitigation). Restore opens ListingRestoreModal. listingTitle
+          derived from buildListingTitle(fetchedCar) (Pitfall 6 single
+          source of truth — same string used for sheet header AND sentinel
+          target). */}
+      <ListingModerationBottomSheet
+        visible={bottomSheetVisible}
+        listingTitle={listingTitle}
+        moderationBadge={fetchedCar?.moderationBadge}
+        onSelect={handleSheetSelect}
+        onClose={() => setBottomSheetVisible(false)}
+      />
+
+      {reasonModalAction && fetchedCar && (
+        <ListingModerationReasonModal
+          visible={true}
+          action={reasonModalAction}
+          carId={carId}
+          listingTitle={listingTitle}
+          onSubmit={(payload) => {
+            if (reasonModalAction === 'delete') {
+              setPendingDeletePayload(payload);
+              setTypedConfirmVisible(true);
+            } else {
+              handleListingActionSubmit(reasonModalAction, payload);
+            }
+          }}
+          onClose={() => setReasonModalAction(null)}
+        />
+      )}
+
+      {/* Plan 10-11 CR-01 fix — pass listing-specific copy via override props so admin
+          sees "This listing will be permanently deleted" instead of the user-profile
+          delete copy. Sentinel match semantics unchanged (targetEmail still carries
+          listingTitle; case-insensitive trimmed equality per D-08a). */}
+      {typedConfirmVisible && fetchedCar && pendingDeletePayload && (
+        <TypedConfirmationModal
+          visible={true}
+          action="delete_profile"
+          targetEmail={listingTitle}
+          keyboardType="default"
+          bodyKey="typedConfirmListingDeleteBody"
+          hintKey="typedConfirmListingHint"
+          placeholderKey="typedConfirmListingPlaceholder"
+          onConfirm={() => {
+            setTypedConfirmVisible(false);
+            setReasonModalAction(null);
+            handleListingActionSubmit('delete', pendingDeletePayload);
+            setPendingDeletePayload(null);
+          }}
+          onClose={() => {
+            setTypedConfirmVisible(false);
+            setPendingDeletePayload(null);
+          }}
+        />
+      )}
+
+      {restoreModalVisible && fetchedCar && (
+        <ListingRestoreModal
+          visible={true}
+          carId={carId}
+          onSubmit={(body) => handleListingActionSubmit('restore', body)}
+          onClose={() => setRestoreModalVisible(false)}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -1523,5 +1831,67 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     // flex: 1, // Removed to allow centering of content group
     textAlign: 'center',
+  },
+  // Phase 10 Plan 08 — Admin status banner + error banner styles (D-17, D-15).
+  adminStatusBanner: {
+    paddingHorizontal: SIZES.padding,
+    paddingVertical: SIZES.spacingSm,
+    marginBottom: SIZES.spacingSm,
+    borderRadius: SIZES.borderRadius,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.cardBackground,
+  },
+  adminBannerWarning: {
+    backgroundColor: COLORS.moderation.featureLimited.bg,
+    borderColor: COLORS.moderation.featureLimited.border,
+  },
+  adminBannerNeutral: {
+    backgroundColor: COLORS.searchBackground,
+    borderColor: COLORS.border,
+  },
+  adminBannerDestructive: {
+    backgroundColor: COLORS.moderation.blockedReview.bg,
+    borderColor: COLORS.moderation.blockedReview.border,
+  },
+  adminBannerStatus: {
+    color: COLORS.textPrimary,
+    fontSize: 14,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  adminBannerChip: {
+    color: COLORS.textPrimary,
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  adminBannerReason: {
+    color: COLORS.textSecondary,
+    fontSize: 13,
+    marginBottom: 2,
+  },
+  adminBannerSetBy: {
+    color: COLORS.textTertiary,
+    fontSize: 12,
+  },
+  adminErrorBanner: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: SIZES.padding,
+    paddingVertical: SIZES.spacingSm,
+    marginBottom: SIZES.spacingSm,
+    borderRadius: SIZES.borderRadius,
+    backgroundColor: COLORS.moderation.blockedReview.bg,
+    borderWidth: 1,
+    borderColor: COLORS.destructive,
+  },
+  adminErrorBannerText: {
+    color: COLORS.textPrimary,
+    fontSize: 14,
+    flex: 1,
   },
 });
