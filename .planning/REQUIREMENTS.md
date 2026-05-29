@@ -50,16 +50,16 @@ Requirements for milestone v1.1. Each maps to exactly one roadmap phase.
 
 ### Buyer-affected UX
 
-- [ ] **LBUY-01**: `CarDetailsScreen` viewed by a non-admin shows a non-dismissable banner with status + reason category for any non-active listing (severity-aware tone, mirroring v1.0 `UserStatusBanner` patterns)
-- [ ] **LBUY-02**: Cart containing a non-active listing renders a banner on the cart row + disables the checkout button; cart is NOT auto-cleared (buyer must see what happened)
-- [ ] **LBUY-03**: Already-paid in-flight orders touching a non-active listing proceed normally; admin can manually cancel via existing order tools (LIST-01 does NOT auto-cancel or auto-refund)
-- [ ] **LBUY-04**: Banner copy follows v1.0 severity-aware tone — neutral for archived, warning for suspended, destructive-but-recoverable language for deleted (when visible)
+- [x] **LBUY-01**: `CarDetailsScreen` viewed by a non-admin shows a non-dismissable banner with status + reason category for any non-active listing (severity-aware tone, mirroring v1.0 `UserStatusBanner` patterns)
+- [x] **LBUY-02**: Cart containing a non-active listing renders a banner on the cart row + disables the checkout button; cart is NOT auto-cleared (buyer must see what happened)
+- [x] **LBUY-03**: Already-paid in-flight orders touching a non-active listing proceed normally; admin can manually cancel via existing order tools (LIST-01 does NOT auto-cancel or auto-refund)
+- [x] **LBUY-04**: Banner copy follows v1.0 severity-aware tone — neutral for archived, warning for suspended, destructive-but-recoverable language for deleted (when visible)
 
 ### Quality
 
-- [ ] **LQUAL-01**: All new user-facing strings (4 reason categories × multilingual + button labels + status enum labels + buyer banner copy) added to `src/constants/translations.ts` under both RU + EN; jest literal scanner enforces parity (extends the v1.0 06-09 scanner)
-- [ ] **LQUAL-02**: Each LIST-* requirement is covered by at least one jest unit/integration test (backend) or screen/snapshot test (mobile); coverage report tagged per requirement
-- [ ] **LQUAL-03**: Pre-merge security review (`LIST-SECURITY.md`) covers the same 5 verdicts as v1.0 06-SECURITY.md (auth, authz, audit, TOCTOU, deferred-verification disposition); merge-gate cleared before tagging v1.1
+- [x] **LQUAL-01**: All new user-facing strings (4 reason categories × multilingual + button labels + status enum labels + buyer banner copy) added to `src/constants/translations.ts` under both RU + EN; jest literal scanner enforces parity (extends the v1.0 06-09 scanner)
+- [x] **LQUAL-02**: Each LIST-* requirement is covered by at least one jest unit/integration test (backend) or screen/snapshot test (mobile); coverage report tagged per requirement
+- [x] **LQUAL-03**: Pre-merge security review (`LIST-SECURITY.md`) covers the same 5 verdicts as v1.0 06-SECURITY.md (auth, authz, audit, TOCTOU, deferred-verification disposition); merge-gate cleared before tagging v1.1
 
 ## v2 Requirements (deferred)
 
@@ -113,13 +113,13 @@ Updated by `gsd-roadmapper` during roadmap creation.
 | LUI-04 | Phase 10 | Complete |
 | LMOB-01 | Phase 10 | Pending |
 | LMOB-02 | Phase 10 | Complete |
-| LBUY-01 | Phase 11 | Pending |
-| LBUY-02 | Phase 11 | Pending |
-| LBUY-03 | Phase 11 | Pending |
-| LBUY-04 | Phase 11 | Pending |
-| LQUAL-01 | Phase 11 | Pending |
-| LQUAL-02 | Phase 11 | Pending |
-| LQUAL-03 | Phase 11 | Pending |
+| LBUY-01 | Phase 11 | Complete |
+| LBUY-02 | Phase 11 | Complete |
+| LBUY-03 | Phase 11 | Complete |
+| LBUY-04 | Phase 11 | Complete |
+| LQUAL-01 | Phase 11 | Complete |
+| LQUAL-02 | Phase 11 | Complete |
+| LQUAL-03 | Phase 11 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 28 total
