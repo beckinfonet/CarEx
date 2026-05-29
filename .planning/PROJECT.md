@@ -79,6 +79,7 @@ Admins can act on bad-actor users after they're already in the system — withou
 <!-- v1.1 — Admin Listing Moderation. Detailed requirements defined in REQUIREMENTS.md. -->
 
 - LIST-01 — Admin Listing Moderation (Edit / Suspend / Archive / Delete-soft) — v1.1 in progress
+- LENF-01..03 — Backend read-time + TOCTOU enforcement (Car hide hook, status-aware listing-detail GET, cart-add + confirm-booking re-verification) — v1.1, Phase 9 complete 2026-05-29
 
 <!-- v1.2+ carry-forward candidates (deferred from v1.0): -->
 
@@ -166,4 +167,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-28 — v1.1 (Admin Listing Moderation) milestone started*
+*Last updated: 2026-05-29 — v1.1 Phase 9 (backend read-time + TOCTOU enforcement) complete*
