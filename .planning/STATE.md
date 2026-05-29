@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin Listing Moderation
-status: planning
+status: executing
 stopped_at: Phase 8 context gathered
-last_updated: "2026-05-28T22:58:32.905Z"
-last_activity: 2026-05-28
+last_updated: "2026-05-29T00:05:06.421Z"
+last_activity: 2026-05-29
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 6
-  completed_plans: 6
-  percent: 100
+  total_plans: 12
+  completed_plans: 7
+  percent: 58
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 **Core value:** Admins can act on bad-actor users after they're already in the system — without losing the audit trail or breaking in-flight orders for legitimate counterparties.
-**Current focus:** Phase 07 — listing-schema-security-baseline-backend
+**Current focus:** Phase 08 — admin-listing-moderation-endpoints-backend
 
 ## Current Position
 
-Phase: 8
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-05-28
+Phase: 08 (admin-listing-moderation-endpoints-backend) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-05-29
 
 ## Deferred Items
 
@@ -40,9 +40,9 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 | backend-load-test | Plan 06-0b (k6 harness with P95<200ms) | deferred by operator 2026-04-19 |
 | ux-followup | UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 06 03 styling) | captured 2026-04-30 during Phase 04 UAT — to be addressed in next milestone |
 Last activity: 2026-05-28 - Completed quick task 260528-hmt: Rotating playful greeting + headline variants on HomeScreenV2
-Resume file: .planning/phases/08-admin-listing-moderation-endpoints-backend/08-CONTEXT.md
+Resume file: None
 
-Progress: v1.0 SHIPPED (47/47 executed; 2 operator-deferred). v1.1: 0/5 phases — Phase 7 next.
+Progress: [██████░░░░] 58%
 
 ## Performance Metrics
 
@@ -99,6 +99,7 @@ Progress: v1.0 SHIPPED (47/47 executed; 2 operator-deferred). v1.1: 0/5 phases �
 | Phase 06 P08 | 1m20s | 1 tasks (+2 auto-fix) | 1 files |
 | Phase 06 P09 | 2m27s | 1 tasks (+1 auto-fix) | 1 files |
 | Phase 06 P10 | ~8m | 2 tasks (+3 auto-fix) | 1 files |
+| Phase 08 P01 | 6m11s | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -258,6 +259,11 @@ Recent decisions affecting current work:
 - [Phase 06]: Plan 06-10: Mobile-on-main Section (e) substitution — `git diff main` empty on mobile because already on main branch; substituted `git grep -nE 'AIza|sk_live|...' -- '*.ts' '*.tsx' '*.js'` + `git log --oneline -S` + `git blame` age cross-check. Firebase API key hit in AuthService.ts:9 blamed to cd5f6ac 2026-01-30 — over 2 months pre-milestone, matches Phase 5 CONCERNS.md register. Backend stays on `git diff main` because on feat/moderation-baseline. Pattern: any future QUAL-* or REL-* cross-repo evidence collection must check branch state FIRST and pick the right diff range per repo
 - [Phase 06]: Plan 06-10: Legacy /api/admin/* callerUid-in-body tech debt (server.js:848-1196) surfaced during Section (b) review — PRE-DATES milestone; explicitly scoped-out by server.js:848 comment block; flagged in 06-SECURITY.md Optional Hardening Notes as recommended tech-debt sweep NOT a Section (b) FAIL. Plan template acceptance text ("legacy hits should be inspected to confirm they do NOT use callerUid for authorization") covers this case by design — legacy protected by `verifyAdminByUid(callerUid)` gate (weaker but functional); all NEW routes (moderationRouter + /api/admin/users/search) use cryptographic verifyIdToken chain
 - [Phase 06]: Plan 06-10: T-06-05 disposition revised — "accept with deferred verification" rather than "mitigate" because Plan 06-0b (QUAL-02 k6 harness) was deferred by operator 2026-04-19 and scripts/load-test/ directory does not exist in backend repo. No current surface = no exposure risk. Optional Hardening bullet 1 rewritten to reflect this. Future milestone that builds the harness must re-run the T-06-05 grep and update disposition
+- [Phase ?]: Phase 08 P01: Wave-1 substrate landed in 3 commits — multer-S3 extraction (1d96d45) + 4 moderation modules (6af5f3a) + 3 Wave-0 test files (60f26cc); 33→60 tests (+27); zero deviations
+- [Phase ?]: Phase 08 P01: ListingServiceError shipped as SEPARATE file (src/moderation/listingErrors.js) rather than inlined at top of listingService.js — Plan section 5 left this to executor discretion; rationale is cleaner Wave-2/3 test imports asserting err.code without pulling full service surface
+- [Phase ?]: Phase 08 P01: Wave-0 atomicity test uses HAND-ROLLED runMockSuspend helper mirroring canonical audit-then-Car withTransaction pattern — locks the atomicity contract BEFORE Wave 2 plans land bodies; any Wave-2 implementation that reverses ordering, drops { session }, or uses single-doc create (Pitfall 2) fails this test
+- [Phase ?]: Phase 08 P01: denySelfModerationListing reads chain BOTH setOptions bypass flags ({ includeAllListingStatuses: true, includeAllUsers: true }) — Phase 9 listing-status hide hook + existing Phase 3 seller-cascade hook bypass; Phase 9 lands its hook without retroactively touching Phase 8 code
+- [Phase ?]: Phase 08 P01: LADM-01..05 requirements NOT marked complete in REQUIREMENTS.md despite plan frontmatter listing them — Plan-01 ships the Wave-1 SUBSTRATE only (listingService stubs throw not_implemented; no real handler bodies); Wave 2 (Suspend/Archive/Delete/Restore) and Wave 3 (Edit) land the real implementations that fulfill LADM-01..05. Premature requirement tickoff would falsely report shipped features. Pattern matches Phase 06 P01 substrate handling (AFF-01..04 deferred to landing waves)
 
 ### Pending Todos
 
@@ -298,6 +304,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-05-28T22:58:32.897Z
+Last session: 2026-05-29T00:04:15.837Z
 Stopped at: Phase 8 context gathered
 Resume file: (phase-close) /gsd-verify-phase 06 — all 3 Phase 6 requirements complete (QUAL-01 via 06-01/06-09 + QUAL-03 via 06-10; QUAL-02 operator-deferred)

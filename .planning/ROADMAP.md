@@ -73,7 +73,7 @@ Plans:
   4. Admin Edit updates the listing fields, stamps `lastEditedBy`, and writes an audit row containing the `fieldDiff` of changed fields
 **Plans**: 6 plans
 Plans:
-- [ ] 08-01-PLAN.md — Substrate: extract multer-S3 upload + listingSchemas + listingErrors + denySelfModerationListing + listingService skeleton + 3 Wave-0 tests (LADM-01..05 substrate)
+- [x] 08-01-PLAN.md — Substrate: extract multer-S3 upload + listingSchemas + listingErrors + denySelfModerationListing + listingService skeleton + 3 Wave-0 tests (LADM-01..05 substrate)
 - [ ] 08-02-PLAN.md — Suspend endpoint: PATCH /:carId/suspend + KNOWN_LISTING_ERRORS + handleListingServiceError + suspendListing.test.js (LADM-02)
 - [ ] 08-03-PLAN.md — Archive endpoint: PATCH /:carId/archive + archiveListing.test.js (LADM-03)
 - [ ] 08-04-PLAN.md — Delete-soft endpoint: PATCH /:carId/delete with soft-delete invariant (LADM-04)
