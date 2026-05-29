@@ -119,7 +119,7 @@ Plans:
 - [x] 10-05-PLAN.md — LMOB-02 interceptor non-regression tests + CarDetailsScreen axios.get → apiClient.get migration (LMOB-02, LUI-01)
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 10-06-PLAN.md — ListingModerationBottomSheet (4 actions for active / Restore + chip for non-active) (LUI-01, LUI-02, LUI-03)
+- [x] 10-06-PLAN.md — ListingModerationBottomSheet (4 actions for active / Restore + chip for non-active) (LUI-01, LUI-02, LUI-03)
 - [x] 10-07-PLAN.md — ListingModerationReasonModal + ListingRestoreModal + TypedConfirmationModal keyboardType prop (LUI-02, LUI-03)
 
 **Wave 4** *(blocked on Wave 3 completion)*
@@ -155,5 +155,5 @@ Plans:
 | 7. Listing Schema + Security Baseline | v1.1 | 0/6 | Planned | - |
 | 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
 | 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
-| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 6/10 | In Progress|  |
+| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 7/10 | In Progress|  |
 | 11. Buyer-affected UX + Quality + Security Review | v1.1 | 0/? | Not started | - |

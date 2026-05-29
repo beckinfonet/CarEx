@@ -4,14 +4,14 @@ milestone: v1.1
 milestone_name: Admin Listing Moderation
 status: executing
 stopped_at: Phase 10 context gathered
-last_updated: "2026-05-29T10:14:52.660Z"
+last_updated: "2026-05-29T10:25:03.824Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 27
-  completed_plans: 23
-  percent: 85
+  completed_plans: 24
+  percent: 89
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 10 (mobile-plumbing-admin-listing-ui) — EXECUTING
-Plan: 7 of 10
+Plan: 8 of 10
 Status: Ready to execute
 Last activity: 2026-05-29
 
@@ -42,7 +42,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 Last activity: 2026-05-29 - Completed Phase 8 Plan 05 (LADM-05 Restore endpoint)
 Resume file: None
 
-Progress: [█████████░] 85%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -112,6 +112,7 @@ Progress: [█████████░] 85%
 | Phase 10 P04 | 4m20s | 3 tasks | 2 files |
 | Phase 10 P05 | ~3m | 2 tasks tasks | 3 files files |
 | Phase 10 P07 | 6m32s | 3 tasks (6 commits — RED+GREEN per task) tasks | 4 new + 2 modified files |
+| Phase 10 P06 | 5m13s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -325,6 +326,9 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 10]: Plan 10-07: TypedConfirmationModal keyboardType prop made purely additive (default 'email-address') — existing Phase 5 user-mod call sites receive zero-change byte-identical behavior; Plan 08's Delete-listing path will pass 'default' for the spacebar-capable listing-title sentinel (Pitfall 3 mitigation)
 - [Phase ?]: [Phase 10]: Plan 10-07: ListingModerationReasonModal embeds LISTING_REASON_OPTIONS 5-value taxonomy locally — D-04 sibling discipline mechanically enforced by Test 8 fs.readFileSync grep guard asserting zero cross-imports + zero ModerationService method calls + zero user-domain reason values at the source-file level
 - [Phase ?]: [Phase 10]: Plan 10-07: ListingRestoreModal omits the 'note' key entirely (not present-with-undefined) when the field is empty — verified by Test 4 hasOwnProperty assertion; matches Phase 8 D-C symmetry where restoreListingSchema accepts an empty body
+- [Phase ?]: [Phase 10]: Plan 10-06: ListingModerationBottomSheet sibling discipline enforced via in-test fs.readFileSync greps — Block E asserts ModerationService=0, useAuth=0, QuickActionSheet=0, inline car-template=0 at the source level so D-04/S7 boundary survives future refactors (T-10-06 mitigation)
+- [Phase ?]: [Phase 10]: Plan 10-06: Block D inner-sheet bubble-stop test rewritten as source-grep regex /onPress=\{\(\)\s*=>\s*\{\}\}/ because RN Pressable does not resolve under react-test-renderer's findAllByType in the carEx jest preset; structural contract preserved without depending on test-renderer type resolution
+- [Phase ?]: [Phase 10]: Plan 10-06: Component is fully pure presentational — receives pre-built listingTitle prop (parent calls buildListingTitle), parent owns optimistic-flip/rollback + ModerationService calls; D-08 + Pattern S7 enforced. isActive = !moderationBadge (Phase 9 D-07 invariant: badge omitted for active listings)
 
 ### Pending Todos
 
@@ -365,6 +369,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-05-29T10:14:44.929Z
+Last session: 2026-05-29T10:24:36.311Z
 Stopped at: Phase 10 context gathered
 Resume file: None
