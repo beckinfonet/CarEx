@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronDown } from 'lucide-react-native';
 
 import { useHomeListings } from '../hooks/useHomeListings';
 import { useLanguage } from '../context/LanguageContext';
+import { useFavorites } from '../context/FavoritesContext';
 import { useTypography } from '../hooks/useTypography';
 import { V2 } from '../components/home/v2/theme';
 import { MarketStatsStrip } from '../components/home/v2/MarketStatsStrip';
@@ -42,6 +43,7 @@ export const SearchResultsV2 = () => {
   const navigation = useNavigation<Nav>();
   const route      = useRoute<RouteT>();
   const { t }      = useLanguage();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const typo       = useTypography();
 
   const {
@@ -167,8 +169,8 @@ export const SearchResultsV2 = () => {
         ListHeaderComponent={Header}
         renderItem={({ item }) => (
           item.promoted
-            ? <BigFeedCard car={item} kmSuffix={t.kmShort} ctaLabel={t.open} faved={!!item.faved} onPress={handleCarPress} onToggleFav={() => {}} />
-            : <SmallFeedCard car={item} kmSuffix={t.kmShort} faved={!!item.faved} onPress={handleCarPress} onToggleFav={() => {}} />
+            ? <BigFeedCard car={item} kmSuffix={t.kmShort} ctaLabel={t.open} faved={isFavorite(item.id)} onPress={handleCarPress} onToggleFav={(car) => toggleFavorite(car.id)} />
+            : <SmallFeedCard car={item} kmSuffix={t.kmShort} faved={isFavorite(item.id)} onPress={handleCarPress} onToggleFav={(car) => toggleFavorite(car.id)} />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 9 }} />}
         contentContainerStyle={styles.listContent}
