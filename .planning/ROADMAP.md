@@ -127,7 +127,7 @@ Plans:
 - [x] 10-09-PLAN.md — SellCarScreen adminEdit route flag: 4+ gate bypasses + endpoint swap to ModerationService.adminEditListing (LUI-02)
 
 **Wave 5** *(blocked on Wave 4 completion)*
-- [ ] 10-10-PLAN.md — AdminModerationScreen Users|Listings tabs + Listings panel + per-row Recover (LUI-04)
+- [x] 10-10-PLAN.md — AdminModerationScreen Users|Listings tabs + Listings panel + per-row Recover (LUI-04)
 
 ### Phase 11: Buyer-affected UX + Quality + Security Review
 **Goal**: Non-admin buyers see a severity-aware banner explaining any non-active listing they encounter (detail screen + cart), already-paid orders proceed normally, all new strings ship with RU/EN parity enforced by jest, every LIST-* requirement is test-covered, and a `LIST-SECURITY.md` review clears the merge-gate
@@ -155,5 +155,5 @@ Plans:
 | 7. Listing Schema + Security Baseline | v1.1 | 0/6 | Planned | - |
 | 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
 | 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
-| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 8/10 | In Progress|  |
+| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 9/10 | In Progress|  |
 | 11. Buyer-affected UX + Quality + Security Review | v1.1 | 0/? | Not started | - |

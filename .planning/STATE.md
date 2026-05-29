@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin Listing Moderation
 status: executing
-stopped_at: Completed 10-09-PLAN.md
-last_updated: "2026-05-29T10:45:32.173Z"
+stopped_at: Completed 10-10-PLAN.md
+last_updated: "2026-05-29T11:17:25.875Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 27
-  completed_plans: 25
-  percent: 93
+  completed_plans: 26
+  percent: 96
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 10 (mobile-plumbing-admin-listing-ui) — EXECUTING
-Plan: 9 of 10
+Plan: 10 of 10
 Status: Ready to execute
 Last activity: 2026-05-29
 
@@ -42,7 +42,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 Last activity: 2026-05-29 - Completed Phase 8 Plan 05 (LADM-05 Restore endpoint)
 Resume file: None
 
-Progress: [█████████░] 93%
+Progress: [██████████] 96%
 
 ## Performance Metrics
 
@@ -114,6 +114,7 @@ Progress: [█████████░] 93%
 | Phase 10 P07 | 6m32s | 3 tasks (6 commits — RED+GREEN per task) tasks | 4 new + 2 modified files |
 | Phase 10 P06 | 5m13s | 2 tasks | 2 files |
 | Phase 10 P09 | 15m9s | 3 tasks | 3 files |
+| Phase 10 P10 | 17m14s | 2 tasks tasks | 2 files files |
 
 ## Accumulated Context
 
@@ -333,6 +334,10 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 10]: Plan 10-09: SellCarScreen reused via route.params.adminEdit flag (D-01). No new screen file. 11/11 GREEN tests; +94/-14 lines; all 5 sellerStatus gates patched (2 useEffect + 3 render cascade) + GatedScreenWrapper bypass via screenBody-then-wrap pattern + ListingModerationError catch branch with listing_not_found pop-back
 - [Phase ?]: [Phase 10]: Plan 10-09: Render cascade was an inferred Pitfall 4 widening — original plan named only 2 useEffect sites; without the 3 cascade patches admin lands on a Verify-your-phone empty state when their own isPhoneVerified=false. Test 5 locks this discovery as a regression guard
 - [Phase ?]: [Phase 10]: Plan 10-09: GatedScreenWrapper bypass uses local screenBody-then-wrap pattern inside SellCarScreen, NOT an enabled?: boolean prop added to GatedScreenWrapper. Keeps wrapper API surface stable for the 4+ other consumers; smaller diff; no react/no-unstable-nested-components warning
+- [Phase ?]: [Phase 10]: Plan 10-10: Listings-tab parallel state bucket lands in AdminModerationScreen as 11 distinct hooks + 1 distinct listingsAbortRef (Pitfall 7) — NEVER shared with user-tab abortRef. Tab-switch effect gated by 'if (scopeTab !== listings) return' so leaving the tab is a no-op for that tab's lifecycle. Test 10 asserts distinct AbortSignal instances at runtime; Test 12 source-grep complements at compile time
+- [Phase ?]: [Phase 10]: Plan 10-10: mapListingStatusToSeverityState maps listing-domain to user-domain SeverityBadge palettes by VISUAL semantics — deleted→blocked_with_review (red destructive), archived→permanently_banned (neutral grey), suspended→feature_limited (amber warning), active→active (green). Counter-intuitive at the label level (deleted is NOT permanently_banned) but correct at the palette level (deleted is the most destructive listing state and warrants red). Documented in source so future readers see the rationale
+- [Phase ?]: [Phase 10]: Plan 10-10: 5 auto-fix deviations all in test-machinery — 1 Rule-1 source-comment that tripped its own grep invariant (rephrased to avoid the forbidden literal token), 3 Rule-1 test-assertion bugs (composite vs host props on TouchableOpacity testID forwarding, ReactTestInstance.toJSON nonexistence, user-tab effect lifecycle misunderstanding in tab-switch test), 1 Rule-3 unused helper trips ESLint. ZERO functional source-code drift from plan-action prescriptions; all substantive invariants preserved with corrected assertions
+- [Phase ?]: [Phase 10]: Plan 10-10: Phase 10 mobile scope COMPLETE — all 10 plans executed end-to-end. ROADMAP success criteria #1-#5 covered by Plans 08+10-05 / 10-04+08 / 10-06+10-09 / 10-03+10-04+10-07+10-10 / 10-05+08. Backend Plan 10-03 already landed cross-repo. Phase 11 (buyer UX + quality + security review) is unblocked: receives a fully wired admin moderation UI to UAT-pilot
 
 ### Pending Todos
 
@@ -373,6 +378,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-05-29T10:45:32.164Z
-Stopped at: Completed 10-09-PLAN.md
+Last session: 2026-05-29T11:17:25.865Z
+Stopped at: Completed 10-10-PLAN.md
 Resume file: None
