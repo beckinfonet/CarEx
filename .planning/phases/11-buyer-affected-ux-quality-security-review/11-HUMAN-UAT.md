@@ -1,15 +1,16 @@
 ---
-status: blocked
+status: partial
 phase: 11-buyer-affected-ux-quality-security-review
 source: [11-VERIFICATION.md]
 started: 2026-05-29T20:00:00Z
-updated: 2026-05-29T20:30:00Z
-blocked_on: prod LDATA-04 backfill migration — see [[prod_legacy_cars_hidden]]
+updated: 2026-05-29T21:15:00Z
+unblocked_at: 2026-05-29T21:15:00Z
+unblock_note: LDATA-04 backfill ran on prod (57 cars → status:'active'); Railway redeployed to clear stale Mongo topology; listings render again
 ---
 
 ## Current Test
 
-[blocked — prod `/api/cars` returns `HTTP 200 []` because legacy cars have no `status` field and Phase 9's hide hook filters them out. Run `node scripts/migrate-listing-moderation.js` on the Railway backend against the prod Atlas DB, then resume UAT.]
+[awaiting human testing — unblocked, all 3 tests pending]
 
 ## Tests
 
@@ -30,8 +31,8 @@ result: [pending]
 total: 3
 passed: 0
 issues: 0
-pending: 0
+pending: 3
 skipped: 0
-blocked: 3
+blocked: 0
 
 ## Gaps
