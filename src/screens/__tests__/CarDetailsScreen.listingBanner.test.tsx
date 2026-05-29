@@ -149,8 +149,8 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn().mockResolvedValue(undefined),
 }));
 
-// Silence Alert.alert spy
-const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+// Silence Alert.alert so booking-warning / payment-failed alerts don't crash tests
+jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 
 // ---- Imports (after mocks) ----
 
