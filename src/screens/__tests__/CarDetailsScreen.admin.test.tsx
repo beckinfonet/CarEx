@@ -512,4 +512,63 @@ describe('CarDetailsScreen — admin moderation surface (Plan 10-08)', () => {
     // Must NOT have inlined ${year} ${make} ${model} template-literal for the title
     expect(source).not.toMatch(/\$\{.*\.year.*\.make.*\.model\}/);
   });
+
+  test('T14 CR-04 fix — admin entry from list surface (carData prefilled) still fetches moderationBadge and renders non-active branch', async () => {
+    // Simulate HomeScreen/HomeScreenV2/MyListings/SearchResultsV2/Favorites/SellerListings
+    // pre-populating route.params.carData. Before Plan 10-12 the fetch gate
+    // `if (carId && !existingCar)` short-circuited because `existingCar` resolved to
+    // route.params.carData → fetchedCar stayed null → admin moderation surface inert.
+    setMockRouteParams({ carId: 'car_abc', carData: FIXTURE_ACTIVE_CAR });
+    // The status-aware GET returns the Phase 9 D-07 moderationBadge for admin viewers.
+    // Distinct payload from carData so the test can confirm data came from the fetch,
+    // not from the carData fast-path.
+    mockApiGet.mockResolvedValue({
+      data: {
+        ...FIXTURE_ACTIVE_CAR,
+        status: 'suspended',
+        listingStatus: 'suspended',
+        moderationBadge: FIXTURE_SUSPENDED_BADGE,
+      },
+    });
+    setMockAuth({ user: { localId: 'admin-1' }, isAdmin: true });
+
+    const tree = await mount();
+
+    // (1) The fetch fired even though carData was prefilled
+    expect(mockApiGet).toHaveBeenCalledWith('/api/cars/car_abc');
+
+    // (2) ListingModerationBottomSheet receives the moderationBadge prop (defined, not undefined)
+    const sheet = tree.root.findByType(ListingModerationBottomSheet);
+    expect(sheet.props.moderationBadge).toBeDefined();
+    expect(sheet.props.moderationBadge.status).toBe('suspended');
+    expect(sheet.props.moderationBadge.reasonCategory).toBe('spam');
+
+    // (3) Open the sheet by tapping the badge
+    act(() => {
+      findAllByTestID(tree.root, 'moderate-badge')[0].props.onPress();
+    });
+
+    // (4) Restore branch renders; 4-action branch does NOT
+    expect(findAllByTestID(tree.root, 'listing-action-restore').length).toBeGreaterThan(0);
+    expect(findAllByTestID(tree.root, 'listing-action-edit').length).toBe(0);
+    expect(findAllByTestID(tree.root, 'listing-action-suspend').length).toBe(0);
+    expect(findAllByTestID(tree.root, 'listing-action-archive').length).toBe(0);
+    expect(findAllByTestID(tree.root, 'listing-action-delete').length).toBe(0);
+
+    // (5) Admin status banner renders
+    expect(findAllByTestID(tree.root, 'admin-status-banner').length).toBeGreaterThan(0);
+  });
+
+  test('T15 CR-04 fix — non-admin with prefilled carData preserves fast-path (no fetch fires)', async () => {
+    // Non-admin entering CarDetails with carData prefilled must continue to skip the fetch.
+    // Performance regression guard: >99% of app traffic is non-admin viewers from list surfaces.
+    setMockRouteParams({ carId: 'car_abc', carData: FIXTURE_ACTIVE_CAR });
+    setMockAuth({ user: { localId: 'buyer-1' }, isAdmin: false });
+    mockApiGet.mockClear();
+
+    await mount();
+
+    // Fast-path preserved: no fetch fired for non-admin with prefilled carData
+    expect(mockApiGet).not.toHaveBeenCalled();
+  });
 });
