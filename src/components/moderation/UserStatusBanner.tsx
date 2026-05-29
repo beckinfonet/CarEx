@@ -116,7 +116,9 @@ export const UserStatusBanner: React.FC<UserStatusBannerProps> = ({
   const palette = COLORS.moderation[paletteKey];
   const Icon = SEVERITY_ICON[state];
   const titleKey = STATE_TO_TITLE_KEY[state];
-  const title: string = (t as Record<string, string>)[titleKey] ?? state;
+  // `t` now contains string[] fields (260528-hmt greeting variant pools); route the
+  // index-signature cast via `unknown` so TS accepts the non-overlapping cast.
+  const title: string = (t as unknown as Record<string, string>)[titleKey] ?? state;
 
   const reasonCategory = user.moderationStatus.reasonCategory ?? null;
   const reasonLabel = localizedReasonLabel(reasonCategory, t);
