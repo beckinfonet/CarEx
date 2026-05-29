@@ -90,7 +90,7 @@ Plans:
   3. Adding a non-active listing to the cart returns `409 listing_not_available`; a status change between cart-add and `confirm-booking` aborts the booking inside the transaction and refunds the Stripe charge before throwing
 **Plans**: 5 plans
 Plans:
-- [ ] 09-01-PLAN.md — Wave 0 prerequisites: 5 RED jest scaffolds + refundAndThrow helper + ListingNotAvailableError + lookupAdminIfPresent middleware (LENF-03 helper substrate)
+- [x] 09-01-PLAN.md — Wave 0 prerequisites: 5 RED jest scaffolds + refundAndThrow helper + ListingNotAvailableError + lookupAdminIfPresent middleware (LENF-03 helper substrate)
 - [ ] 09-02-PLAN.md — LENF-01 pre(/^find/) hide hook on Car + includeAllListingStatuses bypass + 4 GREEN integration cases
 - [ ] 09-03-PLAN.md — LENF-02 status-aware GET /api/cars/:id (D-05 thin payload / D-07 admin badge / D-08 single endpoint) + 6 GREEN supertest cases
 - [ ] 09-04-PLAN.md — LENF-03 part A: create-payment-intent early 409 gate + ListingNotAvailableError route-error-map branch + 5 GREEN supertest cases
