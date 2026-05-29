@@ -151,7 +151,7 @@ describe('ListingRestoreModal', () => {
     );
     // No reasonCategory anywhere (D-06 + D-C symmetry)
     expect(file).not.toMatch(/reasonCategory/);
-    // maxLength={2000} present exactly once
-    expect((file.match(/maxLength={2000}/g) ?? []).length).toBe(1);
+    // maxLength={2000} present exactly once (escape regex braces)
+    expect((file.match(/maxLength=\{2000\}/g) ?? []).length).toBe(1);
   });
 });
