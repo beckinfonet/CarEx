@@ -4,14 +4,14 @@ milestone: v1.1
 milestone_name: Admin Listing Moderation
 status: executing
 stopped_at: Phase 10 context gathered
-last_updated: "2026-05-29T09:29:08.438Z"
+last_updated: "2026-05-29T09:33:25.338Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 27
-  completed_plans: 18
-  percent: 67
+  completed_plans: 19
+  percent: 70
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 10 (mobile-plumbing-admin-listing-ui) — EXECUTING
-Plan: 2 of 10
+Plan: 3 of 10
 Status: Ready to execute
 Last activity: 2026-05-29
 
@@ -42,7 +42,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 Last activity: 2026-05-29 - Completed Phase 8 Plan 05 (LADM-05 Restore endpoint)
 Resume file: None
 
-Progress: [███████░░░] 67%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
@@ -107,6 +107,7 @@ Progress: [███████░░░] 67%
 | Phase 08 P05 | 3m49s | 3 tasks | 3 files |
 | Phase 08 PP06 | 10m35s | 3 tasks (+2 auto-fix) tasks | 3 files files |
 | Phase 10 P01 | ~5min | 3 tasks | 2 files |
+| Phase 10 P02 | 1m37s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -304,6 +305,10 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 10]: Plan 10-01: ListingModerationError shipped as sibling class in src/services/moderation/errors.ts (NOT a third file per D-14 + Claude's Discretion default) — 10-code explicit union (D-14 base 8 + invalid_make + invalid_model per RESEARCH A4) with | string escape hatch; 7 context fields including refundId/refundFailed (Phase 9 D-12..D-15 cart/checkout surface)
 - [Phase ?]: [Phase 10]: Plan 10-01: Anti-pattern guard against widening ModerationError is a SOURCE-LEVEL grep test (fs.readFileSync + regex extracts class block, asserts no listing-code literals leak in) — catches regressions a TS type-check might miss when the union is widened via | string interpolation. Fault-injection runbook documented in SUMMARY: inject 'listing_not_available' → 1/7 fails; revert → 7/7 green
 - [Phase ?]: [Phase 10]: Plan 10-01: LMOB-01 + LMOB-02 NOT marked complete in REQUIREMENTS.md — this plan ships Wave-1 SUBSTRATE only (typed error class); LMOB-01 ticks off when Plan 10-04 lands the 5 ModerationService methods, LMOB-02 ticks off when Plan 10-05 lands the interceptor non-regression tests + apiClient migration. Matches Phase 6 P01 / Phase 8 P01 substrate pattern
+- [Phase ?]: [Phase 10]: Plan 10-02: Canonical listing-title concat locked at `${year} ${makeName} ${modelName}` via single shared buildListingTitle helper — Plans 10-06 (bottom-sheet header) + 10-08 (TypedConfirmationModal target) both import it, making Pitfall 6 (typed-input vs displayed-string mismatch) structurally impossible
+- [Phase ?]: [Phase 10]: Plan 10-02: D-08a sentinel match uses `typed.length > 0 && typed === canonical` (case-insensitive + whitespace-trimmed equality with defensive empty-input rejection) — prevents '' === '' from matching when both car and input are empty; T-10-05 documented as accept-disposition (friction-with-purpose, backend denySelfModerationListing is the authority)
+- [Phase ?]: [Phase 10]: Plan 10-02: D-08b fallback applied per-field (makeName ?? makeId, modelName ?? modelId) rather than whole-object — handles legacy data where only one of make/model is denormalized; helper stays pure synchronous (no catalog round-trip from inside the helper)
+- [Phase ?]: [Phase 10]: Plan 10-02: Rule 1 auto-fix — initial comment block in listingTitle.ts used literal tokens 'react' / 'useVehicleCatalog' / 'axios' in explanatory prose, tripping the plan's `grep -c` verification invariant (returned 2 instead of 0). Comments rewritten to synonyms ('UI framework imports' / 'catalog round-trip' / 'HTTP client'); semantic intent preserved, mechanical invariant now green
 
 ### Pending Todos
 
@@ -344,6 +349,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-05-29T09:28:59.173Z
+Last session: 2026-05-29T09:32:55.931Z
 Stopped at: Phase 10 context gathered
 Resume file: None
