@@ -484,4 +484,59 @@ describe('ModerationService listing methods (Plan 10-04)', () => {
       consoleSpy.mockRestore();
     });
   });
+
+  // ============================================================
+  // anti-pattern guards (Plan 10-04 Task 3)
+  // ============================================================
+  //
+  // These three filesystem assertions lock the cross-file invariants that
+  // make the LMOB-01 substrate safe to consume from Plans 08, 09, 10:
+  //   1. No listing-mod methods leak into AuthService.ts (CONTEXT
+  //      §Anti-Pattern Warnings + Phase 5 MOB-01 grep guard).
+  //   2. No third response interceptor in http/client.ts — listing-mod 4xx
+  //      surfaces must NOT route through the user-suspension 403 handler
+  //      (T-10-02 + RESEARCH Pitfall 1).
+  //   3. No listing codes widen the ModerationError union (duplicates
+  //      Plan 10-01 listingErrors.test.ts Test 7; locked here too so a
+  //      future edit cannot break the invariant from either direction).
+  describe('anti-pattern guards', () => {
+    const fs = require('fs') as typeof import('fs');
+    const path = require('path') as typeof import('path');
+
+    it('guard 1: src/services/AuthService.ts contains zero listing-mod method names (MOB-01 mirror)', () => {
+      const authPath = path.join(__dirname, '..', '..', 'AuthService.ts');
+      const content = fs.readFileSync(authPath, 'utf8');
+      expect(content).not.toMatch(
+        /suspendListing|archiveListing|deleteListing|restoreListing|adminEditListing|searchListings/,
+      );
+    });
+
+    it('guard 2: src/services/http/client.ts has EXACTLY 2 interceptors.response.use call sites (no third added for listing errors — T-10-02 / Pitfall 1)', () => {
+      const clientPath = path.join(__dirname, '..', '..', 'http', 'client.ts');
+      const content = fs.readFileSync(clientPath, 'utf8');
+      const matches = content.match(/interceptors\.response\.use/g) ?? [];
+      expect(matches.length).toBe(2);
+    });
+
+    it('guard 3: ModerationError class block in errors.ts contains NONE of the listing codes (sibling-discipline; duplicates Plan 10-01 Task 3 lock)', () => {
+      const errorsPath = path.join(__dirname, '..', 'errors.ts');
+      const source = fs.readFileSync(errorsPath, 'utf8');
+      // Match the ModerationError class block — from the class keyword through
+      // the FIRST `\n}` that closes it (Plan 10-01 Task 3 pattern).
+      const match = source.match(/class ModerationError[\s\S]*?\n\}/);
+      expect(match).not.toBeNull();
+      const modBlock = match![0];
+
+      const forbiddenListingCodes = [
+        'listing_not_available',
+        'listing_not_found',
+        'cannot_moderate_own_listing',
+        'already_in_state',
+        'not_moderated',
+      ];
+      for (const codeLiteral of forbiddenListingCodes) {
+        expect(modBlock.includes(`'${codeLiteral}'`)).toBe(false);
+      }
+    });
+  });
 });
