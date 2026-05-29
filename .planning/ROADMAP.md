@@ -78,7 +78,7 @@ Plans:
 - [x] 08-03-PLAN.md — Archive endpoint: PATCH /:carId/archive + archiveListing.test.js (LADM-03)
 - [x] 08-04-PLAN.md — Delete-soft endpoint: PATCH /:carId/delete with soft-delete invariant (LADM-04)
 - [x] 08-05-PLAN.md — Restore endpoint: PATCH /:carId/restore with clear-on-restore + not_moderated distinct code (LADM-05)
-- [ ] 08-06-PLAN.md — Edit endpoint: PATCH /:carId multipart + fieldDiff + makeId/modelId validation + D-A-3 stamp distinction (LADM-01)
+- [x] 08-06-PLAN.md — Edit endpoint: PATCH /:carId multipart + fieldDiff + makeId/modelId validation + D-A-3 stamp distinction (LADM-01)
 
 ### Phase 9: Backend Read-time + TOCTOU Enforcement
 **Goal**: Non-active listings disappear from all public reads without any denormalized flag mutation, listing-detail GET returns a status-aware thin payload to non-admin viewers, and cart-add + confirm-booking re-verify listing status inside the same transaction with refund-first-throw-second semantics

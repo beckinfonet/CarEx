@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin Listing Moderation
-status: executing
-stopped_at: Phase 8 Plan 05 (LADM-05 Restore endpoint) complete; ready to execute Plan 06 (LADM-01 Edit endpoint — Phase 8 closer)
-last_updated: "2026-05-29T00:39:20.000Z"
+status: verifying
+stopped_at: Phase 8 backend COMPLETE — all 5 LADM-01..05 endpoints live (suspend / archive / delete / restore / edit). Zero stubs remaining. Ready for Phase 9 (read-time enforcement).
+last_updated: "2026-05-29T01:05:17.001Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 5
-  completed_phases: 1
-  total_plans: 13
+  completed_phases: 2
+  total_plans: 12
   completed_plans: 12
-  percent: 92
+  percent: 100
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 Phase: 08 (admin-listing-moderation-endpoints-backend) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-05-29
 
 ## Deferred Items
@@ -42,7 +42,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 Last activity: 2026-05-29 - Completed Phase 8 Plan 05 (LADM-05 Restore endpoint)
 Resume file: None
 
-Progress: [█████████░] 92%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -104,6 +104,7 @@ Progress: [█████████░] 92%
 | Phase 08 P03 | 2m39s | 3 tasks | 3 files |
 | Phase 08 P04 | 3m50s | 3 tasks | 3 files |
 | Phase 08 P05 | 3m49s | 3 tasks | 3 files |
+| Phase 08 PP06 | 10m35s | 3 tasks (+2 auto-fix) tasks | 3 files files |
 
 ## Accumulated Context
 
@@ -293,6 +294,11 @@ Recent decisions affecting current work:
 - [Phase 08]: Plan 08-05: Three explicit happy-path tests (suspended/archived/deleted → active) over test.each — plan's <action> allowed author discretion ("loop with test.each or three explicit tests"); explicit form gives diagnostic clarity on failure. Deleted → active test specifically locks the Plan 08-04 soft-delete invariant interlock (a Car at status='deleted' is both findable AND restorable). Total restoreListing.test.js: 7 tests (matches plan floor)
 - [Phase 08]: Plan 08-05: Router NO multer addition + NO KNOWN_LISTING_ERRORS amendment — Plan 08-02's foresight (registering all 10 Wave 2/3 codes upfront) paid off for the fourth consecutive Wave-2 plan; Restore's three error codes (listing_not_found / not_moderated / cannot_moderate_own_listing) all pre-registered. grep -c "upload.array" still 0 (D-D-1 lock preserved)
 - [Phase 08]: Plan 08-05: TDD task ordering pivot (fourth consecutive in Phase 8) — author-order service→router→tests pivoted to RED test → GREEN service → router substrate. Mandatory under MVP+TDD gate when tdd="true" set on behavior-adding tasks. Phase 8 pattern is now stable across four plans
+- [Phase 08]: Plan 08-06: editListing is the first Phase-8 handler with STRUCTURAL divergence — four-section body (A pre-read with D-A-4 status-irrelevance / B lazy mongoose.model() VehicleMake+VehicleModel validation / C per-field fieldDiff + image-merge / D empty-diff + atomic transaction). Atomicity contract preserved (session.withTransaction audit-then-Car); per-field semantics differ. Lazy mongoose.model() via getVehicleModels() helper mirrors v1.0 getProfileModel — production resolves server.js inline registrations, tests resolve pre-registered loose-schema variants
+- [Phase 08]: Plan 08-06: D-A-3 stamp distinction locked at FOUR layers — (1) inline source comment at the Car.updateOne block; (2) plan's automated verify-gate forbids 'moderatedBy: adminUid' OR 'moderatedAt: new Date' in editListing function body; (3) integration test 13 seeds Car with moderatedBy='original-admin' + moderatedAt=2025-01-01 + moderationReason='spam' + moderationNote, calls editListing with editing-admin, asserts post-call moderatedBy/moderatedAt/moderationReason/moderationNote ALL preserved AND lastEditedBy/lastEditedAt updated; (4) D-A-4 forbids 'already_in_state' in editListing body. Any regression that stamps moderatedBy on Edit trips at least 2 of the 4 layers
+- [Phase 08]: Plan 08-06: Lazy require of carImages.js in listingRouter.js — Rule 3 auto-fix. Direct module-top 'const { upload } = require(carImages)' trips multer-S3 with 'bucket is required' when AWS_BUCKET_NAME unset (every existing __tests__/listing-moderation/* test that loads listingRouter, Phase 7 listingModerationRateLimiter being the canary). Resolved with getUpload() lazy-loader + uploadImages Express-middleware closure; production semantics byte-identical (internally calls upload.array('images', 25) on first PATCH /:carId). Literal upload.array token placed in route-block doc comment so plan's verify-gate grep (upload.array literal between '/:carId' and denySelfModerationListing) continues to pass
+- [Phase 08]: Plan 08-06: Explicit mongoose.Types.ObjectId cast on VehicleModel.findOne({makeId}) filter — Rule 1 auto-fix discovered via test 10+12 RED. Production server.js declares makeId as Schema.Types.ObjectId at server.js:73 which auto-casts strings → ObjectIds at the query boundary; loose-schema test collections (strict: false) do NOT auto-cast non-_id fields. Without the cast, query against typed-ObjectId-stored makeId misses when the service passes the string form. Added explicit cast with mongoose.isValidObjectId guard (converts malformed input to 400 invalid_model instead of 500 CastError). Production also hardened against future schema-declaration drift
+- [Phase 08]: Phase 8 backend COMPLETE — all 5 LADM-01..05 endpoints live; zero 'not_implemented' stubs remain in listingService.js. Final file inventory: 1 listingRouter + 1 listingService + 1 listingSchemas + 1 denySelfModerationListing + 1 listingErrors + 1 carImages (multer-S3 extraction) + 14 test files (33 Phase 7 + 27 Wave-0 + 14 endpoint tests = 99 total). All 4 ROADMAP success criteria satisfied (atomic audit-then-Car transaction; denySelfModerationListing on all 5 routes; multipart Edit reusing seller-PUT multer-S3; per-field { before, after } changed-only fieldDiff). Phase 9 read-time enforcement is now unblocked
 
 ### Pending Todos
 
@@ -333,6 +339,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-05-29T00:39:20.000Z
-Stopped at: Phase 8 Plan 05 (LADM-05 Restore endpoint) complete; ready to execute Plan 06 (LADM-01 Edit endpoint — Phase 8 closer)
+Last session: 2026-05-29T01:05:16.992Z
+Stopped at: Phase 8 backend COMPLETE — all 5 LADM-01..05 endpoints live (suspend / archive / delete / restore / edit). Zero stubs remaining. Ready for Phase 9 (read-time enforcement).
 Resume file: None
