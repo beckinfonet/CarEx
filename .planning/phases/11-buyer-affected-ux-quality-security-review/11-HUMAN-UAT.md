@@ -1,14 +1,15 @@
 ---
-status: partial
+status: blocked
 phase: 11-buyer-affected-ux-quality-security-review
 source: [11-VERIFICATION.md]
 started: 2026-05-29T20:00:00Z
-updated: 2026-05-29T20:00:00Z
+updated: 2026-05-29T20:30:00Z
+blocked_on: prod LDATA-04 backfill migration — see [[prod_legacy_cars_hidden]]
 ---
 
 ## Current Test
 
-[awaiting human testing]
+[blocked — prod `/api/cars` returns `HTTP 200 []` because legacy cars have no `status` field and Phase 9's hide hook filters them out. Run `node scripts/migrate-listing-moderation.js` on the Railway backend against the prod Atlas DB, then resume UAT.]
 
 ## Tests
 
@@ -29,8 +30,8 @@ result: [pending]
 total: 3
 passed: 0
 issues: 0
-pending: 3
+pending: 0
 skipped: 0
-blocked: 0
+blocked: 3
 
 ## Gaps
