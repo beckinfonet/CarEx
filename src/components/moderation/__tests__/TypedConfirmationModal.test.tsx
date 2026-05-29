@@ -128,4 +128,17 @@ describe('TypedConfirmationModal', () => {
     const confirm = findConfirmButton(tree.root);
     expect(confirm?.props.disabled).toBe(true);
   });
+
+  // Phase 10 Plan 07 — additive keyboardType prop (Pitfall 3 mitigation)
+  test('default keyboardType is "email-address" (regression-lock for existing user-mod call sites)', () => {
+    const tree = render();
+    const input = tree.root.findByType(TextInput);
+    expect(input.props.keyboardType).toBe('email-address');
+  });
+
+  test('override keyboardType="default" renders a normal keyboard (with spacebar) for listing-title sentinel', () => {
+    const tree = render({ keyboardType: 'default' });
+    const input = tree.root.findByType(TextInput);
+    expect(input.props.keyboardType).toBe('default');
+  });
 });
