@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   wrapper:   { paddingHorizontal: 22, paddingTop: 16, paddingBottom: 6 },
   kicker:    {
     fontSize: 12, fontWeight: '700', letterSpacing: 1.4,
-    textTransform: 'uppercase', color: V2.textMuted, marginBottom: 6,
+    textTransform: 'uppercase', color: V2.textMuted, marginBottom: 12,
   },
   headline:  {
     fontSize: 30, fontWeight: '800', letterSpacing: -1.05,
