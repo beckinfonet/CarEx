@@ -39,7 +39,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 | backend-load-test | Plan 06-0a (10k-user seed) | deferred by operator 2026-04-19 |
 | backend-load-test | Plan 06-0b (k6 harness with P95<200ms) | deferred by operator 2026-04-19 |
 | ux-followup | UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 06 03 styling) | captured 2026-04-30 during Phase 04 UAT — to be addressed in next milestone |
-Last activity: 2026-05-29 - Completed quick task 260529-mt3: dynamic search-results location label
+Last activity: 2026-05-30 - Completed quick task 260529-o12: restore home profile icon (manual verify pending)
 Resume file: .planning/phases/11-buyer-affected-ux-quality-security-review/11-CONTEXT.md
 
 Progress: [██████████] 100%
@@ -377,6 +377,7 @@ None yet.
 | 260529-jqv | Fix Android crash "Screen fragments should never be restored" — override MainActivity.onCreate to super.onCreate(null) (Play Store crash, 13% of v49/1.0.48; native-only, requires new release build to ship) | 2026-05-29 | 6d3f59c | [260529-jqv-fix-android-screenfragment-restore-crash](./quick/260529-jqv-fix-android-screenfragment-restore-crash/) |
 | 260529-mn8 | Wire heart icon to FavoritesContext on listing cards (HomeScreenV2 + SearchResultsV2 were passing no-op onToggleFav; new context unifies CarDetailsScreen + FavoritesScreen on existing AsyncStorage 'favorites' key, with per-user reset) | 2026-05-29 | c311e7d | [260529-mn8-favorites-heart-icon-not-hooked-up-on-li](./quick/260529-mn8-favorites-heart-icon-not-hooked-up-on-li/) |
 | 260529-mt3 | Replace hardcoded "Moscow and region" label on SearchResultsV2 subtitle with timezone-derived city (reuses getCityFromTimezone); drops location text when timezone unresolved; removed unused moscowAndRegion i18n key (RU+EN) | 2026-05-29 | 211e0dd | [260529-mt3-replace-hardcoded-moscow-and-region-loca](./quick/260529-mt3-replace-hardcoded-moscow-and-region-loca/) |
+| 260529-o12 | Restore profile/avatar button to left of FloatingSearchPill on HomeScreenV2 (new ProfileAvatarButton + leading slot on pill); avatar image or User-icon fallback; tap → Profile (logged in) / Login (out). Code-complete; manual app-run verify pending | 2026-05-30 | 94c8b99 | [260529-o12-add-profile-icon-back-to-homescreenv2-he](./quick/260529-o12-add-profile-icon-back-to-homescreenv2-he/) |
 
 ## Deferred Items
 

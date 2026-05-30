@@ -8,14 +8,16 @@ export interface FloatingSearchPillProps {
   placeholder: string;
   onPress: () => void;
   onFiltersPress: () => void;
+  leading?: React.ReactNode;
 }
 
 export const FloatingSearchPill: React.FC<FloatingSearchPillProps> = ({
-  placeholder, onPress, onFiltersPress,
+  placeholder, onPress, onFiltersPress, leading,
 }) => {
   const typo = useTypography();
   return (
     <View style={styles.wrapper}>
+      {leading}
       <TouchableOpacity style={styles.pill} onPress={onPress} activeOpacity={0.85}>
         <Search size={17} color={V2.text} strokeWidth={2} />
         <Text style={[styles.placeholder, { fontFamily: typo.display, fontWeight: typo.weights.medium }]}>
@@ -31,10 +33,15 @@ export const FloatingSearchPill: React.FC<FloatingSearchPillProps> = ({
 
 const styles = StyleSheet.create({
   wrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
     paddingHorizontal: 18,
     paddingTop: 12,
+    paddingBottom: 12,
   },
   pill: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     height: 48,
