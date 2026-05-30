@@ -60,6 +60,7 @@ export const TierPickerSheet: React.FC<TierPickerSheetProps> = ({
               onPress={() => onSelect(tier)}
               accessibilityRole="radio"
               accessibilityState={{ selected }}
+              accessibilityLabel={`${labels[tier]}. ${previews[tier]}`}
               style={[styles.row, selected && styles.rowSelected]}
             >
               <View style={[styles.dot, selected && styles.dotSelected]} />
