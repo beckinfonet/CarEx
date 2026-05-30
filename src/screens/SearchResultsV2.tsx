@@ -18,6 +18,7 @@ import { SortSheet, SortOption } from '../components/home/v2/SortSheet';
 import { FilterModal } from '../components/FilterModal';
 import { MakeModelFilterBar } from '../components/MakeModelFilterBar';
 import { RootStackParamList } from '../types/navigation';
+import { getCityFromTimezone } from '../utils/greetingSubject';
 
 type Nav    = NativeStackNavigationProp<RootStackParamList, 'SearchResults'>;
 type RouteT = RouteProp<RootStackParamList, 'SearchResults'>;
@@ -75,6 +76,12 @@ export const SearchResultsV2 = () => {
   const visibleResults = displayedCars.slice(0, revealed);
   const total = displayedCars.length;
 
+  const city = useMemo(() => {
+    let tz: string | null = null;
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { tz = null; }
+    return tz ? getCityFromTimezone(tz, t) : null;
+  }, [t]);
+
   const onSortSelect = (opt: SortOption) => {
     setSort(opt);
     if (opt === 'priceAsc' || opt === 'priceDesc') {
@@ -116,7 +123,7 @@ export const SearchResultsV2 = () => {
             {route.params.initialQuery || t.allCars}
           </Text>
           <Text style={[styles.subtitle, { fontFamily: typo.mono }]}>
-            {total} {t.listingsCount} · {t.moscowAndRegion}
+            {total} {t.listingsCount}{city ? ` · ${city}` : ''}
           </Text>
         </View>
       </View>
