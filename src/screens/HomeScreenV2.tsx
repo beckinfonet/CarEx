@@ -15,6 +15,7 @@ import { getCityFromTimezone, buildGreetingSubject } from '../utils/greetingSubj
 import { rotateVariant, GreetingSlot } from '../utils/greetingVariants';
 
 import { FloatingSearchPill } from '../components/home/v2/FloatingSearchPill';
+import { ProfileAvatarButton } from '../components/home/v2/ProfileAvatarButton';
 import { GreetingBlock } from '../components/home/v2/GreetingBlock';
 import { ActiveFilterChips } from '../components/home/v2/ActiveFilterChips';
 import { HeroRotator } from '../components/home/v2/HeroRotator';
@@ -226,6 +227,7 @@ export const HomeScreenV2 = () => {
         placeholder={t.searchPlaceholderV2}
         onPress={handleSearchPress}
         onFiltersPress={handleFiltersPress}
+        leading={<ProfileAvatarButton />}
       />
       <FlatList
         style={styles.list}
