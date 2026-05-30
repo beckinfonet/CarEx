@@ -21,12 +21,28 @@
 
 import { TRANSLATIONS } from '../src/constants/translations';
 
+// The four greeting-pool keys were migrated in Task 3 from `string[]` to
+// `{ wholesome: string[]; sarcastic: string[]; unhinged: string[] }`.
+// This constant names them so the value checks below can apply tier-aware
+// logic without hard-coding which tier names exist.
+const TIER_NESTED_KEYS = new Set([
+  'greetingVariantsMorning',
+  'greetingVariantsAfternoon',
+  'greetingVariantsEvening',
+  'headlineVariants',
+]);
+
 // Flatten a single translation value into all the user-facing strings it
-// carries. Strings yield themselves; arrays yield each element. Anything else
-// is a contract violation surfaced by the type checks below.
+// carries. Strings yield themselves; arrays yield each element; tier-nested
+// objects recurse into each tier's array. Anything else is a contract
+// violation surfaced by the type checks below.
 function leafStrings(val: unknown): string[] {
   if (typeof val === 'string') return [val];
   if (Array.isArray(val)) return val.filter((x): x is string => typeof x === 'string');
+  if (val !== null && typeof val === 'object') {
+    // tier-nested object: flatten all tier arrays
+    return Object.values(val as Record<string, unknown>).flatMap(leafStrings);
+  }
   return [];
 }
 
@@ -41,11 +57,26 @@ describe('QUAL-01 / LQUAL-01: translation parity', () => {
     expect({ onlyInRu, onlyInEn }).toEqual({ onlyInRu: [], onlyInEn: [] });
   });
 
-  test('every value is a non-empty string (or non-empty array of non-empty strings)', () => {
+  test('every value is a non-empty string (or non-empty array of non-empty strings, or tier-nested pool object)', () => {
     for (const lang of ['RU', 'EN'] as const) {
       for (const [key, val] of Object.entries((TRANSLATIONS as any)[lang])) {
-        if (Array.isArray(val)) {
-          // Pool-shaped value (260528-hmt): must be non-empty + every element a non-empty string.
+        if (TIER_NESTED_KEYS.has(key)) {
+          // Tier-nested pool (Task 3 migration): must be a plain object whose
+          // values are each a non-empty array of non-empty strings.
+          expect(typeof val).toBe('object');
+          expect(val).not.toBeNull();
+          expect(Array.isArray(val)).toBe(false);
+          for (const [tier, pool] of Object.entries(val as Record<string, unknown>)) {
+            expect(Array.isArray(pool)).toBe(true);
+            expect((pool as unknown[]).length).toBeGreaterThan(0);
+            for (const entry of pool as unknown[]) {
+              expect(typeof entry).toBe('string');
+              expect((entry as string).trim().length).toBeGreaterThan(0);
+            }
+            void tier;
+          }
+        } else if (Array.isArray(val)) {
+          // Flat pool-shaped value (260528-hmt): must be non-empty + every element a non-empty string.
           expect(val.length).toBeGreaterThan(0);
           for (const entry of val) {
             expect(typeof entry).toBe('string');
@@ -55,9 +86,6 @@ describe('QUAL-01 / LQUAL-01: translation parity', () => {
           expect(typeof val).toBe('string');
           expect((val as string).trim().length).toBeGreaterThan(0);
         }
-        // Catch unexpected nested shapes — anything not handled by the two
-        // branches above is a contract violation (e.g. plain object).
-        expect(typeof val === 'string' || Array.isArray(val)).toBe(true);
         // Use `key` to keep noise out of the report on failure.
         void key;
       }

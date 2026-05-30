@@ -36,6 +36,7 @@ import { OfflineNotice } from './src/components/OfflineNotice';
 import { UserStatusBanner } from './src/components/moderation/UserStatusBanner';
 import { RootStackParamList } from './src/types/navigation';
 import { LanguageProvider } from './src/context/LanguageContext';
+import { PersonalityProvider } from './src/context/PersonalityContext';
 import { UIVersionProvider } from './src/context/UIVersionContext';
 import { AuthProvider } from './src/context/AuthContext';
 import { CartProvider } from './src/context/CartContext';
@@ -96,6 +97,7 @@ function App() {
             <FavoritesProvider>
             <StripeProvider publishableKey="pk_test_51TEgrOJAS81xgsxjpbIvgoGw67eODe91yRPnNTpRcQrweRvUFBLX5wknw3XsAN2um4bFUsAG7HvFZqPArAQS5Ruf00MUNqZQLy">
             <LanguageProvider>
+            <PersonalityProvider>
             <UIVersionProvider>
             <NavigationContainer linking={linking}>
               <UserStatusBanner />
@@ -133,6 +135,7 @@ function App() {
               </Stack.Navigator>
             </NavigationContainer>
             </UIVersionProvider>
+            </PersonalityProvider>
             </LanguageProvider>
             </StripeProvider>
             </FavoritesProvider>

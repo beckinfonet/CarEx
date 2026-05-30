@@ -12,7 +12,9 @@ import { useTypography } from '../hooks/useTypography';
 import { CATEGORIES } from '../constants/mockData';
 import { V2 } from '../components/home/v2/theme';
 import { getCityFromTimezone, buildGreetingSubject } from '../utils/greetingSubject';
-import { rotateVariant, GreetingSlot } from '../utils/greetingVariants';
+import { rotateVariant } from '../utils/greetingVariants';
+import { pickGreetingPool } from '../utils/pickGreetingPool';
+import { usePersonality } from '../context/PersonalityContext';
 
 import { FloatingSearchPill } from '../components/home/v2/FloatingSearchPill';
 import { ProfileAvatarButton } from '../components/home/v2/ProfileAvatarButton';
@@ -26,6 +28,10 @@ import { FeedLoader } from '../components/home/v2/FeedLoader';
 import { BottomBar } from '../components/BottomBar';
 import { FilterModal } from '../components/FilterModal';
 import { LangSwitchV2 } from '../components/home/v2/LangSwitchV2';
+import { TierChip } from '../components/home/v2/TierChip';
+import { TierPickerSheet } from '../components/home/v2/TierPickerSheet';
+import { UnhingedConsentModal } from '../components/home/v2/UnhingedConsentModal';
+import { UnhingedSnackbar } from '../components/home/v2/UnhingedSnackbar';
 
 import { RootStackParamList } from '../types/navigation';
 
@@ -39,63 +45,72 @@ function timeOfDayKey(t: any): string {
   return t.goodEvening;
 }
 
-// ---- Quick 260528-hmt — time-of-day pool selector for the rotating greeting kicker ----
-type GreetingTimeSlot = Exclude<GreetingSlot, 'headline'>;
-
-function currentGreetingSlot(): GreetingTimeSlot {
-  const h = new Date().getHours();
-  if (h < 12) return 'morning';
-  if (h < 18) return 'afternoon';
-  return 'evening';
-}
-
-function pickGreetingPool(t: any): { slot: GreetingTimeSlot; pool: string[] } {
-  const slot = currentGreetingSlot();
-  const pool =
-    slot === 'morning'   ? t.greetingVariantsMorning :
-    slot === 'afternoon' ? t.greetingVariantsAfternoon :
-                           t.greetingVariantsEvening;
-  return { slot, pool };
-}
-
 export const HomeScreenV2 = () => {
   const navigation = useNavigation<Nav>();
   const route      = useRoute<RouteT>();
   const isFocused  = useIsFocused();
   const { t, language, setLanguage } = useLanguage();
+  const { tier, setTier, cycleTier, requestTier, acceptUnhinged } = usePersonality();
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [consentVisible, setConsentVisible] = useState(false);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+
+  // Quick 260530-bdq — emit snackbar whenever tier transitions into UNHINGED,
+  // regardless of which path drove the transition (cycle, picker, or post-consent
+  // setTier). This keeps snackbar logic out of the four call-sites that can set
+  // tier and avoids double-firing.
+  const prevTierRef = useRef(tier);
+  useEffect(() => {
+    if (prevTierRef.current !== 'unhinged' && tier === 'unhinged') {
+      setSnackbarVisible(true);
+    }
+    prevTierRef.current = tier;
+  }, [tier]);
   const { user } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
 
   // ---- Quick 260528-hmt — Rotating greeting + headline ----
   const [greetingText, setGreetingText] = useState<string>(() => {
-    const { slot, pool } = pickGreetingPool(t);
+    const { slot, pool } = pickGreetingPool(t, tier);
     return rotateVariant(slot, pool);
   });
   const [headlineText, setHeadlineText] = useState<string>(() =>
-    rotateVariant('headline', t.headlineVariants),
+    rotateVariant('headline', t.headlineVariants[tier]),
   );
 
   const rotate = useCallback(() => {
-    const { slot, pool } = pickGreetingPool(t);
+    const { slot, pool } = pickGreetingPool(t, tier);
     setGreetingText(rotateVariant(slot, pool));
-    setHeadlineText(rotateVariant('headline', t.headlineVariants));
-  }, [t]);
+    setHeadlineText(rotateVariant('headline', t.headlineVariants[tier]));
+  }, [t, tier]);
+
+  // Mirror the latest rotate function in a ref so trigger effects don't
+  // re-fire when rotate's identity changes (e.g. tier or language flip).
+  const rotateRef = useRef(rotate);
+  useEffect(() => { rotateRef.current = rotate; });
 
   // Re-pick whenever the language flips so the displayed copy matches the active locale.
   // We intentionally depend on `language` (a stable primitive) rather than `t` (object identity).
   const langMountRef = useRef(true);
   useEffect(() => {
     if (langMountRef.current) { langMountRef.current = false; return; }
-    rotate();
-  }, [language, rotate]);
+    rotateRef.current();
+  }, [language]);
+
+  // Re-pick whenever the tier changes so the displayed copy matches the active tier pool.
+  const tierMountRef = useRef(true);
+  useEffect(() => {
+    if (tierMountRef.current) { tierMountRef.current = false; return; }
+    rotateRef.current();
+  }, [tier]);
 
   // Rotate when the screen regains focus (e.g. user returns from CarDetails).
   // Skip the initial mount so the initial useState pick isn't immediately replaced.
   const focusMountRef = useRef(true);
   useEffect(() => {
     if (focusMountRef.current) { focusMountRef.current = false; return; }
-    if (isFocused) rotate();
-  }, [isFocused, rotate]);
+    if (isFocused) rotateRef.current();
+  }, [isFocused]);
 
   // Rotate when the app returns from background to foreground.
   // Skip the very first 'active' transition (some Android builds fire it at launch).
@@ -104,10 +119,10 @@ export const HomeScreenV2 = () => {
     const sub = AppState.addEventListener('change', (s: AppStateStatus) => {
       if (s !== 'active') return;
       if (!skippedFirst) { skippedFirst = true; return; }
-      rotate();
+      rotateRef.current();
     });
     return () => sub.remove();
-  }, [rotate]);
+  }, []);
 
   const typo       = useTypography();
 
@@ -174,6 +189,17 @@ export const HomeScreenV2 = () => {
   const handleSearchPress = () => navigation.navigate('SearchResults', { initialQuery: '' });
   const handleFiltersPress = () => { setCurrentFilterType('Год'); setFilterModalVisible(true); };
 
+  const previews = {
+    wholesome: t.greetingVariantsMorning.wholesome[0],
+    sarcastic: t.greetingVariantsMorning.sarcastic[0],
+    unhinged:  t.greetingVariantsMorning.unhinged[0],
+  };
+
+  const tierName =
+    tier === 'wholesome' ? t.personalityWholesome :
+    tier === 'sarcastic' ? t.personalitySarcastic :
+                           t.personalityUnhinged;
+
   const Header = (
     <>
       <GreetingBlock
@@ -182,7 +208,25 @@ export const HomeScreenV2 = () => {
         headline={headlineText}
         listingsCount={displayedCars.length}
         listingsNoun={t.listingsCount}
-        trailing={<LangSwitchV2 language={language} setLanguage={setLanguage} />}
+        trailing={
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <TierChip
+              tier={tier}
+              label={tierName}
+              onCycle={() => {
+                // Quick 260530-bdq — open consent modal if next-in-cycle is UNHINGED
+                // and consent has not yet been granted. Snackbar emission for the
+                // 'switched' case is handled by the tier-transition useEffect above.
+                const result = cycleTier();
+                if (result === 'needs-consent') setConsentVisible(true);
+              }}
+              onOpenPicker={() => setPickerVisible(true)}
+              a11yLabel={`${t.personalityTitle}: ${tierName}`}
+              a11yHint={t.personalityA11yHint}
+            />
+            <LangSwitchV2 language={language} setLanguage={setLanguage} />
+          </View>
+        }
       />
       <ActiveFilterChips
         selectedMake={selectedMake}
@@ -257,6 +301,54 @@ export const HomeScreenV2 = () => {
         onApply={applyFilter}
         currentValue={currentFilterType ? activeFilters[currentFilterType] : null}
         t={t}
+      />
+      <TierPickerSheet
+        visible={pickerVisible}
+        currentTier={tier}
+        previews={previews}
+        labels={{
+          title: t.personalityTitle,
+          close: t.personalityClose,
+          wholesome: t.personalityWholesome,
+          sarcastic: t.personalitySarcastic,
+          unhinged:  t.personalityUnhinged,
+        }}
+        onSelect={(next) => {
+          // Quick 260530-bdq — gate the UNHINGED path. If the request is
+          // refused, dismiss the picker immediately and surface the consent
+          // modal; otherwise behave as before (small delay to let the row
+          // highlight before the sheet closes).
+          const result = requestTier(next);
+          if (result === 'needs-consent') {
+            setPickerVisible(false);
+            setConsentVisible(true);
+          } else {
+            setTimeout(() => setPickerVisible(false), 150);
+          }
+        }}
+        onDismiss={() => setPickerVisible(false)}
+      />
+      <UnhingedConsentModal
+        visible={consentVisible}
+        labels={{
+          title: t.unhingedConsentTitle,
+          body: t.unhingedConsentBody,
+          accept: t.unhingedConsentAccept,
+          cancel: t.unhingedConsentCancel,
+        }}
+        onAccept={() => {
+          // Persist + flip into UNHINGED. Snackbar is fired by the
+          // tier-transition useEffect once `tier` updates.
+          acceptUnhinged();
+          setTier('unhinged');
+          setConsentVisible(false);
+        }}
+        onCancel={() => setConsentVisible(false)}
+      />
+      <UnhingedSnackbar
+        visible={snackbarVisible}
+        message={t.unhingedActiveToast}
+        onHide={() => setSnackbarVisible(false)}
       />
     </SafeAreaView>
   );

@@ -67,6 +67,9 @@ yarn-error.log
 # testing
 /coverage
 
+# Superpowers brainstorming working dir (mockups, sheet state)
+.superpowers/
+
 # Firebase config (reverted SDK - not used; keep local copies out of repo)
 **/GoogleService-Info.plist
 **/google-services.json
