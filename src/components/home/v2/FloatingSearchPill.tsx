@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: 18,
     paddingTop: 12,
+    paddingBottom: 12,
   },
   pill: {
     flex: 1,
