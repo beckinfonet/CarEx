@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, useWindowDimensions, Linking, Alert, Modal, Platform, Animated, Share, Image, ActivityIndicator, Pressable } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Zoomable } from '@likashefqet/react-native-image-zoom';
+import FastImage from 'react-native-fast-image';
 import { OptimizedImage } from '../components/OptimizedImage';
 import { COLORS, SIZES } from '../constants/theme';
 import { CARS } from '../constants/mockData';
@@ -200,6 +201,17 @@ export const CarDetailsScreen = () => {
     const index = event.nativeEvent.contentOffset.x / slideSize;
     const roundIndex = Math.round(index);
     setActiveImageIndex(roundIndex);
+  };
+
+  // FastImage fetch priority by proximity to the visible slide. On Android all
+  // gallery images mount at once and share OkHttp's 5-reqs/host queue; prioritising
+  // the active slide (and its immediate neighbours for fast swipes) lets the image
+  // the user is looking at jump ahead of offscreen fetches.
+  const imagePriority = (index: number) => {
+    const distance = Math.abs(index - activeImageIndex);
+    if (distance === 0) return FastImage.priority.high;
+    if (distance === 1) return FastImage.priority.normal;
+    return FastImage.priority.low;
   };
 
   const renderSpecItem = (label: string, value: string | number) => (
@@ -616,7 +628,7 @@ export const CarDetailsScreen = () => {
                 onPress={() => setGalleryVisible(true)}
                 style={{ width }}
               >
-                <OptimizedImage source={{ uri: img }} style={[styles.mainImage, { width }]} resizeMode="cover" />
+                <OptimizedImage source={{ uri: img }} style={[styles.mainImage, { width }]} resizeMode="cover" priority={imagePriority(index)} />
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -1084,6 +1096,7 @@ export const CarDetailsScreen = () => {
                       source={{ uri: img }}
                       style={[styles.fullScreenImage, { width, height }]}
                       resizeMode="contain"
+                      priority={imagePriority(index)}
                     />
                   </Zoomable>
                 </View>
