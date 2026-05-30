@@ -30,6 +30,8 @@ import { FilterModal } from '../components/FilterModal';
 import { LangSwitchV2 } from '../components/home/v2/LangSwitchV2';
 import { TierChip } from '../components/home/v2/TierChip';
 import { TierPickerSheet } from '../components/home/v2/TierPickerSheet';
+import { UnhingedConsentModal } from '../components/home/v2/UnhingedConsentModal';
+import { UnhingedSnackbar } from '../components/home/v2/UnhingedSnackbar';
 
 import { RootStackParamList } from '../types/navigation';
 
@@ -48,8 +50,22 @@ export const HomeScreenV2 = () => {
   const route      = useRoute<RouteT>();
   const isFocused  = useIsFocused();
   const { t, language, setLanguage } = useLanguage();
-  const { tier, setTier, cycleTier } = usePersonality();
+  const { tier, setTier, cycleTier, requestTier, acceptUnhinged } = usePersonality();
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [consentVisible, setConsentVisible] = useState(false);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+
+  // Quick 260530-bdq — emit snackbar whenever tier transitions into UNHINGED,
+  // regardless of which path drove the transition (cycle, picker, or post-consent
+  // setTier). This keeps snackbar logic out of the four call-sites that can set
+  // tier and avoids double-firing.
+  const prevTierRef = useRef(tier);
+  useEffect(() => {
+    if (prevTierRef.current !== 'unhinged' && tier === 'unhinged') {
+      setSnackbarVisible(true);
+    }
+    prevTierRef.current = tier;
+  }, [tier]);
   const { user } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
 
@@ -197,7 +213,13 @@ export const HomeScreenV2 = () => {
             <TierChip
               tier={tier}
               label={tierName}
-              onCycle={cycleTier}
+              onCycle={() => {
+                // Quick 260530-bdq — open consent modal if next-in-cycle is UNHINGED
+                // and consent has not yet been granted. Snackbar emission for the
+                // 'switched' case is handled by the tier-transition useEffect above.
+                const result = cycleTier();
+                if (result === 'needs-consent') setConsentVisible(true);
+              }}
               onOpenPicker={() => setPickerVisible(true)}
               a11yLabel={`${t.personalityTitle}: ${tierName}`}
               a11yHint={t.personalityA11yHint}
@@ -292,10 +314,41 @@ export const HomeScreenV2 = () => {
           unhinged:  t.personalityUnhinged,
         }}
         onSelect={(next) => {
-          setTier(next);
-          setTimeout(() => setPickerVisible(false), 150);
+          // Quick 260530-bdq — gate the UNHINGED path. If the request is
+          // refused, dismiss the picker immediately and surface the consent
+          // modal; otherwise behave as before (small delay to let the row
+          // highlight before the sheet closes).
+          const result = requestTier(next);
+          if (result === 'needs-consent') {
+            setPickerVisible(false);
+            setConsentVisible(true);
+          } else {
+            setTimeout(() => setPickerVisible(false), 150);
+          }
         }}
         onDismiss={() => setPickerVisible(false)}
+      />
+      <UnhingedConsentModal
+        visible={consentVisible}
+        labels={{
+          title: t.unhingedConsentTitle,
+          body: t.unhingedConsentBody,
+          accept: t.unhingedConsentAccept,
+          cancel: t.unhingedConsentCancel,
+        }}
+        onAccept={() => {
+          // Persist + flip into UNHINGED. Snackbar is fired by the
+          // tier-transition useEffect once `tier` updates.
+          acceptUnhinged();
+          setTier('unhinged');
+          setConsentVisible(false);
+        }}
+        onCancel={() => setConsentVisible(false)}
+      />
+      <UnhingedSnackbar
+        visible={snackbarVisible}
+        message={t.unhingedActiveToast}
+        onHide={() => setSnackbarVisible(false)}
       />
     </SafeAreaView>
   );
