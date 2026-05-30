@@ -820,6 +820,11 @@ export const TRANSLATIONS = {
     personalitySarcastic: 'Сарказм',
     personalityUnhinged: 'Безумие',
     personalityA11yHint: 'Нажмите чтобы переключить, удерживайте чтобы выбрать',
+    unhingedConsentTitle: 'Включить «Безумие»?',
+    unhingedConsentBody: 'Этот режим намеренно резкий: грубые шутки, едкий тон, никаких реверансов. Включайте, только если такой стиль вам подходит. Вы сможете вернуться к «Спокойно» или «Сарказму» в любой момент.',
+    unhingedConsentAccept: 'Включить',
+    unhingedConsentCancel: 'Отмена',
+    unhingedActiveToast: 'Режим «Безумие» включён',
   },
   EN: {
     // Header & Navigation
@@ -1642,6 +1647,11 @@ export const TRANSLATIONS = {
     personalitySarcastic: 'Sarcastic',
     personalityUnhinged: 'Unhinged',
     personalityA11yHint: 'Double tap to switch, long press to pick',
+    unhingedConsentTitle: 'Turn on Unhinged?',
+    unhingedConsentBody: 'This mode is deliberately blunt: rough jokes, sharp tone, zero hand-holding. Only turn it on if that style works for you. You can switch back to Wholesome or Sarcastic at any time.',
+    unhingedConsentAccept: 'Turn on',
+    unhingedConsentCancel: 'Cancel',
+    unhingedActiveToast: 'Unhinged mode on',
   }
 };
 
