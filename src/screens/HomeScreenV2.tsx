@@ -12,8 +12,8 @@ import { useTypography } from '../hooks/useTypography';
 import { CATEGORIES } from '../constants/mockData';
 import { V2 } from '../components/home/v2/theme';
 import { getCityFromTimezone, buildGreetingSubject } from '../utils/greetingSubject';
-import { rotateVariant, GreetingSlot } from '../utils/greetingVariants';
-import { pickGreetingPool, GreetingTimeSlot } from '../utils/pickGreetingPool';
+import { rotateVariant } from '../utils/greetingVariants';
+import { pickGreetingPool } from '../utils/pickGreetingPool';
 import { usePersonality } from '../context/PersonalityContext';
 
 import { FloatingSearchPill } from '../components/home/v2/FloatingSearchPill';
@@ -65,28 +65,33 @@ export const HomeScreenV2 = () => {
     setHeadlineText(rotateVariant('headline', t.headlineVariants[tier]));
   }, [t, tier]);
 
+  // Mirror the latest rotate function in a ref so trigger effects don't
+  // re-fire when rotate's identity changes (e.g. tier or language flip).
+  const rotateRef = useRef(rotate);
+  useEffect(() => { rotateRef.current = rotate; });
+
   // Re-pick whenever the language flips so the displayed copy matches the active locale.
   // We intentionally depend on `language` (a stable primitive) rather than `t` (object identity).
   const langMountRef = useRef(true);
   useEffect(() => {
     if (langMountRef.current) { langMountRef.current = false; return; }
-    rotate();
-  }, [language, rotate]);
+    rotateRef.current();
+  }, [language]);
 
   // Re-pick whenever the tier changes so the displayed copy matches the active tier pool.
   const tierMountRef = useRef(true);
   useEffect(() => {
     if (tierMountRef.current) { tierMountRef.current = false; return; }
-    rotate();
-  }, [tier, rotate]);
+    rotateRef.current();
+  }, [tier]);
 
   // Rotate when the screen regains focus (e.g. user returns from CarDetails).
   // Skip the initial mount so the initial useState pick isn't immediately replaced.
   const focusMountRef = useRef(true);
   useEffect(() => {
     if (focusMountRef.current) { focusMountRef.current = false; return; }
-    if (isFocused) rotate();
-  }, [isFocused, rotate]);
+    if (isFocused) rotateRef.current();
+  }, [isFocused]);
 
   // Rotate when the app returns from background to foreground.
   // Skip the very first 'active' transition (some Android builds fire it at launch).
@@ -95,10 +100,10 @@ export const HomeScreenV2 = () => {
     const sub = AppState.addEventListener('change', (s: AppStateStatus) => {
       if (s !== 'active') return;
       if (!skippedFirst) { skippedFirst = true; return; }
-      rotate();
+      rotateRef.current();
     });
     return () => sub.remove();
-  }, [rotate]);
+  }, []);
 
   const typo       = useTypography();
 
