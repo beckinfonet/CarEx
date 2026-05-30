@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export type PersonalityTier = 'wholesome' | 'sarcastic' | 'unhinged';
 
 const STORAGE_KEY = '@carex.personality.tier.v1';
+const UNHINGED_ACCEPTED_KEY = '@carex.personality.unhinged.accepted.v1';
 const DEFAULT_TIER: PersonalityTier = 'wholesome';
 const CYCLE_ORDER: PersonalityTier[] = ['wholesome', 'sarcastic', 'unhinged'];
 
@@ -16,16 +17,29 @@ function isTier(v: unknown): v is PersonalityTier {
   return v === 'wholesome' || v === 'sarcastic' || v === 'unhinged';
 }
 
+/**
+ * Result of a tier-change request:
+ * - 'switched' — the tier state was updated to the requested value.
+ * - 'needs-consent' — the caller asked for UNHINGED but the user has not yet
+ *   accepted the consent gate; the tier was NOT updated. Caller should open
+ *   the consent modal and call acceptUnhinged() before retrying.
+ */
+export type TierChangeResult = 'needs-consent' | 'switched';
+
 interface PersonalityContextType {
   tier: PersonalityTier;
   setTier: (tier: PersonalityTier) => void;
-  cycleTier: () => void;
+  cycleTier: () => TierChangeResult;
+  requestTier: (tier: PersonalityTier) => TierChangeResult;
+  unhingedAccepted: boolean;
+  acceptUnhinged: () => void;
 }
 
 const PersonalityContext = createContext<PersonalityContextType | undefined>(undefined);
 
 export const PersonalityProvider = ({ children }: { children: ReactNode }) => {
   const [tier, setTierState] = useState<PersonalityTier>(DEFAULT_TIER);
+  const [unhingedAccepted, setUnhingedAccepted] = useState<boolean>(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -36,6 +50,13 @@ export const PersonalityProvider = ({ children }: { children: ReactNode }) => {
         if (isTier(stored)) setTierState(stored);
       } catch (e) {
         console.error('[PersonalityContext] hydrate failed', e);
+      }
+      try {
+        const storedAccepted = await AsyncStorage.getItem(UNHINGED_ACCEPTED_KEY);
+        if (cancelled) return;
+        setUnhingedAccepted(storedAccepted === 'true');
+      } catch (e) {
+        console.error('[PersonalityContext] hydrate unhinged-accepted failed', e);
       }
     })();
     return () => { cancelled = true; };
@@ -59,15 +80,31 @@ export const PersonalityProvider = ({ children }: { children: ReactNode }) => {
     setTierState(next);
   };
 
-  const cycleTier = () => {
-    setTierState((current) => {
-      const nextIdx = (CYCLE_ORDER.indexOf(current) + 1) % CYCLE_ORDER.length;
-      return CYCLE_ORDER[nextIdx];
+  const acceptUnhinged = () => {
+    setUnhingedAccepted(true);
+    AsyncStorage.setItem(UNHINGED_ACCEPTED_KEY, 'true').catch((e) => {
+      console.error('[PersonalityContext] persist unhinged-accepted failed', e);
     });
   };
 
+  const requestTier = (next: PersonalityTier): TierChangeResult => {
+    if (next === 'unhinged' && !unhingedAccepted) return 'needs-consent';
+    setTierState(next);
+    return 'switched';
+  };
+
+  const cycleTier = (): TierChangeResult => {
+    const nextIdx = (CYCLE_ORDER.indexOf(tier) + 1) % CYCLE_ORDER.length;
+    const next = CYCLE_ORDER[nextIdx];
+    if (next === 'unhinged' && !unhingedAccepted) return 'needs-consent';
+    setTierState(next);
+    return 'switched';
+  };
+
   return (
-    <PersonalityContext.Provider value={{ tier, setTier, cycleTier }}>
+    <PersonalityContext.Provider
+      value={{ tier, setTier, cycleTier, requestTier, unhingedAccepted, acceptUnhinged }}
+    >
       {children}
     </PersonalityContext.Provider>
   );
