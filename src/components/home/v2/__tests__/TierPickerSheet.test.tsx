@@ -18,7 +18,7 @@ describe('TierPickerSheet', () => {
           visible={false}
           currentTier="sarcastic"
           previews={PREVIEWS}
-          labels={{ title: 'PERSONALITY', wholesome: 'Wholesome', sarcastic: 'Sarcastic', unhinged: 'Unhinged' }}
+          labels={{ title: 'PERSONALITY', close: 'Close', wholesome: 'Wholesome', sarcastic: 'Sarcastic', unhinged: 'Unhinged' }}
           onSelect={() => {}}
           onDismiss={() => {}}
         />
@@ -36,7 +36,7 @@ describe('TierPickerSheet', () => {
           visible={true}
           currentTier="sarcastic"
           previews={PREVIEWS}
-          labels={{ title: 'PERSONALITY', wholesome: 'Wholesome', sarcastic: 'Sarcastic', unhinged: 'Unhinged' }}
+          labels={{ title: 'PERSONALITY', close: 'Close', wholesome: 'Wholesome', sarcastic: 'Sarcastic', unhinged: 'Unhinged' }}
           onSelect={() => {}}
           onDismiss={() => {}}
         />
@@ -60,7 +60,7 @@ describe('TierPickerSheet', () => {
           visible={true}
           currentTier="wholesome"
           previews={PREVIEWS}
-          labels={{ title: 'PERSONALITY', wholesome: 'Wholesome', sarcastic: 'Sarcastic', unhinged: 'Unhinged' }}
+          labels={{ title: 'PERSONALITY', close: 'Close', wholesome: 'Wholesome', sarcastic: 'Sarcastic', unhinged: 'Unhinged' }}
           onSelect={onSelect}
           onDismiss={() => {}}
         />
@@ -80,7 +80,7 @@ describe('TierPickerSheet', () => {
           visible={true}
           currentTier="wholesome"
           previews={PREVIEWS}
-          labels={{ title: 'PERSONALITY', wholesome: 'Wholesome', sarcastic: 'Sarcastic', unhinged: 'Unhinged' }}
+          labels={{ title: 'PERSONALITY', close: 'Close', wholesome: 'Wholesome', sarcastic: 'Sarcastic', unhinged: 'Unhinged' }}
           onSelect={() => {}}
           onDismiss={onDismiss}
         />
@@ -99,7 +99,7 @@ describe('TierPickerSheet', () => {
           visible={true}
           currentTier="unhinged"
           previews={PREVIEWS}
-          labels={{ title: 'PERSONALITY', wholesome: 'Wholesome', sarcastic: 'Sarcastic', unhinged: 'Unhinged' }}
+          labels={{ title: 'PERSONALITY', close: 'Close', wholesome: 'Wholesome', sarcastic: 'Sarcastic', unhinged: 'Unhinged' }}
           onSelect={() => {}}
           onDismiss={() => {}}
         />
@@ -110,5 +110,25 @@ describe('TierPickerSheet', () => {
     expect((unhingedRow.props as any).accessibilityRole).toBe('radio');
     const wholesomeRow = tree!.root.findByProps({ testID: 'tier-row-wholesome' });
     expect((wholesomeRow.props as any).accessibilityState).toEqual({ selected: false });
+  });
+
+  test('tapping the × close button calls onDismiss', async () => {
+    const onDismiss = jest.fn();
+    let tree: TestRenderer.ReactTestRenderer | null = null;
+    await act(async () => {
+      tree = TestRenderer.create(
+        <TierPickerSheet
+          visible={true}
+          currentTier="wholesome"
+          previews={PREVIEWS}
+          labels={{ title: 'PERSONALITY', close: 'Close', wholesome: 'Wholesome', sarcastic: 'Sarcastic', unhinged: 'Unhinged' }}
+          onSelect={() => {}}
+          onDismiss={onDismiss}
+        />
+      );
+    });
+    const closeBtn = tree!.root.findByProps({ testID: 'tier-sheet-close' });
+    act(() => { (closeBtn.props as any).onPress(); });
+    expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 });

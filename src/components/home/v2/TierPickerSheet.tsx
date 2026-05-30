@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 import { V2 } from './theme';
+import { ALL_TIERS } from '../../../context/PersonalityContext';
 import type { PersonalityTier } from '../../../context/PersonalityContext';
 
 export interface TierPickerSheetProps {
@@ -11,15 +12,11 @@ export interface TierPickerSheetProps {
   /** Localized row labels + sheet title. */
   labels: {
     title: string;
-    wholesome: string;
-    sarcastic: string;
-    unhinged: string;
-  };
+    close: string;
+  } & Record<PersonalityTier, string>;
   onSelect: (tier: PersonalityTier) => void;
   onDismiss: () => void;
 }
-
-const TIERS: PersonalityTier[] = ['wholesome', 'sarcastic', 'unhinged'];
 
 export const TierPickerSheet: React.FC<TierPickerSheetProps> = ({
   visible, currentTier, previews, labels, onSelect, onDismiss,
@@ -36,15 +33,25 @@ export const TierPickerSheet: React.FC<TierPickerSheetProps> = ({
         style={styles.backdrop}
         onPress={onDismiss}
       />
-      <View style={styles.sheet} accessibilityViewIsModal>
+      <View
+          style={styles.sheet}
+          accessibilityViewIsModal
+          role="dialog"
+          accessibilityLabel={labels.title}
+        >
         <View style={styles.head}>
           <Text style={styles.title}>{labels.title}</Text>
-          <TouchableOpacity onPress={onDismiss} accessibilityRole="button">
+          <TouchableOpacity
+              onPress={onDismiss}
+              accessibilityRole="button"
+              accessibilityLabel={labels.close}
+              testID="tier-sheet-close"
+            >
             <Text style={styles.x}>×</Text>
           </TouchableOpacity>
         </View>
 
-        {TIERS.map((tier) => {
+        {ALL_TIERS.map((tier) => {
           const selected = tier === currentTier;
           return (
             <TouchableOpacity

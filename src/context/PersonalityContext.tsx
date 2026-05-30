@@ -9,6 +9,9 @@ const STORAGE_KEY = '@carex.personality.tier.v1';
 const DEFAULT_TIER: PersonalityTier = 'wholesome';
 const CYCLE_ORDER: PersonalityTier[] = ['wholesome', 'sarcastic', 'unhinged'];
 
+/** Canonical display order for the three tiers — exported for non-cycling consumers (e.g. picker sheet). */
+export const ALL_TIERS: PersonalityTier[] = CYCLE_ORDER;
+
 function isTier(v: unknown): v is PersonalityTier {
   return v === 'wholesome' || v === 'sarcastic' || v === 'unhinged';
 }
