@@ -55,6 +55,13 @@ export const TierChip: React.FC<TierChipProps> = ({
     </View>
   );
 
+  const gradientColors =
+    tier === 'sarcastic'
+      ? ['rgba(255,170,77,0.18)', 'rgba(255,77,160,0.16)']
+      : tier === 'unhinged'
+      ? ['rgba(255,170,77,0.32)', 'rgba(255,77,160,0.28)']
+      : null;
+
   return (
     <TouchableOpacity
       activeOpacity={0.85}
@@ -65,26 +72,25 @@ export const TierChip: React.FC<TierChipProps> = ({
       accessibilityLabel={a11yLabel}
       accessibilityHint={a11yHint}
     >
-      {tier === 'wholesome' ? (
-        <View style={[styles.pill, styles.pillWholesome]}>{inner}</View>
-      ) : (
-        <LinearGradient
-          colors={
-            tier === 'sarcastic'
-              ? ['rgba(255,170,77,0.18)', 'rgba(255,77,160,0.16)']
-              : ['rgba(255,170,77,0.32)', 'rgba(255,77,160,0.28)']
-          }
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={[
-            styles.pill,
-            tier === 'sarcastic' && styles.pillSarcastic,
-            tier === 'unhinged'  && styles.pillUnhinged,
-          ]}
-        >
-          {inner}
-        </LinearGradient>
-      )}
+      <View
+        style={[
+          styles.pill,
+          tier === 'wholesome' && styles.pillWholesome,
+          tier === 'sarcastic' && styles.pillSarcastic,
+          tier === 'unhinged'  && styles.pillUnhinged,
+        ]}
+      >
+        {gradientColors ? (
+          <LinearGradient
+            colors={gradientColors}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+        ) : null}
+        {inner}
+      </View>
     </TouchableOpacity>
   );
 };
@@ -96,6 +102,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderWidth: 1,
     alignSelf: 'flex-end',
+    overflow: 'hidden',
   },
   pillWholesome: { backgroundColor: V2.surface, borderColor: V2.border },
   pillSarcastic: { borderColor: 'rgba(255,170,77,0.45)' },
