@@ -1,6 +1,6 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { Text, TouchableOpacity, Modal } from 'react-native';
+import { Text, Modal } from 'react-native';
 import { TierPickerSheet } from '../TierPickerSheet';
 
 const PREVIEWS = {
