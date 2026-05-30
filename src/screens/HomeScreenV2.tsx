@@ -179,6 +179,11 @@ export const HomeScreenV2 = () => {
     unhinged:  t.greetingVariantsMorning.unhinged[0],
   };
 
+  const tierName =
+    tier === 'wholesome' ? t.personalityWholesome :
+    tier === 'sarcastic' ? t.personalitySarcastic :
+                           t.personalityUnhinged;
+
   const Header = (
     <>
       <GreetingBlock
@@ -191,9 +196,10 @@ export const HomeScreenV2 = () => {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <TierChip
               tier={tier}
+              label={tierName}
               onCycle={cycleTier}
               onOpenPicker={() => setPickerVisible(true)}
-              a11yLabel={`${t.personalityTitle}: ${t[`personality${tier.charAt(0).toUpperCase() + tier.slice(1)}` as keyof typeof t]}`}
+              a11yLabel={`${t.personalityTitle}: ${tierName}`}
               a11yHint={t.personalityA11yHint}
             />
             <LangSwitchV2 language={language} setLanguage={setLanguage} />

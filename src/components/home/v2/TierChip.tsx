@@ -7,6 +7,8 @@ import type { PersonalityTier } from '../../../context/PersonalityContext';
 
 export interface TierChipProps {
   tier: PersonalityTier;
+  /** Localized tier name for the chip face (e.g. "Спокойно" / "Wholesome"). CSS uppercases at render time. */
+  label: string;
   onCycle: () => void;
   onOpenPicker: () => void;
   /** Localized "Personality: <tier>" string for VoiceOver/TalkBack. */
@@ -15,14 +17,8 @@ export interface TierChipProps {
   a11yHint: string;
 }
 
-const LABELS: Record<PersonalityTier, string> = {
-  wholesome: 'WHOLESOME',
-  sarcastic: 'SARCASTIC',
-  unhinged:  'UNHINGED',
-};
-
 export const TierChip: React.FC<TierChipProps> = ({
-  tier, onCycle, onOpenPicker, a11yLabel, a11yHint,
+  tier, label, onCycle, onOpenPicker, a11yLabel, a11yHint,
 }) => {
   const handlePress = () => {
     Vibration.vibrate(10);
@@ -33,7 +29,6 @@ export const TierChip: React.FC<TierChipProps> = ({
     onOpenPicker();
   };
 
-  const label = LABELS[tier];
   const Icon = tier === 'sarcastic' ? Sparkles : tier === 'unhinged' ? Flame : null;
   const iconColor = tier === 'unhinged' ? '#ffd8a3' : '#ffba66';
 

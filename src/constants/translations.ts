@@ -816,9 +816,9 @@ export const TRANSLATIONS = {
     // ---- Personality tier chip + picker sheet ----
     personalityTitle: 'ЛИЧНОСТЬ',
     personalityClose: 'Закрыть',
-    personalityWholesome: 'Wholesome',
-    personalitySarcastic: 'Sarcastic',
-    personalityUnhinged: 'Unhinged',
+    personalityWholesome: 'Спокойно',
+    personalitySarcastic: 'Сарказм',
+    personalityUnhinged: 'Безумие',
     personalityA11yHint: 'Нажмите чтобы переключить, удерживайте чтобы выбрать',
   },
   EN: {

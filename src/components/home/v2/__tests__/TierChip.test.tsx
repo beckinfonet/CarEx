@@ -6,37 +6,37 @@ import { TierChip } from '../TierChip';
 describe('TierChip', () => {
   beforeEach(() => { jest.clearAllMocks(); });
 
-  test('renders WHOLESOME label when tier is wholesome', async () => {
+  test('passes through the wholesome label prop', async () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <TierChip tier="wholesome" onCycle={() => {}} onOpenPicker={() => {}} a11yLabel="Personality: Wholesome" a11yHint="Double tap to switch, long press to pick" />
+        <TierChip tier="wholesome" label="Спокойно" onCycle={() => {}} onOpenPicker={() => {}} a11yLabel="Personality: Спокойно" a11yHint="hint" />
       );
     });
     const joined = JSON.stringify(tree!.root.findAllByType(Text).map((n) => n.props.children));
-    expect(joined).toContain('WHOLESOME');
+    expect(joined).toContain('Спокойно');
   });
 
-  test('renders SARCASTIC label when tier is sarcastic', async () => {
+  test('passes through the sarcastic label prop', async () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <TierChip tier="sarcastic" onCycle={() => {}} onOpenPicker={() => {}} a11yLabel="x" a11yHint="x" />
+        <TierChip tier="sarcastic" label="Sarcastic" onCycle={() => {}} onOpenPicker={() => {}} a11yLabel="x" a11yHint="x" />
       );
     });
     const joined = JSON.stringify(tree!.root.findAllByType(Text).map((n) => n.props.children));
-    expect(joined).toContain('SARCASTIC');
+    expect(joined).toContain('Sarcastic');
   });
 
-  test('renders UNHINGED label when tier is unhinged', async () => {
+  test('passes through the unhinged label prop', async () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <TierChip tier="unhinged" onCycle={() => {}} onOpenPicker={() => {}} a11yLabel="x" a11yHint="x" />
+        <TierChip tier="unhinged" label="Безумие" onCycle={() => {}} onOpenPicker={() => {}} a11yLabel="x" a11yHint="x" />
       );
     });
     const joined = JSON.stringify(tree!.root.findAllByType(Text).map((n) => n.props.children));
-    expect(joined).toContain('UNHINGED');
+    expect(joined).toContain('Безумие');
   });
 
   test('tap invokes onCycle', async () => {
@@ -44,7 +44,7 @@ describe('TierChip', () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <TierChip tier="wholesome" onCycle={onCycle} onOpenPicker={() => {}} a11yLabel="x" a11yHint="x" />
+        <TierChip tier="wholesome" label="Wholesome" onCycle={onCycle} onOpenPicker={() => {}} a11yLabel="x" a11yHint="x" />
       );
     });
     const touchable = tree!.root.findByType(TouchableOpacity);
@@ -58,7 +58,7 @@ describe('TierChip', () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <TierChip tier="sarcastic" onCycle={() => {}} onOpenPicker={onOpenPicker} a11yLabel="x" a11yHint="x" />
+        <TierChip tier="sarcastic" label="Sarcastic" onCycle={() => {}} onOpenPicker={onOpenPicker} a11yLabel="x" a11yHint="x" />
       );
     });
     const touchable = tree!.root.findByType(TouchableOpacity);
@@ -71,7 +71,7 @@ describe('TierChip', () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <TierChip tier="sarcastic" onCycle={() => {}} onOpenPicker={() => {}} a11yLabel="Personality: Sarcastic" a11yHint="Double tap to switch, long press to pick" />
+        <TierChip tier="sarcastic" label="Sarcastic" onCycle={() => {}} onOpenPicker={() => {}} a11yLabel="Personality: Sarcastic" a11yHint="Double tap to switch, long press to pick" />
       );
     });
     const touchable = tree!.root.findByType(TouchableOpacity);
