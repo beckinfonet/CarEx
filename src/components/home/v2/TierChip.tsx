@@ -1,0 +1,104 @@
+import React from 'react';
+import { Text, TouchableOpacity, View, StyleSheet, Vibration } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import { Sparkles, Flame } from 'lucide-react-native';
+import { V2 } from './theme';
+import type { PersonalityTier } from '../../../context/PersonalityContext';
+
+export interface TierChipProps {
+  tier: PersonalityTier;
+  onCycle: () => void;
+  onOpenPicker: () => void;
+  /** Localized "Personality: <tier>" string for VoiceOver/TalkBack. */
+  a11yLabel: string;
+  /** Localized "Double tap to switch, long press to pick" hint. */
+  a11yHint: string;
+}
+
+const LABELS: Record<PersonalityTier, string> = {
+  wholesome: 'WHOLESOME',
+  sarcastic: 'SARCASTIC',
+  unhinged:  'UNHINGED',
+};
+
+export const TierChip: React.FC<TierChipProps> = ({
+  tier, onCycle, onOpenPicker, a11yLabel, a11yHint,
+}) => {
+  const handlePress = () => {
+    Vibration.vibrate(10);
+    onCycle();
+  };
+  const handleLongPress = () => {
+    Vibration.vibrate(15);
+    onOpenPicker();
+  };
+
+  const label = LABELS[tier];
+  const Icon = tier === 'sarcastic' ? Sparkles : tier === 'unhinged' ? Flame : null;
+  const iconColor = tier === 'unhinged' ? '#ffd8a3' : '#ffba66';
+
+  const inner = (
+    <View style={styles.inner}>
+      {Icon ? <Icon size={11} color={iconColor} strokeWidth={2.4} /> : <Text style={styles.dot}>○</Text>}
+      <Text
+        style={[
+          styles.label,
+          tier === 'wholesome' && { color: V2.textMuted },
+          tier === 'sarcastic' && { color: iconColor },
+          tier === 'unhinged'  && { color: iconColor },
+        ]}
+      >
+        {label}
+      </Text>
+    </View>
+  );
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={handlePress}
+      onLongPress={handleLongPress}
+      delayLongPress={400}
+      accessibilityRole="button"
+      accessibilityLabel={a11yLabel}
+      accessibilityHint={a11yHint}
+    >
+      {tier === 'wholesome' ? (
+        <View style={[styles.pill, styles.pillWholesome]}>{inner}</View>
+      ) : (
+        <LinearGradient
+          colors={
+            tier === 'sarcastic'
+              ? ['rgba(255,170,77,0.18)', 'rgba(255,77,160,0.16)']
+              : ['rgba(255,170,77,0.32)', 'rgba(255,77,160,0.28)']
+          }
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={[
+            styles.pill,
+            tier === 'sarcastic' && styles.pillSarcastic,
+            tier === 'unhinged'  && styles.pillUnhinged,
+          ]}
+        >
+          {inner}
+        </LinearGradient>
+      )}
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  pill: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderWidth: 1,
+    alignSelf: 'flex-end',
+  },
+  pillWholesome: { backgroundColor: V2.surface, borderColor: V2.border },
+  pillSarcastic: { borderColor: 'rgba(255,170,77,0.45)' },
+  pillUnhinged:  { borderColor: 'rgba(255,170,77,0.7)' },
+  inner: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  dot: { color: V2.textMuted, fontSize: 11, fontWeight: '800' },
+  label: { fontSize: 10, fontWeight: '800', letterSpacing: 0.9, textTransform: 'uppercase' },
+});
