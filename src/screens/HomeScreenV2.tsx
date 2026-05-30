@@ -13,6 +13,8 @@ import { CATEGORIES } from '../constants/mockData';
 import { V2 } from '../components/home/v2/theme';
 import { getCityFromTimezone, buildGreetingSubject } from '../utils/greetingSubject';
 import { rotateVariant, GreetingSlot } from '../utils/greetingVariants';
+import { pickGreetingPool, GreetingTimeSlot } from '../utils/pickGreetingPool';
+import { usePersonality } from '../context/PersonalityContext';
 
 import { FloatingSearchPill } from '../components/home/v2/FloatingSearchPill';
 import { ProfileAvatarButton } from '../components/home/v2/ProfileAvatarButton';
@@ -39,47 +41,29 @@ function timeOfDayKey(t: any): string {
   return t.goodEvening;
 }
 
-// ---- Quick 260528-hmt — time-of-day pool selector for the rotating greeting kicker ----
-type GreetingTimeSlot = Exclude<GreetingSlot, 'headline'>;
-
-function currentGreetingSlot(): GreetingTimeSlot {
-  const h = new Date().getHours();
-  if (h < 12) return 'morning';
-  if (h < 18) return 'afternoon';
-  return 'evening';
-}
-
-function pickGreetingPool(t: any): { slot: GreetingTimeSlot; pool: string[] } {
-  const slot = currentGreetingSlot();
-  const pool =
-    slot === 'morning'   ? t.greetingVariantsMorning :
-    slot === 'afternoon' ? t.greetingVariantsAfternoon :
-                           t.greetingVariantsEvening;
-  return { slot, pool };
-}
-
 export const HomeScreenV2 = () => {
   const navigation = useNavigation<Nav>();
   const route      = useRoute<RouteT>();
   const isFocused  = useIsFocused();
   const { t, language, setLanguage } = useLanguage();
+  const { tier } = usePersonality();
   const { user } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
 
   // ---- Quick 260528-hmt — Rotating greeting + headline ----
   const [greetingText, setGreetingText] = useState<string>(() => {
-    const { slot, pool } = pickGreetingPool(t);
+    const { slot, pool } = pickGreetingPool(t, tier);
     return rotateVariant(slot, pool);
   });
   const [headlineText, setHeadlineText] = useState<string>(() =>
-    rotateVariant('headline', t.headlineVariants),
+    rotateVariant('headline', t.headlineVariants[tier]),
   );
 
   const rotate = useCallback(() => {
-    const { slot, pool } = pickGreetingPool(t);
+    const { slot, pool } = pickGreetingPool(t, tier);
     setGreetingText(rotateVariant(slot, pool));
-    setHeadlineText(rotateVariant('headline', t.headlineVariants));
-  }, [t]);
+    setHeadlineText(rotateVariant('headline', t.headlineVariants[tier]));
+  }, [t, tier]);
 
   // Re-pick whenever the language flips so the displayed copy matches the active locale.
   // We intentionally depend on `language` (a stable primitive) rather than `t` (object identity).
@@ -88,6 +72,13 @@ export const HomeScreenV2 = () => {
     if (langMountRef.current) { langMountRef.current = false; return; }
     rotate();
   }, [language, rotate]);
+
+  // Re-pick whenever the tier changes so the displayed copy matches the active tier pool.
+  const tierMountRef = useRef(true);
+  useEffect(() => {
+    if (tierMountRef.current) { tierMountRef.current = false; return; }
+    rotate();
+  }, [tier, rotate]);
 
   // Rotate when the screen regains focus (e.g. user returns from CarDetails).
   // Skip the initial mount so the initial useState pick isn't immediately replaced.
