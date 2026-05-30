@@ -41,6 +41,8 @@ export const TierChip: React.FC<TierChipProps> = ({
     <View style={styles.inner}>
       {Icon ? <Icon size={11} color={iconColor} strokeWidth={2.4} /> : <Text style={styles.dot}>○</Text>}
       <Text
+        numberOfLines={1}
+        allowFontScaling={false}
         style={[
           styles.label,
           tier === 'wholesome' && { color: V2.textMuted },
@@ -90,7 +92,7 @@ export const TierChip: React.FC<TierChipProps> = ({
 const styles = StyleSheet.create({
   pill: {
     borderRadius: 999,
-    paddingHorizontal: 10,
+    paddingHorizontal: 7,
     paddingVertical: 5,
     borderWidth: 1,
     alignSelf: 'flex-end',
@@ -98,7 +100,7 @@ const styles = StyleSheet.create({
   pillWholesome: { backgroundColor: V2.surface, borderColor: V2.border },
   pillSarcastic: { borderColor: 'rgba(255,170,77,0.45)' },
   pillUnhinged:  { borderColor: 'rgba(255,170,77,0.7)' },
-  inner: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  inner: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   dot: { color: V2.textMuted, fontSize: 11, fontWeight: '800' },
-  label: { fontSize: 10, fontWeight: '800', letterSpacing: 0.9, textTransform: 'uppercase' },
+  label: { fontSize: 9, fontWeight: '800', letterSpacing: 0.4, textTransform: 'uppercase' },
 });
