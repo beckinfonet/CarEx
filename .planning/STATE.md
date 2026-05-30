@@ -39,7 +39,7 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 | backend-load-test | Plan 06-0a (10k-user seed) | deferred by operator 2026-04-19 |
 | backend-load-test | Plan 06-0b (k6 harness with P95<200ms) | deferred by operator 2026-04-19 |
 | ux-followup | UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 06 03 styling) | captured 2026-04-30 during Phase 04 UAT — to be addressed in next milestone |
-Last activity: 2026-05-30 - Completed quick task 260530-bdq: UNHINGED personality tier first-time consent gate
+Last activity: 2026-05-30 - Shipped feat/personality-tier-setting branch (PR #7): personality tier picker + UNHINGED consent gate + KG-localized greeting content (50/slot)
 Resume file: .planning/phases/11-buyer-affected-ux-quality-security-review/11-CONTEXT.md
 
 Progress: [██████████] 100%
