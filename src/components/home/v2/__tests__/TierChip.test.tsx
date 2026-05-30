@@ -1,9 +1,11 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { Text, TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity, Vibration } from 'react-native';
 import { TierChip } from '../TierChip';
 
 describe('TierChip', () => {
+  beforeEach(() => { jest.clearAllMocks(); });
+
   test('renders WHOLESOME label when tier is wholesome', async () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
@@ -48,6 +50,7 @@ describe('TierChip', () => {
     const touchable = tree!.root.findByType(TouchableOpacity);
     act(() => { (touchable.props as any).onPress(); });
     expect(onCycle).toHaveBeenCalledTimes(1);
+    expect(Vibration.vibrate).toHaveBeenCalledWith(10);
   });
 
   test('long-press invokes onOpenPicker', async () => {
@@ -61,6 +64,7 @@ describe('TierChip', () => {
     const touchable = tree!.root.findByType(TouchableOpacity);
     act(() => { (touchable.props as any).onLongPress(); });
     expect(onOpenPicker).toHaveBeenCalledTimes(1);
+    expect(Vibration.vibrate).toHaveBeenCalledWith(15);
   });
 
   test('exposes accessibility label and hint', async () => {
