@@ -85,6 +85,22 @@ describe('PersonalityContext', () => {
     expect(hookResult.tier).toBe('wholesome');
   });
 
+  test('two rapid cycleTier calls in one act each advance one step', async () => {
+    mockedAsync.getItem.mockResolvedValue(null);
+    await act(async () => {
+      TestRenderer.create(<PersonalityProvider><Probe /></PersonalityProvider>);
+    });
+    await flush();
+    // Both calls happen synchronously inside a single act — tests the functional updater.
+    await act(async () => {
+      hookResult.cycleTier();
+      hookResult.cycleTier();
+    });
+    await flush();
+    // wholesome → sarcastic → unhinged
+    expect(hookResult.tier).toBe('unhinged');
+  });
+
   test('setTier retains in-memory value when AsyncStorage write rejects', async () => {
     mockedAsync.getItem.mockResolvedValue(null);
     mockedAsync.setItem.mockRejectedValueOnce(new Error('quota'));

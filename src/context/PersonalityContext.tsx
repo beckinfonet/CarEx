@@ -49,9 +49,14 @@ export const PersonalityProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const cycleTier = () => {
-    const idx = CYCLE_ORDER.indexOf(tier);
-    const nextIdx = (idx + 1) % CYCLE_ORDER.length;
-    setTier(CYCLE_ORDER[nextIdx]);
+    setTierState((current) => {
+      const nextIdx = (CYCLE_ORDER.indexOf(current) + 1) % CYCLE_ORDER.length;
+      const next = CYCLE_ORDER[nextIdx];
+      AsyncStorage.setItem(STORAGE_KEY, next).catch((e) =>
+        console.error('[PersonalityContext] persist failed', e),
+      );
+      return next;
+    });
   };
 
   return (

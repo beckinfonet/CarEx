@@ -28,6 +28,8 @@ import { FeedLoader } from '../components/home/v2/FeedLoader';
 import { BottomBar } from '../components/BottomBar';
 import { FilterModal } from '../components/FilterModal';
 import { LangSwitchV2 } from '../components/home/v2/LangSwitchV2';
+import { TierChip } from '../components/home/v2/TierChip';
+import { TierPickerSheet } from '../components/home/v2/TierPickerSheet';
 
 import { RootStackParamList } from '../types/navigation';
 
@@ -46,7 +48,8 @@ export const HomeScreenV2 = () => {
   const route      = useRoute<RouteT>();
   const isFocused  = useIsFocused();
   const { t, language, setLanguage } = useLanguage();
-  const { tier } = usePersonality();
+  const { tier, setTier, cycleTier } = usePersonality();
+  const [pickerVisible, setPickerVisible] = useState(false);
   const { user } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
 
@@ -170,6 +173,12 @@ export const HomeScreenV2 = () => {
   const handleSearchPress = () => navigation.navigate('SearchResults', { initialQuery: '' });
   const handleFiltersPress = () => { setCurrentFilterType('Год'); setFilterModalVisible(true); };
 
+  const previews = {
+    wholesome: t.greetingVariantsMorning.wholesome[0],
+    sarcastic: t.greetingVariantsMorning.sarcastic[0],
+    unhinged:  t.greetingVariantsMorning.unhinged[0],
+  };
+
   const Header = (
     <>
       <GreetingBlock
@@ -178,7 +187,18 @@ export const HomeScreenV2 = () => {
         headline={headlineText}
         listingsCount={displayedCars.length}
         listingsNoun={t.listingsCount}
-        trailing={<LangSwitchV2 language={language} setLanguage={setLanguage} />}
+        trailing={
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <TierChip
+              tier={tier}
+              onCycle={cycleTier}
+              onOpenPicker={() => setPickerVisible(true)}
+              a11yLabel={`${t.personalityTitle}: ${t[`personality${tier.charAt(0).toUpperCase() + tier.slice(1)}` as keyof typeof t]}`}
+              a11yHint={t.personalityA11yHint}
+            />
+            <LangSwitchV2 language={language} setLanguage={setLanguage} />
+          </View>
+        }
       />
       <ActiveFilterChips
         selectedMake={selectedMake}
@@ -253,6 +273,23 @@ export const HomeScreenV2 = () => {
         onApply={applyFilter}
         currentValue={currentFilterType ? activeFilters[currentFilterType] : null}
         t={t}
+      />
+      <TierPickerSheet
+        visible={pickerVisible}
+        currentTier={tier}
+        previews={previews}
+        labels={{
+          title: t.personalityTitle,
+          close: t.personalityClose,
+          wholesome: t.personalityWholesome,
+          sarcastic: t.personalitySarcastic,
+          unhinged:  t.personalityUnhinged,
+        }}
+        onSelect={(next) => {
+          setTier(next);
+          setTimeout(() => setPickerVisible(false), 150);
+        }}
+        onDismiss={() => setPickerVisible(false)}
       />
     </SafeAreaView>
   );

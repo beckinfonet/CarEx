@@ -813,6 +813,13 @@ export const TRANSLATIONS = {
     cartListingUnavailableBody: 'Удалите автомобиль из корзины, чтобы продолжить.',
     cartListingUnavailableRemove: 'Удалить из корзины',
     cartListingUnavailableCheckoutHint: 'Удалите недоступное объявление, чтобы оформить остальные услуги.',
+    // ---- Personality tier chip + picker sheet ----
+    personalityTitle: 'ЛИЧНОСТЬ',
+    personalityClose: 'Закрыть',
+    personalityWholesome: 'Wholesome',
+    personalitySarcastic: 'Sarcastic',
+    personalityUnhinged: 'Unhinged',
+    personalityA11yHint: 'Нажмите чтобы переключить, удерживайте чтобы выбрать',
   },
   EN: {
     // Header & Navigation
@@ -1628,6 +1635,13 @@ export const TRANSLATIONS = {
     cartListingUnavailableBody: 'Remove the vehicle from your cart to continue.',
     cartListingUnavailableRemove: 'Remove from cart',
     cartListingUnavailableCheckoutHint: 'Remove the unavailable listing to check out remaining services.',
+    // ---- Personality tier chip + picker sheet ----
+    personalityTitle: 'PERSONALITY',
+    personalityClose: 'Close',
+    personalityWholesome: 'Wholesome',
+    personalitySarcastic: 'Sarcastic',
+    personalityUnhinged: 'Unhinged',
+    personalityA11yHint: 'Double tap to switch, long press to pick',
   }
 };
 
