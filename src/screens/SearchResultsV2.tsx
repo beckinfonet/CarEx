@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronDown } from 'lucide-react-native';
 
 import { useHomeListings } from '../hooks/useHomeListings';
 import { useLanguage } from '../context/LanguageContext';
+import { useFavorites } from '../context/FavoritesContext';
 import { useTypography } from '../hooks/useTypography';
 import { V2 } from '../components/home/v2/theme';
 import { MarketStatsStrip } from '../components/home/v2/MarketStatsStrip';
@@ -17,6 +18,7 @@ import { SortSheet, SortOption } from '../components/home/v2/SortSheet';
 import { FilterModal } from '../components/FilterModal';
 import { MakeModelFilterBar } from '../components/MakeModelFilterBar';
 import { RootStackParamList } from '../types/navigation';
+import { getCityFromTimezone } from '../utils/greetingSubject';
 
 type Nav    = NativeStackNavigationProp<RootStackParamList, 'SearchResults'>;
 type RouteT = RouteProp<RootStackParamList, 'SearchResults'>;
@@ -42,6 +44,7 @@ export const SearchResultsV2 = () => {
   const navigation = useNavigation<Nav>();
   const route      = useRoute<RouteT>();
   const { t }      = useLanguage();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const typo       = useTypography();
 
   const {
@@ -72,6 +75,12 @@ export const SearchResultsV2 = () => {
   const stats = useMemo(() => formatStats(displayedCars), [displayedCars]);
   const visibleResults = displayedCars.slice(0, revealed);
   const total = displayedCars.length;
+
+  const city = useMemo(() => {
+    let tz: string | null = null;
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { tz = null; }
+    return tz ? getCityFromTimezone(tz, t) : null;
+  }, [t]);
 
   const onSortSelect = (opt: SortOption) => {
     setSort(opt);
@@ -114,7 +123,7 @@ export const SearchResultsV2 = () => {
             {route.params.initialQuery || t.allCars}
           </Text>
           <Text style={[styles.subtitle, { fontFamily: typo.mono }]}>
-            {total} {t.listingsCount} · {t.moscowAndRegion}
+            {total} {t.listingsCount}{city ? ` · ${city}` : ''}
           </Text>
         </View>
       </View>
@@ -167,8 +176,8 @@ export const SearchResultsV2 = () => {
         ListHeaderComponent={Header}
         renderItem={({ item }) => (
           item.promoted
-            ? <BigFeedCard car={item} kmSuffix={t.kmShort} ctaLabel={t.open} faved={!!item.faved} onPress={handleCarPress} onToggleFav={() => {}} />
-            : <SmallFeedCard car={item} kmSuffix={t.kmShort} faved={!!item.faved} onPress={handleCarPress} onToggleFav={() => {}} />
+            ? <BigFeedCard car={item} kmSuffix={t.kmShort} ctaLabel={t.open} faved={isFavorite(item.id)} onPress={handleCarPress} onToggleFav={(car) => toggleFavorite(car.id)} />
+            : <SmallFeedCard car={item} kmSuffix={t.kmShort} faved={isFavorite(item.id)} onPress={handleCarPress} onToggleFav={(car) => toggleFavorite(car.id)} />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 9 }} />}
         contentContainerStyle={styles.listContent}

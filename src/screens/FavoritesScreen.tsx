@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, StatusBar, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
@@ -9,27 +8,26 @@ import { API_URL } from '../constants/config';
 import { CarCard } from '../components/CarCard';
 import { ArrowLeft } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
+import { useFavorites } from '../context/FavoritesContext';
 
 export const FavoritesScreen = () => {
   const { t } = useLanguage();
   const navigation = useNavigation<any>();
+  const { favoriteIds } = useFavorites();
   const [favorites, setFavorites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchFavorites();
-  }, []);
-
-  const fetchFavorites = async () => {
+  const fetchFavorites = useCallback(async () => {
     try {
-      const storedFavorites = await AsyncStorage.getItem('favorites');
-      const favoriteIds = storedFavorites ? JSON.parse(storedFavorites) : [];
+      const ids = Array.from(favoriteIds);
 
-      if (favoriteIds.length === 0) {
+      if (ids.length === 0) {
         setFavorites([]);
         setLoading(false);
         return;
       }
+
+      setLoading(true);
 
       // Fetch all cars and filter (Not ideal for large DB, but works for now since we don't have batch get endpoint)
       // Alternatively, we could create a new endpoint /api/cars/batch?ids=...
@@ -49,14 +47,22 @@ export const FavoritesScreen = () => {
          ...car
        }));
 
-      const favCars = allCars.filter((car: any) => favoriteIds.includes(car.id));
+      const idSet = new Set(ids);
+      const favCars = allCars.filter((car: any) => idSet.has(car.id));
       setFavorites(favCars);
     } catch (error) {
       console.error('Failed to fetch favorites', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [favoriteIds]);
+
+  // Re-fetch whenever the context-backed favorites Set changes — so a heart
+  // toggled on HomeScreenV2/SearchResultsV2/CarDetails is reflected here on
+  // next visit without needing remount.
+  useEffect(() => {
+    fetchFavorites();
+  }, [fetchFavorites]);
 
   return (
     <SafeAreaView style={styles.container}>
