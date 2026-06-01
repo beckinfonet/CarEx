@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Sparkles } from 'lucide-react-native';
 import { V2 } from './theme';
 import { useTypography } from '../../../hooks/useTypography';
 
@@ -33,10 +32,20 @@ export const GreetingBlock: React.FC<GreetingBlockProps> = ({
         {headline}
       </Text>
       <View style={styles.chipRow}>
-        <View style={styles.chip}>
-          <Sparkles size={12} color={V2.blue} strokeWidth={2.4} />
-          <Text style={[styles.chipText, { fontFamily: typo.display, color: V2.blue }]}>
-            {listingsCount} {listingsNoun}
+        <View style={styles.statusGroup}>
+          <Text
+            numberOfLines={1}
+            allowFontScaling={false}
+            style={[styles.statusCount, { fontFamily: typo.mono }]}
+          >
+            {listingsCount}
+          </Text>
+          <Text
+            numberOfLines={1}
+            allowFontScaling={false}
+            style={[styles.statusNoun, { fontFamily: typo.display }]}
+          >
+            {listingsNoun}
           </Text>
         </View>
         {trailing}
@@ -46,22 +55,37 @@ export const GreetingBlock: React.FC<GreetingBlockProps> = ({
 };
 
 const styles = StyleSheet.create({
-  wrapper:   { paddingHorizontal: 22, paddingTop: 16, paddingBottom: 6 },
+  wrapper:   { paddingTop: 16, paddingBottom: 6 },
   kicker:    {
     fontSize: 12, fontWeight: '700', letterSpacing: 1.4,
     textTransform: 'uppercase', color: V2.textMuted, marginBottom: 12,
   },
   headline:  {
     fontSize: 30, fontWeight: '800', letterSpacing: -1.05,
-    color: V2.text, lineHeight: 30,
+    color: V2.text, lineHeight: 38, paddingTop: 2,
   },
-  chipRow:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, gap: 8 },
-  chip: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 12, paddingVertical: 6,
-    borderRadius: V2.radius.pill,
-    backgroundColor: 'rgba(77,163,255,0.12)',
-    borderWidth: 1, borderColor: 'rgba(77,163,255,0.28)',
+  chipRow:   {
+    flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'space-between', marginTop: 12, gap: 8,
   },
-  chipText:  { fontSize: 12, fontWeight: '700' },
+  statusGroup: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+    flexShrink: 1,
+  },
+  statusCount: {
+    color: V2.text,
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: -0.16,
+  },
+  statusNoun: {
+    color: V2.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.72,
+    textTransform: 'uppercase',
+    flexShrink: 1,
+  },
 });

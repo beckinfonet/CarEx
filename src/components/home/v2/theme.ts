@@ -19,5 +19,11 @@ export const V2 = {
   green:     '#67E8B6',
   red:       '#FF7A8E',
   favorite:  '#FF5D7A',
+  // Softened "Unhinged" ember — muted warm, replaces the harsh amber→magenta gradient.
+  // `emberFill` is the gradient stop pair fed to `react-native-linear-gradient`
+  // (CSS-gradient syntax doesn't apply on RN <View> backgrounds).
+  ember:     '#F2BD98',
+  emberBd:   'rgba(255,176,128,0.30)',
+  emberFill: ['rgba(255,150,98,0.16)', 'rgba(238,124,138,0.11)'] as readonly [string, string],
   radius: { hero: 24, big: 22, small: 16.5, shelf: 18, pill: 999 } as const,
 } as const;

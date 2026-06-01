@@ -4,8 +4,8 @@ milestone: v1.1
 milestone_name: Admin Listing Moderation
 status: "v1.1 shipped — PR #3"
 stopped_at: Phase 11 context gathered
-last_updated: "2026-05-29T21:33:46.151Z"
-last_activity: 2026-05-29
+last_updated: "2026-06-01T19:52:42.285Z"
+last_activity: 2026-06-01
 progress:
   total_phases: 5
   completed_phases: 5
@@ -379,6 +379,7 @@ None yet.
 | 260529-mt3 | Replace hardcoded "Moscow and region" label on SearchResultsV2 subtitle with timezone-derived city (reuses getCityFromTimezone); drops location text when timezone unresolved; removed unused moscowAndRegion i18n key (RU+EN) | 2026-05-29 | 211e0dd | [260529-mt3-replace-hardcoded-moscow-and-region-loca](./quick/260529-mt3-replace-hardcoded-moscow-and-region-loca/) |
 | 260529-o12 | Restore profile/avatar button to left of FloatingSearchPill on HomeScreenV2 (new ProfileAvatarButton + leading slot on pill); avatar image or User-icon fallback; tap → Profile (logged in) / Login (out). Code-complete; manual app-run verify pending | 2026-05-30 | 94c8b99 | [260529-o12-add-profile-icon-back-to-homescreenv2-he](./quick/260529-o12-add-profile-icon-back-to-homescreenv2-he/) |
 | 260530-bdq | First-time consent gate for UNHINGED personality tier — modal on first attempt (explicit accept), snackbar reminder on subsequent switches. Gates both picker selection and chip cycle-tap. New PersonalityContext state `unhingedAccepted` + `acceptUnhinged()` + `requestTier()` wrapper; cross-platform `UnhingedSnackbar` (animated View, no ToastAndroid) + `UnhingedConsentModal`; 5 new RU/EN keys; 13/13 PersonalityContext tests pass | 2026-05-30 | 66355ec | [260530-bdq-add-a-first-time-consent-gate-when-user-](./quick/260530-bdq-add-a-first-time-consent-gate-when-user-/) |
+| 260601-hvx | Home greeting band "Option C" polish — listings becomes plain text (mono count + uppercase muted noun); tier+locale cluster shares 28-px height with gap:6; new flag-free `LocaleGlobe` svg + single-toggle `LangSwitchV2` (globe + active code); Unhinged tier softened to ember palette via new `V2.ember/emberBd/emberFill` tokens. Sarcastic untouched | 2026-06-01 | pending | [260601-hvx-home-greeting-band-locale-and-tier-polish](./quick/260601-hvx-home-greeting-band-locale-and-tier-polish/) |
 
 ## Deferred Items
 

@@ -30,11 +30,12 @@ export const TierChip: React.FC<TierChipProps> = ({
   };
 
   const Icon = tier === 'sarcastic' ? Sparkles : tier === 'unhinged' ? Flame : null;
-  const iconColor = tier === 'unhinged' ? '#ffd8a3' : '#ffba66';
+  // Unhinged adopts the softened ember palette; Sarcastic keeps its prior amber.
+  const iconColor = tier === 'unhinged' ? V2.ember : '#ffba66';
 
   const inner = (
     <View style={styles.inner}>
-      {Icon ? <Icon size={11} color={iconColor} strokeWidth={2.4} /> : <Text style={styles.dot}>○</Text>}
+      {Icon ? <Icon size={12} color={iconColor} strokeWidth={2.3} /> : <Text style={styles.dot}>○</Text>}
       <Text
         numberOfLines={1}
         allowFontScaling={false}
@@ -50,11 +51,11 @@ export const TierChip: React.FC<TierChipProps> = ({
     </View>
   );
 
-  const gradientColors =
+  const gradientColors: string[] | null =
     tier === 'sarcastic'
       ? ['rgba(255,170,77,0.18)', 'rgba(255,77,160,0.16)']
       : tier === 'unhinged'
-      ? ['rgba(255,170,77,0.32)', 'rgba(255,77,160,0.28)']
+      ? [...V2.emberFill]
       : null;
 
   return (
@@ -79,7 +80,7 @@ export const TierChip: React.FC<TierChipProps> = ({
           <LinearGradient
             colors={gradientColors}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
+            end={{ x: 1, y: 0.2 }}
             style={StyleSheet.absoluteFill}
             pointerEvents="none"
           />
@@ -92,17 +93,18 @@ export const TierChip: React.FC<TierChipProps> = ({
 
 const styles = StyleSheet.create({
   pill: {
+    height: 28,
     borderRadius: 999,
-    paddingHorizontal: 7,
-    paddingVertical: 5,
+    paddingHorizontal: 11,
     borderWidth: 1,
     alignSelf: 'flex-end',
     overflow: 'hidden',
+    justifyContent: 'center',
   },
   pillWholesome: { backgroundColor: V2.surface, borderColor: V2.border },
   pillSarcastic: { borderColor: 'rgba(255,170,77,0.45)' },
-  pillUnhinged:  { borderColor: 'rgba(255,170,77,0.7)' },
-  inner: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  pillUnhinged:  { borderColor: V2.emberBd },
+  inner: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   dot: { color: V2.textMuted, fontSize: 11, fontWeight: '800' },
-  label: { fontSize: 9, fontWeight: '800', letterSpacing: 0.4, textTransform: 'uppercase' },
+  label: { fontSize: 10, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
 });
