@@ -324,17 +324,27 @@ export const CarDetailsScreen = () => {
   };
 
   const updateListingStatus = async (newStatus: 'active' | 'booked' | 'sold') => {
-    if (!user?.localId || !car?.id) return;
+    const docId = car?._id || car?.id || carId;
+    if (!user?.localId || !docId) return;
+    const previousStatus = listingStatus;
     setStatusUpdating(true);
+    setLocalListingStatus(newStatus);
     try {
-      await axios.patch(`${API_URL}/api/cars/${car.id}/status`, {
+      await axios.patch(`${API_URL}/api/cars/${docId}/status`, {
         sellerId: user.localId,
         listingStatus: newStatus,
       });
-      setLocalListingStatus(newStatus);
-    } catch (err) {
-      console.error('Update status failed', err);
-      Alert.alert(t.error || 'Error', 'Failed to update listing status.');
+    } catch (err: any) {
+      setLocalListingStatus(previousStatus);
+      const status = err?.response?.status;
+      const message = err?.response?.data?.message;
+      const detail = status
+        ? ` (${status}${message ? `: ${message}` : ''})`
+        : '';
+      Alert.alert(
+        t.error || 'Error',
+        `Failed to update listing status.${detail}`
+      );
     } finally {
       setStatusUpdating(false);
     }
