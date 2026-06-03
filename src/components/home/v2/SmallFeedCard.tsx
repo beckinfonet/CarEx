@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Heart, Gauge } from 'lucide-react-native';
+import { OptimizedImage } from '../../OptimizedImage';
 import { V2 } from './theme';
 import { useTypography } from '../../../hooks/useTypography';
 
@@ -28,7 +29,7 @@ export const SmallFeedCard: React.FC<SmallFeedCardProps> = ({ car, kmSuffix, fav
   return (
     <TouchableOpacity activeOpacity={0.92} onPress={() => onPress(car)} style={styles.row}>
       <View style={styles.photoWrap}>
-        <Image source={{ uri: car.image }} style={styles.photo} resizeMode="cover" />
+        <OptimizedImage source={{ uri: car.image }} style={styles.photo} resizeMode="cover" />
       </View>
       <View style={styles.info}>
         <View style={styles.titleRow}>
