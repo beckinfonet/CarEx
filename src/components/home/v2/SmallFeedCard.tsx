@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Heart, Gauge } from 'lucide-react-native';
 import { OptimizedImage } from '../../OptimizedImage';
+import { ListingStatusBadge } from './ListingStatusBadge';
 import { V2 } from './theme';
 import { useTypography } from '../../../hooks/useTypography';
 
@@ -14,6 +15,7 @@ export interface SmallFeedCardCar {
   bodyType?: string;
   price: number;
   image: string;
+  listingStatus?: string;
 }
 
 export interface SmallFeedCardProps {
@@ -30,6 +32,7 @@ export const SmallFeedCard: React.FC<SmallFeedCardProps> = ({ car, kmSuffix, fav
     <TouchableOpacity activeOpacity={0.92} onPress={() => onPress(car)} style={styles.row}>
       <View style={styles.photoWrap}>
         <OptimizedImage source={{ uri: car.image }} style={styles.photo} resizeMode="cover" />
+        <ListingStatusBadge status={car.listingStatus} />
       </View>
       <View style={styles.info}>
         <View style={styles.titleRow}>
