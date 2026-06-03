@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { ChevronRight } from 'lucide-react-native';
+import { OptimizedImage } from '../../OptimizedImage';
 import { V2 } from './theme';
 import { useTypography } from '../../../hooks/useTypography';
 
@@ -50,7 +51,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
     <View style={styles.outer}>
       <TouchableOpacity activeOpacity={0.95} onPress={() => onPress(car)} style={styles.card}>
         <View style={styles.photoWrap}>
-          <Image source={{ uri: car.image }} style={styles.photo} resizeMode="cover" />
+          <OptimizedImage source={{ uri: car.image }} style={styles.photo} resizeMode="cover" priority="high" />
           <LinearGradient
             colors={['rgba(8,9,12,0)', 'rgba(8,9,12,0.55)', 'rgba(8,9,12,0.95)']}
             locations={[0.35, 0.75, 1]}

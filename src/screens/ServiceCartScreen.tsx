@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StatusBar,
   ScrollView,
-  Image,
   TextInput,
   Alert,
   ActivityIndicator,
@@ -16,6 +15,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ArrowLeft, ShoppingCart, Trash2, Car, X, Briefcase, Truck, CheckCircle } from 'lucide-react-native';
 import { COLORS, SIZES } from '../constants/theme';
+import { OptimizedImage } from '../components/OptimizedImage';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -214,7 +214,7 @@ export const ServiceCartScreen = () => {
                     <Text style={styles.carName}>{car.year} {car.makeName} {car.modelName}</Text>
                   </View>
                   {car.imageUrl ? (
-                    <Image source={{ uri: car.imageUrl }} style={styles.carThumb} />
+                    <OptimizedImage source={{ uri: car.imageUrl }} style={styles.carThumb} />
                   ) : null}
                 </View>
                 {carIsNonActive && carStatus?.banner && (

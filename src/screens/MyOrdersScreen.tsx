@@ -9,13 +9,13 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
-  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ArrowLeft, Package, Car, Briefcase, Truck, XCircle, Clock, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react-native';
 import { COLORS, SIZES } from '../constants/theme';
+import { OptimizedImage } from '../components/OptimizedImage';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { AuthService } from '../services/AuthService';
@@ -120,7 +120,7 @@ export const MyOrdersScreen = () => {
               {item.carSnapshot.year} {item.carSnapshot.makeName} {item.carSnapshot.modelName}
             </Text>
             {item.carSnapshot.imageUrl ? (
-              <Image source={{ uri: item.carSnapshot.imageUrl }} style={styles.carThumb} />
+              <OptimizedImage source={{ uri: item.carSnapshot.imageUrl }} style={styles.carThumb} />
             ) : null}
           </View>
         ) : null}

@@ -1,8 +1,9 @@
 import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, ViewStyle, StyleProp } from 'react-native';
+import { StyleSheet, TouchableOpacity, ViewStyle, StyleProp } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { User } from 'lucide-react-native';
+import { OptimizedImage } from '../../OptimizedImage';
 import { V2 } from './theme';
 import { useAuth } from '../../../context/AuthContext';
 import { RootStackParamList } from '../../../types/navigation';
@@ -40,7 +41,7 @@ export const ProfileAvatarButton: React.FC<ProfileAvatarButtonProps> = ({
       ]}
     >
       {user?.avatarUrl ? (
-        <Image
+        <OptimizedImage
           source={{ uri: user.avatarUrl }}
           style={{ width: size, height: size, borderRadius: size / 2 }}
           resizeMode="cover"

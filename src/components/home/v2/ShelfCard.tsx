@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { OptimizedImage } from '../../OptimizedImage';
 import { V2 } from './theme';
 import { useTypography } from '../../../hooks/useTypography';
 
@@ -24,7 +25,7 @@ export const ShelfCard: React.FC<ShelfCardProps> = ({ car, kmSuffix, onPress }) 
   return (
     <TouchableOpacity activeOpacity={0.92} onPress={() => onPress(car)} style={styles.card}>
       <View style={styles.photoWrap}>
-        <Image source={{ uri: car.image }} style={styles.photo} resizeMode="cover" />
+        <OptimizedImage source={{ uri: car.image }} style={styles.photo} resizeMode="cover" />
         <Text style={[styles.priceOverlay, { fontFamily: typo.mono }]}>
           ${car.price.toLocaleString('en-US')}
         </Text>
