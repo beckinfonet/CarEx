@@ -93,6 +93,7 @@ export const LatestCarousel = ({ cars, onCarPress, t }: LatestCarouselProps) => 
                     source={{ uri: car.image }}
                     style={styles.cardImage}
                     resizeMode="cover"
+                    priority="high"
                   />
                   <View style={styles.newBadge}>
                     <Text style={styles.newBadgeText}>{t.newBadge}</Text>
