@@ -17,6 +17,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { Heart, ChevronRight } from 'lucide-react-native';
 import { OptimizedImage } from '../../OptimizedImage';
+import { ListingStatusBadge } from './ListingStatusBadge';
 import { V2 } from './theme';
 import { useTypography } from '../../../hooks/useTypography';
 
@@ -29,6 +30,7 @@ export interface BigFeedCardCar {
   bodyType?: string;
   price: number;
   image: string;
+  listingStatus?: string;
 }
 
 export interface BigFeedCardProps {
@@ -48,6 +50,7 @@ export const BigFeedCard: React.FC<BigFeedCardProps> = ({
     <TouchableOpacity activeOpacity={0.95} onPress={() => onPress(car)} style={styles.card}>
       <View style={styles.photoWrap}>
         <OptimizedImage source={{ uri: car.image }} style={styles.photo} resizeMode="cover" />
+        <ListingStatusBadge status={car.listingStatus} />
         <LinearGradient
           colors={['rgba(8,9,12,0)', 'rgba(8,9,12,0.92)']}
           locations={[0.4, 1]}
