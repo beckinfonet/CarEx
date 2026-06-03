@@ -11,7 +11,6 @@ import {
   StatusBar,
   StyleSheet,
   Alert,
-  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -19,6 +18,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AlertTriangle, Archive, ArrowLeft, MoreVertical, Search, Users } from 'lucide-react-native';
 import axios from 'axios';
 import { COLORS, SIZES, TYPOGRAPHY } from '../constants/theme';
+import { OptimizedImage } from '../components/OptimizedImage';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { SeverityBadge } from '../components/moderation/SeverityBadge';
@@ -684,7 +684,7 @@ export const AdminModerationScreen: React.FC = () => {
         accessibilityLabel={title}
       >
         {item.firstPhotoUrl ? (
-          <Image source={{ uri: item.firstPhotoUrl }} style={styles.listingThumb} />
+          <OptimizedImage source={{ uri: item.firstPhotoUrl }} style={styles.listingThumb} />
         ) : (
           <View style={[styles.listingThumb, styles.listingThumbPlaceholder]} />
         )}
