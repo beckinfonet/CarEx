@@ -1,7 +1,6 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { FlatList } from 'react-native';
-import { UIVersionProvider } from '../../../../context/UIVersionContext';
 import { HeroRotator } from '../HeroRotator';
 import type { HeroCardCar } from '../HeroCard';
 
@@ -15,9 +14,7 @@ describe('HeroRotator', () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <UIVersionProvider>
-          <HeroRotator cars={[]} kicker="K" todayLabel="T" ctaLabel="C" kmSuffix="км" onCardPress={jest.fn()} />
-        </UIVersionProvider>
+        <HeroRotator cars={[]} kicker="K" todayLabel="T" ctaLabel="C" kmSuffix="км" onCardPress={jest.fn()} />
       );
     });
     expect(tree!.toJSON()).toBeNull();
@@ -27,9 +24,7 @@ describe('HeroRotator', () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <UIVersionProvider>
-          <HeroRotator cars={CARS} kicker="K" todayLabel="T" ctaLabel="C" kmSuffix="км" onCardPress={jest.fn()} />
-        </UIVersionProvider>
+        <HeroRotator cars={CARS} kicker="K" todayLabel="T" ctaLabel="C" kmSuffix="км" onCardPress={jest.fn()} />
       );
     });
     const flatLists = tree!.root.findAllByType(FlatList);

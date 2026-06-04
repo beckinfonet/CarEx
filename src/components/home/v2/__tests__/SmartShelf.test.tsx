@@ -1,7 +1,6 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Text, FlatList } from 'react-native';
-import { UIVersionProvider } from '../../../../context/UIVersionContext';
 import { SmartShelf } from '../SmartShelf';
 
 const CARS = [
@@ -14,9 +13,7 @@ describe('SmartShelf', () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <UIVersionProvider>
-          <SmartShelf kicker="K" title="T" cars={[]} kmSuffix="км" onCardPress={jest.fn()} />
-        </UIVersionProvider>
+        <SmartShelf kicker="K" title="T" cars={[]} kmSuffix="км" onCardPress={jest.fn()} />
       );
     });
     expect(tree!.toJSON()).toBeNull();
@@ -26,9 +23,7 @@ describe('SmartShelf', () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <UIVersionProvider>
-          <SmartShelf kicker="JUST" title="Fresh" cars={CARS} kmSuffix="км" onCardPress={jest.fn()} />
-        </UIVersionProvider>
+        <SmartShelf kicker="JUST" title="Fresh" cars={CARS} kmSuffix="км" onCardPress={jest.fn()} />
       );
     });
     const joined = JSON.stringify(tree!.root.findAllByType(Text).map((n) => n.props.children));
