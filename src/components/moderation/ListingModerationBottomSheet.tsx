@@ -61,6 +61,10 @@ export interface ListingModerationBottomSheetProps {
   };
   onSelect: (action: ListingModerationAction) => void;
   onClose: () => void;
+  // NL5 — when the admin viewing the sheet is ALSO the listing owner, the
+  // backend rejects every moderation action with cannot_moderate_own_listing.
+  // Suppress all action rows and show an explanatory note instead.
+  isOwner?: boolean;
 }
 
 export const ListingModerationBottomSheet: React.FC<ListingModerationBottomSheetProps> = ({
@@ -69,6 +73,7 @@ export const ListingModerationBottomSheet: React.FC<ListingModerationBottomSheet
   moderationBadge,
   onSelect,
   onClose,
+  isOwner,
 }) => {
   const insets = useSafeAreaInsets();
   const { t } = useLanguage();
@@ -124,7 +129,14 @@ export const ListingModerationBottomSheet: React.FC<ListingModerationBottomSheet
             </Text>
           </View>
 
-          {isActive ? (
+          {isOwner ? (
+            <View style={styles.ownerNoteBody}>
+              <Text style={styles.ownerNoteText} testID="listing-owner-note">
+                {T.listingModerationOwnerNote ??
+                  "This is your own listing — you can't moderate it. To change its status, mark it Sold or use the edit button below."}
+              </Text>
+            </View>
+          ) : isActive ? (
             <>
               <ActionRow
                 icon={<Pencil size={20} color={COLORS.accent} />}
@@ -260,6 +272,12 @@ const styles = StyleSheet.create({
     marginBottom: SIZES.spacingSm,
   },
   reasonChipText: { ...TYPOGRAPHY.body, color: COLORS.textPrimary },
+  ownerNoteBody: {
+    paddingHorizontal: SIZES.spacingLg,
+    paddingTop: SIZES.spacingMd,
+    paddingBottom: SIZES.spacingSm,
+  },
+  ownerNoteText: { ...TYPOGRAPHY.body, color: COLORS.textSecondary },
   moderatedAtPill: {
     ...TYPOGRAPHY.body,
     color: COLORS.textTertiary,

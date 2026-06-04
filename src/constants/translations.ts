@@ -469,6 +469,12 @@ export const TRANSLATIONS = {
     confirmEditProfile: 'Сохранить изменения',
     unsuspendUser: 'Восстановить пользователя',
 
+    // Admin self-moderation UX (NL5)
+    listingModerationOwnerNote:
+      'Это ваше объявление — модерировать его нельзя. Чтобы изменить статус, отметьте «Продано» или используйте кнопку редактирования ниже.',
+    errorCannotModerateOwnListing: 'Нельзя модерировать собственное объявление.',
+    errorAlreadyInState: 'Объявление уже в этом статусе.',
+
     // Typed-confirmation copy
     typedConfirmTitle: 'Подтвердите необратимое действие',
     typedConfirmHint: 'Введите email пользователя {email} для подтверждения',
@@ -1455,6 +1461,12 @@ export const TRANSLATIONS = {
     confirmDeleteProfile: 'Delete profile',
     confirmEditProfile: 'Save changes',
     unsuspendUser: 'Unsuspend user',
+
+    // Admin self-moderation UX (NL5)
+    listingModerationOwnerNote:
+      'This is your own listing — you can\'t moderate it. To change its status, mark it Sold or use the edit button below.',
+    errorCannotModerateOwnListing: 'You can\'t moderate your own listing.',
+    errorAlreadyInState: 'Listing is already in that state.',
 
     // Typed-confirmation copy
     typedConfirmTitle: 'Confirm irreversible action',
