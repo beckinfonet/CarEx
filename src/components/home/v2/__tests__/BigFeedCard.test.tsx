@@ -1,6 +1,7 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Text, TouchableOpacity } from 'react-native';
+import { LanguageProvider } from '../../../../context/LanguageContext';
 import { BigFeedCard, BigFeedCardCar } from '../BigFeedCard';
 
 const CAR: BigFeedCardCar = { id: 'a', make: 'Porsche', model: 'Macan', year: 2022, mileage: 14500, bodyType: 'Кроссовер', price: 58900, image: 'https://x' };
@@ -12,7 +13,9 @@ describe('BigFeedCard', () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <BigFeedCard car={CAR} kmSuffix="км" ctaLabel="Открыть" faved={false} onPress={onPress} onToggleFav={onToggleFav} />
+        <LanguageProvider>
+          <BigFeedCard car={CAR} kmSuffix="км" ctaLabel="Открыть" faved={false} onPress={onPress} onToggleFav={onToggleFav} />
+        </LanguageProvider>
       );
     });
     const joined = JSON.stringify(tree!.root.findAllByType(Text).map((n) => n.props.children));
