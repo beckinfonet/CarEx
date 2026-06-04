@@ -475,6 +475,27 @@ export const TRANSLATIONS = {
     errorCannotModerateOwnListing: 'Нельзя модерировать собственное объявление.',
     errorAlreadyInState: 'Объявление уже в этом статусе.',
 
+    // Admin moderation action labels
+    listingActionEdit: 'Редактировать',
+    listingActionSuspend: 'Приостановить',
+    listingActionArchive: 'В архив',
+    listingActionDelete: 'Удалить',
+    listingActionRestore: 'Восстановить',
+    // Admin moderation reason categories (consistent with listingStatusBannerReason*)
+    listingReasonSpam: 'Спам',
+    listingReasonPolicyViolation: 'Нарушение правил',
+    listingReasonFraud: 'Мошенничество',
+    listingReasonInactiveSeller: 'Неактивный продавец',
+    listingReasonOther: 'Другое',
+    // Admin moderation misc
+    listingModeratedSincePrefix: 'С',
+    listingRestoreHeader: 'Восстановить объявление',
+    listingsEmpty: 'Объявления не найдены',
+    listingsEmptyBody: 'Измените фильтры или поисковый запрос.',
+    listingsSearchPlaceholder: 'Поиск: марка, модель или ID объявления',
+    tabUsers: 'Пользователи',
+    tabListings: 'Объявления',
+
     // Typed-confirmation copy
     typedConfirmTitle: 'Подтвердите необратимое действие',
     typedConfirmHint: 'Введите email пользователя {email} для подтверждения',
@@ -1467,6 +1488,27 @@ export const TRANSLATIONS = {
       'This is your own listing — you can\'t moderate it. To change its status, mark it Sold or use the edit button below.',
     errorCannotModerateOwnListing: 'You can\'t moderate your own listing.',
     errorAlreadyInState: 'Listing is already in that state.',
+
+    // Admin moderation action labels
+    listingActionEdit: 'Edit',
+    listingActionSuspend: 'Suspend',
+    listingActionArchive: 'Archive',
+    listingActionDelete: 'Delete',
+    listingActionRestore: 'Restore',
+    // Admin moderation reason categories (consistent with listingStatusBannerReason*)
+    listingReasonSpam: 'Spam',
+    listingReasonPolicyViolation: 'Policy violation',
+    listingReasonFraud: 'Fraud',
+    listingReasonInactiveSeller: 'Inactive seller',
+    listingReasonOther: 'Other',
+    // Admin moderation misc
+    listingModeratedSincePrefix: 'Since',
+    listingRestoreHeader: 'Restore listing',
+    listingsEmpty: 'No listings found',
+    listingsEmptyBody: 'Adjust the filters or search query.',
+    listingsSearchPlaceholder: 'Search: make, model, or listing ID',
+    tabUsers: 'Users',
+    tabListings: 'Listings',
 
     // Typed-confirmation copy
     typedConfirmTitle: 'Confirm irreversible action',
