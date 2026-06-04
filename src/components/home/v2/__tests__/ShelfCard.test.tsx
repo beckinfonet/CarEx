@@ -1,7 +1,6 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Text, TouchableOpacity } from 'react-native';
-import { UIVersionProvider } from '../../../../context/UIVersionContext';
 import { ShelfCard, ShelfCardCar } from '../ShelfCard';
 
 const CAR: ShelfCardCar = { id: 'a', make: 'Audi', model: 'Q5', year: 2021, mileage: 41000, price: 38500, image: 'https://x' };
@@ -12,9 +11,7 @@ describe('ShelfCard', () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <UIVersionProvider>
-          <ShelfCard car={CAR} kmSuffix="км" onPress={onPress} />
-        </UIVersionProvider>
+        <ShelfCard car={CAR} kmSuffix="км" onPress={onPress} />
       );
     });
     const joined = JSON.stringify(tree!.root.findAllByType(Text).map((n) => n.props.children));

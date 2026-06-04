@@ -1,6 +1,5 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { UIVersionProvider } from '../../context/UIVersionContext';
 import { useTypography } from '../useTypography';
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -17,13 +16,13 @@ async function flush() {
 }
 
 describe('useTypography', () => {
-  test('returns undefined font families when version is v1', async () => {
+  test('returns the V2 font families unconditionally', async () => {
     await act(async () => {
-      TestRenderer.create(<UIVersionProvider><Probe /></UIVersionProvider>);
+      TestRenderer.create(<Probe />);
     });
     await flush();
-    expect(result.display).toBeUndefined();
-    expect(result.mono).toBeUndefined();
+    expect(result.display).toBe('Manrope');
+    expect(result.mono).toBe('JetBrainsMono-Medium');
     expect(result.weights.bold).toBe('700');
   });
 });

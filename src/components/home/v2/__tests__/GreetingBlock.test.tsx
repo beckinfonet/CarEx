@@ -1,7 +1,6 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Text } from 'react-native';
-import { UIVersionProvider } from '../../../../context/UIVersionContext';
 import { GreetingBlock } from '../GreetingBlock';
 
 describe('GreetingBlock', () => {
@@ -9,15 +8,13 @@ describe('GreetingBlock', () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <UIVersionProvider>
-          <GreetingBlock
-            timeOfDay="Доброе утро"
-            subject="Becky · Москва"
-            headline="Найдём ваше идеальное авто."
-            listingsCount={42}
-            listingsNoun="объявлений"
-          />
-        </UIVersionProvider>
+        <GreetingBlock
+          timeOfDay="Доброе утро"
+          subject="Becky · Москва"
+          headline="Найдём ваше идеальное авто."
+          listingsCount={42}
+          listingsNoun="объявлений"
+        />
       );
     });
     const texts = tree!.root.findAllByType(Text).map((n) => n.props.children);
@@ -33,14 +30,12 @@ describe('GreetingBlock', () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <UIVersionProvider>
-          <GreetingBlock
-            timeOfDay="Доброе утро"
-            headline="Найдём ваше идеальное авто."
-            listingsCount={0}
-            listingsNoun="объявлений"
-          />
-        </UIVersionProvider>
+        <GreetingBlock
+          timeOfDay="Доброе утро"
+          headline="Найдём ваше идеальное авто."
+          listingsCount={0}
+          listingsNoun="объявлений"
+        />
       );
     });
     const texts = tree!.root.findAllByType(Text).map((n) => n.props.children);

@@ -1,7 +1,6 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Text, TouchableOpacity } from 'react-native';
-import { UIVersionProvider } from '../../../../context/UIVersionContext';
 import { HeroCard, HeroCardCar } from '../HeroCard';
 
 const baseCar: HeroCardCar = {
@@ -11,7 +10,7 @@ const baseCar: HeroCardCar = {
 const freshCar = { ...baseCar, createdAt: new Date().toISOString() };
 const oldCar   = { ...baseCar, createdAt: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString() };
 
-const wrap = (el: React.ReactElement) => <UIVersionProvider>{el}</UIVersionProvider>;
+const wrap = (el: React.ReactElement) => el;
 
 describe('HeroCard', () => {
   test('renders make+model, formatted price, and specs', async () => {
