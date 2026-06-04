@@ -59,6 +59,11 @@ jest.mock('../../context/CartContext', () => ({
   useCart: () => ({ setCar: mockSetCar }),
 }));
 
+// Favorites context (CarDetailsScreen uses useFavorites)
+jest.mock('../../context/FavoritesContext', () => ({
+  useFavorites: () => ({ isFavorite: () => false, toggleFavorite: jest.fn() }),
+}));
+
 // Stripe — module is imported at the top of CarDetailsScreen
 jest.mock('@stripe/stripe-react-native', () => ({
   useStripe: () => ({
@@ -362,7 +367,8 @@ describe('CarDetailsScreen — admin moderation surface (Plan 10-08)', () => {
     // Inline error banner present
     expect(findAllByTestID(tree.root, 'admin-error-banner').length).toBeGreaterThan(0);
     const rendered = JSON.stringify(tree.toJSON());
-    expect(rendered).toContain('already_in_state');
+    // Banner renders the MAPPED translation key (Proxy mock returns key name), not the raw code
+    expect(rendered).toContain('errorAlreadyInState');
     // No Alert raised for inline-banner error codes
     expect(alertSpy).not.toHaveBeenCalled();
   });
@@ -391,7 +397,8 @@ describe('CarDetailsScreen — admin moderation surface (Plan 10-08)', () => {
     });
     await settle();
     expect(findAllByTestID(tree.root, 'admin-error-banner').length).toBeGreaterThan(0);
-    expect(JSON.stringify(tree.toJSON())).toContain('cannot_moderate_own_listing');
+    // Banner renders the MAPPED translation key (Proxy mock returns key name), not the raw code
+    expect(JSON.stringify(tree.toJSON())).toContain('errorCannotModerateOwnListing');
     expect(alertSpy).not.toHaveBeenCalled();
   });
 
@@ -570,5 +577,25 @@ describe('CarDetailsScreen — admin moderation surface (Plan 10-08)', () => {
 
     // Fast-path preserved: no fetch fired for non-admin with prefilled carData
     expect(mockApiGet).not.toHaveBeenCalled();
+  });
+
+  test('T16 NL5 owner admin — sheet suppresses ALL action rows, shows owner note', async () => {
+    // admin viewing OWN listing (user.localId === FIXTURE_ACTIVE_CAR.sellerId) → isOwner true
+    setMockAuth({ user: { localId: 'seller-99' }, isAdmin: true });
+    const tree = await mount();
+    // Badge still renders for any admin (gating unchanged)
+    const badge = findAllByTestID(tree.root, 'moderate-badge')[0];
+    expect(badge).toBeDefined();
+    act(() => {
+      badge.props.onPress();
+    });
+    // Zero action rows of every kind
+    expect(findAllByTestID(tree.root, 'listing-action-edit').length).toBe(0);
+    expect(findAllByTestID(tree.root, 'listing-action-suspend').length).toBe(0);
+    expect(findAllByTestID(tree.root, 'listing-action-archive').length).toBe(0);
+    expect(findAllByTestID(tree.root, 'listing-action-delete').length).toBe(0);
+    expect(findAllByTestID(tree.root, 'listing-action-restore').length).toBe(0);
+    // Owner note present instead
+    expect(findAllByTestID(tree.root, 'listing-owner-note').length).toBeGreaterThan(0);
   });
 });
