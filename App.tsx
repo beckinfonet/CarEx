@@ -11,7 +11,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { HomeScreenRouter } from './src/screens/HomeScreenRouter';
+import { HomeScreenV2 as HomeScreen } from './src/screens/HomeScreenV2';
 import { SearchResultsRouter } from './src/screens/SearchResultsRouter';
 import { CarDetailsScreen } from './src/screens/CarDetailsScreen';
 import { SellCarScreen } from './src/screens/SellCarScreen';
@@ -37,7 +37,6 @@ import { UserStatusBanner } from './src/components/moderation/UserStatusBanner';
 import { RootStackParamList } from './src/types/navigation';
 import { LanguageProvider } from './src/context/LanguageContext';
 import { PersonalityProvider } from './src/context/PersonalityContext';
-import { UIVersionProvider } from './src/context/UIVersionContext';
 import { AuthProvider } from './src/context/AuthContext';
 import { CartProvider } from './src/context/CartContext';
 import { FavoritesProvider } from './src/context/FavoritesContext';
@@ -98,7 +97,6 @@ function App() {
             <StripeProvider publishableKey="pk_test_51TEgrOJAS81xgsxjpbIvgoGw67eODe91yRPnNTpRcQrweRvUFBLX5wknw3XsAN2um4bFUsAG7HvFZqPArAQS5Ruf00MUNqZQLy">
             <LanguageProvider>
             <PersonalityProvider>
-            <UIVersionProvider>
             <NavigationContainer linking={linking}>
               <UserStatusBanner />
               <OfflineNotice />
@@ -108,7 +106,7 @@ function App() {
                   animation: 'slide_from_right'
                 }}
               >
-                <Stack.Screen name="Home" component={HomeScreenRouter} />
+                <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="SearchResults" component={SearchResultsRouter} />
                 <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
                 <Stack.Screen name="SellCar" component={SellCarScreen} />
@@ -134,7 +132,6 @@ function App() {
                 <Stack.Screen name="AdminUserDetail" component={AdminUserDetailScreen} />
               </Stack.Navigator>
             </NavigationContainer>
-            </UIVersionProvider>
             </PersonalityProvider>
             </LanguageProvider>
             </StripeProvider>
