@@ -711,7 +711,11 @@ export const CarDetailsScreen = () => {
           {errorBanner && (
             <View testID="admin-error-banner" style={styles.adminErrorBanner}>
               <Text style={[styles.adminErrorBannerText, { fontFamily: typo.display }]}>
-                {errorBanner}
+                {errorBanner === 'cannot_moderate_own_listing'
+                  ? t.errorCannotModerateOwnListing
+                  : errorBanner === 'already_in_state'
+                  ? t.errorAlreadyInState
+                  : errorBanner}
               </Text>
               <TouchableOpacity
                 onPress={() => setErrorBanner(null)}
@@ -1175,6 +1179,7 @@ export const CarDetailsScreen = () => {
         visible={bottomSheetVisible}
         listingTitle={listingTitle}
         moderationBadge={fetchedCar?.moderationBadge}
+        isOwner={!!isOwner}
         onSelect={handleSheetSelect}
         onClose={() => setBottomSheetVisible(false)}
       />
