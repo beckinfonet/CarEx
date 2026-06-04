@@ -4,8 +4,8 @@ milestone: v1.1
 milestone_name: Admin Listing Moderation
 status: "v1.1 shipped — PR #3"
 stopped_at: Phase 11 context gathered
-last_updated: "2026-06-01T19:52:42.285Z"
-last_activity: 2026-06-01
+last_updated: "2026-06-03T23:58:44.576Z"
+last_activity: 2026-06-03 - Completed quick task 260603-nl5: admin self-moderation UX (owner-aware sheet + translated error banner)
 progress:
   total_phases: 5
   completed_phases: 5
@@ -382,6 +382,7 @@ None yet.
 | 260601-hvx | Home greeting band "Option C" polish — listings becomes plain text (mono count + uppercase muted noun); tier+locale cluster shares 28-px height with gap:6; new flag-free `LocaleGlobe` svg + single-toggle `LangSwitchV2` (globe + active code); Unhinged tier softened to ember palette via new `V2.ember/emberBd/emberFill` tokens. Sarcastic untouched | 2026-06-01 | pending | [260601-hvx-home-greeting-band-locale-and-tier-polish](./quick/260601-hvx-home-greeting-band-locale-and-tier-polish/) |
 | 260603-hjg | Fix seller "Mark as booked/sold/available" silently doing nothing — `updateListingStatus` early-returned on `car.id` undefined (car carries `_id` not `id` on some nav paths); resilient `docId = car._id \|\| car.id \|\| carId`, optimistic update + rollback, visible error Alert. Backend unchanged (PATCH route verified working via curl). Pending on-device seller persistence verify | 2026-06-03 | 54a4ca2 | [260603-hjg-seller-status-update-fix](./quick/260603-hjg-seller-status-update-fix/) |
 | 260603-i4w | Add Booked/Sold badge to V2 feed cards — search results (SearchResultsV2) + home feed (HomeScreenV2) showed no status indicator on booked/sold listings; new `ListingStatusBadge` (V2 theme: ember=booked, green=sold) rendered top-left over the photo in `SmallFeedCard`+`BigFeedCard`. No call-site/translation/backend changes; v1 CarCard + Hero/Shelf cards left as-is | 2026-06-03 | f1bb67e | [260603-i4w-v2-feed-card-status-badge](./quick/260603-i4w-v2-feed-card-status-badge/) |
+| 260603-nl5 | Fix admin self-moderation UX on CarDetailsScreen — admin who owns a listing was offered all 5 moderation actions (incl. Delete) but backend rejects every one with `cannot_moderate_own_listing`, and the error banner showed the raw code. Now: owner-aware bottom sheet hides all 5 actions + shows a translated note pointing to status controls / owner edit; error banner maps `cannot_moderate_own_listing` + `already_in_state` to RU/EN copy (raw-code fallback). Badge gate + `handleListingActionSubmit` flow unchanged; mobile-only. Tests 16/16 (new T16 owner-suppression) | 2026-06-03 | 4d2ea65 | [260603-nl5-admin-self-mod-ux](./quick/260603-nl5-admin-self-mod-ux/) |
 
 ## Deferred Items
 
