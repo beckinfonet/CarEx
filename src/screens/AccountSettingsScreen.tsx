@@ -8,8 +8,6 @@ import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { useUIVersion, UIVersion } from '../context/UIVersionContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ArrowLeft, ChevronDown, Save, Edit2, X, Camera } from 'lucide-react-native';
 import { AuthService } from '../services/AuthService';
 import { PhoneNumberFormatter, COUNTRY_FORMATS } from '../components/PhoneNumberFormatter';
@@ -28,7 +26,6 @@ export const AccountSettingsScreen = () => {
   const { t } = useLanguage();
   const navigation = useNavigation<AccountSettingsScreenNavigationProp>();
   const { user, refreshUser, deleteAccount } = useAuth();
-  const { version: uiVersion, setVersion: setUIVersion } = useUIVersion();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -295,50 +292,6 @@ export const AccountSettingsScreen = () => {
             </>
           )}
         </View>
-
-        <View style={styles.appearanceSection}>
-          <Text style={styles.appearanceTitle}>{t.appearanceTitle}</Text>
-          <TouchableOpacity
-            style={styles.appearanceRow}
-            onPress={() => setUIVersion('v1' as UIVersion)}
-            activeOpacity={0.85}
-          >
-            <View style={styles.radio}>
-              {uiVersion === 'v1' && <View style={styles.radioDot} />}
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.appearanceRowTitle}>{t.appearanceClassic}</Text>
-              <Text style={styles.appearanceRowDesc}>{t.appearanceClassicDesc}</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.appearanceRow}
-            onPress={() => setUIVersion('v2' as UIVersion)}
-            activeOpacity={0.85}
-          >
-            <View style={styles.radio}>
-              {uiVersion === 'v2' && <View style={styles.radioDot} />}
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.appearanceRowTitle}>{t.appearanceNew}</Text>
-              <Text style={styles.appearanceRowDesc}>{t.appearanceNewDesc}</Text>
-            </View>
-          </TouchableOpacity>
-
-          {__DEV__ && (
-            <TouchableOpacity
-              style={[styles.appearanceRow, { marginTop: 16 }]}
-              onPress={async () => {
-                await AsyncStorage.removeItem('ui_design_invite_dismissed_v2');
-                Alert.alert('Dev', 'Onboarding banner reset. Restart the app to see it.');
-              }}
-            >
-              <Text style={[styles.appearanceRowTitle, { color: COLORS.textSecondary }]}>
-                [DEV] Reset onboarding banner
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
       </ScrollView>
 
       <Modal
@@ -380,48 +333,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-  },
-  appearanceSection: {
-    marginTop: 24,
-    paddingHorizontal: SIZES.padding,
-    paddingBottom: 24,
-  },
-  appearanceTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-    marginBottom: 8,
-  },
-  appearanceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 12,
-  },
-  radio: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radioDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: COLORS.accent,
-  },
-  appearanceRowTitle: {
-    fontSize: 16,
-    color: COLORS.textPrimary,
-    fontWeight: '600',
-  },
-  appearanceRowDesc: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
   },
   header: {
     paddingHorizontal: SIZES.padding,

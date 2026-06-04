@@ -1,7 +1,7 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Text, TouchableOpacity } from 'react-native';
-import { UIVersionProvider } from '../../../../context/UIVersionContext';
+import { LanguageProvider } from '../../../../context/LanguageContext';
 import { SmallFeedCard, SmallFeedCardCar } from '../SmallFeedCard';
 
 const CAR: SmallFeedCardCar = { id: 'a', make: 'BMW', model: 'X3', year: 2021, mileage: 38000, bodyType: 'Кроссовер', price: 42000, image: 'https://x' };
@@ -13,9 +13,9 @@ describe('SmallFeedCard', () => {
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
       tree = TestRenderer.create(
-        <UIVersionProvider>
+        <LanguageProvider>
           <SmallFeedCard car={CAR} kmSuffix="км" faved={false} onPress={onPress} onToggleFav={onToggleFav} />
-        </UIVersionProvider>
+        </LanguageProvider>
       );
     });
     const joined = JSON.stringify(tree!.root.findAllByType(Text).map((n) => n.props.children));

@@ -1,10 +1,7 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { TouchableOpacity } from 'react-native';
-import { UIVersionProvider } from '../../../../context/UIVersionContext';
 import { FloatingSearchPill } from '../FloatingSearchPill';
-
-const wrap = (el: React.ReactElement) => <UIVersionProvider>{el}</UIVersionProvider>;
 
 describe('FloatingSearchPill', () => {
   test('renders placeholder and calls handlers', async () => {
@@ -12,9 +9,9 @@ describe('FloatingSearchPill', () => {
     const onFiltersPress = jest.fn();
     let tree: TestRenderer.ReactTestRenderer | null = null;
     await act(async () => {
-      tree = TestRenderer.create(wrap(
+      tree = TestRenderer.create(
         <FloatingSearchPill placeholder="Что вы ищете?" onPress={onPress} onFiltersPress={onFiltersPress} />
-      ));
+      );
     });
     const root = tree!.root;
     const touchables = root.findAllByType(TouchableOpacity);

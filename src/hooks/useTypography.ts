@@ -1,5 +1,3 @@
-import { useUIVersion } from '../context/UIVersionContext';
-
 export interface TypographyFamilies {
   display: string | undefined;
   mono:    string | undefined;
@@ -21,10 +19,10 @@ const WEIGHTS = {
 } as const;
 
 export function useTypography(): TypographyFamilies {
-  const { version } = useUIVersion();
+  // V2 is the only UI; typography is hardcoded to the V2 font families.
   return {
-    display: version === 'v2' ? 'Manrope'              : undefined,
-    mono:    version === 'v2' ? 'JetBrainsMono-Medium' : undefined,
+    display: 'Manrope',
+    mono:    'JetBrainsMono-Medium',
     weights: WEIGHTS,
   };
 }
