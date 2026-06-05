@@ -4,11 +4,11 @@ import { TrendingUp, User } from 'lucide-react-native';
 import { V2 } from './theme';
 import { useTypography } from '../../../hooks/useTypography';
 
-// Full-bleed: the HomeScreenV2 FlatList content is inset by 18px
-// (listContent.paddingHorizontal). Cancel it with a negative margin so the band
-// spans the full screen width, then re-pad internally to the same gutter so the
-// content still lines up with the cards above and below.
-const GUTTER = 18;
+// Match the hero card's width exactly. The HomeScreenV2 FlatList insets its
+// content by 18px, but the hero card below renders at a 14px inset (HeroRotator
+// goes full-bleed with marginHorizontal:-18, then HeroCard pads outer:14). So
+// pull the strip out by (18 - 14) = 4px to land flush with the card's edges.
+const CARD_EDGE_PULL = -4;
 
 export interface MemberCountStripProps {
   /**
@@ -108,15 +108,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginHorizontal: -GUTTER, // full-bleed: cancel the list's 18px inset
+    marginHorizontal: CARD_EDGE_PULL, // flush with the hero card's 14px edges
     marginTop: 16,
     paddingVertical: 12,
-    paddingHorizontal: GUTTER, // re-align inner content to the gutter
+    paddingHorizontal: 14,
     minHeight: 56,
+    borderRadius: 16,
     backgroundColor: V2.surface,
-    // Hairline top/bottom rules only — a full-width band, no rounded card edges.
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
+    borderWidth: 1,
     borderColor: V2.border,
   },
   avatars: { flexDirection: 'row', alignItems: 'center' },
