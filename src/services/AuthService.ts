@@ -454,5 +454,24 @@ export const AuthService = {
       throw error;
     }
   },
+
+  // Public total-member count for the home-screen social-proof strip.
+  // Returns { count, growthPct, avatars } or null on failure (caller hides the
+  // strip when null — e.g. before the backend route is deployed to prod).
+  // `avatars` is up to 5 real https avatar URLs (providers + users with a photo).
+  getMemberStats: async (): Promise<{ count: number; growthPct: number; avatars: string[] } | null> => {
+    try {
+      const response = await apiClient.get('/api/stats/users');
+      const { count, growthPct, avatars } = response.data ?? {};
+      if (typeof count !== 'number' || typeof growthPct !== 'number') return null;
+      const safeAvatars = Array.isArray(avatars)
+        ? avatars.filter((u: unknown): u is string => typeof u === 'string' && u.length > 0)
+        : [];
+      return { count, growthPct, avatars: safeAvatars };
+    } catch (error) {
+      console.error('Failed to fetch member stats', error);
+      return null;
+    }
+  },
 };
 

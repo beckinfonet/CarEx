@@ -634,6 +634,10 @@ export const TRANSLATIONS = {
     open: 'Открыть',
     searchPlaceholderV2: 'Что вы ищете?',
     listingsCount: 'объявлений',
+    // ---- Quick 260605-gvs — Member-count social-proof strip (RU) ----
+    membersNoun: 'пользователей',
+    membersCaption: 'покупают и продают',
+    membersPeriod: 'за год',
     // ---- Quick 260528-hmt — Playful rotating greeting + headline variants (RU) ----
     greetingVariantsMorning: {
       wholesome: [
@@ -1643,6 +1647,10 @@ export const TRANSLATIONS = {
     open: 'Open',
     searchPlaceholderV2: 'What are you looking for?',
     listingsCount: 'listings',
+    // ---- Quick 260605-gvs — Member-count social-proof strip (EN) ----
+    membersNoun: 'users',
+    membersCaption: 'buying & selling',
+    membersPeriod: 'this year',
     // ---- Quick 260528-hmt — Playful rotating greeting + headline variants (EN) ----
     greetingVariantsMorning: {
       wholesome: [

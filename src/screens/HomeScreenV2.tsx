@@ -15,11 +15,14 @@ import { getCityFromTimezone, buildGreetingSubject } from '../utils/greetingSubj
 import { rotateVariant } from '../utils/greetingVariants';
 import { pickGreetingPool } from '../utils/pickGreetingPool';
 import { usePersonality } from '../context/PersonalityContext';
+import { AuthService } from '../services/AuthService';
+import { formatMembers } from '../utils/formatMembers';
 
 import { FloatingSearchPill } from '../components/home/v2/FloatingSearchPill';
 import { ProfileAvatarButton } from '../components/home/v2/ProfileAvatarButton';
 import { GreetingBlock } from '../components/home/v2/GreetingBlock';
 import { ActiveFilterChips } from '../components/home/v2/ActiveFilterChips';
+import { MemberCountStrip } from '../components/home/v2/MemberCountStrip';
 import { HeroRotator } from '../components/home/v2/HeroRotator';
 import { SmartShelf } from '../components/home/v2/SmartShelf';
 import { BigFeedCard } from '../components/home/v2/BigFeedCard';
@@ -137,11 +140,30 @@ export const HomeScreenV2 = () => {
     clearAll,
   } = useHomeListings();
 
-  // Pull-to-refresh: rotate copy AND fetch listings.
+  // Total registered-member count for the social-proof strip (Option B).
+  // Loaded on mount and re-loaded on every pull-to-refresh; null until loaded
+  // (or if the backend route isn't reachable yet), in which case the strip
+  // simply doesn't render. Avatars are shuffled on each load so the stack
+  // reorders after every refresh.
+  const [memberStats, setMemberStats] = useState<{ count: number; growthPct: number; avatars: string[] } | null>(null);
+  const loadMemberStats = useCallback(async () => {
+    const stats = await AuthService.getMemberStats();
+    if (!stats) return;
+    const avatars = [...stats.avatars];
+    for (let i = avatars.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [avatars[i], avatars[j]] = [avatars[j], avatars[i]];
+    }
+    setMemberStats({ ...stats, avatars });
+  }, []);
+  useEffect(() => { loadMemberStats(); }, [loadMemberStats]);
+
+  // Pull-to-refresh: rotate copy, re-shuffle member avatars, AND fetch listings.
   const onRefresh = useCallback(() => {
     rotate();
+    loadMemberStats();
     return refresh();
-  }, [rotate, refresh]);
+  }, [rotate, refresh, loadMemberStats]);
 
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [currentFilterType, setCurrentFilterType] = useState<string | null>(null);
@@ -241,6 +263,16 @@ export const HomeScreenV2 = () => {
         onClearFilter={(key) => applyFilter(key, null)}
         onClearAll={clearAll}
       />
+      {memberStats && (
+        <MemberCountStrip
+          countText={formatMembers(memberStats.count, language)}
+          noun={t.membersNoun}
+          caption={t.membersCaption}
+          growthText={`+${memberStats.growthPct}%`}
+          periodLabel={t.membersPeriod}
+          avatarUrls={memberStats.avatars}
+        />
+      )}
       <HeroRotator
         cars={heroCars as any}
         kicker={t.freshOffer}
