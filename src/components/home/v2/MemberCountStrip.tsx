@@ -128,13 +128,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  middle: { flex: 1, minWidth: 0 },
+  middle: { flex: 1, minWidth: 0, alignItems: 'center' },
   countLine: {
     fontSize: 14,
     fontWeight: '800',
     letterSpacing: -0.14,
     color: V2.text,
     lineHeight: 18,
+    textAlign: 'center',
   },
   caption: {
     fontSize: 11.5,
@@ -142,6 +143,7 @@ const styles = StyleSheet.create({
     color: V2.textMuted,
     marginTop: 1,
     lineHeight: 15,
+    textAlign: 'center',
   },
   growth: { alignItems: 'flex-end' },
   growthRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
