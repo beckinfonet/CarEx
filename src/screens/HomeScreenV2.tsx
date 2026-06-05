@@ -141,20 +141,29 @@ export const HomeScreenV2 = () => {
   } = useHomeListings();
 
   // Total registered-member count for the social-proof strip (Option B).
-  // Fetched once on mount; null until loaded (or if the backend route isn't
-  // reachable yet), in which case the strip simply doesn't render.
+  // Loaded on mount and re-loaded on every pull-to-refresh; null until loaded
+  // (or if the backend route isn't reachable yet), in which case the strip
+  // simply doesn't render. Avatars are shuffled on each load so the stack
+  // reorders after every refresh.
   const [memberStats, setMemberStats] = useState<{ count: number; growthPct: number; avatars: string[] } | null>(null);
-  useEffect(() => {
-    let active = true;
-    AuthService.getMemberStats().then((stats) => { if (active) setMemberStats(stats); });
-    return () => { active = false; };
+  const loadMemberStats = useCallback(async () => {
+    const stats = await AuthService.getMemberStats();
+    if (!stats) return;
+    const avatars = [...stats.avatars];
+    for (let i = avatars.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [avatars[i], avatars[j]] = [avatars[j], avatars[i]];
+    }
+    setMemberStats({ ...stats, avatars });
   }, []);
+  useEffect(() => { loadMemberStats(); }, [loadMemberStats]);
 
-  // Pull-to-refresh: rotate copy AND fetch listings.
+  // Pull-to-refresh: rotate copy, re-shuffle member avatars, AND fetch listings.
   const onRefresh = useCallback(() => {
     rotate();
+    loadMemberStats();
     return refresh();
-  }, [rotate, refresh]);
+  }, [rotate, refresh, loadMemberStats]);
 
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [currentFilterType, setCurrentFilterType] = useState<string | null>(null);
