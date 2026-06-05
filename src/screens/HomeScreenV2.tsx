@@ -143,7 +143,7 @@ export const HomeScreenV2 = () => {
   // Total registered-member count for the social-proof strip (Option B).
   // Fetched once on mount; null until loaded (or if the backend route isn't
   // reachable yet), in which case the strip simply doesn't render.
-  const [memberStats, setMemberStats] = useState<{ count: number; growthPct: number } | null>(null);
+  const [memberStats, setMemberStats] = useState<{ count: number; growthPct: number; avatars: string[] } | null>(null);
   useEffect(() => {
     let active = true;
     AuthService.getMemberStats().then((stats) => { if (active) setMemberStats(stats); });
@@ -261,6 +261,7 @@ export const HomeScreenV2 = () => {
           caption={t.membersCaption}
           growthText={`+${memberStats.growthPct}%`}
           periodLabel={t.membersPeriod}
+          avatarUrls={memberStats.avatars}
         />
       )}
       <HeroRotator
