@@ -42,8 +42,8 @@ export interface MemberCountStripProps {
 }
 
 const DEFAULT_AVATARS = ['#4DA3FF', '#67E8B6', '#F2BD98', '#B79CFF', '#FF9DB0'] as const;
-const AVATAR = 26;
-const OVERLAP = 9;
+const AVATAR = 34;
+const OVERLAP = 11;
 
 /**
  * MemberCountStrip — total-member social-proof band for the V2 home screen.
@@ -112,7 +112,7 @@ const AvatarStack: React.FC<{ colors: readonly string[]; urls: readonly string[]
           {uri ? (
             <OptimizedImage source={{ uri }} style={styles.avatarImg} resizeMode="cover" priority="low" />
           ) : (
-            <User size={14} color="rgba(8,9,12,0.55)" strokeWidth={2.4} />
+            <User size={18} color="rgba(8,9,12,0.55)" strokeWidth={2.4} />
           )}
         </View>
       );
