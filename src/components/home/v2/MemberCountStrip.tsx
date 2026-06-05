@@ -1,8 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { TrendingUp } from 'lucide-react-native';
+import { TrendingUp, User } from 'lucide-react-native';
 import { V2 } from './theme';
 import { useTypography } from '../../../hooks/useTypography';
+
+// Full-bleed: the HomeScreenV2 FlatList content is inset by 18px
+// (listContent.paddingHorizontal). Cancel it with a negative margin so the band
+// spans the full screen width, then re-pad internally to the same gutter so the
+// content still lines up with the cards above and below.
+const GUTTER = 18;
 
 export interface MemberCountStripProps {
   /**
@@ -88,7 +94,11 @@ const AvatarStack: React.FC<{ colors: readonly string[] }> = ({ colors }) => (
           styles.avatar,
           { backgroundColor: c, marginLeft: i === 0 ? 0 : -OVERLAP, zIndex: colors.length - i },
         ]}
-      />
+      >
+        {/* Generic person silhouette so each disc reads as a member avatar.
+            Decorative — the parent View owns the accessibility label. */}
+        <User size={14} color="rgba(8,9,12,0.55)" strokeWidth={2.4} />
+      </View>
     ))}
   </View>
 );
@@ -98,14 +108,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginHorizontal: 16,
+    marginHorizontal: -GUTTER, // full-bleed: cancel the list's 18px inset
     marginTop: 16,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: 12,
+    paddingHorizontal: GUTTER, // re-align inner content to the gutter
     minHeight: 56,
-    borderRadius: 16,
     backgroundColor: V2.surface,
-    borderWidth: 1,
+    // Hairline top/bottom rules only — a full-width band, no rounded card edges.
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     borderColor: V2.border,
   },
   avatars: { flexDirection: 'row', alignItems: 'center' },
@@ -115,6 +126,8 @@ const styles = StyleSheet.create({
     borderRadius: AVATAR / 2,
     borderWidth: 2,
     borderColor: V2.surface, // ring blends into the strip background
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   middle: { flex: 1, minWidth: 0 },
   countLine: {
