@@ -454,5 +454,20 @@ export const AuthService = {
       throw error;
     }
   },
+
+  // Public total-member count for the home-screen social-proof strip.
+  // Returns { count, growthPct } or null on failure (caller hides the strip
+  // when null — e.g. before the backend route is deployed to prod).
+  getMemberStats: async (): Promise<{ count: number; growthPct: number } | null> => {
+    try {
+      const response = await apiClient.get('/api/stats/users');
+      const { count, growthPct } = response.data ?? {};
+      if (typeof count !== 'number' || typeof growthPct !== 'number') return null;
+      return { count, growthPct };
+    } catch (error) {
+      console.error('Failed to fetch member stats', error);
+      return null;
+    }
+  },
 };
 

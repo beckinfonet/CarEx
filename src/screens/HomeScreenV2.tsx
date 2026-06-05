@@ -15,11 +15,14 @@ import { getCityFromTimezone, buildGreetingSubject } from '../utils/greetingSubj
 import { rotateVariant } from '../utils/greetingVariants';
 import { pickGreetingPool } from '../utils/pickGreetingPool';
 import { usePersonality } from '../context/PersonalityContext';
+import { AuthService } from '../services/AuthService';
+import { formatMembers } from '../utils/formatMembers';
 
 import { FloatingSearchPill } from '../components/home/v2/FloatingSearchPill';
 import { ProfileAvatarButton } from '../components/home/v2/ProfileAvatarButton';
 import { GreetingBlock } from '../components/home/v2/GreetingBlock';
 import { ActiveFilterChips } from '../components/home/v2/ActiveFilterChips';
+import { MemberCountStrip } from '../components/home/v2/MemberCountStrip';
 import { HeroRotator } from '../components/home/v2/HeroRotator';
 import { SmartShelf } from '../components/home/v2/SmartShelf';
 import { BigFeedCard } from '../components/home/v2/BigFeedCard';
@@ -137,6 +140,16 @@ export const HomeScreenV2 = () => {
     clearAll,
   } = useHomeListings();
 
+  // Total registered-member count for the social-proof strip (Option B).
+  // Fetched once on mount; null until loaded (or if the backend route isn't
+  // reachable yet), in which case the strip simply doesn't render.
+  const [memberStats, setMemberStats] = useState<{ count: number; growthPct: number } | null>(null);
+  useEffect(() => {
+    let active = true;
+    AuthService.getMemberStats().then((stats) => { if (active) setMemberStats(stats); });
+    return () => { active = false; };
+  }, []);
+
   // Pull-to-refresh: rotate copy AND fetch listings.
   const onRefresh = useCallback(() => {
     rotate();
@@ -241,6 +254,15 @@ export const HomeScreenV2 = () => {
         onClearFilter={(key) => applyFilter(key, null)}
         onClearAll={clearAll}
       />
+      {memberStats && (
+        <MemberCountStrip
+          countText={formatMembers(memberStats.count, language)}
+          noun={t.membersNoun}
+          caption={t.membersCaption}
+          growthText={`+${memberStats.growthPct}%`}
+          periodLabel={t.membersPeriod}
+        />
+      )}
       <HeroRotator
         cars={heroCars as any}
         kicker={t.freshOffer}
