@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
-status: Roadmap created — 3 phases (12, 13, 14), 32/32 requirements mapped
-stopped_at: Phase 12 context gathered
-last_updated: "2026-06-06T22:57:42.072Z"
-last_activity: 2026-06-06 — v1.2 roadmap created (Phases 12-14)
+status: executing
+stopped_at: Phase 12 UI-SPEC approved
+last_updated: "2026-06-06T23:50:04.393Z"
+last_activity: 2026-06-06 -- Phase 12 planning complete
 progress:
   total_phases: 3
   completed_phases: 0
-  total_plans: 0
+  total_plans: 10
   completed_plans: 0
-  percent: 100
+  percent: 0
 ---
 
 # Project State
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 Phase: 12 — Notification Domain + In-App Center (not started)
 Plan: —
-Status: Roadmap created — 3 phases (12, 13, 14), 32/32 requirements mapped
-Last activity: 2026-06-06 — v1.2 roadmap created (Phases 12-14)
+Status: Ready to execute
+Last activity: 2026-06-06 -- Phase 12 planning complete
 
 ## Milestone Roadmap (v1.2)
 
@@ -58,7 +58,7 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 | debug-session | android-photo-load-lag | fix_applied 2026-05-29 (effectively resolved) |
 | uat-gap | Phase 11 11-HUMAN-UAT.md | approved; 3 optional scenarios pending |
 
-Resume file: .planning/phases/12-notification-domain-in-app-center/12-CONTEXT.md
+Resume file: .planning/phases/12-notification-domain-in-app-center/12-UI-SPEC.md
 
 Progress: [██████████] 100%
 
@@ -425,8 +425,8 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-06T22:57:42.062Z
-Stopped at: Phase 12 context gathered
+Last session: 2026-06-06T23:09:05.494Z
+Stopped at: Phase 12 UI-SPEC approved
 Resume file: None
 
 ## Operator Next Steps
