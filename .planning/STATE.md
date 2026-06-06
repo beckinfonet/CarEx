@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Admin Listing Moderation
-status: Awaiting next milestone
-stopped_at: Phase 11 context gathered
-last_updated: "2026-06-06T20:13:47.707Z"
-last_activity: 2026-06-06 — Milestone v1.1 completed and archived
+milestone: v1.2
+milestone_name: Notifications
+status: planning
+last_updated: "2026-06-06T20:19:08.561Z"
+last_activity: 2026-06-06
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 37
-  completed_plans: 37
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 ## Current Position
 
-Phase: Milestone v1.1 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-06-06 — Milestone v1.1 completed and archived
+Status: Defining requirements
+Last activity: 2026-06-06 — Milestone v1.2 started
 
 ## Deferred Items
 

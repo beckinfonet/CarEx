@@ -15,7 +15,23 @@ Admins can act on bad-actor users after they're already in the system — withou
 **Distribution:** TestFlight 1.0.45 + Google Play internal 1.0.48 — verified live
 **Tags:** `v1.0`, `v1.1`
 
-_Next milestone (v1.2 Notifications) is being scoped via `/gsd-new-milestone`. Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](../docs/superpowers/specs/2026-06-06-notifications-system-design.md)._
+_Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](../docs/superpowers/specs/2026-06-06-notifications-system-design.md)._
+
+## Current Milestone: v1.2 Notifications
+
+**Goal:** Give buyers a notification system — an in-app notification center plus OS push (FCM) — so they're alerted to relevant inventory and watched-car events without re-checking the app.
+
+**Target features:**
+- In-app notification center: bell icon + unread badge + feed/history (pure REST, no native SDK)
+- OS push via FCM / react-native-firebase (the only native module); backend send pure REST (FCM HTTP v1)
+- **Saved Search** subscription: criteria (make/model + optional price/year/body) → alert on newly-added matching listings
+- **Watch** subscription: follow one car → alerts on price drop / booked / sold / back-available
+- Per-subscription cadence: instant vs daily digest (Watch always instant; node-cron digest worker)
+- Notification preferences screen + contextual push-permission prompt
+- Backend event hooks on listing create / price edit / status transitions, respecting the Phase 9 hide-hook + moderation status
+- RU + EN parity for all notification strings (rendered server-side from keys for push)
+
+**Key context:** Full design pre-approved via brainstorming (spec linked above). Carries forward the NOTF-* candidate. Three phases (continuing numbering): **Phase 12** — backend notification domain + in-app center (pure REST); **Phase 13** — FCM push transport (native, RN 0.83 compat-gated); **Phase 14** — node-cron daily digest. Reuses existing patterns: `user.localId` as per-user key, axios `apiClient`, provider+hook context pattern (`NotificationContext` mirrors Cart), `LanguageContext` for i18n, existing deep-link `linking` config.
 
 ## Requirements
 
