@@ -150,7 +150,7 @@ export const CarDetailsScreen = () => {
             fuel: c.fuel,
             currency: c.currency,
             imageUrls: c.imageUrls || (c.imageUrl ? [c.imageUrl] : []),
-            image: (c.imageUrls?.[0]) || c.imageUrl,
+            image: (c.thumbnailUrls?.[0]) || (c.imageUrls?.[0]) || c.imageUrl,
             sellerId: c.sellerId,
             phoneNumber: c.phoneNumber,
             telegramUsername: c.telegramUsername,

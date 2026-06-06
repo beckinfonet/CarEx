@@ -39,7 +39,9 @@ export const SellerListingsScreen = () => {
         mileage: car.mileage,
         fuel: car.fuel,
         currency: car.currency,
-        image: (car.imageUrls && car.imageUrls.length > 0) ? car.imageUrls[0] : (car.imageUrl || 'https://via.placeholder.com/400x300'),
+        image: (car.thumbnailUrls && car.thumbnailUrls.length > 0)
+          ? car.thumbnailUrls[0]
+          : ((car.imageUrls && car.imageUrls.length > 0) ? car.imageUrls[0] : (car.imageUrl || 'https://via.placeholder.com/400x300')),
         imageUrls: car.imageUrls || (car.imageUrl ? [car.imageUrl] : []),
         listingStatus: car.listingStatus || 'active',
         ...car,
