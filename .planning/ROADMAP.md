@@ -51,7 +51,17 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
   3. A seller editing their own listing's price three times produces ZERO notifications to themselves (actor-exclusion) and AT MOST ONE price-drop alert to each watcher (dedup per `(uid, carId, eventType)`); a notification is never emitted for a hidden/suspended/archived listing (emit re-reads the Car with a plain `findById` and suppresses on null).
   4. The header bell shows an accurate unread badge; opening `NotificationsScreen` shows a reverse-chronological cursor-paginated feed; tapping marks read (with "mark all read" available), and a first-time empty state guides the user — all functional with `fcm.send` as a no-op stub.
   5. A `NotificationSettingsScreen` exposes master mute + per-category toggles + subscription management (list/edit-cadence/delete); the user's language persists to `User.language` and AsyncStorage, and backend-rendered notification strings have RU/EN parity (backend parity test) with currency formatted as KGS som.
-**Plans**: TBD
+**Plans**: 10 plans (5 waves)
+- [ ] 12-01-PLAN.md — Backend foundation: 3 domain models + User.language/notificationPrefs + Wave-0 backend test scaffolds
+- [ ] 12-02-PLAN.md — Mobile Wave-0 test scaffolds (NotificationService, NotificationContext, WatchButton)
+- [ ] 12-03-PLAN.md — Backend domain engine: emit() 3 guards + matchSavedSearches + translations + fcm stub + schemas
+- [ ] 12-04-PLAN.md — Backend /api/notifications router: cursor feed, read-state, subscription CRUD (uid-scoped, IDOR-safe)
+- [ ] 12-05-PLAN.md — Backend server.js wiring: 6 emit trigger points + router mount + PUT users language
+- [ ] 12-06-PLAN.md — Mobile foundation: NotificationService + NotificationContext + nav/provider wiring + translations
+- [ ] 12-07-PLAN.md — LanguageContext persistence (AsyncStorage + backend write)
+- [ ] 12-08-PLAN.md — In-app feed: NotificationsScreen + feed item + badges + MoreMenu/BottomBar wiring
+- [ ] 12-09-PLAN.md — Subscription controls: WatchButton (CarDetails) + SaveSearchBar (SearchResultsV2)
+- [ ] 12-10-PLAN.md — NotificationSettingsScreen (mute/categories/quiet-hours/cap/lists) + ProfileScreen row
 **UI hint**: yes
 
 ### Phase 13: FCM Push Transport (native)
@@ -84,7 +94,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 12. Notification Domain + In-App Center | 0/TBD | Not started | - |
+| 12. Notification Domain + In-App Center | 0/10 | Planned | - |
 | 13. FCM Push Transport (native) | 0/TBD | Not started | - |
 | 14. Daily Digest & Scheduling | 0/TBD | Not started | - |
 
