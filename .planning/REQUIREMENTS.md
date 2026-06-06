@@ -98,21 +98,51 @@ Deferred to a future milestone. Tracked, not in this roadmap.
 
 ## Traceability
 
-Pre-mapped from research; the roadmapper confirms and adds success criteria.
+Pre-mapped from research; confirmed by the roadmapper. Phase mappings below are final; each requirement maps to exactly one phase. Status `Roadmapped` = phase + success criteria assigned in ROADMAP.md, awaiting `/gsd-plan-phase`.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NDOM-01..06 | Phase 12 | Pending |
-| NSUB-01..04 | Phase 12 | Pending |
-| NCEN-01..06 | Phase 12 | Pending |
-| NPRF-01..02, 05, 07 | Phase 12 | Pending |
-| NPRF-03..04 (plumbing) | Phase 12 | Pending |
-| NPRF-06 (prompt) | Phase 13 | Pending |
-| NI18N-01..03 | Phase 12 | Pending |
-| NPUSH-01..08 | Phase 13 | Pending |
-| NDIG-01..05 | Phase 14 | Pending |
+| NDOM-01 | Phase 12 | Roadmapped |
+| NDOM-02 | Phase 12 | Roadmapped |
+| NDOM-03 | Phase 12 | Roadmapped |
+| NDOM-04 | Phase 12 | Roadmapped |
+| NDOM-05 | Phase 12 | Roadmapped |
+| NDOM-06 | Phase 12 | Roadmapped (prune job executes in Phase 14) |
+| NSUB-01 | Phase 12 | Roadmapped |
+| NSUB-02 | Phase 12 | Roadmapped |
+| NSUB-03 | Phase 12 | Roadmapped (daily delivery enforced Phase 14) |
+| NSUB-04 | Phase 12 | Roadmapped |
+| NCEN-01 | Phase 12 | Roadmapped |
+| NCEN-02 | Phase 12 | Roadmapped |
+| NCEN-03 | Phase 12 | Roadmapped |
+| NCEN-04 | Phase 12 | Roadmapped |
+| NCEN-05 | Phase 12 | Roadmapped |
+| NCEN-06 | Phase 12 | Roadmapped |
+| NPRF-01 | Phase 12 | Roadmapped |
+| NPRF-02 | Phase 12 | Roadmapped |
+| NPRF-03 | Phase 12 | Roadmapped (quiet-hours plumbing; delivery Phase 14) |
+| NPRF-04 | Phase 12 | Roadmapped (daily-cap plumbing; overflow delivery Phase 14) |
+| NPRF-05 | Phase 12 | Roadmapped |
+| NPRF-06 | Phase 13 | Roadmapped |
+| NPRF-07 | Phase 12 | Roadmapped |
+| NI18N-01 | Phase 12 | Roadmapped |
+| NI18N-02 | Phase 12 | Roadmapped |
+| NI18N-03 | Phase 12 | Roadmapped |
+| NPUSH-01 | Phase 13 | Roadmapped (gating spike — first task) |
+| NPUSH-02 | Phase 13 | Roadmapped |
+| NPUSH-03 | Phase 13 | Roadmapped |
+| NPUSH-04 | Phase 13 | Roadmapped |
+| NPUSH-05 | Phase 13 | Roadmapped |
+| NPUSH-06 | Phase 13 | Roadmapped |
+| NPUSH-07 | Phase 13 | Roadmapped |
+| NPUSH-08 | Phase 13 | Roadmapped |
+| NDIG-01 | Phase 14 | Roadmapped |
+| NDIG-02 | Phase 14 | Roadmapped |
+| NDIG-03 | Phase 14 | Roadmapped |
+| NDIG-04 | Phase 14 | Roadmapped |
+| NDIG-05 | Phase 14 | Roadmapped |
 
 **Coverage:**
 - v1 requirements: 32 total (NDOM 6, NSUB 4, NCEN 6, NPRF 7, NI18N 3, NPUSH 8, NDIG 5 — NPRF-06 prompt-side lands in Phase 13)
-- Mapped to phases: 32
-- Unmapped: 0
+- Mapped to phases: 32 (Phase 12: 24 · Phase 13: 9 · Phase 14: 5)
+- Unmapped: 0 ✓ (no orphans, no duplicates)

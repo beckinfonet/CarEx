@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-06-06T20:19:08.561Z"
 last_activity: 2026-06-06
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -19,15 +19,25 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
-**Core value:** Admins can act on bad-actor users after they're already in the system — without losing the audit trail or breaking in-flight orders for legitimate counterparties.
-**Current focus:** Phase 11 — buyer-affected-ux-quality-security-review
+**Core value (current milestone v1.2):** Buyers get alerted to relevant inventory and watched-car events without re-checking the app — via an in-app notification center and OS push.
+**Current focus:** Phase 12 — Notification Domain + In-App Center (roadmapped, awaiting /gsd-plan-phase 12)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 12 — Notification Domain + In-App Center (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-06-06 — Milestone v1.2 started
+Status: Roadmap created — 3 phases (12, 13, 14), 32/32 requirements mapped
+Last activity: 2026-06-06 — v1.2 roadmap created (Phases 12-14)
+
+## Milestone Roadmap (v1.2)
+
+| Phase | Goal | Requirements | Native? |
+|-------|------|--------------|---------|
+| 12 — Notification Domain + In-App Center | Subscribe (Saved Search + Watch), see events in-app over pure REST; fcm.send is a no-op stub | NDOM-01..06, NSUB-01..04, NCEN-01..06, NPRF-01..05/07, NI18N-01..03 (24) | No |
+| 13 — FCM Push Transport | OS push for instant subs; iOS Podfile static-frameworks gate spike FIRST; 3-state tap routing | NPUSH-01..08, NPRF-06 (9) | Yes |
+| 14 — Daily Digest & Scheduling | One localized morning digest via in-process node-cron; 90-day prune | NDIG-01..05 (5) | No |
+
+Dependencies: 12 → 13 → 14 (strict chain). Phase 13 gated by the NPUSH-01 Podfile spike (milestone #1 risk). Phase 12 reuses v1.1 hide-hook, base64 cursor, ModerationService split precedent, firebase-admin (already installed).
 
 ## Deferred Items
 
@@ -133,6 +143,12 @@ Progress: [██████████] 100%
 
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
+
+- [v1.2 Roadmap]: 3-phase structure honored exactly as pre-designed/research-validated — Phase 12 (domain + in-app center, pure REST, zero native), Phase 13 (FCM push, native), Phase 14 (node-cron digest). Phase numbering CONTINUES from v1.1 (12, 13, 14), not reset to 1.
+- [v1.2 Roadmap]: Phase 12 carries 24 of 32 requirements (heaviest by design) — bundles all domain + subscription + in-app + preferences + i18n foundation so the push (Phase 13) and digest (Phase 14) phases ride a stable, standalone-usable substrate. fcm.send ships as a no-op stub in Phase 12 so the in-app center is the guaranteed denied-permission fallback.
+- [v1.2 Roadmap]: Phase 13's FIRST task is the timeboxed iOS Podfile `use_frameworks! :linkage => :static` spike (NPUSH-01) — milestone #1 risk (collides with existing Stripe + fmt/C++17 hooks). Rollback checkpoint committed first; success = Release archive builds AND runs on a REAL device with Stripe checkout intact; notifee-fallback decided inside the spike. This task gates the rest of Phase 13.
+- [v1.2 Roadmap]: NPRF-06 (push pre-prompt) assigned to Phase 13 (not 12) because it precedes the native OS permission dialog that only exists once push transport is wired. NPRF-03/04 (quiet-hours + daily-cap) plumbing lands in Phase 12; their actual delivery enforcement is Phase 14. NDOM-06 (90-day retention) policy is defined in Phase 12 but the prune job executes in the Phase 14 cron.
+- [v1.2 Roadmap]: Backend send path reuses firebase-admin@13.8.0 (ALREADY installed for verifyIdToken) — do NOT add google-auth-library. Zero new backend send deps. New `src/notifications/` dir mirrors `src/moderation/` (ModerationService split precedent).
 
 - [v1.1 Roadmap]: 5-phase structure mirrors v1.0 backend-first execution shape: Phase 7 schema+auth → Phase 8 endpoints → Phase 9 read-time+TOCTOU enforcement → Phase 10 mobile plumbing+admin UI → Phase 11 buyer UX+quality+security review
 - [v1.1 Roadmap]: Mobile plumbing + Admin Listing UI merged into a single Phase 10 (v1.0 split these into Phases 4+5); justified because LIST-01 ships ONE admin surface (CarDetails bottom sheet) vs. v1.0's two screens (AdminModeration + AdminUserDetail + AdminManagement repurpose) — the LMOB-01..02 plumbing work is materially smaller (5 new methods on the existing ModerationService module, no new shared apiClient or AppState handler) and tightly coupled to LUI-01..04. Splitting would create a phase boundary mid-feature
