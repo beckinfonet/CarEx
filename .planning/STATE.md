@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin Listing Moderation
-status: "v1.1 shipped — PR #3"
+status: Awaiting next milestone
 stopped_at: Phase 11 context gathered
-last_updated: "2026-06-03T23:58:44.576Z"
-last_activity: 2026-06-03 - Completed quick task 260603-nl5: admin self-moderation UX (owner-aware sheet + translated error banner)
+last_updated: "2026-06-06T20:13:47.707Z"
+last_activity: 2026-06-06 — Milestone v1.1 completed and archived
 progress:
   total_phases: 5
   completed_phases: 5
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 ## Current Position
 
-Phase: 11
-Plan: Not started
-Status: v1.1 shipped — PR #3
-Last activity: 2026-06-06 - Completed quick task 260606-img: server-side sharp image variant pipeline (thumb+full) + mobile renders thumbnails on cards (cross-repo)
+Phase: Milestone v1.1 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-06 — Milestone v1.1 completed and archived
 
 ## Deferred Items
 
@@ -39,7 +39,15 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 | backend-load-test | Plan 06-0a (10k-user seed) | deferred by operator 2026-04-19 |
 | backend-load-test | Plan 06-0b (k6 harness with P95<200ms) | deferred by operator 2026-04-19 |
 | ux-followup | UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 06 03 styling) | captured 2026-04-30 during Phase 04 UAT — to be addressed in next milestone |
-Last activity: 2026-05-30 - Shipped feat/personality-tier-setting branch (PR #7): personality tier picker + UNHINGED consent gate + KG-localized greeting content (50/slot)
+
+Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open artifacts — bookkeeping leftovers, all phase work complete):
+
+| Category | Item | Status |
+|----------|------|--------|
+| quick-task-bookkeeping | 21 quick tasks (HomeScreen V2 polish, image-variant pipeline, favorites/status badges, admin self-mod UX) missing SUMMARY.md | shipped per git history; SUMMARY files never written |
+| debug-session | android-photo-load-lag | fix_applied 2026-05-29 (effectively resolved) |
+| uat-gap | Phase 11 11-HUMAN-UAT.md | approved; 3 optional scenarios pending |
+
 Resume file: .planning/phases/11-buyer-affected-ux-quality-security-review/11-CONTEXT.md
 
 Progress: [██████████] 100%
@@ -404,3 +412,7 @@ Items acknowledged and carried forward:
 Last session: 2026-05-29T15:49:07.352Z
 Stopped at: Phase 11 context gathered
 Resume file: None
+
+## Operator Next Steps
+
+- Start the next milestone with /gsd-new-milestone

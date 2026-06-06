@@ -10,26 +10,12 @@ Admins can act on bad-actor users after they're already in the system — withou
 
 ## Current State
 
-**Shipped:** v1.0 — Admin Moderation (2026-04-30)
+**Latest shipped:** v1.1 — Admin Listing Moderation (2026-06-06) · [archive](milestones/v1.1-ROADMAP.md)
+**Previous:** v1.0 — Admin Moderation (2026-04-30) · [archive](milestones/v1.0-ROADMAP.md)
 **Distribution:** TestFlight 1.0.45 + Google Play internal 1.0.48 — verified live
-**Tag:** `v1.0`
-**Archive:** [.planning/milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md) + [.planning/milestones/v1.0-REQUIREMENTS.md](milestones/v1.0-REQUIREMENTS.md)
+**Tags:** `v1.0`, `v1.1`
 
-## Current Milestone: v1.1 Admin Listing Moderation
-
-**Goal:** Extend v1.0's user-moderation model to the listing domain — give admins four distinct, visibly-distinguished actions on car listings (Edit, Suspend, Archive, Delete-soft) with audit trail and buyer-side pause-not-cancel behavior.
-
-**Target features:**
-- Admin Edit on any listing with `lastEditedBy` audit stamp (reuse seller `EditCarScreen` pending field-coverage research — Q-001)
-- Admin Suspend (warning, reversible) — temporary policy/timeout state, reason captured
-- Admin Archive (neutral, reversible) — for inactive/abandoned sellers, not punitive, reason captured
-- Admin Delete-soft (destructive, recoverable from admin-only "Deleted" view) — reason captured
-- Single listing `status` field (`'active' | 'suspended' | 'archived' | 'deleted'`) updated by all four actions
-- Append-only listing moderation audit log (every state transition recorded)
-- Buyer-side banner + disabled checkout on any non-`'active'` listing; in-flight paid orders proceed
-- RU + EN parity for reason taxonomy, button labels, and buyer banner
-
-**Key context:** Design pre-captured in [.planning/notes/listing-moderation-design.md](notes/listing-moderation-design.md) (from `/gsd-explore` 2026-05-28). Mirrors v1.0 patterns: `firebase-admin.verifyIdToken()` admin auth, application-layer append-only audit pre-hooks, `/api/admin/moderation/*` namespace, severity-aware buyer banner. Deferred to v1.2+: bulk admin listings panel, hard-delete UI, LIST-02 automated flagging queue, NOTF-* notification system.
+_Next milestone (v1.2 Notifications) is being scoped via `/gsd-new-milestone`. Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](../docs/superpowers/specs/2026-06-06-notifications-system-design.md)._
 
 ## Requirements
 
@@ -73,13 +59,17 @@ Admins can act on bad-actor users after they're already in the system — withou
 - ✓ Security review APPROVED (06-SECURITY.md, all 5 verdicts PASS, merge-gate cleared) — v1.0
 - ✓ Cryptographic admin auth via `firebase-admin.verifyIdToken()` on every admin route — v1.0
 - ✓ Cross-phase production fixes shipped alongside: Android deep-link App Links, install-prompt redirects (Vercel UA + smart-app-banner), listing-image retry-on-error + picker shrink — v1.0
+- ✓ Admin listing moderation: Edit / Suspend / Archive / Delete-soft / Restore, each atomic with append-only `ListingModerationAction` audit row (LSEC/LDATA/LADM) — v1.1
+- ✓ Backend read-time hide hook + status-aware listing-detail GET + cart-add + TOCTOU-safe confirm-booking re-verification (refund-first-throw-second) (LENF-01..03) — v1.1
+- ✓ Admin Users|Listings tab UI: search + status chips + paginated list + per-row Restore + inline `CarDetailsScreen` moderation bottom-sheet + admin Deleted view — v1.1
+- ✓ Buyer-affected UX: severity-aware listing-detail + cart banners; in-flight paid orders proceed; RU/EN parity (parity scanner enforced) — v1.1
+- ✓ Listing-moderation security review APPROVED (`LIST-SECURITY.md`, 5 PASS verdicts, merge-gate cleared) — v1.1
 
 ### Active
 
-<!-- v1.1 — Admin Listing Moderation. Detailed requirements defined in REQUIREMENTS.md. -->
+<!-- v1.2 — Notifications. Requirements being defined via /gsd-new-milestone (see design spec). -->
 
-- LIST-01 — Admin Listing Moderation (Edit / Suspend / Archive / Delete-soft) — v1.1 in progress
-- LENF-01..03 — Backend read-time + TOCTOU enforcement (Car hide hook, status-aware listing-detail GET, cart-add + confirm-booking re-verification) — v1.1, Phase 9 complete 2026-05-29
+- _v1.2 Notifications requirements pending — being scoped via `/gsd-new-milestone`._
 
 <!-- v1.2+ carry-forward candidates (deferred from v1.0): -->
 
