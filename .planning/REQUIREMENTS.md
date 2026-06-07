@@ -53,8 +53,8 @@ Continues phase numbering from v1.1 (Phases 7–11). v1.2 spans **Phases 12–14
 ### OS Push Transport — FCM (NPUSH) · Phase 13
 
 - [ ] **NPUSH-01**: A timeboxed iOS Podfile spike switches to `use_frameworks! :linkage => :static`, keeps the existing Stripe + fmt/C++17 post-install hooks, and proves a **Release archive builds AND runs on a real device** with Stripe checkout intact — committed behind a rollback checkpoint; notifee-fallback decision made within the spike.
-- [ ] **NPUSH-02**: `@react-native-firebase/app` + `/messaging` (24.x, locked-step) are installed; iOS deployment target raised to ≥15; Android `google-services` plugin applied (bottom of `app/build.gradle`), `POST_NOTIFICATIONS` declared, default channel created.
-- [ ] **NPUSH-03**: APNs `.p8` auth key uploaded to Firebase; `aps-environment` entitlement + Push/Background-modes capabilities configured; verified delivering on a real device.
+- [x] **NPUSH-02**: `@react-native-firebase/app` + `/messaging` (24.x, locked-step) are installed; iOS deployment target raised to ≥15; Android `google-services` plugin applied (bottom of `app/build.gradle`), `POST_NOTIFICATIONS` declared, default channel created. (13-03: pinned exactly 24.1.0; google-services 4.4.4; channel id `carex_default`; iOS pods static-linked w/ Firebase 12.11.0.)
+- [x] **NPUSH-03**: APNs `.p8` auth key uploaded to Firebase; `aps-environment` entitlement + Push/Background-modes capabilities configured. (Config complete 13-03 + 13-01 spike; APNs .p8 uploaded by operator. Real-device delivery verification deferred to 13-04 / 13-HUMAN-UAT.)
 - [ ] **NPUSH-04**: Device-token lifecycle is wired into `AuthContext` — register on login/signup, refresh on `onTokenRefresh`, unregister on logout (token captured before the idToken ref clears).
 - [ ] **NPUSH-05**: Backend sends push via `firebase-admin.messaging().send()` in a per-token loop (cached OAuth, exponential backoff on 429), pruning `DeviceToken` rows on `UNREGISTERED`/`INVALID_ARGUMENT`; one bad token never aborts the fan-out.
 - [ ] **NPUSH-06**: Foreground, background, and **quit** states are all handled — `setBackgroundMessageHandler` registered at the top of `index.js`, `getInitialNotification()` handled for cold-start.
@@ -129,8 +129,8 @@ Pre-mapped from research; confirmed by the roadmapper. Phase mappings below are 
 | NI18N-02 | Phase 12 | Roadmapped |
 | NI18N-03 | Phase 12 | Roadmapped |
 | NPUSH-01 | Phase 13 | Roadmapped (gating spike — first task) |
-| NPUSH-02 | Phase 13 | Roadmapped |
-| NPUSH-03 | Phase 13 | Roadmapped |
+| NPUSH-02 | Phase 13 | Complete (13-03) |
+| NPUSH-03 | Phase 13 | Config complete (13-03); device-delivery verify deferred to 13-04/UAT |
 | NPUSH-04 | Phase 13 | Roadmapped |
 | NPUSH-05 | Phase 13 | Roadmapped |
 | NPUSH-06 | Phase 13 | Roadmapped |

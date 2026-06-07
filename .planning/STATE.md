@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
-status: executing
-stopped_at: Phase 13 — 13-01 spike PASSED + 13-02 (backend) done; 13-03/04/05 remain (need Firebase console artifacts)
-last_updated: "2026-06-07T03:01:12.202Z"
-last_activity: 2026-06-06 -- Phase 13 spike 13-01 PASSED on TestFlight (static frameworks + Stripe intact)
+status: Partially executed — blocked on human/hardware gates
+stopped_at: Completed 13-03-PLAN.md (RNFB install + native push config)
+last_updated: "2026-06-07T07:00:23Z"
+last_activity: 2026-06-07 -- 13-03 RNFB 24.1.0 installed + Android/iOS push config wired (mobile)
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 15
-  completed_plans: 12
-  percent: 80
+  completed_plans: 14
+  percent: 93
 ---
 
 # Project State
@@ -26,15 +26,16 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 13
-Plan: 13-02 complete (backend); 13-01/03/04/05 deferred
-Status: Partially executed — blocked on human/hardware gates
-Last activity: 2026-06-06 -- 13-02 backend FCM transport executed + verified (31 tests green)
+Plan: 13-01/02/03 complete; 13-04/05 remaining (mobile wiring + UAT)
+Status: Push-capable at config layer — mobile receive/route wiring (13-04) next
+Last activity: 2026-06-07 -- 13-03 RNFB 24.1.0 installed + Android/iOS push config wired (mobile)
 
 **Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
+
 - ✅ **13-02** (backend FCM send loop + device-token routes + PII-safe push copy): DONE + **MERGED to backend `main` 2026-06-06 via PR #10 (`df9ebb0`)** — full Phase 12+13 backend stack now on origin/main, deploys via Railway. 31/31 target tests green; pre-existing ServiceOrder.providerSnapshot failure untouched. Mobile-side SUMMARY on mobile branch `feature/notifications-system`. ⚠️ Railway still on TEST Stripe keys from spike — restore live keys for prod payments.
 - ✅ **13-01** (iOS Podfile static-frameworks SPIKE — the NPUSH-01 gate): **PASSED 2026-06-06.** SUMMARY written. Commits `78aae01` (rollback checkpoint), `7543a51` (static-frameworks switch), `a8cf5ee` (Stripe key-account fix). Bar #1 Release compile PROVEN (orchestrator xcodebuild: BUILD SUCCEEDED, 0 errors, FollyConvert resolved, carEx.app produced). Bar #2 PASSED on TestFlight (Release build runs on real iPhone + Stripe test checkout "Payment successful → Booked"). D-03: RNFB built-in display, no notifee. **Milestone #1 risk RETIRED. Waves 2–4 unlocked.** ⚠️ Release follow-up: App.tsx ships a TEST Stripe pk in all builds (pre-existing CONCERNS) — swap to pk_live + Railway sk_live before prod release.
-- ⏸️ **13-03** (install @react-native-firebase 24.1.0 + native config): deferred. Needs `google-services.json` + APNs `.p8` from Firebase Console; gated on 13-01 PASS.
-- ⏸️ **13-04** (PushService + AuthContext wiring + 3-state tap routing): deferred. Code automatable but depends on RNFB from 13-03.
+- ✅ **13-03** (install @react-native-firebase 24.1.0 + native config): **DONE 2026-06-07.** RNFB app+messaging at exactly 24.1.0 (locked-step); `RCT_USE_PREBUILT_RNCORE=0 pod install` clean under static frameworks (Firebase iOS 12.11.0, Stripe/fmt intact, FollyConvert resolved, no notifee). Android google-services 4.4.4 applied; `:app:processDebugGoogleServices` BUILD SUCCESSFUL against `com.carex.market`. POST_NOTIFICATIONS + default channel `carex_default` declared. Commits `2e1b1e9` (Task 1), `4f147c0` (Task 2). Operator console artifacts (google-services.json gitignored/local-only + APNs .p8 uploaded) pre-satisfied. Real-device APNs delivery (NPUSH-03) verified later in 13-04/UAT.
+- ⏳ **13-04** (PushService + AuthContext wiring + 3-state tap routing): READY — RNFB now installed. Must create the `carex_default` notification channel in-JS to match the manifest default-channel meta-data.
 - ⏸️ **13-05** (permission pre-prompt UI + settings + HUMAN-UAT): deferred. Depends on 13-04; validation is real-device.
 
 **To resume mobile waves:** at a Mac with a real iPhone, run `/gsd-execute-phase 13` again — it will pick up the 4 incomplete plans starting with the 13-01 spike. ⚠️ Memory note: native Firebase SDK was historically problematic on this app — 13-01 is the spike that exists to validate it under static frameworks with Stripe intact.
@@ -159,6 +160,7 @@ Progress: [██████████] 100%
 | Phase 12 P08 | ~5m | 3 tasks | 7 files |
 | Phase 12 P09 | ~12m | 2 tasks | 7 files |
 | Phase 12 P10 | ~3m | 2 tasks | 3 files |
+| Phase 13 P03 | 4min | 2 tasks (+2 auto-fix) | 7 files (+1 gitignored) |
 
 ## Accumulated Context
 
@@ -173,6 +175,7 @@ Recent decisions affecting current work:
 - [Phase 12]: Plan 12-09: WatchButton is its own Bell pill (sibling discipline, not a Heart variant — icon/color/shape disambiguators) keyed on car._id || car.id || carId (NSUB-04/D-04). NotificationEvent union extended with canonical 'booked' + 'back_available' watch events (D-03) — 12-08's NotificationFeedItem already cast those spellings defensively, so aligning the type is non-breaking.
 - [Phase 12]: Plan 12-09: SaveSearchBar maps RU-label activeFilters (Цена/Год) to canonical criteria with makeId/modelId as ObjectId strings (Pitfall 4/5) before POST; one-tap instant saved_search + toast-with-Undo (deleteSubscription by returned id); self-hides via internal hasActiveFilters guard (D-08/D-09). bodyType passed as a resolved RU category name (selectedCategory is a CATEGORIES numeric id) so the mapping stays unit-testable.
 
+- [Phase 13]: Plan 13-03: RNFB app+messaging pinned to EXACTLY 24.1.0 (locked-step) — npm auto-added `^` was stripped to bare `24.1.0` because the plan's node verify check fails on caret float. Default Android FCM channel id = `carex_default` (declared in AndroidManifest default-channel meta-data); the channel itself must be CREATED in-JS in 13-04/13-05 and reference this id. iOS install uses `RCT_USE_PREBUILT_RNCORE=0 pod install` under static frameworks (spike incantation); no notifee (D-03, RNFB built-in display). google-services verified via `:app:processDebugGoogleServices` (proves client JSON matches applicationId without a full APK build).
 - [v1.2 Roadmap]: 3-phase structure honored exactly as pre-designed/research-validated — Phase 12 (domain + in-app center, pure REST, zero native), Phase 13 (FCM push, native), Phase 14 (node-cron digest). Phase numbering CONTINUES from v1.1 (12, 13, 14), not reset to 1.
 - [v1.2 Roadmap]: Phase 12 carries 24 of 32 requirements (heaviest by design) — bundles all domain + subscription + in-app + preferences + i18n foundation so the push (Phase 13) and digest (Phase 14) phases ride a stable, standalone-usable substrate. fcm.send ships as a no-op stub in Phase 12 so the in-app center is the guaranteed denied-permission fallback.
 - [v1.2 Roadmap]: Phase 13's FIRST task is the timeboxed iOS Podfile `use_frameworks! :linkage => :static` spike (NPUSH-01) — milestone #1 risk (collides with existing Stripe + fmt/C++17 hooks). Rollback checkpoint committed first; success = Release archive builds AND runs on a REAL device with Stripe checkout intact; notifee-fallback decided inside the spike. This task gates the rest of Phase 13.
