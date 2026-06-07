@@ -8,7 +8,11 @@
 import React from 'react';
 import { Platform, UIManager } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { NavigationContainer } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  createNavigationContainerRef,
+} from '@react-navigation/native';
+import messaging from '@react-native-firebase/messaging';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { HomeScreenV2 as HomeScreen } from './src/screens/HomeScreenV2';
@@ -60,6 +64,129 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+// Phase 13 (NPUSH-07): navigation ref so push-tap handlers can route in-JS via
+// navigationRef.navigate (Pitfall 5) rather than Linking.openURL — sidesteps the
+// missing carex://search Android intent-filter while still going only through the
+// whitelisted screens.
+export const navigationRef =
+  createNavigationContainerRef<RootStackParamList>();
+
+/**
+ * Parse a push data.deeplink (carex://... or https://www.carexmarket.com/...)
+ * into a whitelisted navigation target, then navigate via navigationRef.
+ *
+ * ONLY the two existing linking targets are honored (do NOT widen, T-13-04-02):
+ *   - /listing/:carId            → CarDetails  { carId }
+ *   - /search?initialQuery=...   → SearchResults { initialQuery, initialFilters }
+ * Anything else is ignored (untrusted deeplink string → whitelist only).
+ *
+ * Car-id rule ([[car_id_field_unreliable]]): the backend builds the deeplink
+ * with car._id || car.id || carId, so the carId path segment is already the
+ * resolved id — we never re-derive from a bare car.id here.
+ */
+function routeDeeplink(deeplink?: string) {
+  if (!deeplink || !navigationRef.isReady()) return;
+  let pathname = '';
+  let params = new Map<string, string>();
+  try {
+    // Strip the scheme/host to get a normalized path. Handles both carex://
+    // (e.g. carex://listing/abc, carex://search?...) and https URLs.
+    const withoutScheme = deeplink.replace(/^[a-z]+:\/\//i, '');
+    const firstSlash = withoutScheme.indexOf('/');
+    const pathAndQuery =
+      firstSlash >= 0
+        ? withoutScheme.slice(firstSlash + 1)
+        : // carex://search?... has the host as the route ("search") with no
+          // leading path — fall back to the host segment.
+          withoutScheme;
+    const [rawPath, rawQuery = ''] = pathAndQuery.split('?');
+    pathname = rawPath.replace(/^\/+|\/+$/g, '');
+    rawQuery
+      .split('&')
+      .filter(Boolean)
+      .forEach((pair) => {
+        const [k, v = ''] = pair.split('=');
+        params.set(decodeURIComponent(k), decodeURIComponent(v));
+      });
+  } catch (e) {
+    console.error('Failed to parse push deeplink', e);
+    return;
+  }
+
+  const segments = pathname.split('/').filter(Boolean);
+
+  if (segments[0] === 'listing' && segments[1]) {
+    navigationRef.navigate('CarDetails', { carId: segments[1] });
+    return;
+  }
+
+  if (segments[0] === 'search') {
+    let initialFilters: { [key: string]: any } | undefined;
+    const rawFilters = params.get('initialFilters');
+    if (rawFilters) {
+      try {
+        initialFilters = JSON.parse(rawFilters);
+      } catch {
+        initialFilters = undefined;
+      }
+    }
+    navigationRef.navigate('SearchResults', {
+      initialQuery: params.get('initialQuery') ?? '',
+      initialFilters,
+    });
+    return;
+  }
+  // Unknown target → ignore (whitelist-only routing).
+}
+
+/**
+ * PushTapRoutingEffect — mounts the 3-state push-tap routing inside the
+ * AuthProvider subtree (mirrors AppStateRefreshEffect). Per RESEARCH §Pattern 2:
+ *   - getInitialNotification() ONCE on mount → quit/cold-start tap (guarded
+ *     against double-handling).
+ *   - onNotificationOpenedApp() → background tap.
+ *   - onMessage() → foreground.
+ * Each reads data.deeplink and routes via routeDeeplink → navigationRef through
+ * the existing linking whitelist (NPUSH-06/07). Real-device 3-state + cold-start
+ * behavior is deferred to 13-HUMAN-UAT.
+ */
+export const PushTapRoutingEffect = () => {
+  React.useEffect(() => {
+    let handledInitial = false;
+
+    // Quit / cold-start: a tap that launched the app. Run ONCE; guard so a
+    // later re-mount cannot re-route the same launch notification.
+    messaging()
+      .getInitialNotification()
+      .then((remoteMessage) => {
+        if (handledInitial) return;
+        handledInitial = true;
+        const deeplink = remoteMessage?.data?.deeplink;
+        if (typeof deeplink === 'string') routeDeeplink(deeplink);
+      })
+      .catch((e) => console.error('getInitialNotification failed', e));
+
+    // Background → foreground via tap.
+    const unsubOpened = messaging().onNotificationOpenedApp((remoteMessage) => {
+      const deeplink = remoteMessage?.data?.deeplink;
+      if (typeof deeplink === 'string') routeDeeplink(deeplink);
+    });
+
+    // Foreground message. We don't auto-navigate on arrival (the user hasn't
+    // tapped); kept here per Pattern 2 so the foreground path is wired and the
+    // in-app notification center stays the source of truth while the app is open.
+    const unsubMessage = messaging().onMessage(() => {
+      // Headless for Phase 13 — display handled by RNFB / in-app center.
+    });
+
+    return () => {
+      unsubOpened();
+      unsubMessage();
+    };
+  }, []);
+  return null;
+};
+
 /**
  * AppStateRefreshEffect — mounts the useAppStateRefresh listener inside the AuthProvider subtree.
  * Pattern mirrors OfflineNotice which uses useNetwork inside NavigationContainer.
@@ -102,13 +229,14 @@ function App() {
       <SafeAreaProvider>
         <AuthProvider>
           <AppStateRefreshEffect />
+          <PushTapRoutingEffect />
           <CartProvider>
             <FavoritesProvider>
             <StripeProvider publishableKey="pk_live_51LaViqJqBNYq7xofM5BivXtMWqH9VEPRb6l3numSPdGg0JFOzOTXHSxzESBsmuXJOSABDQNijl4f9Kda8WRbmXOx00hkfhEwYG">
             <LanguageProvider>
             <PersonalityProvider>
             <NotificationProvider>
-            <NavigationContainer linking={linking}>
+            <NavigationContainer ref={navigationRef} linking={linking}>
               <UserStatusBanner />
               <OfflineNotice />
               <Stack.Navigator
