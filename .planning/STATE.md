@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
-status: executing
+status: verifying
 stopped_at: Phase 14 context gathered
-last_updated: "2026-06-07T23:15:56.015Z"
+last_updated: "2026-06-07T23:22:07.720Z"
 last_activity: 2026-06-07
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 20
-  completed_plans: 19
-  percent: 95
+  completed_plans: 20
+  percent: 100
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 Phase: 14 (daily-digest-scheduling) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-07
 
 **Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
@@ -72,7 +72,7 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 
 Resume file: None
 
-Progress: [██████████] 95%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -165,6 +165,7 @@ Progress: [██████████] 95%
 | Phase 14 P05 | 6min | 1 tasks | 2 files |
 | Phase 14 P02 | 4min | 1 tasks | 2 files |
 | Phase 14 P03 | 5min | 2 tasks (3 commits — Task1 + TDD RED+GREEN) | 3 files |
+| Phase 14 P04 | ~4min | 2 tasks (3 commits — TDD RED+GREEN + cron) | 3 files |
 
 ## Accumulated Context
 
@@ -172,6 +173,9 @@ Progress: [██████████] 95%
 
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
+
+- [Phase 14]: Plan 14-04: same-run retention prune in runDigest — `Notification.deleteMany({createdAt:$lt cutoff})` at 90d + `DeviceToken.deleteMany({lastSeenAt:$lt cutoff})` at `TOKEN_STALE_DAYS=90`; both date-bounded (T-14-04-01, never unconditional). The stale-token prune is the EXTRA layer keyed on `lastSeenAt` age (refreshed on every register, router.js:315), non-duplicative with `fcm.send`'s send-time `pruneToken`. prune is wrapped non-fatal (logged, never thrown) and also runs on idle digest mornings (the no-claimed early-return path calls it before returning).
+- [Phase 14]: Plan 14-04: daily-digest node-cron registered STRICTLY inside server.js's `require.main === module` gate (`cron.schedule('0 ${DIGEST_HOUR} * * *', task, { name:'daily-digest', timezone:'Asia/Bishkek', noOverlap:true })`) so `require('./server')` under Jest starts no scheduler (Pitfall 4). v4 idioms only — auto-start, NO `recoverMissedExecutions` (no catch-up = D-02, zero code); task wraps `runDigest` in try/catch so a digest failure never crashes the process. Expression derives from `DIGEST_HOUR` (digest.js stays the single fire-time retune point, D-01). **Phase 14 backend complete (NDIG-01..05 + NDOM-06).**
 
 - [Phase 12]: Plan 12-06: NotificationService mirrors the ModerationService split (apiClient verb+path wrappers, isAbortError) — notification HTTP stays OFF AuthService. MOB-01 guardrail enforced as a runtime test reading AuthService.ts source (zero notification/subscription/watch matches), not just an acceptance grep.
 - [Phase 12]: Plan 12-06: NotificationProvider placed innermost (after FavoritesProvider, immediately wrapping NavigationContainer) — inside AuthProvider so useAuth resolves AND wrapping every screen/badge that reads it. prevUidRef skip-on-mount sentinel clears unreadCount/feed on user.localId change (T-12-06-01 cross-user cache-leak mitigation, FavoritesContext pattern).
@@ -479,7 +483,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-07T23:15:56.004Z
+Last session: 2026-06-07T23:22:07.707Z
 Stopped at: Phase 14 context gathered
 Resume file: None
 
