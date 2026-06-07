@@ -135,13 +135,22 @@ describe('NotificationService', () => {
     expect(result).toEqual({ _id: 'sub-1', ...body });
   });
 
-  it('listSubscriptions GETs /api/notifications/subscriptions and returns the array', async () => {
-    mockedApiClient.get.mockResolvedValueOnce({ data: [{ _id: 'sub-1' }] });
+  it('listSubscriptions GETs /api/notifications/subscriptions and unwraps the { items } envelope', async () => {
+    // Backend router responds `{ items: [...] }` (router.js:238) — CR-02.
+    mockedApiClient.get.mockResolvedValueOnce({ data: { items: [{ _id: 'sub-1' }] } });
 
     const result = await NotificationService.listSubscriptions();
 
     expect(mockedApiClient.get).toHaveBeenCalledWith('/api/notifications/subscriptions');
     expect(result).toEqual([{ _id: 'sub-1' }]);
+  });
+
+  it('listSubscriptions returns [] when the payload is not the { items } envelope', async () => {
+    mockedApiClient.get.mockResolvedValueOnce({ data: [{ _id: 'sub-legacy' }] });
+
+    const result = await NotificationService.listSubscriptions();
+
+    expect(result).toEqual([]);
   });
 
   it('updateSubscription PATCHes /api/notifications/subscriptions/:id with the body', async () => {

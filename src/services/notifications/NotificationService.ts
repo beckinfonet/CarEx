@@ -192,7 +192,11 @@ export const NotificationService = {
   listSubscriptions: async (): Promise<Subscription[]> => {
     try {
       const response = await apiClient.get('/api/notifications/subscriptions');
-      return Array.isArray(response.data) ? response.data : [];
+      // Router responds `{ items: [...] }` (router.js:238) — unwrap the envelope
+      // just like getFeed does. The bare-array guard here always returned []
+      // against the shipped backend shape (CR-02).
+      const items = response.data?.items;
+      return Array.isArray(items) ? items : [];
     } catch (error) {
       console.error('Failed to list subscriptions', error);
       throw error;
