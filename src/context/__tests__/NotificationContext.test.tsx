@@ -1,48 +1,173 @@
 /**
- * Phase 12 — Wave 0 scaffold (NotificationContext).
+ * Phase 12 — NotificationContext (Wave 2 fill of the 12-02 scaffold).
  *
- * Mirrors the Phase 5 Wave-0 scaffold pattern (Plan 05-01) + the existing
- * AuthContext.test.tsx harness shape (react-test-renderer, jest preset already
- * configured). This file imports the not-yet-built NotificationProvider +
- * useNotifications so:
- *   1. `npx jest --listTests` discovers it as a real <automated> verify target
- *      for the Wave-2 plan that ships NotificationContext, AND
- *   2. the import line is the load-bearing WIRING CHECK — it stays red until
- *      NotificationContext exists, then goes green when the context lands.
+ * Mirrors the PersonalityContext.test.tsx harness (react-test-renderer + a Probe
+ * component that captures the hook result). useAuth is mocked so we can drive
+ * `user.localId` transitions; NotificationService is mocked so the provider's
+ * REST calls are deterministic.
  *
- * Bodies are `test.todo`. The context mirrors CartContext / FavoritesContext:
- * provider + `use*` hook that throws if used outside its provider; per-user
- * auto-clear via a prevUidRef sentinel on `user.localId` transition
- * (FavoritesContext.tsx:55-63).
+ * Proves:
+ *   - NCEN-01: unreadCount drives the badge state (single context-derived count).
+ *   - prevUidRef auto-clear: feed + unreadCount reset on user.localId change,
+ *     but NOT on first mount (T-12-06-01 cross-user cache-leak mitigation).
+ *   - useNotifications throws when used outside a NotificationProvider.
  */
 
 import React from 'react';
-// WIRING CHECK (Wave-0): imports the future provider + hook so this scaffold
-// turns green the moment Wave 2 lands src/context/NotificationContext.tsx.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import TestRenderer, { act } from 'react-test-renderer';
+
+// Mock useAuth so the test controls the logged-in user.
+let mockUser: { localId: string } | null = null;
+jest.mock('../AuthContext', () => ({
+  useAuth: () => ({ user: mockUser }),
+}));
+
+// Mock the data source.
+jest.mock('../../services/notifications/NotificationService', () => ({
+  NotificationService: {
+    getUnreadCount: jest.fn(),
+    getFeed: jest.fn(),
+    markRead: jest.fn(),
+    markAllRead: jest.fn(),
+    createSubscription: jest.fn(),
+    listSubscriptions: jest.fn(),
+    updateSubscription: jest.fn(),
+    deleteSubscription: jest.fn(),
+  },
+}));
+
+import { NotificationService } from '../../services/notifications/NotificationService';
 import { NotificationProvider, useNotifications } from '../NotificationContext';
 
-describe('NotificationContext (Wave 0 scaffold)', () => {
-  // Keep imports referenced so they are not tree-shaken / lint-stripped.
-  void React;
-  void NotificationProvider;
-  void useNotifications;
+const svc = NotificationService as unknown as {
+  getUnreadCount: jest.Mock;
+  getFeed: jest.Mock;
+  markRead: jest.Mock;
+  markAllRead: jest.Mock;
+};
 
-  // -------------------- NCEN-01: unread badge derives from context --------------------
-  test.todo(
-    'NCEN-01: unreadCount derives the bell badge state from the context — badge reflects the context unread count, not a separate fetch',
-  );
+let hookResult: ReturnType<typeof useNotifications>;
+function Probe() {
+  hookResult = useNotifications();
+  return null;
+}
 
-  // -------------------- NPRF-07: in-app functional with no-op push --------------------
-  test.todo(
-    'NPRF-07: feed renders from the context even when push is a no-op stub (in-app center is the guaranteed denied-permission fallback)',
-  );
+async function flush() {
+  await new Promise((r) => setImmediate(r));
+  act(() => {});
+  await new Promise((r) => setImmediate(r));
+}
 
-  // -------------------- Auto-clear on uid change (mirrors FavoritesContext prevUidRef) --------------------
-  test.todo(
-    'auto-clears feed + unreadCount on user.localId transition (prevUidRef sentinel, skip-on-mount) so the next user never sees the previous user notifications',
-  );
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockUser = { localId: 'user-A' };
+  svc.getUnreadCount.mockResolvedValue({ count: 0 });
+  svc.getFeed.mockResolvedValue({ items: [], nextCursor: null });
+});
 
-  // -------------------- Hook-outside-provider guard (Cart/Favorites pattern) --------------------
-  test.todo('useNotifications throws when used outside a NotificationProvider');
+describe('NotificationContext', () => {
+  test('NCEN-01: unreadCount drives the badge state from refresh()', async () => {
+    svc.getUnreadCount.mockResolvedValue({ count: 5 });
+    svc.getFeed.mockResolvedValue({
+      items: [{ _id: 'n1', read: false }],
+      nextCursor: null,
+    });
+
+    await act(async () => {
+      TestRenderer.create(
+        <NotificationProvider>
+          <Probe />
+        </NotificationProvider>,
+      );
+    });
+    await flush();
+
+    await act(async () => {
+      await hookResult.refresh();
+    });
+    await flush();
+
+    expect(hookResult.unreadCount).toBe(5);
+    expect(hookResult.feed).toHaveLength(1);
+  });
+
+  test('markRead decrements unreadCount (NCEN-04)', async () => {
+    svc.getUnreadCount.mockResolvedValue({ count: 2 });
+    svc.getFeed.mockResolvedValue({
+      items: [{ _id: 'n1', read: false }],
+      nextCursor: null,
+    });
+    (svc.markRead as jest.Mock).mockResolvedValue({ updated: 1 });
+
+    await act(async () => {
+      TestRenderer.create(
+        <NotificationProvider>
+          <Probe />
+        </NotificationProvider>,
+      );
+    });
+    await flush();
+    await act(async () => {
+      await hookResult.refresh();
+    });
+    await flush();
+    expect(hookResult.unreadCount).toBe(2);
+
+    await act(async () => {
+      await hookResult.markRead('n1');
+    });
+    await flush();
+
+    expect(hookResult.unreadCount).toBe(1);
+    expect(svc.markRead).toHaveBeenCalledWith('n1');
+  });
+
+  test('auto-clears feed + unreadCount on user.localId transition (prevUidRef, skip-on-mount)', async () => {
+    svc.getUnreadCount.mockResolvedValue({ count: 3 });
+    svc.getFeed.mockResolvedValue({
+      items: [{ _id: 'n1', read: false }],
+      nextCursor: null,
+    });
+
+    let renderer: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        <NotificationProvider>
+          <Probe />
+        </NotificationProvider>,
+      );
+    });
+    await flush();
+    await act(async () => {
+      await hookResult.refresh();
+    });
+    await flush();
+    expect(hookResult.unreadCount).toBe(3);
+    expect(hookResult.feed).toHaveLength(1);
+
+    // Simulate a user switch: change the mocked uid and re-render.
+    mockUser = { localId: 'user-B' };
+    await act(async () => {
+      renderer!.update(
+        <NotificationProvider>
+          <Probe />
+        </NotificationProvider>,
+      );
+    });
+    await flush();
+
+    // The prevUidRef sentinel fires on the A→B transition, wiping prior state.
+    expect(hookResult.unreadCount).toBe(0);
+    expect(hookResult.feed).toEqual([]);
+  });
+
+  test('useNotifications throws when used outside a NotificationProvider', () => {
+    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    expect(() =>
+      act(() => {
+        TestRenderer.create(<Probe />);
+      }),
+    ).toThrow('useNotifications must be used within a NotificationProvider');
+    errSpy.mockRestore();
+  });
 });

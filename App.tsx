@@ -40,6 +40,9 @@ import { PersonalityProvider } from './src/context/PersonalityContext';
 import { AuthProvider } from './src/context/AuthContext';
 import { CartProvider } from './src/context/CartContext';
 import { FavoritesProvider } from './src/context/FavoritesContext';
+import { NotificationProvider } from './src/context/NotificationContext';
+import NotificationsScreen from './src/screens/NotificationsScreen';
+import NotificationSettingsScreen from './src/screens/NotificationSettingsScreen';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { ServiceCartScreen } from './src/screens/ServiceCartScreen';
 import { MyOrdersScreen } from './src/screens/MyOrdersScreen';
@@ -82,6 +85,13 @@ const linking = {
     screens: {
       Home: '',
       CarDetails: 'listing/:carId',
+      // Saved-search / new_match deep-link target (Phase 12 NCEN-03). The
+      // backend (12-03) builds a carex://search?... / https://.../search?...
+      // URL carrying the saved-search criteria; React Navigation parses the
+      // query string into SearchResults route params. The watch deep link
+      // above (CarDetails) and this one are the only whitelisted notification
+      // routing targets (T-12-06-04). 12-08 owns the in-app tap resolution.
+      SearchResults: 'search',
     },
   },
 };
@@ -97,6 +107,7 @@ function App() {
             <StripeProvider publishableKey="pk_test_51TEgrOJAS81xgsxjpbIvgoGw67eODe91yRPnNTpRcQrweRvUFBLX5wknw3XsAN2um4bFUsAG7HvFZqPArAQS5Ruf00MUNqZQLy">
             <LanguageProvider>
             <PersonalityProvider>
+            <NotificationProvider>
             <NavigationContainer linking={linking}>
               <UserStatusBanner />
               <OfflineNotice />
@@ -130,8 +141,11 @@ function App() {
                 <Stack.Screen name="AdminManagement" component={AdminManagementScreen} />
                 <Stack.Screen name="AdminModeration" component={AdminModerationScreen} />
                 <Stack.Screen name="AdminUserDetail" component={AdminUserDetailScreen} />
+                <Stack.Screen name="Notifications" component={NotificationsScreen} />
+                <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
               </Stack.Navigator>
             </NavigationContainer>
+            </NotificationProvider>
             </PersonalityProvider>
             </LanguageProvider>
             </StripeProvider>
