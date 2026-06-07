@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
-status: Phase 13 COMPLETE (FCM push transport) — milestone v1.2 has Phase 14 (Daily Digest) remaining
-stopped_at: Phase 13 complete — UAT signed off, verification passed
+status: Phase 13 SHIPPED — mobile PR #12 open (Phases 12+13 mobile → main); milestone v1.2 has Phase 14 (Daily Digest) remaining
+stopped_at: Phase 13 shipped — mobile PR #12 (https://github.com/beckinfonet/CarEx/pull/12) awaiting merge
 last_updated: "2026-06-07T07:27:30.058Z"
 last_activity: 2026-06-07 -- Phase 13 COMPLETE: real-device UAT passed, all 5 plans done, NPUSH-01..08 + NPRF-06 delivered
 progress:
