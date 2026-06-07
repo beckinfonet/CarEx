@@ -80,6 +80,30 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     prevUidRef.current = currentUid;
   }, [user?.localId]);
 
+  // WR-01 (NCEN-01): seed the unread badge at launch / on login WITHOUT the user
+  // having to open the center. The bell dot (BottomBar) + MoreMenu "9+" derive
+  // from unreadCount, which previously only moved when NotificationsScreen called
+  // refresh() — so a freshly launched app showed a clean badge despite unread
+  // rows. Fetch just the count (cheap) on mount and on every uid transition where
+  // a uid is present; logged-out users get nothing (the clear effect above wipes
+  // a prior user's count on logout). The feed itself still loads lazily via
+  // refresh() when the center mounts.
+  useEffect(() => {
+    if (!user?.localId) return;
+    let cancelled = false;
+    NotificationService.getUnreadCount()
+      .then(({ count }) => {
+        if (!cancelled) setUnreadCount(count);
+      })
+      .catch((e) => {
+        // Non-blocking: a failed count fetch just leaves the badge as-is.
+        console.error('Failed to fetch initial unread count', e);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.localId]);
+
   const refresh = useCallback(async () => {
     if (!user?.localId) return;
     setLoading(true);

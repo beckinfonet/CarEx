@@ -156,9 +156,46 @@ describe('NotificationContext', () => {
     });
     await flush();
 
-    // The prevUidRef sentinel fires on the A→B transition, wiping prior state.
-    expect(hookResult.unreadCount).toBe(0);
+    // The prevUidRef sentinel fires on the A→B transition, wiping the prior
+    // user's FEED. The unread count is then re-seeded for user-B by the WR-01
+    // mount/uid-change effect (getUnreadCount mocked to 3), but the feed stays
+    // empty until the center calls refresh().
     expect(hookResult.feed).toEqual([]);
+  });
+
+  test('WR-01: seeds unreadCount on mount/login WITHOUT opening the center', async () => {
+    svc.getUnreadCount.mockResolvedValue({ count: 4 });
+
+    await act(async () => {
+      TestRenderer.create(
+        <NotificationProvider>
+          <Probe />
+        </NotificationProvider>,
+      );
+    });
+    await flush();
+
+    // No refresh() call here — the badge populates from the mount effect alone.
+    expect(svc.getUnreadCount).toHaveBeenCalled();
+    expect(hookResult.unreadCount).toBe(4);
+    // Feed is still lazy — only the count was fetched.
+    expect(hookResult.feed).toEqual([]);
+  });
+
+  test('WR-01: does not fetch the unread count when logged out', async () => {
+    mockUser = null;
+
+    await act(async () => {
+      TestRenderer.create(
+        <NotificationProvider>
+          <Probe />
+        </NotificationProvider>,
+      );
+    });
+    await flush();
+
+    expect(svc.getUnreadCount).not.toHaveBeenCalled();
+    expect(hookResult.unreadCount).toBe(0);
   });
 
   test('useNotifications throws when used outside a NotificationProvider', () => {
