@@ -38,8 +38,8 @@ import { NotificationItem } from '../../services/notifications/NotificationServi
 interface NotificationFeedItemProps {
   notification: NotificationItem;
   onPress: (notification: NotificationItem) => void;
-  /** useLanguage().t — keys resolve to localized strings. */
-  t: Record<string, string>;
+  /** useLanguage().t — keys resolve to localized strings (project `t: any` convention). */
+  t: any;
 }
 
 /**

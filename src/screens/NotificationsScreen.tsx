@@ -49,6 +49,29 @@ const NUMERIC_FILTER_KEYS = [
 const STRING_FILTER_KEYS = ['makeId', 'modelId', 'bodyType'];
 
 /**
+ * Minimal query-string parser (`a=1&b=2` → `{ a: '1', b: '2' }`). Avoids any
+ * reliance on the RN runtime's partial `URLSearchParams` typing/availability;
+ * values are URI-decoded, empty/keyless pairs skipped.
+ */
+function parseQueryString(query: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!query) return out;
+  query.split('&').forEach((pair) => {
+    if (!pair) return;
+    const eq = pair.indexOf('=');
+    const rawKey = eq >= 0 ? pair.slice(0, eq) : pair;
+    const rawVal = eq >= 0 ? pair.slice(eq + 1) : '';
+    if (!rawKey) return;
+    try {
+      out[decodeURIComponent(rawKey)] = decodeURIComponent(rawVal);
+    } catch {
+      out[rawKey] = rawVal;
+    }
+  });
+  return out;
+}
+
+/**
  * Resolve a server-built `carex://...` deeplink to a typed navigation call.
  *
  * Whitelist (T-12-08-01) — only two prefixes route; anything else no-ops:
@@ -79,17 +102,17 @@ export function routeNotification(
     if (deeplink.startsWith('carex://search')) {
       const qIndex = deeplink.indexOf('?');
       const query = qIndex >= 0 ? deeplink.slice(qIndex + 1) : '';
-      const params = new URLSearchParams(query);
+      const params = parseQueryString(query);
 
       const initialFilters: { [key: string]: any } = {};
       STRING_FILTER_KEYS.forEach((key) => {
-        const v = params.get(key);
+        const v = params[key];
         if (v != null && v !== '') {
           initialFilters[key] = v;
         }
       });
       NUMERIC_FILTER_KEYS.forEach((key) => {
-        const v = params.get(key);
+        const v = params[key];
         if (v != null && v !== '') {
           const n = Number(v);
           if (!Number.isNaN(n)) {
@@ -98,7 +121,7 @@ export function routeNotification(
         }
       });
 
-      const initialQuery = params.get('initialQuery') || '';
+      const initialQuery = params.initialQuery || '';
 
       navigate('SearchResults', {
         initialQuery,

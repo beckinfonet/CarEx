@@ -4,8 +4,10 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
-import { Car, Wrench, Banknote, Shield, ClipboardList, HelpCircle, X, Info, LogIn, LogOut, User, Briefcase } from 'lucide-react-native';
+import { Car, Wrench, Banknote, Shield, ClipboardList, HelpCircle, X, Info, LogIn, LogOut, User, Briefcase, Bell } from 'lucide-react-native';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
+import { NotificationBadge } from './notifications/NotificationBadge';
 
 interface MoreMenuProps {
   visible: boolean;
@@ -20,6 +22,7 @@ const getIcon = (id: number) => {
     case 8: return <LogIn size={24} color={COLORS.accent} />;
     case 9: return <User size={24} color={COLORS.accent} />;
     case 10: return <Briefcase size={24} color={COLORS.accent} />;
+    case 11: return <Bell size={24} color={COLORS.accent} />;
     default: return <Car size={24} color={COLORS.accent} />;
   }
 };
@@ -27,10 +30,12 @@ const getIcon = (id: number) => {
 export const MoreMenu = ({ visible, onClose, t }: MoreMenuProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user, logout } = useAuth();
+  const { unreadCount } = useNotifications();
 
   const MENU_ITEMS = [
     { id: 1, name: t.sellCar, icon: '🚘', route: 'SellCar' },
     { id: 10, name: t.services, icon: '💼', route: 'Services' },
+    { id: 11, name: t.notificationsMenuLabel, icon: '🔔', route: 'Notifications' },
     { id: 7, name: t.about, icon: 'ℹ️', route: 'About' },
   ];
 
@@ -82,6 +87,13 @@ export const MoreMenu = ({ visible, onClose, t }: MoreMenuProps) => {
                   >
                     <View style={styles.iconContainer}>
                       {getIcon(item.id)}
+                      {item.route === 'Notifications' && (
+                        <NotificationBadge
+                          count={unreadCount}
+                          mode="count"
+                          style={styles.notificationBadge}
+                        />
+                      )}
                     </View>
                     <Text style={styles.menuText}>{item.name}</Text>
                   </TouchableOpacity>
@@ -166,6 +178,11 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: 28,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
   },
   menuText: {
     color: COLORS.textSecondary,
