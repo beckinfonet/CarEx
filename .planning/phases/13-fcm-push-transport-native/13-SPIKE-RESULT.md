@@ -2,7 +2,7 @@
 
 **Spike:** `use_frameworks! :linkage => :static` + `$RNFirebaseAsStaticFramework = true` on RN 0.83 with Stripe intact.
 **Gate (D-02):** PASS only when a **Release archive runs on a real iOS device AND a Stripe TEST checkout completes**. Simulator/Debug do NOT count (Pitfall 3).
-**Status:** IN PROGRESS — automated `pod install` portion (Task 1 + Task 2) executed by agent; **real-device Release gate (Task 3) pending human verification.**
+**Status:** IN PROGRESS — Task 1 + Task 2 done; **Release static-frameworks COMPILE PROVEN (Task 3 bar #1 ✅, 2026-06-06)**; remaining bar #2 (Stripe checkout) deferred to TestFlight + Stripe sandbox URL so it does not charge a real card. Debug build confirmed running on a real device (Phase-12 in-app center works on device). Milestone #1 risk (static-frameworks Release compile with Stripe intact) is **RETIRED**.
 
 ---
 
@@ -87,7 +87,7 @@ Result: `Pod installation complete! 91 dependencies, 102 total pods.` Exit 0.
 
 `stripe-react-native`'s `ios/NewArch/StripeNewArchConversions.h` does
 `#if __has_include(<react/utils/FollyConvert.h>)`. In RN 0.83 that header belongs to the
-**`React-utils`** pod (source: `node_modules/react-native/ReactCommon/react/utils/platform/ios/react/utils/FollyConvert.h`; the `React-utils` umbrella imports it, so the static `React_utils.framework/Headers` exposes `react/utils/FollyConvert.h`). The post_install fix adds the React-utils framework Headers root to stripe-react-native's `HEADER_SEARCH_PATHS` (verified landed in `Pods.xcodeproj` for both build configs). **Compile-time resolution is proven only by the Task 3 archive build** — `pod install` does not compile, so a clean install does NOT by itself prove FollyConvert resolves. This is the central spike test and remains pending at the human gate.
+**`React-utils`** pod (source: `node_modules/react-native/ReactCommon/react/utils/platform/ios/react/utils/FollyConvert.h`; the `React-utils` umbrella imports it, so the static `React_utils.framework/Headers` exposes `react/utils/FollyConvert.h`). The post_install fix adds the React-utils framework Headers root to stripe-react-native's `HEADER_SEARCH_PATHS` (verified landed in `Pods.xcodeproj` for both build configs). **✅ RESOLUTION PROVEN** by the Release compile below — `stripe-react-native` (`StripeSdk.mm`, `StripeOnrampSdk.mm`) compiled with 0 errors under Release/iphoneos; no `'react/utils/FollyConvert.h' file not found`.
 
 ### Pods staged for the spike
 
@@ -95,13 +95,45 @@ NO RNFB JS packages were installed (that is plan 13-03). The static-frameworks b
 
 ---
 
-## D-03 — notifee vs RNFB built-in display (PENDING human decision at Task 3)
+## D-03 — notifee vs RNFB built-in display (DECIDED 2026-06-06)
 
-RESEARCH recommends defaulting to **RNFB built-in display (NO `@notifee/react-native`)** for Phase 13's generic background/quit lock-screen pushes. To be confirmed/recorded by the operator at the Task 3 device gate.
+**Decision: RNFB built-in display — NO `@notifee/react-native`.** Phase 13 sends only generic, param-free background/quit lock-screen pushes (one canonical body per category — see 13-02), which RNFB's built-in notification display handles natively. Adding notifee would be an extra native dep for no Phase-13 benefit. Matches RESEARCH default. Revisit only if a future milestone needs rich/actionable/grouped notifications.
 
 ---
 
-## Real-Device Release Gate (Task 3) — PENDING
+## Release Compile Verification (Task 3 bar #1) — ✅ PROVEN 2026-06-06
 
-The D-02 pass bar (Release archive on a real iOS device + Stripe TEST checkout works) is a human-verify checkpoint and has NOT been executed by the agent. See plan Task 3 `<how-to-verify>`. PASS/FAIL, the D-03 decision, and (if FAIL) the abort+revert record will be appended here after the operator runs the device test.
+The static-frameworks **Release** compile — the milestone #1 risk and the central spike question — was proven by an orchestrator-run device-SDK build (signing disabled; a compile does not need a device or signing).
+
+```bash
+cd ios && xcodebuild -workspace carEx.xcworkspace -scheme carEx \
+  -configuration Release -destination 'generic/platform=iOS' \
+  -derivedDataPath /tmp/carex-spike-release build \
+  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+```
+
+| Check | Result |
+|-------|--------|
+| Overall | `** BUILD SUCCEEDED **`, exit 0, **0 `error:`** |
+| FollyConvert (Pitfall 1) | ✅ resolved — `FollyConvert.mm` + `stripe-react-native` (`StripeSdk.mm`, `StripeOnrampSdk.mm`) compiled, no "file not found" |
+| `fmt` (c++17 hook) | ✅ compiled under Release |
+| App target | ✅ `carEx.app` produced (43 MB arm64 binary + dSYM), passed `-validate-for-store` |
+| Static frameworks | ✅ Release config, `Release-iphoneos` products are per-pod `.framework`s |
+
+**Toolchain note (Xcode 26.4):** clang now warns `unknown warning option '-Wno-error=enum-redeclared-with-different-underlying-type'` — the Stripe enum-redeclared `post_install` hook flag is **no longer recognized and is effectively a harmless no-op** under this toolchain (the underlying enum-redeclared error does not occur here). Build succeeds regardless. The hook can be removed in a later cleanup; left in place for now (zero harm, and still protects older toolchains).
+
+This proves bar #1: a Stripe-intact static-frameworks Release build compiles and bundles. Debug build separately confirmed running on a real iPhone (app launches, navigates, Phase-12 in-app center renders).
+
+---
+
+## Real-Device Release Gate (Task 3) — bar #2 PENDING (Stripe via TestFlight)
+
+| Bar | Status |
+|-----|--------|
+| #1 Release static-frameworks compile + app bundle | ✅ PROVEN (above, 2026-06-06) |
+| App runs on real device | ✅ Debug build confirmed on device; Release runtime to be confirmed via TestFlight install |
+| #2 Stripe TEST checkout completes | ⏳ PENDING — operator will run on **TestFlight after switching the Stripe/backend URL to a sandbox** (testing now would charge a real card). |
+| D-03 notifee decision | ✅ DECIDED — RNFB built-in display, no notifee |
+
+**Remaining to declare full spike PASS:** archive → TestFlight → Stripe sandbox checkout completes. Then resume with "spike passed". Timebox deadline `2026-06-09T03:54:25Z` still applies. The `npm run ios:archive` Release path is now known to compile.
 
