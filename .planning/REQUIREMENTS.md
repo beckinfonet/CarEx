@@ -31,7 +31,7 @@ Continues phase numbering from v1.1 (Phases 7–11). v1.2 spans **Phases 12–14
 - [x] **NCEN-02**: `NotificationsScreen` shows a reverse-chronological feed with cursor pagination (reuse the house base64 `{createdAt,_id}` cursor).
 - [x] **NCEN-03**: Tapping a notification deep-links to its target (car detail or saved-search results) via the existing `linking` config.
 - [x] **NCEN-04**: Notifications mark read on open; a "mark all read" action exists; read vs unread are visually distinct.
-- [ ] **NCEN-05**: An onboarding empty state guides first-time users ("Save a search or watch a car to get alerts").
+- [x] **NCEN-05**: An onboarding empty state guides first-time users ("Save a search or watch a car to get alerts").
 - [ ] **NCEN-06**: A **Watch** control on `CarDetailsScreen` (visually disambiguated from the local Favorite heart) and a **"Notify me about new matches"** action on the Home/filter results create the respective subscriptions.
 
 ### Preferences & Permission UX (NPRF)

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
 status: executing
-stopped_at: Phase 12 UI-SPEC approved
-last_updated: "2026-06-07T01:05:13.560Z"
+stopped_at: Completed 12-08-PLAN.md
+last_updated: "2026-06-07T01:14:21.598Z"
 last_activity: 2026-06-07
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 10
-  completed_plans: 7
-  percent: 70
+  completed_plans: 8
+  percent: 80
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 12 (notification-domain-in-app-center) — EXECUTING
-Plan: 8 of 10
+Plan: 9 of 10
 Status: Ready to execute
 Last activity: 2026-06-07
 
@@ -60,7 +60,7 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 
 Resume file: None
 
-Progress: [███████░░░] 70%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -144,6 +144,7 @@ Progress: [███████░░░] 70%
 | Phase Phase 12 P05 P05 | ~12m | 2 tasks tasks | 3 files files |
 | Phase 12 P06 | ~6m | 2 tasks | 9 files |
 | Phase 12 P07 | ~5m | 1 tasks | 2 files |
+| Phase 12 P08 | ~5m | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -391,6 +392,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 12]: Plan 12-04: /api/notifications/* router uid-scoped from req.auth.uid on every filter (12x), zero body/params uid (IDOR T-12-04-01), zero requireAdmin (NDOM-05) — all three are grep gates. Read-state idempotent (updated:modifiedCount, no 404). Subscription PATCH/DELETE 0-match -> opaque 400 subscription_not_found so callers cannot probe others' ids. body.uid rejected by .strict() discriminatedUnion AND never read. Router built; mount lands in 12-05.
 - [Phase ?]: [Phase 12]: Plan 12-05: notification emit wired at all 6 trigger points AFTER commit, each in its own off-hot-path try/catch so a notification failure never breaks the listing/booking response; oldPrice/oldStatus captured before mutation; /api/notifications mounted verifyIdToken-only (NDOM-05, inverting the moderation requireAdmin mount); PUT /api/users/:uid language whitelisted with RU/EN enum guard
 - [Phase ?]: [Phase 12]: Plan 12-07: LanguageContext persistence (NI18N-02) threads uid via lazy AuthService.getUserData() read at setLanguage time (not useAuth) — keeps App.tsx provider stack untouched (LanguageProvider below StripeProvider, Pitfall 6) AND auto-guards the backend write before auth. Backend write reuses AuthService.updateBackendUser (PUT /api/users/:uid); language is a profile field so MOB-01 N/A.
+- [Phase 12]: Plan 12-08: routeNotification is a two-prefix deeplink WHITELIST (carex://listing/:carId→CarDetails, carex://search?<crit>→SearchResults with parsed saved-search filters); unknown prefixes no-op, no arbitrary nav eval (T-12-08-01); exported for Phase 13 FCM tap-routing reuse.
+- [Phase 12]: Plan 12-08: saved-search criteria parsed via hand-rolled parseQueryString, not URLSearchParams (RN lib lacks .get(), TS2339). No bottom-tab navigator — badges reuse BottomBar More dot + MoreMenu 9+ count (D-05); App.tsx untouched.
 
 ### Pending Todos
 
@@ -444,8 +447,8 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-07T01:04:59.879Z
-Stopped at: Phase 12 UI-SPEC approved
+Last session: 2026-06-07T01:14:21.589Z
+Stopped at: Completed 12-08-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
