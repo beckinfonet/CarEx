@@ -4,14 +4,14 @@ milestone: v1.2
 milestone_name: Notifications
 status: executing
 stopped_at: Phase 14 context gathered
-last_updated: "2026-06-07T23:09:21.110Z"
+last_updated: "2026-06-07T23:15:56.015Z"
 last_activity: 2026-06-07
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 20
-  completed_plans: 18
-  percent: 90
+  completed_plans: 19
+  percent: 95
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 14 (daily-digest-scheduling) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-06-07
 
@@ -72,7 +72,7 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 
 Resume file: None
 
-Progress: [█████████░] 90%
+Progress: [██████████] 95%
 
 ## Performance Metrics
 
@@ -164,6 +164,7 @@ Progress: [█████████░] 90%
 | Phase 14 P01 | 3min | 2 tasks (3 commits — TDD RED+GREEN) tasks | 4 files files |
 | Phase 14 P05 | 6min | 1 tasks | 2 files |
 | Phase 14 P02 | 4min | 1 tasks | 2 files |
+| Phase 14 P03 | 5min | 2 tasks (3 commits — Task1 + TDD RED+GREEN) | 3 files |
 
 ## Accumulated Context
 
@@ -422,6 +423,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 13-05: denied-permission recovery row on NotificationSettings reads live hasPermission and deep-links to OS Settings; in-app center stays functional (no dead-end)
 - [Phase 14]: Plan 14-01: digest_title stored as ONE {count}-token template per language + a non-brace #NOUN# sentinel resolved at render time by pluralizeRu — keeps RU/EN placeholder token sets identical so the parity test stays green (three separate RU keys rejected per RESEARCH Pitfall 2). Full adjective+noun agreement folded per RU 3-form (новая машина/новые машины/новых машин); EN selects singular/plural by n===1. renderDigest(lang,count) is the count-only PII-safe surface Plan 02 sendDigest will call. node-cron pinned ^4.2.1.
 - [Phase ?]: [Phase 14]: Plan 14-05: routeDeeplink exported (module-private to named export) so the digest notifications route is unit-testable without a device; signature + existing listing/search branches unchanged. linking.config.screens gains Notifications:'notifications' — the third and final notification whitelist route (param-free; D-03 digest to Notification Center, not listing/:carId). Unknown-target ignore branch preserved (T-14-05-01 closed).
+- [Phase 14]: Plan 14-03: runDigest({ now, deps }) is a pure, directly-callable crash-safe flush (no cron — Plan 04 registers the schedule and consumes DIGEST_HOUR=8, the single D-01 retune point). Snapshot+claim is ONE atomic updateMany over { digestPending:true, createdAt:$lte runStart } stamping a re-stampable digestRunId; the claimed set is read back, grouped by uid, hide-hook-rechecked, sent once per uid via fcm.sendDigest, and cleared via $set digestPending:false + $unset digestRunId for ONLY sent ids on { ok:true } (per-id, no drop). No withTransaction — per-doc updateMany atomicity is the design (RESEARCH A1).
+- [Phase 14]: Plan 14-03: LOCKED NDIG-02 contract — guarantee NO DROP, accept the rare post-send/pre-clear duplicate; NO digestSent marker (single-instance Railway, narrow window between sendDigest resolving and the clear, strictly better than a missed digest). Strict zero-duplicate deferred (pairs with NOTF2-06). digestRunId is re-stampable (a leftover row from a crashed run is re-claimed and re-sent). Hide-hook re-check is a PLAIN Car.findById (zero bypass flags, mirrors notificationService.emit) with a grep gate over digest.js returning 0 (T-14-03-01); dropped (null/non-active) rows stay digestPending:true (not sent, not lost).
 
 ### Pending Todos
 
@@ -476,7 +479,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-07T23:09:13.532Z
+Last session: 2026-06-07T23:15:56.004Z
 Stopped at: Phase 14 context gathered
 Resume file: None
 

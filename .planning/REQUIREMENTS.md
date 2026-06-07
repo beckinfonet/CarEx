@@ -64,7 +64,7 @@ Continues phase numbering from v1.1 (Phases 7–11). v1.2 spans **Phases 12–14
 ### Daily Digest & Scheduling (NDIG) · Phase 14
 
 - [ ] **NDIG-01**: An in-process `node-cron` job runs in the Express service, gated by `require.main === module` so tests don't start it.
-- [ ] **NDIG-02**: The digest aggregates each user's pending (`digestPending`) notifications atomically — snapshot `createdAt <= runStart`, claim, send, clear only sent ids (crash-safe, no double-send/drop).
+- [x] **NDIG-02**: The digest aggregates each user's pending (`digestPending`) notifications atomically — snapshot `createdAt <= runStart`, claim, send, clear only sent ids (crash-safe, no double-send/drop).
 - [x] **NDIG-03**: Daily-cadence saved searches, daily-cap overflow, and quiet-hours-queued items are delivered in the digest; one localized push per user (`digest_title {count}`).
 - [x] **NDIG-04**: The digest fires at a fixed Asia/Bishkek morning hour (no per-user timezone field exists).
 - [ ] **NDIG-05**: The cron prunes dead device tokens and notifications older than 90 days (satisfies NDOM-06).
