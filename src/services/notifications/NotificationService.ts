@@ -40,9 +40,17 @@ function isAbortError(err: unknown): boolean {
 
 // --- Types (exported for context + screen consumers) ---
 
+// Canonical watch-event names (Phase 12 CTX D-03 / NSUB-02). The four
+// load-bearing values created by WatchButton (12-09) are:
+//   price_drop · booked · sold · back_available
+// The legacy `back_in_stock` / `new_photos` spellings are kept in the union so
+// the feed-item renderer (12-08) — which already handles both `back_available`
+// and `back_in_stock` defensively — and any in-flight rows continue to type.
 export type NotificationEvent =
   | 'price_drop'
+  | 'booked'
   | 'sold'
+  | 'back_available'
   | 'back_in_stock'
   | 'new_photos';
 

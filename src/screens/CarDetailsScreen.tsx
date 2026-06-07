@@ -25,6 +25,7 @@ import { TypedConfirmationModal } from '../components/moderation/TypedConfirmati
 import { ModerationService } from '../services/moderation/ModerationService';
 import { ListingModerationError } from '../services/moderation/errors';
 import { buildListingTitle } from '../utils/listingTitle';
+import WatchButton from '../components/notifications/WatchButton';
 import { LISTING_URL, API_URL } from '../constants/config';
 import axios from 'axios';
 import { apiClient } from '../services/http/client';
@@ -659,6 +660,16 @@ export const CarDetailsScreen = () => {
         </View>
 
         <View style={styles.detailsContainer}>
+          {/* Phase 12 Plan 12-09 (NCEN-06 / NSUB-02..04, CTX D-01/D-02) —
+              labeled Watch bell pill, mounted BELOW the hero image and ABOVE
+              the spec block. Distinct from the Favorite heart (:612, header)
+              and the buyer CTA stack below — sibling-component discipline. Keys
+              on car._id || car.id || carId (inside WatchButton). */}
+          {!isOwner && (
+            <View style={styles.watchRow}>
+              <WatchButton car={car} carId={carId} />
+            </View>
+          )}
           {/* Phase 11 LBUY-01 — Non-admin buyer-facing banner above hero (D-02).
               Mutually exclusive with the admin status banner below via the
               !isAdmin / isAdmin predicate pair. Renders for suspended /
@@ -1362,6 +1373,9 @@ const styles = StyleSheet.create({
   },
   detailsContainer: {
     padding: SIZES.padding,
+  },
+  watchRow: {
+    marginBottom: SIZES.spacingMd,
   },
   statusBadge: {
     alignSelf: 'flex-start',
