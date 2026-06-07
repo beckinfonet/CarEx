@@ -18,3 +18,18 @@ current task's changes). Not investigated or modified here.
 **Recommendation:** Triage separately (likely a moderation ServiceOrder route
 returning 410 Gone — possibly a guard/feature-flag or seed-data drift in the
 order-creation path). Track under Phase 12 moderation, not Phase 13.
+
+## Pre-existing lint errors (NOT caused by 13-05)
+
+Found while linting files touched by 13-05; present at HEAD before the plan,
+unrelated to the pre-prompt / recovery work. Out of scope per the executor
+SCOPE BOUNDARY rule.
+
+- `src/screens/NotificationSettingsScreen.tsx:95` — `updateSubscription`
+  destructured from `useNotifications()` but never used (was line 92 at HEAD).
+  `@typescript-eslint/no-unused-vars`.
+- `src/screens/NotificationSettingsScreen.tsx:99` — `prefs` render-scope const
+  triggers `react-hooks/exhaustive-deps` on the `persistPrefs` useCallback (was
+  line 96 at HEAD). Fix: wrap in `useMemo`.
+- `src/screens/__tests__/NotificationSettingsScreen.test.tsx:3` —
+  `TouchableOpacity` imported but never used (present at HEAD).

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
-status: Partially executed — blocked on human/hardware gates
-stopped_at: Completed 13-03-PLAN.md (RNFB install + native push config)
-last_updated: "2026-06-07T07:00:23Z"
-last_activity: 2026-06-07 -- 13-03 RNFB 24.1.0 installed + Android/iOS push config wired (mobile)
+status: Mobile transport wired end-to-end — final plan 13-05 (contextual permission UI) next
+stopped_at: Phase 13 context gathered
+last_updated: "2026-06-07T07:27:30.058Z"
+last_activity: 2026-06-07 -- 13-04 mobile FCM wiring done (PushService, AuthContext lifecycle, 3-state tap routing)
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 15
-  completed_plans: 14
-  percent: 93
+  completed_plans: 15
+  percent: 100
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 13
-Plan: 13-01/02/03/04 complete; 13-05 remaining (permission pre-prompt UI + HUMAN-UAT)
-Status: Mobile transport wired end-to-end — final plan 13-05 (contextual permission UI) next
-Last activity: 2026-06-07 -- 13-04 mobile FCM wiring done (PushService, AuthContext lifecycle, 3-state tap routing)
+Plan: 13-01/02/03/04 complete; 13-05 Tasks 1-3 complete; Task 4 = real-device UAT gate (pending operator sign-off)
+Status: ALL CODE COMPLETE — phase blocked on 13-HUMAN-UAT.md real-device sign-off (resume signal: "uat passed")
+Last activity: 2026-06-07 -- 13-05 pre-prompt + denied-recovery UX shipped; HUMAN-UAT checklist authored; awaiting device UAT
 
 **Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
 
@@ -70,7 +70,7 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 | debug-session | android-photo-load-lag | fix_applied 2026-05-29 (effectively resolved) |
 | uat-gap | Phase 11 11-HUMAN-UAT.md | approved; 3 optional scenarios pending |
 
-Resume file: .planning/phases/13-fcm-push-transport-native/13-CONTEXT.md
+Resume file: None
 
 Progress: [██████████] 100%
 
@@ -415,6 +415,8 @@ Recent decisions affecting current work:
 - [Phase 12]: Plan 12-08: saved-search criteria parsed via hand-rolled parseQueryString, not URLSearchParams (RN lib lacks .get(), TS2339). No bottom-tab navigator — badges reuse BottomBar More dot + MoreMenu 9+ count (D-05); App.tsx untouched.
 - [Phase 12]: Plan 12-10: NotificationSettingsScreen persists notificationPrefs (muteAll/savedSearchEnabled/watchEnabled/quietHours/dailyCap) via AuthService.updateBackendUser as User profile fields, then refreshUser() re-merges — AuthContext exposes refreshUser not setUser; quiet-hours/daily-cap are plumbing-only (persisted, NOT enforced until Phase 14, D-16).
 - [Phase 12]: Plan 12-10: Daily cadence is a disabled TouchableOpacity whose onPress fires the coming-soon hint and NEVER sets cadence 'daily' (D-10/NSUB-03 invariant, test-proven). ProfileScreen row uses t.notificationSettings, distinct from MoreMenu feed label t.notificationsMenuLabel (D-12).
+- [Phase ?]: 13-05: contextual fire-once push pre-prompt (shared flag covers Watch + Save-search; never on launch; Не сейчас persists)
+- [Phase ?]: 13-05: denied-permission recovery row on NotificationSettings reads live hasPermission and deep-links to OS Settings; in-app center stays functional (no dead-end)
 
 ### Pending Todos
 
@@ -468,7 +470,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-07T02:28:12.723Z
+Last session: 2026-06-07T07:27:11.878Z
 Stopped at: Phase 13 context gathered
 Resume file: None
 
