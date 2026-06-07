@@ -26,17 +26,17 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 13
-Plan: 13-01/02/03 complete; 13-04/05 remaining (mobile wiring + UAT)
-Status: Push-capable at config layer — mobile receive/route wiring (13-04) next
-Last activity: 2026-06-07 -- 13-03 RNFB 24.1.0 installed + Android/iOS push config wired (mobile)
+Plan: 13-01/02/03/04 complete; 13-05 remaining (permission pre-prompt UI + HUMAN-UAT)
+Status: Mobile transport wired end-to-end — final plan 13-05 (contextual permission UI) next
+Last activity: 2026-06-07 -- 13-04 mobile FCM wiring done (PushService, AuthContext lifecycle, 3-state tap routing)
 
 **Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
 
 - ✅ **13-02** (backend FCM send loop + device-token routes + PII-safe push copy): DONE + **MERGED to backend `main` 2026-06-06 via PR #10 (`df9ebb0`)** — full Phase 12+13 backend stack now on origin/main, deploys via Railway. 31/31 target tests green; pre-existing ServiceOrder.providerSnapshot failure untouched. Mobile-side SUMMARY on mobile branch `feature/notifications-system`. ⚠️ Railway still on TEST Stripe keys from spike — restore live keys for prod payments.
 - ✅ **13-01** (iOS Podfile static-frameworks SPIKE — the NPUSH-01 gate): **PASSED 2026-06-06.** SUMMARY written. Commits `78aae01` (rollback checkpoint), `7543a51` (static-frameworks switch), `a8cf5ee` (Stripe key-account fix). Bar #1 Release compile PROVEN (orchestrator xcodebuild: BUILD SUCCEEDED, 0 errors, FollyConvert resolved, carEx.app produced). Bar #2 PASSED on TestFlight (Release build runs on real iPhone + Stripe test checkout "Payment successful → Booked"). D-03: RNFB built-in display, no notifee. **Milestone #1 risk RETIRED. Waves 2–4 unlocked.** ⚠️ Release follow-up: App.tsx ships a TEST Stripe pk in all builds (pre-existing CONCERNS) — swap to pk_live + Railway sk_live before prod release.
 - ✅ **13-03** (install @react-native-firebase 24.1.0 + native config): **DONE 2026-06-07.** RNFB app+messaging at exactly 24.1.0 (locked-step); `RCT_USE_PREBUILT_RNCORE=0 pod install` clean under static frameworks (Firebase iOS 12.11.0, Stripe/fmt intact, FollyConvert resolved, no notifee). Android google-services 4.4.4 applied; `:app:processDebugGoogleServices` BUILD SUCCESSFUL against `com.carex.market`. POST_NOTIFICATIONS + default channel `carex_default` declared. Commits `2e1b1e9` (Task 1), `4f147c0` (Task 2). Operator console artifacts (google-services.json gitignored/local-only + APNs .p8 uploaded) pre-satisfied. Real-device APNs delivery (NPUSH-03) verified later in 13-04/UAT.
-- ⏳ **13-04** (PushService + AuthContext wiring + 3-state tap routing): READY — RNFB now installed. Must create the `carex_default` notification channel in-JS to match the manifest default-channel meta-data.
-- ⏸️ **13-05** (permission pre-prompt UI + settings + HUMAN-UAT): deferred. Depends on 13-04; validation is real-device.
+- ✅ **13-04** (PushService + AuthContext wiring + 3-state tap routing): **DONE 2026-06-07.** PushService off AuthService (MOB-01 gate 0); logout unregister fires before idToken clears (awk PASS 475<483); index.js bg handler at module scope before registerComponent (17<22); App.tsx exports `navigationRef` + `PushTapRoutingEffect` (getInitialNotification/onNotificationOpenedApp/onMessage → routeDeeplink, whitelist-only CarDetails/SearchResults). New `src/services/push/pushPermission.ts` isolates RNFB calls (no requestPermission — that's 13-05). PushService test 7/7; full suite 526 pass / 17 pre-existing fails (no regressions). Commits `f55425b`/`ceec024`/`08b0200`/`4ab5803`. Real-device NPUSH-06/07 → 13-HUMAN-UAT (13-05).
+- ⏳ **13-05** (permission pre-prompt UI + settings + HUMAN-UAT): READY — final plan. Depends on 13-04 (done). Code automatable; real-device validation goes to 13-HUMAN-UAT.
 
 **To resume mobile waves:** at a Mac with a real iPhone, run `/gsd-execute-phase 13` again — it will pick up the 4 incomplete plans starting with the 13-01 spike. ⚠️ Memory note: native Firebase SDK was historically problematic on this app — 13-01 is the spike that exists to validate it under static frameworks with Stripe intact.
 
