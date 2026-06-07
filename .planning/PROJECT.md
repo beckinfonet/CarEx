@@ -174,4 +174,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-29 — v1.1 Phase 11 (buyer-affected UX + quality + security review) complete; v1.1 milestone fully executed, ready for ship/cut*
+*Last updated: 2026-06-07 — v1.2 Phase 12 (Notification Domain + In-App Center) complete; 24/24 must-haves verified, 5 runtime UAT items deferred to on-device pass. Next: Phase 13 (FCM push, native).*
