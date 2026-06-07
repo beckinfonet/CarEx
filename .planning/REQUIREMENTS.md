@@ -12,7 +12,7 @@ Continues phase numbering from v1.1 (Phases 7–11). v1.2 spans **Phases 12–14
 ### Notification Domain — Backend (NDOM)
 
 - [x] **NDOM-01**: Three Mongoose models exist with the documented indexes — `DeviceToken` (globally-unique `token`, `{uid}` index), `Subscription` (`{kind,active,criteria.makeId,criteria.modelId}`, `{kind,carId,active}`, `{uid,active}`), `Notification` (`{uid,createdAt}`, `{uid,read}`, `{digestPending}`, `dedupeKey`).
-- [ ] **NDOM-02**: `notificationService.emit()` is called AFTER commit (not in a Mongoose post-save hook) at the six trigger points: `POST /api/cars`, `PUT /api/cars/:id`, `PATCH /api/cars/:id/status`, `confirmBooking` (post-transaction), admin `editListing` (post-commit), and the booked→active transition.
+- [x] **NDOM-02**: `notificationService.emit()` is called AFTER commit (not in a Mongoose post-save hook) at the six trigger points: `POST /api/cars`, `PUT /api/cars/:id`, `PATCH /api/cars/:id/status`, `confirmBooking` (post-transaction), admin `editListing` (post-commit), and the booked→active transition.
 - [x] **NDOM-03**: Every emit applies three guards — (a) hide-hook respect by re-reading the Car with a plain `findById` (no bypass flags) and suppressing if null/non-active, (b) actor-exclusion (never notify `event.actorUid`), (c) dedup per `(uid, carId, eventType)`.
 - [x] **NDOM-04**: A pure, unit-testable `matchSavedSearches` resolves matching active Saved Searches via the indexed query, off the request hot path.
 - [x] **NDOM-05**: `/api/notifications/*` router is mounted, uid-scoped (uid taken from the verified ID token, NOT a body param; not admin-gated).
