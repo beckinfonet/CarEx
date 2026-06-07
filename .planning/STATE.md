@@ -4,14 +4,14 @@ milestone: v1.2
 milestone_name: Notifications
 status: executing
 stopped_at: Phase 12 UI-SPEC approved
-last_updated: "2026-06-07T00:24:53.306Z"
+last_updated: "2026-06-07T00:28:19.590Z"
 last_activity: 2026-06-07
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 10
-  completed_plans: 1
-  percent: 10
+  completed_plans: 2
+  percent: 20
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 12 (notification-domain-in-app-center) — EXECUTING
-Plan: 2 of 10
+Plan: 3 of 10
 Status: Ready to execute
 Last activity: 2026-06-07
 
@@ -60,7 +60,7 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 
 Resume file: None
 
-Progress: [█░░░░░░░░░] 10%
+Progress: [██░░░░░░░░] 20%
 
 ## Performance Metrics
 
@@ -138,6 +138,7 @@ Progress: [█░░░░░░░░░] 10%
 | Phase 10 P11 | ~4m | 2 tasks | 5 files |
 | Phase 10 P12 | ~3m | 2 tasks tasks | 2 files files |
 | Phase 12 P01 | ~6m | 3 tasks | 12 files |
+| Phase 12 P02 | ~5m | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -373,6 +374,9 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 10 P08: D-15 error split — cannot_moderate_own_listing + already_in_state surface as INLINE admin-error-banner (admin keeps working); listing_not_found is hard-stop Alert + navigation.goBack(); other ListingModerationError codes surface as Alert.alert(code)
 - [Phase ?]: [Phase 10]: Plan 10-11 CR-01 gap closure — chose Option B (extend hint resolver to replace both {email} and {title} placeholders). Lets new listing-domain RU/EN strings read naturally with {title} while existing user-domain typedConfirmHint with {email} stays byte-identical (no-op .replace() on absent tokens). DestructiveAction union NOT widened; BODY_KEY_FOR_ACTION map preserved as default; Phase 5 user-mod call sites byte-identical.
 - [Phase ?]: [Phase 10]: Plan 10-12 — CR-04 closure: fetch gate widened to always-fetch-when-admin
+- [Phase 12]: Plan 12-02: Mobile Wave-0 scaffolds (NotificationService, NotificationContext, WatchButton) import their not-yet-built target modules as wiring checks + enumerate VALIDATION behaviors as test.todo; `--listTests` discovers them now, the imports go green when Wave 2/3 ship the modules (mirrors Phase 5 Plan 05-01)
+- [Phase 12]: Plan 12-02: `car._id || car.id || carId` watch-key fallback order locked verbatim in a WatchButton test.todo string (grep-visible, T-12-02-01 / NSUB-04 / D-04 — prevents the prod booking-status class of bug); MOB-01 guardrail locked as a NotificationService test.todo (notification HTTP stays off AuthService, T-12-02-02)
+- [Phase 12]: Plan 12-02: translation-parity.test.ts left byte-unmodified — existing green set-equality harness auto-covers Wave-2 notification keys (NI18N-02/03); no whitespace touch needed
 
 ### Pending Todos
 
@@ -426,7 +430,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-07T00:24:43.326Z
+Last session: 2026-06-07T00:28:19.583Z
 Stopped at: Phase 12 UI-SPEC approved
 Resume file: None
 

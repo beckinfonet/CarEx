@@ -23,11 +23,11 @@ Continues phase numbering from v1.1 (Phases 7–11). v1.2 spans **Phases 12–14
 - [ ] **NSUB-01**: User can create and manage a **Saved Search** with criteria (make, model, price min/max, year min/max, body type); new searches default to **instant** cadence.
 - [ ] **NSUB-02**: User can **Watch** a specific car and receive its lifecycle events — **price drop (decrease only)**, **booked**, **sold**, **back-available** (booked→active only, not admin archived→active restores).
 - [ ] **NSUB-03**: Each Saved Search has a cadence of **instant** or **daily digest** (selector present in v1.2; daily delivery enforced in Phase 14). Watch events are always instant.
-- [ ] **NSUB-04**: Watch subscriptions key on `car._id || car.id || carId` (never bare `car.id`); price-drop fires only on a decrease (direction-checked against captured old price).
+- [x] **NSUB-04**: Watch subscriptions key on `car._id || car.id || carId` (never bare `car.id`); price-drop fires only on a decrease (direction-checked against captured old price).
 
 ### In-App Notification Center (NCEN)
 
-- [ ] **NCEN-01**: A bell icon with an unread-count badge is present in the app header.
+- [x] **NCEN-01**: A bell icon with an unread-count badge is present in the app header.
 - [ ] **NCEN-02**: `NotificationsScreen` shows a reverse-chronological feed with cursor pagination (reuse the house base64 `{createdAt,_id}` cursor).
 - [ ] **NCEN-03**: Tapping a notification deep-links to its target (car detail or saved-search results) via the existing `linking` config.
 - [ ] **NCEN-04**: Notifications mark read on open; a "mark all read" action exists; read vs unread are visually distinct.
@@ -42,13 +42,13 @@ Continues phase numbering from v1.1 (Phases 7–11). v1.2 spans **Phases 12–14
 - [x] **NPRF-04**: A **soft per-user daily cap (2–3/day)** applies to instant saved-search push; overflow rolls into the daily digest; Watch/transactional events are exempt.
 - [ ] **NPRF-05**: **Dedup + actor-exclusion** are user-visible-correct: a user never gets duplicate alerts for the same listing event and is never notified about their own action.
 - [ ] **NPRF-06**: A **soft in-app pre-prompt** (with "Not now") precedes the native OS permission dialog; push permission is **never** requested on launch — only contextually on first Watch/Save-search.
-- [ ] **NPRF-07**: When OS push is denied, the in-app center remains fully functional as the fallback (no dead-end).
+- [x] **NPRF-07**: When OS push is denied, the in-app center remains fully functional as the fallback (no dead-end).
 
 ### Internationalization (NI18N)
 
 - [x] **NI18N-01**: A `language` field is added to the `User` model and accepted by `PUT /api/users/:uid`; server-rendered push uses it (default RU).
-- [ ] **NI18N-02**: `LanguageContext` persists the user's language to the backend and AsyncStorage (currently in-memory only).
-- [ ] **NI18N-03**: A backend translations map renders notification title/body from keys+params with **RU/EN parity** (enforced by a backend parity test); currency formatted as KGS som.
+- [x] **NI18N-02**: `LanguageContext` persists the user's language to the backend and AsyncStorage (currently in-memory only).
+- [x] **NI18N-03**: A backend translations map renders notification title/body from keys+params with **RU/EN parity** (enforced by a backend parity test); currency formatted as KGS som.
 
 ### OS Push Transport — FCM (NPUSH) · Phase 13
 
