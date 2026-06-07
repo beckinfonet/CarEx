@@ -181,6 +181,33 @@ jest.mock('react-native-image-picker', () => ({
   launchImageLibrary: jest.fn(),
 }));
 
+// @react-native-firebase/messaging — Phase 13 (NPUSH-04/06/07). The native
+// module throws at load time inside Jest, so stub the messaging() surface the
+// codebase uses (token lifecycle + 3-state handlers + permission read). Default
+// to "permission not determined" + a stub token; tests that need specific
+// behavior re-mock per-suite. AuthorizationStatus mirrors the RNFB enum.
+jest.mock('@react-native-firebase/messaging', () => {
+  const api = {
+    getToken: jest.fn(() => Promise.resolve('stub-fcm-token')),
+    hasPermission: jest.fn(() => Promise.resolve(-1)), // NOT_DETERMINED
+    requestPermission: jest.fn(() => Promise.resolve(-1)),
+    onTokenRefresh: jest.fn(() => () => {}),
+    onMessage: jest.fn(() => () => {}),
+    onNotificationOpenedApp: jest.fn(() => () => {}),
+    getInitialNotification: jest.fn(() => Promise.resolve(null)),
+    setBackgroundMessageHandler: jest.fn(),
+  };
+  const messaging = () => api;
+  messaging.AuthorizationStatus = {
+    NOT_DETERMINED: -1,
+    DENIED: 0,
+    AUTHORIZED: 1,
+    PROVISIONAL: 2,
+    EPHEMERAL: 3,
+  };
+  return { __esModule: true, default: messaging };
+});
+
 // react-native-linear-gradient — stub to a passthrough View so v2 components
 // that wrap content in <LinearGradient> can render in tests.
 jest.mock('react-native-linear-gradient', () => {
