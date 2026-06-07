@@ -85,13 +85,19 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 ### Phase 14: Daily Digest & Scheduling
 **Goal**: Buyers with daily-cadence saved searches (plus daily-cap overflow and quiet-hours-queued items) receive one localized morning digest push per day, delivered crash-safely by an in-process scheduled worker.
 **Depends on**: Phase 13 (uses its `fcm.js` send path) and Phase 12 (the `digestPending` flag, cadence selector, daily cap, quiet-hours plumbing).
-**Requirements**: NDIG-01..05
+**Requirements**: NDIG-01..05, NDOM-06
 **Success Criteria** (what must be TRUE):
   1. An in-process `node-cron` job runs inside the Express service, gated by `require.main === module` so the test suite never starts it, and fires at a fixed Asia/Bishkek morning hour (no per-user timezone field exists).
   2. A user with three daily-cadence matches plus two daily-cap-overflow items receives exactly ONE localized push (`digest_title {count}`) the next morning — daily saved searches, instant-cap overflow, and quiet-hours-queued items are all delivered together.
   3. A simulated crash mid-run causes neither a double-send nor a drop: the digest snapshots `createdAt <= runStart`, claims, sends, and clears only the successfully-sent ids (`digestPending` cleared per-id).
   4. The same cron run prunes dead device tokens and notifications older than 90 days (satisfying NDOM-06's retention policy), and the digest flush re-checks the hide-hook so a listing hidden overnight is not pushed.
-**Plans**: TBD
+**Plans**: 5 plans (4 waves)
+- [ ] 14-01-PLAN.md — Backend foundation: install node-cron@^4.2.1 + digest_* translations (RU 3-form pluralizeRu) + Wave-0 digest.test.js scaffold — NDIG-04, NDIG-03/D-04, parity
+- [ ] 14-02-PLAN.md — Backend send path: fcm.sendDigest() with {count} interpolation (the param-strip fork) + deeplink-only payload — NDIG-03
+- [ ] 14-03-PLAN.md — Backend core: crash-safe runDigest() flush (digestRunId claim, snapshot bound, hide-hook re-check, per-id clear) + Notification.digestRunId — NDIG-02, NDIG-03
+- [ ] 14-04-PLAN.md — Backend completion: prune() (90-day notifications + stale tokens) + node-cron registration in server.js require.main gate — NDIG-01, NDIG-04, NDIG-05, NDOM-06
+- [ ] 14-05-PLAN.md — Mobile: route carex://notifications → in-app Notification Center (D-03 digest tap) + exported routeDeeplink unit test — NDIG-03
+**UI hint**: no (backend worker; one isolated mobile deeplink-routing change)
 
 ## Progress
 
@@ -101,7 +107,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 |-------|----------------|--------|-----------|
 | 12. Notification Domain + In-App Center | 10/10 | Complete    | 2026-06-07 |
 | 13. FCM Push Transport (native) | 5/5 | Complete    | 2026-06-07 |
-| 14. Daily Digest & Scheduling | 0/TBD | Not started | - |
+| 14. Daily Digest & Scheduling | 0/5 | Planned | - |
 
 ## Backlog / Carry-forward candidates
 
