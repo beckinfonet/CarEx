@@ -1,6 +1,7 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { Switch, TouchableOpacity } from 'react-native';
+import { Switch, TouchableOpacity, Linking } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 
 /**
  * Phase 12 Plan 12-10 Task 1 — NotificationSettingsScreen behavior contract
@@ -141,5 +142,47 @@ describe('NotificationSettingsScreen — delete confirm (NPRF-02 / D-11)', () =>
     const tree = await render();
     const del = tree.root.findByProps({ testID: 'delete-sub-ss-1' });
     expect(del).toBeTruthy();
+  });
+});
+
+describe('NotificationSettingsScreen — push recovery row (NPRF-07 / D-09/D-10/D-11)', () => {
+  const hasPermissionMock = messaging().hasPermission as jest.Mock;
+
+  beforeEach(() => {
+    (Linking.openSettings as jest.Mock) = jest.fn(() => Promise.resolve());
+  });
+
+  it('when permission is OFF the recovery row is tappable and deep-links to OS Settings (D-10)', async () => {
+    hasPermissionMock.mockResolvedValue(
+      messaging.AuthorizationStatus.DENIED, // 0 → off
+    );
+    const tree = await render();
+    // Flush the hasPermission read.
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const row = tree.root.findByProps({ testID: 'push-permission-row' });
+    expect(row.props.disabled).toBe(false);
+    await act(async () => {
+      row.props.onPress();
+    });
+    expect(Linking.openSettings).toHaveBeenCalledTimes(1);
+  });
+
+  it('when permission is ON the row shows the on-status and is not a recovery target (D-11)', async () => {
+    hasPermissionMock.mockResolvedValue(
+      messaging.AuthorizationStatus.AUTHORIZED, // 1 → on
+    );
+    const tree = await render();
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const row = tree.root.findByProps({ testID: 'push-permission-row' });
+    expect(row.props.disabled).toBe(true);
+    // Tapping a disabled on-row never opens OS Settings.
+    await act(async () => {
+      if (typeof row.props.onPress === 'function') row.props.onPress();
+    });
+    expect(Linking.openSettings).not.toHaveBeenCalled();
   });
 });

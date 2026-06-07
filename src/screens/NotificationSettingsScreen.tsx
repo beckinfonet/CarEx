@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -9,11 +9,14 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  AppState,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ArrowLeft, Search, Car, Trash2 } from 'lucide-react-native';
+import messaging from '@react-native-firebase/messaging';
+import { ArrowLeft, Search, Car, Trash2, BellOff, Bell } from 'lucide-react-native';
 import { COLORS, SIZES, TYPOGRAPHY } from '../constants/theme';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -125,6 +128,65 @@ const NotificationSettingsScreen = () => {
   useEffect(() => {
     loadSubs();
   }, [loadSubs]);
+
+  // --- Denied-permission recovery (D-09/D-10/D-11). Live OS push permission. ---
+  // null = unknown/not-yet-read; true = AUTHORIZED|PROVISIONAL; false = off.
+  const [pushEnabled, setPushEnabled] = useState<boolean | null>(null);
+
+  const refreshPushPermission = useCallback(async () => {
+    try {
+      const status = await messaging().hasPermission();
+      // D-11: AUTHORIZED or PROVISIONAL both count as "on".
+      setPushEnabled(
+        status === messaging.AuthorizationStatus.AUTHORIZED ||
+          status === messaging.AuthorizationStatus.PROVISIONAL,
+      );
+    } catch (e) {
+      // Never block the screen; treat an unreadable status as "off" so the
+      // recovery affordance stays available (no dead-end, NPRF-07).
+      console.error('Failed to read push permission status', e);
+      setPushEnabled(false);
+    }
+  }, []);
+
+  // Read live status on mount (mirrors loadSubs precedent) AND re-read whenever
+  // the app returns to the foreground — so coming back from OS Settings, where
+  // the user may have just toggled the permission, refreshes the row (D-10).
+  useEffect(() => {
+    refreshPushPermission();
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') refreshPushPermission();
+    });
+    return () => sub.remove();
+  }, [refreshPushPermission]);
+
+  // Re-read on screen focus too (returning from another screen). useNavigation's
+  // addListener is the focus precedent; guarded so it no-ops if unavailable.
+  const focusBoundRef = useRef(false);
+  useEffect(() => {
+    if (focusBoundRef.current) return;
+    const addListener = (navigation as unknown as { addListener?: Function })
+      .addListener;
+    if (typeof addListener === 'function') {
+      focusBoundRef.current = true;
+      const unsub = addListener.call(navigation, 'focus', () => {
+        refreshPushPermission();
+      });
+      return () => {
+        focusBoundRef.current = false;
+        if (typeof unsub === 'function') unsub();
+      };
+    }
+  }, [navigation, refreshPushPermission]);
+
+  // D-10: the app CANNOT re-trigger the native dialog after a deny, so the
+  // recovery affordance deep-links to OS Settings. D-09: this surface lives ONLY
+  // here — there is no nagging banner in the feed.
+  const onPressRecovery = useCallback(() => {
+    Linking.openSettings().catch((e) => {
+      console.error('Failed to open OS settings', e);
+    });
+  }, []);
 
   // Persist a notificationPrefs patch to the User profile (plumbing). Optimistic
   // local merge so the UI stays responsive; rolls back on failure.
@@ -283,6 +345,42 @@ const NotificationSettingsScreen = () => {
         style={styles.content}
         contentContainerStyle={styles.contentInner}
       >
+        {/* 0. Push permission status + recovery (NPRF-06/07, D-09/D-10/D-11).
+            Reads live OS status; when OFF, the row is tappable and deep-links to
+            OS Settings (the app can't re-trigger the native dialog post-deny).
+            This recovery surface exists ONLY here — never in the feed (D-09). */}
+        {pushEnabled !== null && (
+          <View style={styles.group}>
+            <TouchableOpacity
+              style={styles.toggleRow}
+              testID="push-permission-row"
+              disabled={pushEnabled}
+              onPress={pushEnabled ? undefined : onPressRecovery}
+              accessibilityRole="button"
+              accessibilityState={{ disabled: pushEnabled }}
+              accessibilityLabel={
+                pushEnabled ? t.pushStatusOn : t.pushEnableInSettings
+              }
+            >
+              <View style={styles.pushStatusLabelWrap}>
+                {pushEnabled ? (
+                  <Bell size={20} color={COLORS.accent} />
+                ) : (
+                  <BellOff size={20} color={COLORS.textSecondary} />
+                )}
+                <Text style={styles.pushStatusLabel}>
+                  {pushEnabled ? t.pushStatusOn : t.pushStatusOff}
+                </Text>
+              </View>
+              {!pushEnabled && (
+                <Text style={styles.pushStatusAction}>
+                  {t.pushEnableInSettings}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* 1. Master mute (NPRF-01) — reversible, no confirm. */}
         <View style={styles.group}>
           <View style={styles.toggleRow}>
@@ -499,6 +597,22 @@ const styles = StyleSheet.create({
   plumbingValue: {
     ...TYPOGRAPHY.body,
     color: COLORS.textSecondary,
+  },
+  pushStatusLabelWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: SIZES.spacingMd,
+  },
+  pushStatusLabel: {
+    ...TYPOGRAPHY.label,
+    color: COLORS.textPrimary,
+    marginLeft: SIZES.spacingSm,
+  },
+  pushStatusAction: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.accent,
+    fontWeight: '600',
   },
   capRow: {
     flexDirection: 'row',
