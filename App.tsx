@@ -104,7 +104,7 @@ function App() {
           <AppStateRefreshEffect />
           <CartProvider>
             <FavoritesProvider>
-            <StripeProvider publishableKey="pk_test_51LaViqJqBNYq7xof3NXD8I9Lj1fprAvWRcvcj6G66buneVUNwhgPWwXPi8eUnjnnuM9b3KFLz35vJbZqoQ2V2RDL00I9e6mcBA">
+            <StripeProvider publishableKey="pk_live_51LaViqJqBNYq7xofM5BivXtMWqH9VEPRb6l3numSPdGg0JFOzOTXHSxzESBsmuXJOSABDQNijl4f9Kda8WRbmXOx00hkfhEwYG">
             <LanguageProvider>
             <PersonalityProvider>
             <NotificationProvider>
