@@ -39,7 +39,7 @@ Last activity: 2026-06-06 -- 13-02 backend FCM transport executed + verified (31
 
 **To resume mobile waves:** at a Mac with a real iPhone, run `/gsd-execute-phase 13` again — it will pick up the 4 incomplete plans starting with the 13-01 spike. ⚠️ Memory note: native Firebase SDK was historically problematic on this app — 13-01 is the spike that exists to validate it under static frameworks with Stripe intact.
 
-**Pending human verification (13-02):** confirm the existing `FIREBASE_SERVICE_ACCOUNT_JSON` service account has FCM send scope before relying on prod delivery (unit tests mock firebase-admin). Backend `feat/fcm-push-transport` (Phase 12 + 13 stack) must merge to backend `main` for prod — Railway deploys backend main.
+**Human verification (13-02):** ✅ A1 RESOLVED 2026-06-06 — service account has `roles/firebase.sdkAdminServiceAgent`, which includes `cloudmessaging.messages.create`; FCM send is authorized (no extra IAM grant needed). Note: send-authorized ≠ delivery — lock-screen delivery still needs APNs `.p8` (13-03) + a registered device token (13-04). Backend `feat/fcm-push-transport` (Phase 12 + 13 stack) must merge to backend `main` for prod — Railway deploys backend main.
 
 ## Milestone Roadmap (v1.2)
 
