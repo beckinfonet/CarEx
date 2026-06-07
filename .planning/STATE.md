@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
 status: executing
-stopped_at: Phase 13 — 13-02 (backend) done; 13-01/03/04/05 deferred (need real iOS device + Firebase console)
+stopped_at: Phase 13 — 13-01 spike PASSED + 13-02 (backend) done; 13-03/04/05 remain (need Firebase console artifacts)
 last_updated: "2026-06-07T03:01:12.202Z"
-last_activity: 2026-06-06 -- Phase 13 plan 13-02 (backend FCM transport) executed + verified
+last_activity: 2026-06-06 -- Phase 13 spike 13-01 PASSED on TestFlight (static frameworks + Stripe intact)
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 15
-  completed_plans: 11
-  percent: 73
+  completed_plans: 12
+  percent: 80
 ---
 
 # Project State
@@ -32,12 +32,7 @@ Last activity: 2026-06-06 -- 13-02 backend FCM transport executed + verified (31
 
 **Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
 - ✅ **13-02** (backend FCM send loop + device-token routes + PII-safe push copy): DONE. 4 commits on backend branch `feat/fcm-push-transport` (based off `feature/image-variant-pipeline`, which carries the unmerged Phase 12 backend stack). 31/31 target tests green; pre-existing ServiceOrder.providerSnapshot failure untouched. Mobile-side SUMMARY committed on mobile branch `feature/notifications-system` (646d523).
-- 🟡 **13-01** (iOS Podfile static-frameworks SPIKE — the NPUSH-01 gate): **prep done; bar #1 PROVEN; one bar left. (2026-06-06)** Tasks 1+2 committed (`78aae01` rollback checkpoint, `7543a51` static-frameworks switch). Podfile now `linkage => :static` + `$RNFirebaseAsStaticFramework`; Stripe/fmt hooks preserved; `aps-environment` + `remote-notification` added; `pod deintegrate && RCT_USE_PREBUILT_RNCORE=0 pod install` succeeded (prebuilt-core count 0); A3 = no AppDelegate APNs edits needed (RNFB swizzling).
-  - ✅ **Bar #1 (Release static-frameworks compile) PROVEN** — orchestrator ran `xcodebuild -configuration Release -destination generic/platform=iOS ... CODE_SIGNING_ALLOWED=NO`: `BUILD SUCCEEDED`, 0 errors, FollyConvert resolved, stripe-react-native + fmt compiled, `carEx.app` produced + validate-for-store passed. Milestone #1 risk RETIRED. (Xcode 26.4 note: the stripe enum-redeclared hook flag is now an unknown-warning no-op — harmless.)
-  - ✅ Debug build confirmed **running on a real iPhone** (Phase-12 in-app center works on device).
-  - ✅ **D-03 DECIDED:** RNFB built-in display, no `@notifee/react-native`.
-  - ⏳ **Bar #2 (Stripe TEST checkout) PENDING** — operator will test on **TestFlight after switching to a Stripe sandbox URL** (testing now charges a real card). `npm run ios:archive` Release path is now known to compile.
-  - **Timebox: started 2026-06-07T03:54:25Z → deadline 2026-06-09T03:54:25Z (D-01, do not extend).** To finish: archive → TestFlight → sandbox Stripe checkout → resume "spike passed" (I then write 13-01-SUMMARY + unlock 13-03/04/05) or "spike aborted" → revert `git checkout 5d6c024 -- ios/Podfile ios/Podfile.lock ios/carEx/carEx.entitlements ios/carEx/Info.plist` + `pod deintegrate && pod install`. SUMMARY not written until gate resolves.
+- ✅ **13-01** (iOS Podfile static-frameworks SPIKE — the NPUSH-01 gate): **PASSED 2026-06-06.** SUMMARY written. Commits `78aae01` (rollback checkpoint), `7543a51` (static-frameworks switch), `a8cf5ee` (Stripe key-account fix). Bar #1 Release compile PROVEN (orchestrator xcodebuild: BUILD SUCCEEDED, 0 errors, FollyConvert resolved, carEx.app produced). Bar #2 PASSED on TestFlight (Release build runs on real iPhone + Stripe test checkout "Payment successful → Booked"). D-03: RNFB built-in display, no notifee. **Milestone #1 risk RETIRED. Waves 2–4 unlocked.** ⚠️ Release follow-up: App.tsx ships a TEST Stripe pk in all builds (pre-existing CONCERNS) — swap to pk_live + Railway sk_live before prod release.
 - ⏸️ **13-03** (install @react-native-firebase 24.1.0 + native config): deferred. Needs `google-services.json` + APNs `.p8` from Firebase Console; gated on 13-01 PASS.
 - ⏸️ **13-04** (PushService + AuthContext wiring + 3-state tap routing): deferred. Code automatable but depends on RNFB from 13-03.
 - ⏸️ **13-05** (permission pre-prompt UI + settings + HUMAN-UAT): deferred. Depends on 13-04; validation is real-device.

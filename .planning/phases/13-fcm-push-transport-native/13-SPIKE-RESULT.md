@@ -2,7 +2,7 @@
 
 **Spike:** `use_frameworks! :linkage => :static` + `$RNFirebaseAsStaticFramework = true` on RN 0.83 with Stripe intact.
 **Gate (D-02):** PASS only when a **Release archive runs on a real iOS device AND a Stripe TEST checkout completes**. Simulator/Debug do NOT count (Pitfall 3).
-**Status:** IN PROGRESS — Task 1 + Task 2 done; **Release static-frameworks COMPILE PROVEN (Task 3 bar #1 ✅, 2026-06-06)**; remaining bar #2 (Stripe checkout) deferred to TestFlight + Stripe sandbox URL so it does not charge a real card. Debug build confirmed running on a real device (Phase-12 in-app center works on device). Milestone #1 risk (static-frameworks Release compile with Stripe intact) is **RETIRED**.
+**Status:** ✅ **SPIKE PASSED (2026-06-06).** Both D-02 bars met: (#1) Release static-frameworks compile succeeds; (#2) a TestFlight (Release-signed) build runs on a real iPhone AND a Stripe TEST checkout completes ("Payment successful! Your booking is confirmed.", listing flips to Booked). D-03 decided: RNFB built-in display, no notifee. Milestone #1 risk RETIRED. Waves 2–4 unlocked.
 
 ---
 
@@ -126,14 +126,19 @@ This proves bar #1: a Stripe-intact static-frameworks Release build compiles and
 
 ---
 
-## Real-Device Release Gate (Task 3) — bar #2 PENDING (Stripe via TestFlight)
+## Real-Device Release Gate (Task 3) — ✅ PASSED 2026-06-06
 
 | Bar | Status |
 |-----|--------|
-| #1 Release static-frameworks compile + app bundle | ✅ PROVEN (above, 2026-06-06) |
-| App runs on real device | ✅ Debug build confirmed on device; Release runtime to be confirmed via TestFlight install |
-| #2 Stripe TEST checkout completes | ⏳ PENDING — operator will run on **TestFlight after switching the Stripe/backend URL to a sandbox** (testing now would charge a real card). |
+| #1 Release static-frameworks compile + app bundle | ✅ PROVEN (orchestrator xcodebuild, above) |
+| App runs on real device | ✅ TestFlight (Release-signed) build installs + runs on a real iPhone |
+| #2 Stripe TEST checkout completes | ✅ PASSED — "Payment successful! Your booking is confirmed."; listing flips to **Booked** (createPaymentIntent → Stripe sheet → confirmBooking) |
 | D-03 notifee decision | ✅ DECIDED — RNFB built-in display, no notifee |
 
-**Remaining to declare full spike PASS:** archive → TestFlight → Stripe sandbox checkout completes. Then resume with "spike passed". Timebox deadline `2026-06-09T03:54:25Z` still applies. The `npm run ios:archive` Release path is now known to compile.
+### Stripe key-account fix (encountered during the gate)
+First TestFlight checkout failed: *"client_secret does not match any PaymentIntent on this account."* Root cause: mobile publishable key (`pk_test_51TEgrOJ…`) and Railway secret (`sk_test_51LaViqJ…`) were from **two different Stripe accounts**. Fixed by aligning `App.tsx` to the `51LaViqJ` account's publishable key (commit `a8cf5ee`) to match Railway's test secret; rebuilt TestFlight → checkout succeeded.
+
+⚠️ **Release follow-up (NOT done here):** `App.tsx` ships a TEST publishable key in all builds (pre-existing CONCERNS.md item). Before a real prod release, swap to `pk_live_…` + matching `sk_live_…` on Railway.
+
+**Spike PASS → waves 2–4 unlocked.** Timebox (deadline `2026-06-09T03:54:25Z`) closed well within bounds.
 
