@@ -18,9 +18,9 @@
 		84E99A4B59C3445FA924E9AC /* JetBrainsMono-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 92945E9C47BB4FF0A3095A40 /* JetBrainsMono-SemiBold.ttf */; };
 		9BEC68BDC02C9B4739390870 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		BF23B49653454E8D913C0043 /* Manrope-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 19D8723C4B0742BDBB95DDFE /* Manrope-Medium.ttf */; };
-		D2DA7B42FB8B4C25B422443E /* JetBrainsMono-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 85C9D449D25944D1A33C66A8 /* JetBrainsMono-Medium.ttf */; };
-		E4F270CCB6312C60CEBF334A /* libPods-carEx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D869504FDD2A505307EB7981 /* libPods-carEx.a */; };
+		C4B03B183B1041A23614B570 /* Pods_carEx.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88827E44B5190CC32A113FF3 /* Pods_carEx.framework */; };
 		C4C8FAFED60F485C9DE16243 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = D5E8B25B489F4A009937F325 /* README.md */; };
+		D2DA7B42FB8B4C25B422443E /* JetBrainsMono-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 85C9D449D25944D1A33C66A8 /* JetBrainsMono-Medium.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,19 +31,19 @@
 		19D8723C4B0742BDBB95DDFE /* Manrope-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Medium.ttf"; path = "../src/assets/fonts/Manrope-Medium.ttf"; sourceTree = "<group>"; };
 		323473C2A6104C34ACA1CA55 /* Manrope-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-SemiBold.ttf"; path = "../src/assets/fonts/Manrope-SemiBold.ttf"; sourceTree = "<group>"; };
 		48034508557E443AB9ED42E6 /* Manrope-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Regular.ttf"; path = "../src/assets/fonts/Manrope-Regular.ttf"; sourceTree = "<group>"; };
-		5E49F1148F361041DF8F8245 /* Pods-carEx.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-carEx.debug.xcconfig"; path = "Target Support Files/Pods-carEx/Pods-carEx.debug.xcconfig"; sourceTree = "<group>"; };
 		6FB37E5321604CA2B0637F0B /* Manrope-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-ExtraBold.ttf"; path = "../src/assets/fonts/Manrope-ExtraBold.ttf"; sourceTree = "<group>"; };
 		748415AC2FA94E52A0412A96 /* Manrope-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Bold.ttf"; path = "../src/assets/fonts/Manrope-Bold.ttf"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = carEx/AppDelegate.swift; sourceTree = "<group>"; };
+		80A73D053217AE05549B0A30 /* Pods-carEx.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-carEx.release.xcconfig"; path = "Target Support Files/Pods-carEx/Pods-carEx.release.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = carEx/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		85C9D449D25944D1A33C66A8 /* JetBrainsMono-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "JetBrainsMono-Medium.ttf"; path = "../src/assets/fonts/JetBrainsMono-Medium.ttf"; sourceTree = "<group>"; };
-		901A6580D1D42D3D3A6CF472 /* Pods-carEx.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-carEx.release.xcconfig"; path = "Target Support Files/Pods-carEx/Pods-carEx.release.xcconfig"; sourceTree = "<group>"; };
+		88827E44B5190CC32A113FF3 /* Pods_carEx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_carEx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		92945E9C47BB4FF0A3095A40 /* JetBrainsMono-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "JetBrainsMono-SemiBold.ttf"; path = "../src/assets/fonts/JetBrainsMono-SemiBold.ttf"; sourceTree = "<group>"; };
 		AAEDDA850FAD419CA1AAFF98 /* JetBrainsMono-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "JetBrainsMono-Bold.ttf"; path = "../src/assets/fonts/JetBrainsMono-Bold.ttf"; sourceTree = "<group>"; };
-		D869504FDD2A505307EB7981 /* libPods-carEx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-carEx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C294C1A6E8C1DAEFC2BFF6DD /* Pods-carEx.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-carEx.debug.xcconfig"; path = "Target Support Files/Pods-carEx/Pods-carEx.debug.xcconfig"; sourceTree = "<group>"; };
+		D5E8B25B489F4A009937F325 /* README.md */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = README.md; path = ../src/assets/fonts/README.md; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED4A8E1A2CB1234500000001 /* carEx.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = carEx.entitlements; sourceTree = "<group>"; };
-		D5E8B25B489F4A009937F325 /* README.md */ = {isa = PBXFileReference; name = "README.md"; path = "../src/assets/fonts/README.md"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,7 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E4F270CCB6312C60CEBF334A /* libPods-carEx.a in Frameworks */,
+				C4B03B183B1041A23614B570 /* Pods_carEx.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,7 +75,7 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				D869504FDD2A505307EB7981 /* libPods-carEx.a */,
+				88827E44B5190CC32A113FF3 /* Pods_carEx.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -130,8 +130,8 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				5E49F1148F361041DF8F8245 /* Pods-carEx.debug.xcconfig */,
-				901A6580D1D42D3D3A6CF472 /* Pods-carEx.release.xcconfig */,
+				C294C1A6E8C1DAEFC2BFF6DD /* Pods-carEx.debug.xcconfig */,
+				80A73D053217AE05549B0A30 /* Pods-carEx.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -143,14 +143,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "carEx" */;
 			buildPhases = (
-				4239A1D2DDCA049836A4E052 /* [CP] Check Pods Manifest.lock */,
+				0B0A1E86C009AED87465A7A6 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				A1B2C3D4E5F6012345678ABC /* [CP] Hermes dSYM */,
-				59EE24B7AB4B1E640C22CC80 /* [CP] Embed Pods Frameworks */,
-				84142F7A26273A866E9186ED /* [CP] Copy Pods Resources */,
+				E4B669A451522C0FCCB8723B /* [CP] Embed Pods Frameworks */,
+				A859CE66C52AD79C4A566D38 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -231,7 +231,7 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"\\\"$WITH_ENVIRONMENT\\\" \\\"$REACT_NATIVE_XCODE\\\"\"\n";
 		};
-		4239A1D2DDCA049836A4E052 /* [CP] Check Pods Manifest.lock */ = {
+		0B0A1E86C009AED87465A7A6 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,24 +253,22 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		59EE24B7AB4B1E640C22CC80 /* [CP] Embed Pods Frameworks */ = {
+		A1B2C3D4E5F6012345678ABC /* [CP] Hermes dSYM */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-carEx/Pods-carEx-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			inputPaths = (
 			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-carEx/Pods-carEx-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			name = "[CP] Hermes dSYM";
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-carEx/Pods-carEx-frameworks.sh\"\n";
+			shellScript = "# Only run for Release/Archive builds\nif [ \"${CONFIGURATION}\" != \"Release\" ]; then\n  exit 0\nfi\n\nEMBEDDED_HERMES_BIN=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermesvm.framework/hermesvm\"\nif [ -f \"$EMBEDDED_HERMES_BIN\" ]; then\n  HERMES_BIN=\"$EMBEDDED_HERMES_BIN\"\nelse\n  HERMES_BIN=\"$(find \"${PODS_ROOT}/hermes-engine\" -path \"*hermesvm.framework/hermesvm\" -type f 2>/dev/null | head -n 1)\"\nfi\n\nDSYM_OUTPUT=\"${DWARF_DSYM_FOLDER_PATH}/hermesvm.framework.dSYM\"\n\nif [ -z \"$HERMES_BIN\" ]; then\n  exit 0\nfi\n\nif [ ! -d \"$DSYM_OUTPUT\" ]; then\n  dsymutil \"$HERMES_BIN\" -o \"$DSYM_OUTPUT\"\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		84142F7A26273A866E9186ED /* [CP] Copy Pods Resources */ = {
+		A859CE66C52AD79C4A566D38 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -287,19 +285,21 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-carEx/Pods-carEx-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A1B2C3D4E5F6012345678ABC /* [CP] Hermes dSYM */ = {
+		E4B669A451522C0FCCB8723B /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-carEx/Pods-carEx-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			name = "[CP] Hermes dSYM";
-			outputPaths = (
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-carEx/Pods-carEx-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Only run for Release/Archive builds\nif [ \"${CONFIGURATION}\" != \"Release\" ]; then\n  exit 0\nfi\n\nEMBEDDED_HERMES_BIN=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermesvm.framework/hermesvm\"\nif [ -f \"$EMBEDDED_HERMES_BIN\" ]; then\n  HERMES_BIN=\"$EMBEDDED_HERMES_BIN\"\nelse\n  HERMES_BIN=\"$(find \"${PODS_ROOT}/hermes-engine\" -path \"*hermesvm.framework/hermesvm\" -type f 2>/dev/null | head -n 1)\"\nfi\n\nDSYM_OUTPUT=\"${DWARF_DSYM_FOLDER_PATH}/hermesvm.framework.dSYM\"\n\nif [ -z \"$HERMES_BIN\" ]; then\n  exit 0\nfi\n\nif [ ! -d \"$DSYM_OUTPUT\" ]; then\n  dsymutil \"$HERMES_BIN\" -o \"$DSYM_OUTPUT\"\nfi\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-carEx/Pods-carEx-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -318,7 +318,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5E49F1148F361041DF8F8245 /* Pods-carEx.debug.xcconfig */;
+			baseConfigurationReference = C294C1A6E8C1DAEFC2BFF6DD /* Pods-carEx.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -348,7 +348,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 901A6580D1D42D3D3A6CF472 /* Pods-carEx.release.xcconfig */;
+			baseConfigurationReference = 80A73D053217AE05549B0A30 /* Pods-carEx.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -423,6 +423,19 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers/react/nativemodule/core",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
@@ -493,6 +506,19 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers/react/nativemodule/core",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
