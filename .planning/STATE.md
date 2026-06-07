@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 Phase: 13
 Plan: 13-01/02/03/04 complete; 13-05 Tasks 1-3 complete; Task 4 = real-device UAT gate (pending operator sign-off)
 Status: ALL CODE COMPLETE — phase blocked on 13-HUMAN-UAT.md real-device sign-off (resume signal: "uat passed")
-Last activity: 2026-06-07 -- 13-05 pre-prompt + denied-recovery UX shipped; HUMAN-UAT checklist authored; awaiting device UAT
+Last activity: 2026-06-07 -- HOTFIX: iOS Firebase init (dark-screen launch crash). 13-03 installed RNFB but never wired iOS Firebase init → first TestFlight build dark-screened on launch. Fixed (`80795d9`): AppDelegate `import FirebaseCore` + guarded `FirebaseApp.configure()`; added GoogleService-Info.plist to carEx target Resources (xcodeproj gem). Verified Release build SUCCEEDED + plist bundled. **Operator must rebuild TestFlight before the device UAT.** (Android unaffected — RNFB auto-inits from google-services.json via FirebaseInitProvider.)
 
 **Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
 
