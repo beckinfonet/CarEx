@@ -96,7 +96,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 - [ ] 14-02-PLAN.md — Backend send path: fcm.sendDigest() with {count} interpolation (the param-strip fork) + deeplink-only payload — NDIG-03
 - [ ] 14-03-PLAN.md — Backend core: crash-safe runDigest() flush (digestRunId claim, snapshot bound, hide-hook re-check, per-id clear) + Notification.digestRunId — NDIG-02, NDIG-03
 - [ ] 14-04-PLAN.md — Backend completion: prune() (90-day notifications + stale tokens) + node-cron registration in server.js require.main gate — NDIG-01, NDIG-04, NDIG-05, NDOM-06
-- [ ] 14-05-PLAN.md — Mobile: route carex://notifications → in-app Notification Center (D-03 digest tap) + exported routeDeeplink unit test — NDIG-03
+- [x] 14-05-PLAN.md — Mobile: route carex://notifications → in-app Notification Center (D-03 digest tap) + exported routeDeeplink unit test — NDIG-03
 **UI hint**: no (backend worker; one isolated mobile deeplink-routing change)
 
 ## Progress
@@ -107,7 +107,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 |-------|----------------|--------|-----------|
 | 12. Notification Domain + In-App Center | 10/10 | Complete    | 2026-06-07 |
 | 13. FCM Push Transport (native) | 5/5 | Complete    | 2026-06-07 |
-| 14. Daily Digest & Scheduling | 1/5 | In Progress|  |
+| 14. Daily Digest & Scheduling | 2/5 | In Progress|  |
 
 ## Backlog / Carry-forward candidates
 
