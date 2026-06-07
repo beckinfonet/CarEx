@@ -14,6 +14,7 @@ Admins can act on bad-actor users after they're already in the system — withou
 **Previous:** v1.0 — Admin Moderation (2026-04-30) · [archive](milestones/v1.0-ROADMAP.md)
 **Distribution:** TestFlight 1.0.45 + Google Play internal 1.0.48 — verified live
 **Tags:** `v1.0`, `v1.1`
+**v1.2 progress:** Phase 12 (Notification Domain + In-App Center) complete 2026-06-07 — backend domain/emit/router + mobile center/subscriptions/settings, RU/EN i18n, all pure-REST. Code review found & fixed 3 contract blockers; 24/24 must-haves verified, 5 runtime UAT items deferred to on-device pass (12-HUMAN-UAT.md). Next: Phase 13 (FCM push, native).
 
 _Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](../docs/superpowers/specs/2026-06-06-notifications-system-design.md)._
 
