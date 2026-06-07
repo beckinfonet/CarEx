@@ -7,7 +7,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { User, LogOut, ChevronRight, Heart, ArrowLeft, List, Store, Briefcase, Truck, Shield, ShieldCheck, Users, Package, ClipboardList } from 'lucide-react-native';
+import { User, LogOut, ChevronRight, Heart, ArrowLeft, List, Store, Briefcase, Truck, Shield, ShieldCheck, Users, Package, ClipboardList, Bell } from 'lucide-react-native';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Profile'>;
 
@@ -43,6 +43,14 @@ export const ProfileScreen = () => {
       title: t.myOrders,
       icon: <Package size={24} color={COLORS.accent} />,
       onPress: () => navigation.navigate('MyOrders')
+    },
+    {
+      // D-12: distinct from the MoreMenu "Notifications" feed entry — this is the
+      // settings surface (t.notificationSettings, not t.notificationsMenuLabel).
+      id: 'notificationSettings',
+      title: t.notificationSettings,
+      icon: <Bell size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('NotificationSettings')
     },
     ...(user && user.sellerStatus !== 'APPROVED' ? [{
       id: 'requestSeller',
