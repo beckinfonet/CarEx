@@ -64,6 +64,16 @@ export interface NotificationItem {
   uid: string;
   kind: SubscriptionKind;
   event?: NotificationEvent;
+  // The backend stores localization KEYS + interpolation params, NOT rendered
+  // text (notificationService.js:200-205, T-12-03-05). titleKey/bodyKey are the
+  // bare event names (new_match / price_drop / booked / sold / back_available);
+  // NotificationFeedItem maps them to notif_<key>_title/body and interpolates
+  // params ({makeModel}/{price}/{oldPrice}/{newPrice}).
+  titleKey?: string;
+  bodyKey?: string;
+  params?: Record<string, unknown>;
+  // Forward-compat: a server-localized literal (Phase 13 push payloads may set
+  // these). The feed renderer prefers key→t resolution and falls back here.
   title?: string;
   body?: string;
   read: boolean;

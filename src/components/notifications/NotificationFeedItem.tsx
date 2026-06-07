@@ -75,13 +75,30 @@ export const NotificationFeedItem = ({
   const Icon = getIconComponent(notification);
   const unread = !notification.read;
 
-  // Rows may carry localization keys (titleKey/bodyKey) OR server-localized
-  // literals (title/body). Prefer key→t resolution; fall back to the literal.
-  const titleKey = (notification as any).titleKey as string | undefined;
-  const bodyKey = (notification as any).bodyKey as string | undefined;
+  // Rows carry bare-event localization keys (titleKey/bodyKey ∈ new_match /
+  // price_drop / booked / sold / back_available) + interpolation `params`
+  // (notificationService.js:200-205). Map each bare key to its mobile copy
+  // string (`notif_<key>_title` / `notif_<key>_body`) and interpolate params.
+  // Fall back to any server-localized literal (Phase 13 push) then to the
+  // generic header so a row never renders blank (CR-01).
+  const titleKey = notification.titleKey;
+  const bodyKey = notification.bodyKey;
+  const params = notification.params ?? {};
+
+  const interp = (tpl?: string): string =>
+    typeof tpl === 'string'
+      ? tpl.replace(/\{(\w+)\}/g, (_m, k: string) => {
+          const v = params[k];
+          return v == null ? '' : String(v);
+        })
+      : '';
+
+  const titleTemplate = titleKey ? t[`notif_${titleKey}_title`] : undefined;
+  const bodyTemplate = bodyKey ? t[`notif_${bodyKey}_body`] : undefined;
+
   const title =
-    (titleKey && t[titleKey]) || notification.title || t.notifications || '';
-  const body = (bodyKey && t[bodyKey]) || notification.body || '';
+    interp(titleTemplate) || notification.title || t.notifications || '';
+  const body = interp(bodyTemplate) || notification.body || '';
 
   return (
     <TouchableOpacity

@@ -1029,6 +1029,21 @@ export const TRANSLATIONS = {
     deleteWatchedCarConfirm: 'Перестать',
     notificationCancel: 'Отмена',
     notificationPriceDropTitle: 'Цена снизилась на {amount} сом',
+    // ---- In-app feed copy (titleKey/bodyKey → these, CR-01) ----
+    // The backend stores bare event keys (new_match / price_drop / booked /
+    // sold / back_available) + params; NotificationFeedItem maps them to the
+    // notif_<key>_title / notif_<key>_body strings below and interpolates
+    // {makeModel} / {price} / {oldPrice} / {newPrice}. KGS som, never ruble.
+    notif_new_match_title: 'Новый вариант по вашему поиску',
+    notif_new_match_body: '{makeModel} — {price} сом. Смотрите, пока не разобрали.',
+    notif_price_drop_title: 'Цена упала',
+    notif_price_drop_body: '{makeModel}: теперь {newPrice} сом (было {oldPrice}).',
+    notif_booked_title: 'Авто забронировали',
+    notif_booked_body: '{makeModel} забронировали. Скоро может уйти.',
+    notif_sold_title: 'Авто продано',
+    notif_sold_body: '{makeModel} продан. Этот вариант уехал.',
+    notif_back_available_title: 'Снова в продаже',
+    notif_back_available_body: '{makeModel} снова доступен. Бронь сорвалась — ваш шанс.',
     // ---- Personality tier chip + picker sheet ----
     personalityTitle: 'ЛИЧНОСТЬ',
     personalityClose: 'Закрыть',
@@ -2072,6 +2087,17 @@ export const TRANSLATIONS = {
     deleteWatchedCarConfirm: 'Stop',
     notificationCancel: 'Cancel',
     notificationPriceDropTitle: 'Price dropped by {amount} KGS som',
+    // ---- In-app feed copy (titleKey/bodyKey → these, CR-01) ----
+    notif_new_match_title: 'New match for your search',
+    notif_new_match_body: '{makeModel} — {price} KGS som. Take a look before it goes.',
+    notif_price_drop_title: 'Price dropped',
+    notif_price_drop_body: '{makeModel}: now {newPrice} KGS som (was {oldPrice}).',
+    notif_booked_title: 'Car booked',
+    notif_booked_body: '{makeModel} just got booked. It may be gone soon.',
+    notif_sold_title: 'Car sold',
+    notif_sold_body: '{makeModel} sold. This one is gone.',
+    notif_back_available_title: 'Available again',
+    notif_back_available_body: '{makeModel} is back on the market. The booking fell through — your chance.',
     // ---- Personality tier chip + picker sheet ----
     personalityTitle: 'PERSONALITY',
     personalityClose: 'Close',
