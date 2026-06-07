@@ -4,14 +4,14 @@ milestone: v1.2
 milestone_name: Notifications
 status: executing
 stopped_at: Phase 12 UI-SPEC approved
-last_updated: "2026-06-07T00:52:20.083Z"
+last_updated: "2026-06-07T01:00:03.501Z"
 last_activity: 2026-06-07
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 10
-  completed_plans: 5
-  percent: 50
+  completed_plans: 6
+  percent: 60
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 12 (notification-domain-in-app-center) — EXECUTING
-Plan: 6 of 10
+Plan: 7 of 10
 Status: Ready to execute
 Last activity: 2026-06-07
 
@@ -60,7 +60,7 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 
 Resume file: None
 
-Progress: [█████░░░░░] 50%
+Progress: [██████░░░░] 60%
 
 ## Performance Metrics
 
@@ -142,6 +142,7 @@ Progress: [█████░░░░░] 50%
 | Phase 12 P03 | ~9m | 2 tasks | 11 files |
 | Phase 12 P04 | ~8m | 2 tasks tasks | 3 files files |
 | Phase Phase 12 P05 P05 | ~12m | 2 tasks tasks | 3 files files |
+| Phase 12 P06 | ~6m | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -149,6 +150,10 @@ Progress: [█████░░░░░] 50%
 
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
+
+- [Phase 12]: Plan 12-06: NotificationService mirrors the ModerationService split (apiClient verb+path wrappers, isAbortError) — notification HTTP stays OFF AuthService. MOB-01 guardrail enforced as a runtime test reading AuthService.ts source (zero notification/subscription/watch matches), not just an acceptance grep.
+- [Phase 12]: Plan 12-06: NotificationProvider placed innermost (after FavoritesProvider, immediately wrapping NavigationContainer) — inside AuthProvider so useAuth resolves AND wrapping every screen/badge that reads it. prevUidRef skip-on-mount sentinel clears unreadCount/feed on user.localId change (T-12-06-01 cross-user cache-leak mitigation, FavoritesContext pattern).
+- [Phase 12]: Plan 12-06: SearchResults: 'search' added to App.tsx linking.config alongside the untouched CarDetails: 'listing/:carId' — the only two whitelisted notification deeplink routing targets (T-12-06-04). NotificationsScreen/NotificationSettingsScreen are placeholder default-exports; real screens land in 12-08 / 12-10 (Wave 5) and overwrite them.
 
 - [v1.2 Roadmap]: 3-phase structure honored exactly as pre-designed/research-validated — Phase 12 (domain + in-app center, pure REST, zero native), Phase 13 (FCM push, native), Phase 14 (node-cron digest). Phase numbering CONTINUES from v1.1 (12, 13, 14), not reset to 1.
 - [v1.2 Roadmap]: Phase 12 carries 24 of 32 requirements (heaviest by design) — bundles all domain + subscription + in-app + preferences + i18n foundation so the push (Phase 13) and digest (Phase 14) phases ride a stable, standalone-usable substrate. fcm.send ships as a no-op stub in Phase 12 so the in-app center is the guaranteed denied-permission fallback.
@@ -437,7 +442,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-07T00:51:57.842Z
+Last session: 2026-06-07T01:00:03.494Z
 Stopped at: Phase 12 UI-SPEC approved
 Resume file: None
 
