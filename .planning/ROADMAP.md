@@ -52,7 +52,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
   4. The header bell shows an accurate unread badge; opening `NotificationsScreen` shows a reverse-chronological cursor-paginated feed; tapping marks read (with "mark all read" available), and a first-time empty state guides the user — all functional with `fcm.send` as a no-op stub.
   5. A `NotificationSettingsScreen` exposes master mute + per-category toggles + subscription management (list/edit-cadence/delete); the user's language persists to `User.language` and AsyncStorage, and backend-rendered notification strings have RU/EN parity (backend parity test) with currency formatted as KGS som.
 **Plans**: 10 plans (5 waves)
-- [ ] 12-01-PLAN.md — Backend foundation: 3 domain models + User.language/notificationPrefs + Wave-0 backend test scaffolds
+- [x] 12-01-PLAN.md — Backend foundation: 3 domain models + User.language/notificationPrefs + Wave-0 backend test scaffolds
 - [ ] 12-02-PLAN.md — Mobile Wave-0 test scaffolds (NotificationService, NotificationContext, WatchButton)
 - [ ] 12-03-PLAN.md — Backend domain engine: emit() 3 guards + matchSavedSearches + translations + fcm stub + schemas
 - [ ] 12-04-PLAN.md — Backend /api/notifications router: cursor feed, read-state, subscription CRUD (uid-scoped, IDOR-safe)
@@ -94,7 +94,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 12. Notification Domain + In-App Center | 0/10 | Planned | - |
+| 12. Notification Domain + In-App Center | 1/10 | In Progress|  |
 | 13. FCM Push Transport (native) | 0/TBD | Not started | - |
 | 14. Daily Digest & Scheduling | 0/TBD | Not started | - |
 

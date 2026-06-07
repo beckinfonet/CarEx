@@ -4,14 +4,14 @@ milestone: v1.2
 milestone_name: Notifications
 status: executing
 stopped_at: Phase 12 UI-SPEC approved
-last_updated: "2026-06-06T23:50:04.393Z"
-last_activity: 2026-06-06 -- Phase 12 planning complete
+last_updated: "2026-06-07T00:24:53.306Z"
+last_activity: 2026-06-07
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 10
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 10
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 **Core value (current milestone v1.2):** Buyers get alerted to relevant inventory and watched-car events without re-checking the app — via an in-app notification center and OS push.
-**Current focus:** Phase 12 — Notification Domain + In-App Center (roadmapped, awaiting /gsd-plan-phase 12)
+**Current focus:** Phase 12 — notification-domain-in-app-center
 
 ## Current Position
 
-Phase: 12 — Notification Domain + In-App Center (not started)
-Plan: —
+Phase: 12 (notification-domain-in-app-center) — EXECUTING
+Plan: 2 of 10
 Status: Ready to execute
-Last activity: 2026-06-06 -- Phase 12 planning complete
+Last activity: 2026-06-07
 
 ## Milestone Roadmap (v1.2)
 
@@ -58,9 +58,9 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 | debug-session | android-photo-load-lag | fix_applied 2026-05-29 (effectively resolved) |
 | uat-gap | Phase 11 11-HUMAN-UAT.md | approved; 3 optional scenarios pending |
 
-Resume file: .planning/phases/12-notification-domain-in-app-center/12-UI-SPEC.md
+Resume file: None
 
-Progress: [██████████] 100%
+Progress: [█░░░░░░░░░] 10%
 
 ## Performance Metrics
 
@@ -137,6 +137,7 @@ Progress: [██████████] 100%
 | Phase 10 P08 | 5m33s | 2 tasks tasks | 2 files files |
 | Phase 10 P11 | ~4m | 2 tasks | 5 files |
 | Phase 10 P12 | ~3m | 2 tasks tasks | 2 files files |
+| Phase 12 P01 | ~6m | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -425,7 +426,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-06T23:09:05.494Z
+Last session: 2026-06-07T00:24:43.326Z
 Stopped at: Phase 12 UI-SPEC approved
 Resume file: None
 

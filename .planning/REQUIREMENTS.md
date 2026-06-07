@@ -11,12 +11,12 @@ Continues phase numbering from v1.1 (Phases 7–11). v1.2 spans **Phases 12–14
 
 ### Notification Domain — Backend (NDOM)
 
-- [ ] **NDOM-01**: Three Mongoose models exist with the documented indexes — `DeviceToken` (globally-unique `token`, `{uid}` index), `Subscription` (`{kind,active,criteria.makeId,criteria.modelId}`, `{kind,carId,active}`, `{uid,active}`), `Notification` (`{uid,createdAt}`, `{uid,read}`, `{digestPending}`, `dedupeKey`).
+- [x] **NDOM-01**: Three Mongoose models exist with the documented indexes — `DeviceToken` (globally-unique `token`, `{uid}` index), `Subscription` (`{kind,active,criteria.makeId,criteria.modelId}`, `{kind,carId,active}`, `{uid,active}`), `Notification` (`{uid,createdAt}`, `{uid,read}`, `{digestPending}`, `dedupeKey`).
 - [ ] **NDOM-02**: `notificationService.emit()` is called AFTER commit (not in a Mongoose post-save hook) at the six trigger points: `POST /api/cars`, `PUT /api/cars/:id`, `PATCH /api/cars/:id/status`, `confirmBooking` (post-transaction), admin `editListing` (post-commit), and the booked→active transition.
 - [ ] **NDOM-03**: Every emit applies three guards — (a) hide-hook respect by re-reading the Car with a plain `findById` (no bypass flags) and suppressing if null/non-active, (b) actor-exclusion (never notify `event.actorUid`), (c) dedup per `(uid, carId, eventType)`.
 - [ ] **NDOM-04**: A pure, unit-testable `matchSavedSearches` resolves matching active Saved Searches via the indexed query, off the request hot path.
 - [ ] **NDOM-05**: `/api/notifications/*` router is mounted, uid-scoped (uid taken from the verified ID token, NOT a body param; not admin-gated).
-- [ ] **NDOM-06**: Notifications older than 90 days are pruned (job lands in Phase 14 cron; policy defined here).
+- [x] **NDOM-06**: Notifications older than 90 days are pruned (job lands in Phase 14 cron; policy defined here).
 
 ### Subscriptions (NSUB)
 
@@ -38,15 +38,15 @@ Continues phase numbering from v1.1 (Phases 7–11). v1.2 spans **Phases 12–14
 
 - [ ] **NPRF-01**: A `NotificationSettingsScreen` provides a master mute and per-category toggles (saved-search / watch).
 - [ ] **NPRF-02**: User can list, edit the cadence of, and delete their subscriptions.
-- [ ] **NPRF-03**: **Quiet hours** suppress non-urgent push overnight and queue them to the morning.
-- [ ] **NPRF-04**: A **soft per-user daily cap (2–3/day)** applies to instant saved-search push; overflow rolls into the daily digest; Watch/transactional events are exempt.
+- [x] **NPRF-03**: **Quiet hours** suppress non-urgent push overnight and queue them to the morning.
+- [x] **NPRF-04**: A **soft per-user daily cap (2–3/day)** applies to instant saved-search push; overflow rolls into the daily digest; Watch/transactional events are exempt.
 - [ ] **NPRF-05**: **Dedup + actor-exclusion** are user-visible-correct: a user never gets duplicate alerts for the same listing event and is never notified about their own action.
 - [ ] **NPRF-06**: A **soft in-app pre-prompt** (with "Not now") precedes the native OS permission dialog; push permission is **never** requested on launch — only contextually on first Watch/Save-search.
 - [ ] **NPRF-07**: When OS push is denied, the in-app center remains fully functional as the fallback (no dead-end).
 
 ### Internationalization (NI18N)
 
-- [ ] **NI18N-01**: A `language` field is added to the `User` model and accepted by `PUT /api/users/:uid`; server-rendered push uses it (default RU).
+- [x] **NI18N-01**: A `language` field is added to the `User` model and accepted by `PUT /api/users/:uid`; server-rendered push uses it (default RU).
 - [ ] **NI18N-02**: `LanguageContext` persists the user's language to the backend and AsyncStorage (currently in-memory only).
 - [ ] **NI18N-03**: A backend translations map renders notification title/body from keys+params with **RU/EN parity** (enforced by a backend parity test); currency formatted as KGS som.
 
