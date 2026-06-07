@@ -32,23 +32,49 @@ function hasCanonicalKeys(filters?: ActiveFilters): boolean {
 }
 
 /**
+ * Reverse-lookup a CATEGORIES id from a canonical bodyType string, mirroring the
+ * case-insensitive substring matching filteredCars uses (category.name vs bodyType
+ * in EITHER direction, plus the id===2 'suv' special case). Returns null when no
+ * category matches, so the deep link still applies make/model/price/year filters
+ * without spuriously narrowing the body category.
+ */
+function categoryIdForBodyType(bodyType: unknown): number | null {
+  if (bodyType == null || bodyType === '') return null;
+  const bt = String(bodyType).toLowerCase();
+  for (const category of CATEGORIES) {
+    const name = category.name.toLowerCase();
+    if (
+      bt.includes(name) ||
+      name.includes(bt) ||
+      (category.id === 2 && bt.includes('suv'))
+    ) {
+      return category.id;
+    }
+  }
+  return null;
+}
+
+/**
  * Translate canonical deep-link initialFilters (makeId/priceMin/yearMin/...) into
  * the hook's internal model: RU-label range filters + selectedMake/selectedModel
- * seeds. ADDITIVE and idempotent-safe — only canonical keys are transformed; any
- * already-RU-label or unrelated keys (e.g. 'Цена', 'sortPrice') pass through
- * untouched. When NO canonical key is present the input is returned BYTE-EQUAL so
- * the shared home-screen path is unaffected (CR-03 critical constraint).
+ * seeds + a resolved selectedCategory from bodyType. ADDITIVE and idempotent-safe
+ * — only canonical keys are transformed; any already-RU-label or unrelated keys
+ * (e.g. 'Цена', 'sortPrice') pass through untouched. When NO canonical key is
+ * present the input is returned BYTE-EQUAL (selectedCategory null) so the shared
+ * home-screen path is unaffected (CR-03 critical constraint).
  */
 export function normalizeInitialFilters(filters?: ActiveFilters): {
   activeFilters: ActiveFilters;
   selectedMake: SelectedRef;
   selectedModel: SelectedRef;
+  selectedCategory: number | null;
 } {
   if (!hasCanonicalKeys(filters)) {
     return {
       activeFilters: filters ?? {},
       selectedMake: null,
       selectedModel: null,
+      selectedCategory: null,
     };
   }
 
@@ -78,10 +104,13 @@ export function normalizeInitialFilters(filters?: ActiveFilters): {
     };
   }
 
-  // bodyType has no RU-label predicate equivalent — carry it through so a future
-  // consumer can read it without losing the value.
+  // bodyType has no RU-label predicate equivalent — carry the raw value through
+  // (harmless) AND resolve it to a CATEGORIES id so filteredCars' existing
+  // category path actually narrows the list to that body type.
+  let selectedCategory: number | null = null;
   if (src.bodyType != null && src.bodyType !== '') {
     next.bodyType = src.bodyType;
+    selectedCategory = categoryIdForBodyType(src.bodyType);
   }
 
   const selectedMake: SelectedRef =
@@ -93,7 +122,7 @@ export function normalizeInitialFilters(filters?: ActiveFilters): {
       ? { id: String(src.modelId), name: '' }
       : null;
 
-  return { activeFilters: next, selectedMake, selectedModel };
+  return { activeFilters: next, selectedMake, selectedModel, selectedCategory };
 }
 
 export function useHomeListings(opts: UseHomeListingsOpts = {}) {
@@ -111,7 +140,7 @@ export function useHomeListings(opts: UseHomeListingsOpts = {}) {
 
   const [selectedMake, setSelectedMake] = useState<SelectedRef>(seed.selectedMake);
   const [selectedModel, setSelectedModel] = useState<SelectedRef>(seed.selectedModel);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(seed.selectedCategory);
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>(seed.activeFilters);
   const [filtersVisible, setFiltersVisible] = useState(false);
 
