@@ -145,3 +145,7 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+// Phase 13 (NPUSH-02): process google-services.json so FCM is configured.
+// Must be applied at the BOTTOM, after the android {} / dependencies {} blocks.
+apply plugin: "com.google.gms.google-services"

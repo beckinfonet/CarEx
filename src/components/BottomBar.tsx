@@ -6,6 +6,8 @@ import { COLORS, SIZES } from '../constants/theme';
 import { MoreMenu } from './MoreMenu';
 import { User, Truck, Menu, Home, PlusCircle } from 'lucide-react-native';
 import { RootStackParamList } from '../types/navigation';
+import { useNotifications } from '../context/NotificationContext';
+import { NotificationBadge } from './notifications/NotificationBadge';
 
 interface BottomBarProps {
   t: any;
@@ -14,6 +16,7 @@ interface BottomBarProps {
 export const BottomBar = ({ t }: BottomBarProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [menuVisible, setMenuVisible] = useState(false);
+  const { unreadCount } = useNotifications();
 
   return (
     <>
@@ -32,6 +35,11 @@ export const BottomBar = ({ t }: BottomBarProps) => {
         >
           <Menu size={20} color={COLORS.textPrimary} />
           <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">{t.more}</Text>
+          <NotificationBadge
+            count={unreadCount}
+            mode="dot"
+            style={styles.notificationDot}
+          />
         </TouchableOpacity>
       </View>
       <MoreMenu visible={menuVisible} onClose={() => setMenuVisible(false)} t={t} />
@@ -70,6 +78,11 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 4,
+  },
+  notificationDot: {
+    position: 'absolute',
+    top: 6,
+    right: 10,
   },
   text: {
     color: COLORS.textPrimary,

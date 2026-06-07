@@ -23,4 +23,6 @@ export type RootStackParamList = {
   AdminModeration: undefined;
   AdminUserDetail: { targetUid: string };
   SearchResults: { initialQuery: string; initialFilters?: { [key: string]: any } };
+  Notifications: undefined;
+  NotificationSettings: undefined;
 };

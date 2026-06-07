@@ -8,11 +8,15 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
-linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
-  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
-  use_frameworks! :linkage => linkage.to_sym
-end
+# Phase 13 (NPUSH-01): @react-native-firebase requires iOS static frameworks.
+# Default to :static (the spike's premise); ENV['USE_FRAMEWORKS'] can still override
+# back to :dynamic for the documented rollback path (D-02). The literal
+# `use_frameworks! :linkage => :static` below is the active linkage for this build.
+$RNFirebaseAsStaticFramework = true
+linkage = (ENV['USE_FRAMEWORKS'] || 'static').to_sym
+Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+use_frameworks! :linkage => :static if linkage == :static
+use_frameworks! :linkage => linkage unless linkage == :static
 
 target 'carEx' do
   config = use_native_modules!
@@ -44,6 +48,22 @@ target 'carEx' do
           config.build_settings['OTHER_CPLUSPLUSFLAGS'] = "#{existing} -Wno-error=enum-redeclared-with-different-underlying-type"
           existing_c = config.build_settings['OTHER_CFLAGS'] || '$(inherited)'
           config.build_settings['OTHER_CFLAGS'] = "#{existing_c} -Wno-error=enum-redeclared-with-different-underlying-type"
+
+          # Phase 13 / Pitfall 1 (stripe/stripe-react-native#2065): under :static
+          # frameworks, stripe-react-native's StripeNewArchConversions.h does
+          #   #if __has_include(<react/utils/FollyConvert.h>)
+          # FollyConvert.h lives in the React-utils pod (RN 0.83:
+          # ReactCommon/react/utils/platform/ios/react/utils/FollyConvert.h). CocoaPods
+          # already adds the React-utils framework Headers root to this target, but we
+          # add the React-utils framework Headers + the source header root explicitly so
+          # the angle-bracket <react/utils/FollyConvert.h> include resolves reliably
+          # under static frameworks. (Compile-time proof is the real-device gate, Task 3.)
+          header_paths = config.build_settings['HEADER_SEARCH_PATHS'] || ['$(inherited)']
+          header_paths = [header_paths] unless header_paths.is_a?(Array)
+          header_paths << '"$(PODS_CONFIGURATION_BUILD_DIR)/React-utils/React_utils.framework/Headers"'
+          header_paths << '"$(PODS_ROOT)/Headers/Public/React-utils"'
+          header_paths << '"$(PODS_ROOT)/Headers/Private/React-utils"'
+          config.build_settings['HEADER_SEARCH_PATHS'] = header_paths.uniq
         end
       end
     end

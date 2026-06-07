@@ -1,138 +1,148 @@
-# Requirements: CarEx — Milestone v1.1 (Admin Listing Moderation)
+# Requirements: CarEx — v1.2 Notifications
 
-**Defined:** 2026-05-28
-**Core Value:** Admins can take precise, visibly-distinguished moderation actions on car listings — Edit, Suspend, Archive, Delete-soft — extending v1.0's user-moderation model to the listing domain, with full audit trail and buyer-side pause-not-cancel behavior.
-
-**Design reference:** [.planning/notes/listing-moderation-design.md](notes/listing-moderation-design.md) (from `/gsd-explore` 2026-05-28)
+**Defined:** 2026-06-06
+**Core Value (milestone):** Buyers get alerted to relevant inventory and watched-car events without re-checking the app — via an in-app notification center and OS push.
+**Design spec:** [docs/superpowers/specs/2026-06-06-notifications-system-design.md](../docs/superpowers/specs/2026-06-06-notifications-system-design.md)
+**Research:** [.planning/research/v1.2/SUMMARY.md](research/v1.2/SUMMARY.md)
 
 ## v1 Requirements
 
-Requirements for milestone v1.1. Each maps to exactly one roadmap phase.
+Continues phase numbering from v1.1 (Phases 7–11). v1.2 spans **Phases 12–14**.
 
-### Security
+### Notification Domain — Backend (NDOM)
 
-- [ ] **LSEC-01**: Backend verifies caller's Firebase ID token on every listing moderation endpoint via `firebase-admin.verifyIdToken()` (reuses the v1.0 SEC-01 pattern)
-- [ ] **LSEC-02**: All `/api/admin/moderation/listings/*` endpoints enforce admin-only access server-side via `requireAdmin` middleware; mobile `isAdmin` is never trusted for authorization
-- [ ] **LSEC-03**: Listing moderation endpoints are rate-limited at 30 actions / 15 min / admin (returns `429` on excess), matching v1.0 user-moderation policy
+- [x] **NDOM-01**: Three Mongoose models exist with the documented indexes — `DeviceToken` (globally-unique `token`, `{uid}` index), `Subscription` (`{kind,active,criteria.makeId,criteria.modelId}`, `{kind,carId,active}`, `{uid,active}`), `Notification` (`{uid,createdAt}`, `{uid,read}`, `{digestPending}`, `dedupeKey`).
+- [x] **NDOM-02**: `notificationService.emit()` is called AFTER commit (not in a Mongoose post-save hook) at the six trigger points: `POST /api/cars`, `PUT /api/cars/:id`, `PATCH /api/cars/:id/status`, `confirmBooking` (post-transaction), admin `editListing` (post-commit), and the booked→active transition.
+- [x] **NDOM-03**: Every emit applies three guards — (a) hide-hook respect by re-reading the Car with a plain `findById` (no bypass flags) and suppressing if null/non-active, (b) actor-exclusion (never notify `event.actorUid`), (c) dedup per `(uid, carId, eventType)`.
+- [x] **NDOM-04**: A pure, unit-testable `matchSavedSearches` resolves matching active Saved Searches via the indexed query, off the request hot path.
+- [x] **NDOM-05**: `/api/notifications/*` router is mounted, uid-scoped (uid taken from the verified ID token, NOT a body param; not admin-gated).
+- [x] **NDOM-06**: Notifications older than 90 days are pruned (job lands in Phase 14 cron; policy defined here).
 
-### Data Model
+### Subscriptions (NSUB)
 
-- [ ] **LDATA-01**: `Listing.status` field added to schema with values `'active' | 'suspended' | 'archived' | 'deleted'`; default `'active'`; indexed for read-time filtering
-- [ ] **LDATA-02**: Listing schema gains audit fields `moderationReason`, `moderatedBy` (admin Firebase UID), `moderatedAt`, `lastEditedBy` (admin Firebase UID when Edit was used)
-- [ ] **LDATA-03**: Listing moderation actions are recorded append-only in a `ListingModerationAction` collection (or the existing `ModerationAction` collection extended to accept listing-target rows) with `{ listingId, fromStatus, toStatus, adminUid, reasonCategory, reasonNote, timestamp }` and application-layer pre-hooks rejecting updates/deletes
-- [ ] **LDATA-04**: Schema migration backfills all existing listings with `status: 'active'` and verifies post-migration listing count matches pre-migration count
+- [x] **NSUB-01**: User can create and manage a **Saved Search** with criteria (make, model, price min/max, year min/max, body type); new searches default to **instant** cadence.
+- [x] **NSUB-02**: User can **Watch** a specific car and receive its lifecycle events — **price drop (decrease only)**, **booked**, **sold**, **back-available** (booked→active only, not admin archived→active restores).
+- [x] **NSUB-03**: Each Saved Search has a cadence of **instant** or **daily digest** (selector present in v1.2; daily delivery enforced in Phase 14). Watch events are always instant.
+- [x] **NSUB-04**: Watch subscriptions key on `car._id || car.id || carId` (never bare `car.id`); price-drop fires only on a decrease (direction-checked against captured old price).
 
-### Admin Actions
+### In-App Notification Center (NCEN)
 
-- [x] **LADM-01**: Admin can Edit any listing's fields via `PATCH /api/admin/moderation/listings/:carId` and the change writes `lastEditedBy` + an audit row with `fieldDiff`
-- [x] **LADM-02**: Admin can Suspend a listing (`PATCH /api/admin/moderation/listings/:carId/suspend`) with a reason category + optional note, in a single Mongoose transaction; status transitions `active → suspended`
-- [x] **LADM-03**: Admin can Archive a listing (`PATCH /api/admin/moderation/listings/:carId/archive`) with a reason category + optional note; status transitions `active → archived`. Archive is semantically distinct from Suspend (non-punitive, for inactive sellers)
-- [x] **LADM-04**: Admin can Soft-Delete a listing (`PATCH /api/admin/moderation/listings/:carId/delete`) with a reason category + optional note; status transitions to `deleted`. Does NOT remove the document from the database
-- [x] **LADM-05**: Admin can Restore any non-active listing (`PATCH /api/admin/moderation/listings/:carId/restore`) back to `status: 'active'`; a new audit row is appended (history is never edited or rewritten)
+- [x] **NCEN-01**: A bell icon with an unread-count badge is present in the app header.
+- [x] **NCEN-02**: `NotificationsScreen` shows a reverse-chronological feed with cursor pagination (reuse the house base64 `{createdAt,_id}` cursor).
+- [x] **NCEN-03**: Tapping a notification deep-links to its target (car detail or saved-search results) via the existing `linking` config.
+- [x] **NCEN-04**: Notifications mark read on open; a "mark all read" action exists; read vs unread are visually distinct.
+- [x] **NCEN-05**: An onboarding empty state guides first-time users ("Save a search or watch a car to get alerts").
+- [x] **NCEN-06**: A **Watch** control on `CarDetailsScreen` (visually disambiguated from the local Favorite heart) and a **"Notify me about new matches"** action on the Home/filter results create the respective subscriptions.
 
-### Backend Enforcement
+### Preferences & Permission UX (NPRF)
 
-- [ ] **LENF-01**: Public listing read endpoints (browse, search, related-listings) filter to `status: 'active'` via Mongoose `pre(/^find/)` hide hooks; admin opts in to seeing non-active listings via `setOptions({ includeAllListingStatuses: true })`
-- [ ] **LENF-02**: Listing-detail GET returns a status-aware response for non-active listings: admin sees full document + status badge; non-admin sees a thin payload with `status` + reason-category only (no seller PII), enabling the buyer-facing banner without leaking moderation notes
-- [ ] **LENF-03**: Cart `add` and checkout `confirm-booking` re-verify listing status inside the same Mongoose transaction and reject non-active listings with a typed error (`409 listing_not_available`); refund-first-throw-second semantics on mid-checkout status change
+- [x] **NPRF-01**: A `NotificationSettingsScreen` provides a master mute and per-category toggles (saved-search / watch).
+- [x] **NPRF-02**: User can list, edit the cadence of, and delete their subscriptions.
+- [x] **NPRF-03**: **Quiet hours** suppress non-urgent push overnight and queue them to the morning.
+- [x] **NPRF-04**: A **soft per-user daily cap (2–3/day)** applies to instant saved-search push; overflow rolls into the daily digest; Watch/transactional events are exempt.
+- [x] **NPRF-05**: **Dedup + actor-exclusion** are user-visible-correct: a user never gets duplicate alerts for the same listing event and is never notified about their own action.
+- [ ] **NPRF-06**: A **soft in-app pre-prompt** (with "Not now") precedes the native OS permission dialog; push permission is **never** requested on launch — only contextually on first Watch/Save-search.
+- [x] **NPRF-07**: When OS push is denied, the in-app center remains fully functional as the fallback (no dead-end).
 
-### Admin UI (Mobile)
+### Internationalization (NI18N)
 
-- [x] **LUI-01**: `CarDetailsScreen` shows an admin-only "Moderate" badge for admin users; tapping it opens a bottom sheet with four action rows (Edit / Suspend / Archive / Delete) plus a status banner reflecting current state
-- [x] **LUI-02**: The four action buttons in the bottom sheet are visually distinct: Edit (neutral, pencil icon), Suspend (warning orange), Archive (neutral gray), Delete (destructive red with confirmation dialog)
-- [x] **LUI-03**: When a listing is already in a non-active state, the bottom sheet replaces the four actions with a single Restore button + the current reason category surfaced for context
-- [x] **LUI-04**: Soft-deleted listings are surfaced in an admin-only "Deleted listings" filter view (within the admin moderation surface) with a Recover action per row; default browse hides them entirely
+- [x] **NI18N-01**: A `language` field is added to the `User` model and accepted by `PUT /api/users/:uid`; server-rendered push uses it (default RU).
+- [x] **NI18N-02**: `LanguageContext` persists the user's language to the backend and AsyncStorage (currently in-memory only).
+- [x] **NI18N-03**: A backend translations map renders notification title/body from keys+params with **RU/EN parity** (enforced by a backend parity test); currency formatted as KGS som.
 
-### Mobile Architecture
+### OS Push Transport — FCM (NPUSH) · Phase 13
 
-- [ ] **LMOB-01**: All listing moderation HTTP calls live in `src/services/moderation/ModerationService.ts` (the v1.0 module) — not glued onto `AuthService.ts`. Five new methods: `adminEditListing`, `suspendListing`, `archiveListing`, `deleteListing`, `restoreListing`
-- [x] **LMOB-02**: Listing-moderation 409/403 response handling: the existing apiClient 403 interceptor is NOT triggered for listing-moderation responses (this is listing state, not user state); errors surface as UI banners on `CarDetailsScreen` / cart
+- [ ] **NPUSH-01**: A timeboxed iOS Podfile spike switches to `use_frameworks! :linkage => :static`, keeps the existing Stripe + fmt/C++17 post-install hooks, and proves a **Release archive builds AND runs on a real device** with Stripe checkout intact — committed behind a rollback checkpoint; notifee-fallback decision made within the spike.
+- [x] **NPUSH-02**: `@react-native-firebase/app` + `/messaging` (24.x, locked-step) are installed; iOS deployment target raised to ≥15; Android `google-services` plugin applied (bottom of `app/build.gradle`), `POST_NOTIFICATIONS` declared, default channel created. (13-03: pinned exactly 24.1.0; google-services 4.4.4; channel id `carex_default`; iOS pods static-linked w/ Firebase 12.11.0.)
+- [x] **NPUSH-03**: APNs `.p8` auth key uploaded to Firebase; `aps-environment` entitlement + Push/Background-modes capabilities configured. (Config complete 13-03 + 13-01 spike; APNs .p8 uploaded by operator. Real-device delivery verification deferred to 13-04 / 13-HUMAN-UAT.)
+- [ ] **NPUSH-04**: Device-token lifecycle is wired into `AuthContext` — register on login/signup, refresh on `onTokenRefresh`, unregister on logout (token captured before the idToken ref clears).
+- [ ] **NPUSH-05**: Backend sends push via `firebase-admin.messaging().send()` in a per-token loop (cached OAuth, exponential backoff on 429), pruning `DeviceToken` rows on `UNREGISTERED`/`INVALID_ARGUMENT`; one bad token never aborts the fan-out.
+- [ ] **NPUSH-06**: Foreground, background, and **quit** states are all handled — `setBackgroundMessageHandler` registered at the top of `index.js`, `getInitialNotification()` handled for cold-start.
+- [ ] **NPUSH-07**: A push tap (including cold-start) routes `data.deeplink` through the existing `linking` config to the correct screen; deeplinks built server-side with `car._id || car.id || carId`.
+- [ ] **NPUSH-08**: Send-time re-checks the hide-hook/moderation status (TOCTOU) and uses generic, PII-safe push bodies (no lock-screen leakage).
 
-### Buyer-affected UX
+### Daily Digest & Scheduling (NDIG) · Phase 14
 
-- [x] **LBUY-01**: `CarDetailsScreen` viewed by a non-admin shows a non-dismissable banner with status + reason category for any non-active listing (severity-aware tone, mirroring v1.0 `UserStatusBanner` patterns)
-- [x] **LBUY-02**: Cart containing a non-active listing renders a banner on the cart row + disables the checkout button; cart is NOT auto-cleared (buyer must see what happened)
-- [x] **LBUY-03**: Already-paid in-flight orders touching a non-active listing proceed normally; admin can manually cancel via existing order tools (LIST-01 does NOT auto-cancel or auto-refund)
-- [x] **LBUY-04**: Banner copy follows v1.0 severity-aware tone — neutral for archived, warning for suspended, destructive-but-recoverable language for deleted (when visible)
+- [ ] **NDIG-01**: An in-process `node-cron` job runs in the Express service, gated by `require.main === module` so tests don't start it.
+- [ ] **NDIG-02**: The digest aggregates each user's pending (`digestPending`) notifications atomically — snapshot `createdAt <= runStart`, claim, send, clear only sent ids (crash-safe, no double-send/drop).
+- [ ] **NDIG-03**: Daily-cadence saved searches, daily-cap overflow, and quiet-hours-queued items are delivered in the digest; one localized push per user (`digest_title {count}`).
+- [ ] **NDIG-04**: The digest fires at a fixed Asia/Bishkek morning hour (no per-user timezone field exists).
+- [ ] **NDIG-05**: The cron prunes dead device tokens and notifications older than 90 days (satisfies NDOM-06).
 
-### Quality
+## v2 Requirements
 
-- [x] **LQUAL-01**: All new user-facing strings (4 reason categories × multilingual + button labels + status enum labels + buyer banner copy) added to `src/constants/translations.ts` under both RU + EN; jest literal scanner enforces parity (extends the v1.0 06-09 scanner)
-- [x] **LQUAL-02**: Each LIST-* requirement is covered by at least one jest unit/integration test (backend) or screen/snapshot test (mobile); coverage report tagged per requirement
-- [x] **LQUAL-03**: Pre-merge security review (`LIST-SECURITY.md`) covers the same 5 verdicts as v1.0 06-SECURITY.md (auth, authz, audit, TOCTOU, deferred-verification disposition); merge-gate cleared before tagging v1.1
+Deferred to a future milestone. Tracked, not in this roadmap.
 
-## v2 Requirements (deferred)
+### Notifications v2 (NOTF2)
 
-Tracked but not in v1.1 roadmap. Re-evaluate at v1.2 milestone.
-
-- **LIST-02** — Automated content flagging queue (auto-suspend after N buyer reports, ML/heuristic pre-screening)
-- **MOD2-01..06** — Extended moderation primitives (CSV export, IP/device fingerprint, bulk select, super-admin tier, admin handoff comments, saved filters)
-- **NOTF-01..03** — Email + push + in-app appeal ticket system (would notify seller when listing moderated)
-- **DEBT-01..04** — AuthService split, typed User, expanded test coverage, error-handling standardization
-- **REL-01, REL-03** — Stripe live key swap, env-config cleanup
-- **UX** — UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 04 UAT 2026-04-30 finding)
+- **NOTF2-01**: `@notifee/react-native` for rich foreground banners + named Android importance channels.
+- **NOTF2-02**: Seller-side notifications ("your listing got a watcher / an inquiry").
+- **NOTF2-03**: Marketing/broadcast send dashboard.
+- **NOTF2-04**: In-app feed differentiators — day grouping, swipe-to-dismiss.
+- **NOTF2-05**: Per-user timezone field for precise digest timing.
+- **NOTF2-06**: Multi-instance-safe cron (advisory lock) if Railway scales beyond one instance.
 
 ## Out of Scope
 
-Explicitly excluded from v1.1. Documented to prevent scope creep.
-
 | Feature | Reason |
 |---------|--------|
-| Hard-delete UI button | Design decision: soft-delete is recoverable, hard-delete reserved for spam/illegal. Backend op only when needed; surfacing a UI button invites accidents |
-| Bulk admin listings panel (filter by status, batch actions) | v1 placement is inline on `CarDetails` — confirm the pattern works before building a dedicated panel; defer to v1.2+ |
-| Automated listing-flagging queue | Tracked as LIST-02, paired with LIST-01 but separate scope; defer to v1.2+ |
-| Auto-cancel / auto-refund of in-flight orders on listing moderation | Anti-pattern (same rationale as v1.0). Orders pause; admin manually cancels if needed |
-| Seller notifications on moderation | Tracked under NOTF-* (deferred to v1.2+); in v1.1, seller sees status on their own listing view |
-| Listing edit-history audit (per-field diff replay UI) | LADM-01 stores `fieldDiff` in the audit row, but a UI to *view* historical diffs is deferred. Backend data captured so this is purely future UI work |
-| Shadow-archive (admin hides listing without status field update) | Anti-feature. Status field is the single source of truth; ad-hoc hiding contradicts read-time filter design |
+| Email / SMS notification channels | Push + in-app only this milestone; Twilio is OTP-only. |
+| Price-*increase* alerts | Buyers don't want them; only decreases are valuable. |
+| New-photo / description-edit alerts | Exactly the noise dedup is meant to suppress. |
+| Unfiltered "all new listings" firehose | Spam; saved searches always carry at least a make. |
+| Free-text / NLP saved search | Structured criteria only in v1.2. |
+| Digest-as-default cadence | Loses deals for a car marketplace; instant is default. |
+| Web push | Mobile app only. |
+| Separate Railway worker for cron | In-process node-cron is sufficient at current scale. |
+| Native re-prompting after denial | App Store-hostile; in-app center is the fallback. |
 
 ## Traceability
 
-Updated by `gsd-roadmapper` during roadmap creation.
+Pre-mapped from research; confirmed by the roadmapper. Phase mappings below are final; each requirement maps to exactly one phase. Status `Roadmapped` = phase + success criteria assigned in ROADMAP.md, awaiting `/gsd-plan-phase`.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LSEC-01 | Phase 7 | Pending |
-| LSEC-02 | Phase 7 | Pending |
-| LSEC-03 | Phase 7 | Pending |
-| LDATA-01 | Phase 7 | Pending |
-| LDATA-02 | Phase 7 | Pending |
-| LDATA-03 | Phase 7 | Pending |
-| LDATA-04 | Phase 7 | Pending |
-| LADM-01 | Phase 8 | Complete |
-| LADM-02 | Phase 8 | Complete |
-| LADM-03 | Phase 8 | Complete |
-| LADM-04 | Phase 8 | Complete |
-| LADM-05 | Phase 8 | Complete |
-| LENF-01 | Phase 9 | Pending |
-| LENF-02 | Phase 9 | Pending |
-| LENF-03 | Phase 9 | Pending |
-| LUI-01 | Phase 10 | Complete |
-| LUI-02 | Phase 10 | Complete |
-| LUI-03 | Phase 10 | Complete |
-| LUI-04 | Phase 10 | Complete |
-| LMOB-01 | Phase 10 | Pending |
-| LMOB-02 | Phase 10 | Complete |
-| LBUY-01 | Phase 11 | Complete |
-| LBUY-02 | Phase 11 | Complete |
-| LBUY-03 | Phase 11 | Complete |
-| LBUY-04 | Phase 11 | Complete |
-| LQUAL-01 | Phase 11 | Complete |
-| LQUAL-02 | Phase 11 | Complete |
-| LQUAL-03 | Phase 11 | Complete |
+| NDOM-01 | Phase 12 | Roadmapped |
+| NDOM-02 | Phase 12 | Roadmapped |
+| NDOM-03 | Phase 12 | Roadmapped |
+| NDOM-04 | Phase 12 | Roadmapped |
+| NDOM-05 | Phase 12 | Roadmapped |
+| NDOM-06 | Phase 12 | Roadmapped (prune job executes in Phase 14) |
+| NSUB-01 | Phase 12 | Roadmapped |
+| NSUB-02 | Phase 12 | Roadmapped |
+| NSUB-03 | Phase 12 | Roadmapped (daily delivery enforced Phase 14) |
+| NSUB-04 | Phase 12 | Roadmapped |
+| NCEN-01 | Phase 12 | Roadmapped |
+| NCEN-02 | Phase 12 | Roadmapped |
+| NCEN-03 | Phase 12 | Roadmapped |
+| NCEN-04 | Phase 12 | Roadmapped |
+| NCEN-05 | Phase 12 | Roadmapped |
+| NCEN-06 | Phase 12 | Roadmapped |
+| NPRF-01 | Phase 12 | Roadmapped |
+| NPRF-02 | Phase 12 | Roadmapped |
+| NPRF-03 | Phase 12 | Roadmapped (quiet-hours plumbing; delivery Phase 14) |
+| NPRF-04 | Phase 12 | Roadmapped (daily-cap plumbing; overflow delivery Phase 14) |
+| NPRF-05 | Phase 12 | Roadmapped |
+| NPRF-06 | Phase 13 | Roadmapped |
+| NPRF-07 | Phase 12 | Roadmapped |
+| NI18N-01 | Phase 12 | Roadmapped |
+| NI18N-02 | Phase 12 | Roadmapped |
+| NI18N-03 | Phase 12 | Roadmapped |
+| NPUSH-01 | Phase 13 | Roadmapped (gating spike — first task) |
+| NPUSH-02 | Phase 13 | Complete (13-03) |
+| NPUSH-03 | Phase 13 | Config complete (13-03); device-delivery verify deferred to 13-04/UAT |
+| NPUSH-04 | Phase 13 | Roadmapped |
+| NPUSH-05 | Phase 13 | Roadmapped |
+| NPUSH-06 | Phase 13 | Roadmapped |
+| NPUSH-07 | Phase 13 | Roadmapped |
+| NPUSH-08 | Phase 13 | Roadmapped |
+| NDIG-01 | Phase 14 | Roadmapped |
+| NDIG-02 | Phase 14 | Roadmapped |
+| NDIG-03 | Phase 14 | Roadmapped |
+| NDIG-04 | Phase 14 | Roadmapped |
+| NDIG-05 | Phase 14 | Roadmapped |
 
 **Coverage:**
-- v1.1 requirements: 28 total
-- Mapped to phases: 28 ✓
-- Unmapped: 0
-
-**Phase totals:**
-- Phase 7: 7 requirements (LSEC-01..03, LDATA-01..04)
-- Phase 8: 5 requirements (LADM-01..05)
-- Phase 9: 3 requirements (LENF-01..03)
-- Phase 10: 6 requirements (LUI-01..04, LMOB-01..02)
-- Phase 11: 7 requirements (LBUY-01..04, LQUAL-01..03)
-
----
-*Requirements defined: 2026-05-28*
-*Last updated: 2026-05-28 — traceability mapped to v1.1 roadmap by gsd-roadmapper*
+- v1 requirements: 32 total (NDOM 6, NSUB 4, NCEN 6, NPRF 7, NI18N 3, NPUSH 8, NDIG 5 — NPRF-06 prompt-side lands in Phase 13)
+- Mapped to phases: 32 (Phase 12: 24 · Phase 13: 9 · Phase 14: 5)
+- Unmapped: 0 ✓ (no orphans, no duplicates)

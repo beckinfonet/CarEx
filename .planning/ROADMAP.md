@@ -3,7 +3,8 @@
 ## Milestones
 
 - ✅ **v1.0 — Admin Moderation** — Phases 1-6 (shipped 2026-04-30) — see [.planning/milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
-- 🟡 **v1.1 — Admin Listing Moderation** — Phases 7-11 (in planning, started 2026-05-28) — see [.planning/REQUIREMENTS.md](REQUIREMENTS.md) + [.planning/notes/listing-moderation-design.md](notes/listing-moderation-design.md)
+- ✅ **v1.1 — Admin Listing Moderation** — Phases 7-11 (shipped 2026-06-06) — see [.planning/milestones/v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md)
+- 📋 **v1.2 — Notifications** — Phases 12-14 (planning) — in-app notification center + FCM push; design spec at [docs/superpowers/specs/2026-06-06-notifications-system-design.md](../docs/superpowers/specs/2026-06-06-notifications-system-design.md)
 
 ## Phases
 
@@ -14,168 +15,103 @@
 - [x] Phase 2: Admin Moderation Endpoints (Backend) — 6/6 plans — completed 2026-04-17
 - [x] Phase 3: Backend Enforcement (Backend) — 6/6 plans — completed 2026-04-17
 - [x] Phase 4: Mobile Plumbing (Mobile) — 7/7 plans — completed 2026-04-18, real-device UAT 2026-04-30
-- [x] Phase 5: Admin Moderation UI (Mobile + cross-repo) — 14/14 plans — completed 2026-04-18 (backend SUMMARYs retroactively bookkept 2026-04-30)
+- [x] Phase 5: Admin Moderation UI (Mobile + cross-repo) — 14/14 plans — completed 2026-04-18
 - [x] Phase 6: Affected-User UX + Security Review (Both) — 10/12 plans (06-0a + 06-0b deferred per QUAL-02) — security review APPROVED 2026-04-19
 
 </details>
 
-### 🟡 v1.1 Admin Listing Moderation (Phases 7-11) — IN PLANNING
+<details>
+<summary>✅ v1.1 Admin Listing Moderation (Phases 7-11) — SHIPPED 2026-06-06</summary>
 
-- [ ] **Phase 7: Listing Schema + Security Baseline (Backend)** — Listing `status` field + audit collection + admin auth + rate limiting for listing moderation routes
-- [ ] **Phase 8: Admin Listing Moderation Endpoints (Backend)** — Five listing moderation endpoints (edit / suspend / archive / delete-soft / restore) each writing an audit row atomically
-- [ ] **Phase 9: Backend Read-time + TOCTOU Enforcement** — `pre(/^find/)` hide hooks on listings + status-aware listing-detail GET + cart-add + confirm-booking re-verification
-- [x] **Phase 10: Mobile Plumbing + Admin Listing UI** — Five `ModerationService` methods + admin-only Moderate badge + bottom-sheet actions on `CarDetailsScreen` + Restore flow + admin Deleted-listings view (10/10 plans executed 2026-05-29; 2 gap-closure plans 10-11 + 10-12 added 2026-05-29 to close CR-01 + CR-04, see `10-VERIFICATION.md`) (completed 2026-05-29)
-- [x] **Phase 11: Buyer-affected UX + Quality + Security Review** — Severity-aware banner on listing detail + cart banner + RU/EN parity + jest coverage + `LIST-SECURITY.md` merge-gate review (completed 2026-05-29)
+- [x] Phase 7: Listing Schema + Security Baseline (Backend) — 6/6 plans — completed 2026-05-29
+- [x] Phase 8: Admin Listing Moderation Endpoints (Backend) — 6/6 plans — completed 2026-05-29
+- [x] Phase 9: Backend Read-time + TOCTOU Enforcement — 5/5 plans — completed 2026-05-29
+- [x] Phase 10: Mobile Plumbing + Admin Listing UI — 12/12 plans — completed 2026-05-29
+- [x] Phase 11: Buyer-affected UX + Quality + Security Review — 8/8 plans — security review APPROVED, completed 2026-05-29
 
-### 📋 Next Milestone (after v1.1)
+</details>
 
-Use `/gsd-new-milestone` to start the next milestone cycle (questioning → research → requirements → roadmap).
+### 📋 v1.2 Notifications (Phases 12-14) — IN PLANNING
 
-#### Carry-forward candidates (documented in `.planning/milestones/v1.0-REQUIREMENTS.md` v2 section + v1.1 REQUIREMENTS.md v2 section)
+Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](../docs/superpowers/specs/2026-06-06-notifications-system-design.md). Research: [.planning/research/v1.2/SUMMARY.md](research/v1.2/SUMMARY.md). Phase numbering continues from v1.1 (which ended at Phase 11).
 
+- [x] **Phase 12: Notification Domain + In-App Center (pure REST, zero native)** — 3-model domain, after-commit emit hooks with guards, subscriptions (Saved Search + Watch), in-app feed/bell, preferences, server-side i18n. `fcm.send` is a no-op stub; the in-app center is fully usable standalone (the denied-permission fallback). (completed 2026-06-07)
+- [x] **Phase 13: FCM Push Transport (native)** — iOS Podfile static-frameworks gate spike (first, rollback-checkpointed, real-device Release archive), RNFB 24.x install, APNs config, firebase-admin send loop, device-token lifecycle, 3-state handling, contextual permission prompt, cold-start deep-link.
+- [ ] **Phase 14: Daily Digest & Scheduling** — in-process `node-cron` digest worker, atomic per-user flush, fixed Asia/Bishkek morning hour, 90-day prune. Enables the daily-cadence selector shipped disabled in Phase 12.
+
+## Phase Details
+
+### Phase 12: Notification Domain + In-App Center
+**Goal**: Buyers can subscribe to inventory (Saved Search) and watch specific cars, then see relevant events in an in-app notification center — entirely over REST, with zero native code, so the center works standalone as the eventual denied-push fallback.
+**Depends on**: Phase 11 (reuses v1.1 hide-hook, base64 `{createdAt,_id}` cursor, ModerationService split precedent, `firebase-admin` already installed for later send creds, `confirmBooking` TOCTOU pattern).
+**Requirements**: NDOM-01..06, NSUB-01..04, NCEN-01..06, NPRF-01..05, NPRF-07, NI18N-01..03
+**Success Criteria** (what must be TRUE):
+  1. A buyer who taps "Notify me about new matches" from filtered results gets a Saved Search; when a *new* matching active listing is created, exactly one in-app notification appears in their feed (deep-linkable to results), and broad searches can be switched to daily cadence (selector present, delivery deferred to Phase 14).
+  2. A buyer who Watches a car (control visually distinct from the local Favorite heart) receives instant in-app alerts for price-drop (decrease only), booked, sold, and back-available (booked→active only) — keyed on `car._id || car.id || carId`, never bare `car.id`.
+  3. A seller editing their own listing's price three times produces ZERO notifications to themselves (actor-exclusion) and AT MOST ONE price-drop alert to each watcher (dedup per `(uid, carId, eventType)`); a notification is never emitted for a hidden/suspended/archived listing (emit re-reads the Car with a plain `findById` and suppresses on null).
+  4. The header bell shows an accurate unread badge; opening `NotificationsScreen` shows a reverse-chronological cursor-paginated feed; tapping marks read (with "mark all read" available), and a first-time empty state guides the user — all functional with `fcm.send` as a no-op stub.
+  5. A `NotificationSettingsScreen` exposes master mute + per-category toggles + subscription management (list/edit-cadence/delete); the user's language persists to `User.language` and AsyncStorage, and backend-rendered notification strings have RU/EN parity (backend parity test) with currency formatted as KGS som.
+**Plans**: 10 plans (5 waves)
+- [x] 12-01-PLAN.md — Backend foundation: 3 domain models + User.language/notificationPrefs + Wave-0 backend test scaffolds
+- [x] 12-02-PLAN.md — Mobile Wave-0 test scaffolds (NotificationService, NotificationContext, WatchButton)
+- [x] 12-03-PLAN.md — Backend domain engine: emit() 3 guards + matchSavedSearches + translations + fcm stub + schemas
+- [x] 12-04-PLAN.md — Backend /api/notifications router: cursor feed, read-state, subscription CRUD (uid-scoped, IDOR-safe)
+- [x] 12-05-PLAN.md — Backend server.js wiring: 6 emit trigger points + router mount + PUT users language
+- [x] 12-06-PLAN.md — Mobile foundation: NotificationService + NotificationContext + nav/provider wiring + translations
+- [x] 12-07-PLAN.md — LanguageContext persistence (AsyncStorage + backend write)
+- [x] 12-08-PLAN.md — In-app feed: NotificationsScreen + feed item + badges + MoreMenu/BottomBar wiring
+- [x] 12-09-PLAN.md — Subscription controls: WatchButton (CarDetails) + SaveSearchBar (SearchResultsV2)
+- [x] 12-10-PLAN.md — NotificationSettingsScreen (mute/categories/quiet-hours/cap/lists) + ProfileScreen row
+**UI hint**: yes
+
+### Phase 13: FCM Push Transport (native)
+**Goal**: Buyers receive OS push notifications (lock-screen) for their instant subscriptions when the app is closed, delivered via FCM, with taps routing to the correct screen from any app state — gated behind a proven iOS native-build spike.
+**Depends on**: Phase 12 (the emit pipeline, Notification rows, `User.language`, and the `fcm.send` stub it replaces).
+**Requirements**: NPUSH-01..08, NPRF-06
+**Success Criteria** (what must be TRUE):
+  1. The FIRST task — a timeboxed iOS Podfile `use_frameworks! :linkage => :static` spike — produces a Release archive that BUILDS AND RUNS on a real device with the existing Stripe + fmt/C++17 post-install hooks intact and Stripe checkout still working; a pre-frameworks rollback checkpoint is committed before the switch, and the notifee-fallback decision is recorded inside the spike. (This gates the rest of the phase.)
+  2. After RNFB 24.x install (app+messaging locked-step), iOS target ≥15, Android google-services + `POST_NOTIFICATIONS` + default channel, and the APNs `.p8` uploaded to Firebase, a real device receives a push for an instant saved-search/Watch event with a generic PII-safe body (no lock-screen detail leakage).
+  3. A push tap from the QUIT (cold-start) state opens the correct car detail on a real device — `setBackgroundMessageHandler` is registered at the top of `index.js`, `getInitialNotification()` is handled, and `data.deeplink` (built server-side with `car._id || car.id || carId`) routes through the existing `linking` config; foreground and background taps work too.
+  4. Device tokens register on login/signup, refresh on `onTokenRefresh`, and unregister on logout (token captured before the idToken ref clears); the backend send loop (firebase-admin, cached OAuth, exponential backoff on 429) prunes `UNREGISTERED`/`INVALID_ARGUMENT` tokens and never aborts the whole fan-out on one bad token.
+  5. Push permission is NEVER requested on launch — only contextually on first Watch/Save-search, preceded by a soft in-app pre-prompt with a "Not now" option; if the user denies OS push, the Phase-12 in-app center remains fully functional with no dead-end; send-time re-checks the hide-hook/moderation status (TOCTOU).
+**Plans**: 5 plans (4 waves)
+- [x] 13-01-PLAN.md — iOS static-frameworks gating spike (rollback checkpoint, real-device Release archive, Stripe-intact, notifee decision) — NPUSH-01 (2026-06-06; SPIKE PASSED on TestFlight)
+- [x] 13-02-PLAN.md — Backend: firebase-admin send loop + device-token routes + generic PII-safe push copy + Wave-0 tests (sibling repo) — NPUSH-05/08, NPUSH-04 (2026-06-06; merged to backend main PR #10)
+- [x] 13-03-PLAN.md — RNFB 24.1.0 install + Android google-services/POST_NOTIFICATIONS/channel + APNs .p8 (human console) — NPUSH-02/03 (2026-06-07; +iOS Firebase-init hotfix 80795d9)
+- [x] 13-04-PLAN.md — Mobile transport: PushService + AuthContext token lifecycle + index.js background handler + App.tsx 3-state routing — NPUSH-04/06/07 (2026-06-07)
+- [x] 13-05-PLAN.md — Permission pre-prompt (fire-once) + denied-recovery on settings + RU/EN copy + real-device HUMAN-UAT — NPRF-06 (2026-06-07; UAT signed off on device)
+**UI hint**: yes
+
+### Phase 14: Daily Digest & Scheduling
+**Goal**: Buyers with daily-cadence saved searches (plus daily-cap overflow and quiet-hours-queued items) receive one localized morning digest push per day, delivered crash-safely by an in-process scheduled worker.
+**Depends on**: Phase 13 (uses its `fcm.js` send path) and Phase 12 (the `digestPending` flag, cadence selector, daily cap, quiet-hours plumbing).
+**Requirements**: NDIG-01..05
+**Success Criteria** (what must be TRUE):
+  1. An in-process `node-cron` job runs inside the Express service, gated by `require.main === module` so the test suite never starts it, and fires at a fixed Asia/Bishkek morning hour (no per-user timezone field exists).
+  2. A user with three daily-cadence matches plus two daily-cap-overflow items receives exactly ONE localized push (`digest_title {count}`) the next morning — daily saved searches, instant-cap overflow, and quiet-hours-queued items are all delivered together.
+  3. A simulated crash mid-run causes neither a double-send nor a drop: the digest snapshots `createdAt <= runStart`, claims, sends, and clears only the successfully-sent ids (`digestPending` cleared per-id).
+  4. The same cron run prunes dead device tokens and notifications older than 90 days (satisfying NDOM-06's retention policy), and the digest flush re-checks the hide-hook so a listing hidden overnight is not pushed.
+**Plans**: TBD
+
+## Progress
+
+### v1.2 Notifications (Phases 12-14)
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 12. Notification Domain + In-App Center | 10/10 | Complete    | 2026-06-07 |
+| 13. FCM Push Transport (native) | 5/5 | Complete    | 2026-06-07 |
+| 14. Daily Digest & Scheduling | 0/TBD | Not started | - |
+
+## Backlog / Carry-forward candidates
+
+Documented in `.planning/milestones/v1.0-REQUIREMENTS.md` v2 section + `.planning/milestones/v1.1-REQUIREMENTS.md` v2 section + `.planning/REQUIREMENTS.md` v2 section (NOTF2-01..06).
+
+- **NOTF2-01..06** — Notifications v2: notifee rich foreground banners, seller-side notifications, broadcast dashboard, feed differentiators (day grouping / swipe-dismiss), per-user timezone field, multi-instance-safe cron advisory lock
 - DEBT-01..04 — AuthService split, typed User, expanded test coverage, error handling
 - REL-01, REL-03 — Stripe live key, env-config cleanup
 - MOD2-01..06 — Extended moderation (CSV export, IP/device fingerprint, bulk select, super-admin tier, etc.)
-- NOTF-01..03 — Email + push + in-app appeal ticket system
 - LIST-02 — Automated listing-flagging queue (paired with LIST-01)
 - QUAL-02 — 10k-user backend load test (deferred from v1.0)
 - UX: UserStatusBanner visibility cramped by navbar avatar + logo (captured during Phase 04 UAT 2026-04-30)
 - v1.1 carry-forward: bulk admin listings panel + hard-delete UI affordance + listing edit-history diff replay UI
-
-## Phase Details
-
-### Phase 7: Listing Schema + Security Baseline (Backend)
-**Goal**: Backend can verify admin callers cryptographically on every listing-moderation route and has the listing schema + audit collection required to store status, audit entries, and admin-edit attribution
-**Depends on**: v1.0 Phase 1 (reuses `firebase-admin.verifyIdToken()` + `requireAdmin` + `ModerationAction` audit pattern)
-**Requirements**: LSEC-01, LSEC-02, LSEC-03, LDATA-01, LDATA-02, LDATA-03, LDATA-04
-**Success Criteria** (what must be TRUE):
-  1. Every existing listing in the DB has `status: 'active'` after the migration runs and the pre-migration count equals the post-migration count
-  2. A request to any `/api/admin/moderation/listings/*` route without a valid Firebase ID token returns `401`; with a valid token but non-admin role returns `403`
-  3. The 31st listing-moderation action by the same admin within 15 minutes is rejected with `429`
-  4. Direct attempts to update or delete a row in the listing audit collection are rejected at the application layer (Mongoose pre-hook error), not silently allowed
-**Plans**: 6 plans
-Plans:
-- [x] 07-01-PLAN.md — Extend `Car` schema with `status` + audit fields + `{sellerId,status}` index; D-08 naming-collision lock (LDATA-01, LDATA-02)
-- [x] 07-02-PLAN.md — Create `ListingModerationAction` sibling audit collection with 6 append-only pre-hooks (LDATA-03)
-- [x] 07-03-PLAN.md — Create `LISTING_STATUS_POLICY` capability map + `resolveBlockedBuyerActions` resolver with schema-equality lock (LDATA-01 foundation for Phase 9/11)
-- [x] 07-04-PLAN.md — Create `listingModerationRateLimiter` with `listing-admin:` keyGenerator prefix (D-04 separate bucket) (LSEC-03 mechanism)
-- [x] 07-05-PLAN.md — Land `listingRouter` `/ping` scaffold + `server.js` mount line + middleware test + rate-limit test with D-04 separate-bucket proof (LSEC-01, LSEC-02, LSEC-03)
-- [x] 07-06-PLAN.md — Land `migrate-listing-moderation.js` script + extend `ensureBaseline.js` with Car.status check + migration test (LDATA-04)
-
-### Phase 8: Admin Listing Moderation Endpoints (Backend)
-**Goal**: Admins can Edit, Suspend, Archive, Soft-Delete, and Restore any listing via rate-limited HTTP endpoints, each transitioning the `status` field and writing an append-only audit row atomically
-**Depends on**: Phase 7
-**Requirements**: LADM-01, LADM-02, LADM-03, LADM-04, LADM-05
-**Success Criteria** (what must be TRUE):
-  1. Suspending an `active` listing updates its `status` to `suspended` AND writes one audit row inside a single Mongoose transaction; failure of either step rolls both back
-  2. Archive and Delete-soft transition `status` to `archived` and `deleted` respectively, each capturing the reason category + optional note, with the listing document still present in the DB after delete-soft
-  3. Restoring any non-active listing flips `status` back to `active` and appends a new audit row — the original transition rows are never edited or removed
-  4. Admin Edit updates the listing fields, stamps `lastEditedBy`, and writes an audit row containing the `fieldDiff` of changed fields
-**Plans**: 6 plans
-Plans:
-- [x] 08-01-PLAN.md — Substrate: extract multer-S3 upload + listingSchemas + listingErrors + denySelfModerationListing + listingService skeleton + 3 Wave-0 tests (LADM-01..05 substrate)
-- [x] 08-02-PLAN.md — Suspend endpoint: PATCH /:carId/suspend + KNOWN_LISTING_ERRORS + handleListingServiceError + suspendListing.test.js (LADM-02)
-- [x] 08-03-PLAN.md — Archive endpoint: PATCH /:carId/archive + archiveListing.test.js (LADM-03)
-- [x] 08-04-PLAN.md — Delete-soft endpoint: PATCH /:carId/delete with soft-delete invariant (LADM-04)
-- [x] 08-05-PLAN.md — Restore endpoint: PATCH /:carId/restore with clear-on-restore + not_moderated distinct code (LADM-05)
-- [x] 08-06-PLAN.md — Edit endpoint: PATCH /:carId multipart + fieldDiff + makeId/modelId validation + D-A-3 stamp distinction (LADM-01)
-
-### Phase 9: Backend Read-time + TOCTOU Enforcement
-**Goal**: Non-active listings disappear from all public reads without any denormalized flag mutation, listing-detail GET returns a status-aware thin payload to non-admin viewers, and cart-add + confirm-booking re-verify listing status inside the same transaction with refund-first-throw-second semantics
-**Depends on**: Phase 8
-**Requirements**: LENF-01, LENF-02, LENF-03
-**Success Criteria** (what must be TRUE):
-  1. Public browse, search, and related-listings endpoints return zero non-active listings; an admin call with `includeAllListingStatuses: true` returns the full set
-  2. Listing-detail GET for a `suspended`/`archived`/`deleted` listing returns a thin payload (status + reason category only, no seller PII or moderation notes) to non-admin viewers; admin viewers receive the full document plus status badge
-  3. Adding a non-active listing to the cart returns `409 listing_not_available`; a status change between cart-add and `confirm-booking` aborts the booking inside the transaction and refunds the Stripe charge before throwing
-**Plans**: 5 plans
-Plans:
-- [x] 09-01-PLAN.md — Wave 0 prerequisites: 5 RED jest scaffolds + refundAndThrow helper + ListingNotAvailableError + lookupAdminIfPresent middleware (LENF-03 helper substrate)
-- [x] 09-02-PLAN.md — LENF-01 pre(/^find/) hide hook on Car + includeAllListingStatuses bypass + 4 GREEN integration cases
-- [x] 09-03-PLAN.md — LENF-02 status-aware GET /api/cars/:id (D-05 thin payload / D-07 admin badge / D-08 single endpoint) + 6 GREEN supertest cases
-- [x] 09-04-PLAN.md — LENF-03 part A: create-payment-intent early 409 gate + ListingNotAvailableError route-error-map branch + 5 GREEN supertest cases
-- [x] 09-05-PLAN.md — LENF-03 part B: confirm-booking step-4 transactional TOCTOU + refund-first-throw-second + 6 GREEN integration cases + Phase 3 regression
-
-### Phase 10: Mobile Plumbing + Admin Listing UI
-**Goal**: Admins can moderate listings inline on `CarDetailsScreen` via a bottom-sheet of four visually-distinct actions, Restore non-active listings from the same surface, and find soft-deleted listings in an admin-only Deleted view — all via five new `ModerationService` methods that bypass the existing 403 user-suspension interceptor
-**Depends on**: Phase 9
-**Requirements**: LMOB-01, LMOB-02, LUI-01, LUI-02, LUI-03, LUI-04
-**Success Criteria** (what must be TRUE):
-  1. An admin viewing any listing sees a "Moderate" badge; tapping it opens a bottom sheet showing four action rows (Edit pencil-neutral, Suspend orange-warning, Archive gray-neutral, Delete red-destructive with confirmation) plus a status banner reflecting current state
-  2. Tapping any action submits the right `ModerationService` call (`adminEditListing` / `suspendListing` / `archiveListing` / `deleteListing`) and the on-screen status banner updates without an app restart
-  3. When the same admin re-opens the bottom sheet on a non-active listing, the four actions are replaced by a single Restore button with the current reason category surfaced; tapping Restore calls `restoreListing` and the listing returns to default browse
-  4. Soft-deleted listings appear in an admin-only "Deleted listings" filter view with a per-row Recover action; default buyer browse hides them entirely
-  5. A `409 listing_not_available` response surfaces as a UI banner on `CarDetailsScreen` (or cart) without triggering the user-suspension 403 interceptor or logging the admin out
-**UI hint**: yes
-**Plans**: 12 plans (10 initial + 2 gap-closure)
-Plans:
-**Wave 1**
-- [x] 10-01-PLAN.md — ListingModerationError sibling class + Wave-0 tests (LMOB-01, LMOB-02 substrate)
-- [x] 10-02-PLAN.md — buildListingTitle pure helper + sentinel-match util (LUI-02 Pitfall 6 substrate)
-- [x] 10-03-PLAN.md — Cross-repo backend: GET /api/admin/moderation/listings + Zod schema + service + tests (LUI-04 backend)
-
-**Wave 2** *(blocked on Wave 1 completion)*
-- [x] 10-04-PLAN.md — Extend ModerationService with 5 listing writes + searchListings read + anti-pattern guards (LMOB-01)
-- [x] 10-05-PLAN.md — LMOB-02 interceptor non-regression tests + CarDetailsScreen axios.get → apiClient.get migration (LMOB-02, LUI-01)
-
-**Wave 3** *(blocked on Wave 2 completion)*
-- [x] 10-06-PLAN.md — ListingModerationBottomSheet (4 actions for active / Restore + chip for non-active) (LUI-01, LUI-02, LUI-03)
-- [x] 10-07-PLAN.md — ListingModerationReasonModal + ListingRestoreModal + TypedConfirmationModal keyboardType prop (LUI-02, LUI-03)
-
-**Wave 4** *(blocked on Wave 3 completion)*
-- [x] 10-08-PLAN.md — CarDetailsScreen wiring: badge + status banner + error banner + optimistic-flip + Delete escalation (LUI-01, LUI-02, LUI-03, LMOB-02)
-- [x] 10-09-PLAN.md — SellCarScreen adminEdit route flag: 4+ gate bypasses + endpoint swap to ModerationService.adminEditListing (LUI-02)
-
-**Wave 5** *(blocked on Wave 4 completion)*
-- [x] 10-10-PLAN.md — AdminModerationScreen Users|Listings tabs + Listings panel + per-row Recover (LUI-04)
-- [x] 10-11-PLAN.md — Gap closure CR-01: TypedConfirmationModal bodyKey/hintKey/placeholderKey override props + listing-delete RU+EN strings + CarDetailsScreen mount swap (LUI-02)
-- [x] 10-12-PLAN.md — Gap closure CR-04: always-fetch-when-isAdmin gate change + regression test for carData-prefilled admin entry (LUI-01, LUI-03)
-
-### Phase 11: Buyer-affected UX + Quality + Security Review
-**Goal**: Non-admin buyers see a severity-aware banner explaining any non-active listing they encounter (detail screen + cart), already-paid orders proceed normally, all new strings ship with RU/EN parity enforced by jest, every LIST-* requirement is test-covered, and a `LIST-SECURITY.md` review clears the merge-gate
-**Depends on**: Phase 10
-**Requirements**: LBUY-01, LBUY-02, LBUY-03, LBUY-04, LQUAL-01, LQUAL-02, LQUAL-03
-**Success Criteria** (what must be TRUE):
-  1. A non-admin viewing a `suspended`/`archived`/`deleted` listing detail sees a non-dismissable banner with the status + reason category; the tone is severity-aware (neutral archived, warning suspended, destructive-but-recoverable deleted)
-  2. A cart containing a non-active listing renders an in-row banner and disables the checkout button without auto-clearing the cart
-  3. An already-paid order touching a now-non-active listing remains in its current order status; no auto-cancel or auto-refund occurs, but admins retain the existing manual cancel tool
-  4. The jest literal scanner (extended from v1.0 06-09) finds zero new untranslated strings and the RU/EN key-set diff is empty for all v1.1 additions
-  5. `LIST-SECURITY.md` ships with status `APPROVED`, all five verdicts (auth / authz / audit / TOCTOU / deferred-verification disposition) marked PASS, before tagging v1.1
-**UI hint**: yes
-**Plans**: 8 plans
-Plans:
-**Wave 1**
-- [ ] 11-01-PLAN.md — Translation keys (15 RU+EN pairs) + shared F1..F9 mock fixtures substrate (LQUAL-01 substrate for all downstream plans)
-
-**Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 11-02-PLAN.md — ListingStatusBanner.tsx component (variant=detail|cartRow, severity-aware) + tests (LBUY-01, LBUY-04)
-- [ ] 11-05-PLAN.md — LBUY-03 source-grep audit test (no auto-cancel logic on order screens) (LBUY-03)
-
-**Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 11-03-PLAN.md — CarDetailsScreen non-admin banner mount above hero + 4 buyer CTA gating + Book-it 409 catch banner-state flip + tests (LBUY-01, LBUY-04)
-- [ ] 11-04-PLAN.md — ServiceCartScreen useFocusEffect re-fetch + inline cart-row banner + global checkout-disable + tests (LBUY-02)
-
-**Wave 4** *(blocked on Wave 3 completion)*
-- [ ] 11-06-PLAN.md — Extend translation-parity.test.ts with placeholder-token parity + extend moderation-literals.test.ts SCAN_FILES (LQUAL-01)
-
-**Wave 5** *(blocked on Wave 4 completion)*
-- [ ] 11-07-PLAN.md — Coverage manifest generator (scripts/generate-coverage-manifest.sh) + generate 11-COVERAGE.md (LQUAL-02)
-
-**Wave 6** *(blocked on Wave 5 completion)*
-- [ ] 11-08-PLAN.md — Pre-merge security review document 11-LIST-SECURITY.md (5 verdicts: auth/authz/audit/TOCTOU/deferred-verification) (LQUAL-03)
-
-## Progress
-
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 1. Schema + Security Baseline | v1.0 | 6/6 | Complete | 2026-04-17 |
-| 2. Admin Moderation Endpoints | v1.0 | 6/6 | Complete | 2026-04-17 |
-| 3. Backend Enforcement | v1.0 | 6/6 | Complete | 2026-04-17 |
-| 4. Mobile Plumbing | v1.0 | 7/7 | Complete | 2026-04-18 |
-| 5. Admin Moderation UI | v1.0 | 14/14 | Complete | 2026-04-18 |
-| 6. Affected-User UX + Security Review | v1.0 | 10/12 (2 deferred) | Complete | 2026-04-30 |
-| 7. Listing Schema + Security Baseline | v1.1 | 0/6 | Planned | - |
-| 8. Admin Listing Moderation Endpoints | v1.1 | 0/? | Not started | - |
-| 9. Backend Read-time + TOCTOU Enforcement | v1.1 | 0/? | Not started | - |
-| 10. Mobile Plumbing + Admin Listing UI | v1.1 | 12/12 | Complete   | 2026-05-29 |
-| 11. Buyer-affected UX + Quality + Security Review | v1.1 | 8/8 | Complete    | 2026-05-29 |

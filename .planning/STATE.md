@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Admin Listing Moderation
-status: "v1.1 shipped — PR #3"
-stopped_at: Phase 11 context gathered
-last_updated: "2026-06-03T23:58:44.576Z"
-last_activity: 2026-06-03 - Completed quick task 260603-nl5: admin self-moderation UX (owner-aware sheet + translated error banner)
+milestone: v1.2
+milestone_name: Notifications
+status: Phase 13 SHIPPED — mobile PR #12 open (Phases 12+13 mobile → main); milestone v1.2 has Phase 14 (Daily Digest) remaining
+stopped_at: Phase 13 shipped — mobile PR #12 (https://github.com/beckinfonet/CarEx/pull/12) awaiting merge
+last_updated: "2026-06-07T07:27:30.058Z"
+last_activity: 2026-06-07 -- Phase 13 COMPLETE: real-device UAT passed, all 5 plans done, NPUSH-01..08 + NPRF-06 delivered
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 37
-  completed_plans: 37
+  total_phases: 3
+  completed_phases: 2
+  total_plans: 15
+  completed_plans: 15
   percent: 100
 ---
 
@@ -20,15 +20,37 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
-**Core value:** Admins can act on bad-actor users after they're already in the system — without losing the audit trail or breaking in-flight orders for legitimate counterparties.
-**Current focus:** Phase 11 — buyer-affected-ux-quality-security-review
+**Core value (current milestone v1.2):** Buyers get alerted to relevant inventory and watched-car events without re-checking the app — via an in-app notification center and OS push.
+**Current focus:** Phase 12 — notification-domain-in-app-center
 
 ## Current Position
 
-Phase: 11
-Plan: Not started
-Status: v1.1 shipped — PR #3
-Last activity: 2026-06-06 - Completed quick task 260606-img: server-side sharp image variant pipeline (thumb+full) + mobile renders thumbnails on cards (cross-repo)
+Phase: 13 ✅ COMPLETE
+Plan: all 5 plans complete; 13-HUMAN-UAT signed PASS (2026-06-07); verification passed (doc gap it flagged is now closed)
+Status: Phase 13 done — NEXT: merge mobile `feature/notifications-system` → main, then Phase 14 (Daily Digest & Scheduling)
+Last activity: 2026-06-07 - Completed quick task 260607-c2i: fixed 5 ultrareview findings on PR #12 (Phase 13 push) — App.tsx routeDeeplink (watch no-op + dropped search filters), Android carex_default channel creation, WatchButton dup-subscription hydration, bodyType saved-search deeplink, iOS aps-environment release-prep note. 28/28 tests green.
+
+**Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
+
+- ✅ **13-02** (backend FCM send loop + device-token routes + PII-safe push copy): DONE + **MERGED to backend `main` 2026-06-06 via PR #10 (`df9ebb0`)** — full Phase 12+13 backend stack now on origin/main, deploys via Railway. 31/31 target tests green; pre-existing ServiceOrder.providerSnapshot failure untouched. Mobile-side SUMMARY on mobile branch `feature/notifications-system`. ⚠️ Railway still on TEST Stripe keys from spike — restore live keys for prod payments.
+- ✅ **13-01** (iOS Podfile static-frameworks SPIKE — the NPUSH-01 gate): **PASSED 2026-06-06.** SUMMARY written. Commits `78aae01` (rollback checkpoint), `7543a51` (static-frameworks switch), `a8cf5ee` (Stripe key-account fix). Bar #1 Release compile PROVEN (orchestrator xcodebuild: BUILD SUCCEEDED, 0 errors, FollyConvert resolved, carEx.app produced). Bar #2 PASSED on TestFlight (Release build runs on real iPhone + Stripe test checkout "Payment successful → Booked"). D-03: RNFB built-in display, no notifee. **Milestone #1 risk RETIRED. Waves 2–4 unlocked.** ⚠️ Release follow-up: App.tsx ships a TEST Stripe pk in all builds (pre-existing CONCERNS) — swap to pk_live + Railway sk_live before prod release.
+- ✅ **13-03** (install @react-native-firebase 24.1.0 + native config): **DONE 2026-06-07.** RNFB app+messaging at exactly 24.1.0 (locked-step); `RCT_USE_PREBUILT_RNCORE=0 pod install` clean under static frameworks (Firebase iOS 12.11.0, Stripe/fmt intact, FollyConvert resolved, no notifee). Android google-services 4.4.4 applied; `:app:processDebugGoogleServices` BUILD SUCCESSFUL against `com.carex.market`. POST_NOTIFICATIONS + default channel `carex_default` declared. Commits `2e1b1e9` (Task 1), `4f147c0` (Task 2). Operator console artifacts (google-services.json gitignored/local-only + APNs .p8 uploaded) pre-satisfied. Real-device APNs delivery (NPUSH-03) verified later in 13-04/UAT.
+- ✅ **13-04** (PushService + AuthContext wiring + 3-state tap routing): **DONE 2026-06-07.** PushService off AuthService (MOB-01 gate 0); logout unregister fires before idToken clears (awk PASS 475<483); index.js bg handler at module scope before registerComponent (17<22); App.tsx exports `navigationRef` + `PushTapRoutingEffect` (getInitialNotification/onNotificationOpenedApp/onMessage → routeDeeplink, whitelist-only CarDetails/SearchResults). New `src/services/push/pushPermission.ts` isolates RNFB calls (no requestPermission — that's 13-05). PushService test 7/7; full suite 526 pass / 17 pre-existing fails (no regressions). Commits `f55425b`/`ceec024`/`08b0200`/`4ab5803`. Real-device NPUSH-06/07 → 13-HUMAN-UAT (13-05).
+- 🟡 **13-05** (permission pre-prompt UI + settings + HUMAN-UAT): **Tasks 1-3 DONE 2026-06-07; Task 4 = real-device UAT gate (pending).** Contextual fire-once pre-prompt (never on launch; single ask across Watch+Save-search; "Не сейчас" persists, never re-asks); denied-recovery row on NotificationSettings (live `hasPermission` + `Linking.openSettings`); `pushPrePromptTitle/Body`, `pushEnable`, `pushStatusOn/Off`, `pushEnableInSettings` keys RU/EN parity; `13-HUMAN-UAT.md` authored (NPUSH-01/03/06/07). prePrompt 9/9 + Settings 7/7; full suite 537 pass / 17 pre-existing fails. Commits `fcfd42b`/`81a2c9d`/`fa5fde4`/`65030b2`. **Awaiting operator real-device UAT → resume signal "uat passed"** then /gsd-verify-work. Logged 3 pre-existing NotificationSettings lint errors to deferred-items (not fixed — out of scope).
+
+**To resume mobile waves:** at a Mac with a real iPhone, run `/gsd-execute-phase 13` again — it will pick up the 4 incomplete plans starting with the 13-01 spike. ⚠️ Memory note: native Firebase SDK was historically problematic on this app — 13-01 is the spike that exists to validate it under static frameworks with Stripe intact.
+
+**Human verification (13-02):** ✅ A1 RESOLVED 2026-06-06 — service account has `roles/firebase.sdkAdminServiceAgent`, which includes `cloudmessaging.messages.create`; FCM send is authorized (no extra IAM grant needed). Note: send-authorized ≠ delivery — lock-screen delivery still needs APNs `.p8` (13-03) + a registered device token (13-04). Backend `feat/fcm-push-transport` (Phase 12 + 13 stack) must merge to backend `main` for prod — Railway deploys backend main.
+
+## Milestone Roadmap (v1.2)
+
+| Phase | Goal | Requirements | Native? |
+|-------|------|--------------|---------|
+| 12 — Notification Domain + In-App Center | Subscribe (Saved Search + Watch), see events in-app over pure REST; fcm.send is a no-op stub | NDOM-01..06, NSUB-01..04, NCEN-01..06, NPRF-01..05/07, NI18N-01..03 (24) | No |
+| 13 — FCM Push Transport | OS push for instant subs; iOS Podfile static-frameworks gate spike FIRST; 3-state tap routing | NPUSH-01..08, NPRF-06 (9) | Yes |
+| 14 — Daily Digest & Scheduling | One localized morning digest via in-process node-cron; 90-day prune | NDIG-01..05 (5) | No |
+
+Dependencies: 12 → 13 → 14 (strict chain). Phase 13 gated by the NPUSH-01 Podfile spike (milestone #1 risk). Phase 12 reuses v1.1 hide-hook, base64 cursor, ModerationService split precedent, firebase-admin (already installed).
 
 ## Deferred Items
 
@@ -39,8 +61,16 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-04-30:
 | backend-load-test | Plan 06-0a (10k-user seed) | deferred by operator 2026-04-19 |
 | backend-load-test | Plan 06-0b (k6 harness with P95<200ms) | deferred by operator 2026-04-19 |
 | ux-followup | UserStatusBanner overlap with navbar avatar + logo + screen title (Phase 06 03 styling) | captured 2026-04-30 during Phase 04 UAT — to be addressed in next milestone |
-Last activity: 2026-05-30 - Shipped feat/personality-tier-setting branch (PR #7): personality tier picker + UNHINGED consent gate + KG-localized greeting content (50/slot)
-Resume file: .planning/phases/11-buyer-affected-ux-quality-security-review/11-CONTEXT.md
+
+Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open artifacts — bookkeeping leftovers, all phase work complete):
+
+| Category | Item | Status |
+|----------|------|--------|
+| quick-task-bookkeeping | 21 quick tasks (HomeScreen V2 polish, image-variant pipeline, favorites/status badges, admin self-mod UX) missing SUMMARY.md | shipped per git history; SUMMARY files never written |
+| debug-session | android-photo-load-lag | fix_applied 2026-05-29 (effectively resolved) |
+| uat-gap | Phase 11 11-HUMAN-UAT.md | approved; 3 optional scenarios pending |
+
+Resume file: None
 
 Progress: [██████████] 100%
 
@@ -48,7 +78,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 25
+- Total plans completed: 45
 - Average duration: —
 - Total execution time: 0.0 hours
 
@@ -60,6 +90,7 @@ Progress: [██████████] 100%
 | 07 | 6 | - | - |
 | 09 | 5 | - | - |
 | 11 | 8 | - | - |
+| 12 | 10 | - | - |
 
 **Recent Trend:**
 
@@ -119,6 +150,17 @@ Progress: [██████████] 100%
 | Phase 10 P08 | 5m33s | 2 tasks tasks | 2 files files |
 | Phase 10 P11 | ~4m | 2 tasks | 5 files |
 | Phase 10 P12 | ~3m | 2 tasks tasks | 2 files files |
+| Phase 12 P01 | ~6m | 3 tasks | 12 files |
+| Phase 12 P02 | ~5m | 2 tasks | 3 files |
+| Phase 12 P03 | ~9m | 2 tasks | 11 files |
+| Phase 12 P04 | ~8m | 2 tasks tasks | 3 files files |
+| Phase Phase 12 P05 P05 | ~12m | 2 tasks tasks | 3 files files |
+| Phase 12 P06 | ~6m | 2 tasks | 9 files |
+| Phase 12 P07 | ~5m | 1 tasks | 2 files |
+| Phase 12 P08 | ~5m | 3 tasks | 7 files |
+| Phase 12 P09 | ~12m | 2 tasks | 7 files |
+| Phase 12 P10 | ~3m | 2 tasks | 3 files |
+| Phase 13 P03 | 4min | 2 tasks (+2 auto-fix) | 7 files (+1 gitignored) |
 
 ## Accumulated Context
 
@@ -126,6 +168,19 @@ Progress: [██████████] 100%
 
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
+
+- [Phase 12]: Plan 12-06: NotificationService mirrors the ModerationService split (apiClient verb+path wrappers, isAbortError) — notification HTTP stays OFF AuthService. MOB-01 guardrail enforced as a runtime test reading AuthService.ts source (zero notification/subscription/watch matches), not just an acceptance grep.
+- [Phase 12]: Plan 12-06: NotificationProvider placed innermost (after FavoritesProvider, immediately wrapping NavigationContainer) — inside AuthProvider so useAuth resolves AND wrapping every screen/badge that reads it. prevUidRef skip-on-mount sentinel clears unreadCount/feed on user.localId change (T-12-06-01 cross-user cache-leak mitigation, FavoritesContext pattern).
+- [Phase 12]: Plan 12-06: SearchResults: 'search' added to App.tsx linking.config alongside the untouched CarDetails: 'listing/:carId' — the only two whitelisted notification deeplink routing targets (T-12-06-04). NotificationsScreen/NotificationSettingsScreen are placeholder default-exports; real screens land in 12-08 / 12-10 (Wave 5) and overwrite them.
+- [Phase 12]: Plan 12-09: WatchButton is its own Bell pill (sibling discipline, not a Heart variant — icon/color/shape disambiguators) keyed on car._id || car.id || carId (NSUB-04/D-04). NotificationEvent union extended with canonical 'booked' + 'back_available' watch events (D-03) — 12-08's NotificationFeedItem already cast those spellings defensively, so aligning the type is non-breaking.
+- [Phase 12]: Plan 12-09: SaveSearchBar maps RU-label activeFilters (Цена/Год) to canonical criteria with makeId/modelId as ObjectId strings (Pitfall 4/5) before POST; one-tap instant saved_search + toast-with-Undo (deleteSubscription by returned id); self-hides via internal hasActiveFilters guard (D-08/D-09). bodyType passed as a resolved RU category name (selectedCategory is a CATEGORIES numeric id) so the mapping stays unit-testable.
+
+- [Phase 13]: Plan 13-03: RNFB app+messaging pinned to EXACTLY 24.1.0 (locked-step) — npm auto-added `^` was stripped to bare `24.1.0` because the plan's node verify check fails on caret float. Default Android FCM channel id = `carex_default` (declared in AndroidManifest default-channel meta-data); the channel itself must be CREATED in-JS in 13-04/13-05 and reference this id. iOS install uses `RCT_USE_PREBUILT_RNCORE=0 pod install` under static frameworks (spike incantation); no notifee (D-03, RNFB built-in display). google-services verified via `:app:processDebugGoogleServices` (proves client JSON matches applicationId without a full APK build).
+- [v1.2 Roadmap]: 3-phase structure honored exactly as pre-designed/research-validated — Phase 12 (domain + in-app center, pure REST, zero native), Phase 13 (FCM push, native), Phase 14 (node-cron digest). Phase numbering CONTINUES from v1.1 (12, 13, 14), not reset to 1.
+- [v1.2 Roadmap]: Phase 12 carries 24 of 32 requirements (heaviest by design) — bundles all domain + subscription + in-app + preferences + i18n foundation so the push (Phase 13) and digest (Phase 14) phases ride a stable, standalone-usable substrate. fcm.send ships as a no-op stub in Phase 12 so the in-app center is the guaranteed denied-permission fallback.
+- [v1.2 Roadmap]: Phase 13's FIRST task is the timeboxed iOS Podfile `use_frameworks! :linkage => :static` spike (NPUSH-01) — milestone #1 risk (collides with existing Stripe + fmt/C++17 hooks). Rollback checkpoint committed first; success = Release archive builds AND runs on a REAL device with Stripe checkout intact; notifee-fallback decided inside the spike. This task gates the rest of Phase 13.
+- [v1.2 Roadmap]: NPRF-06 (push pre-prompt) assigned to Phase 13 (not 12) because it precedes the native OS permission dialog that only exists once push transport is wired. NPRF-03/04 (quiet-hours + daily-cap) plumbing lands in Phase 12; their actual delivery enforcement is Phase 14. NDOM-06 (90-day retention) policy is defined in Phase 12 but the prune job executes in the Phase 14 cron.
+- [v1.2 Roadmap]: Backend send path reuses firebase-admin@13.8.0 (ALREADY installed for verifyIdToken) — do NOT add google-auth-library. Zero new backend send deps. New `src/notifications/` dir mirrors `src/moderation/` (ModerationService split precedent).
 
 - [v1.1 Roadmap]: 5-phase structure mirrors v1.0 backend-first execution shape: Phase 7 schema+auth → Phase 8 endpoints → Phase 9 read-time+TOCTOU enforcement → Phase 10 mobile plumbing+admin UI → Phase 11 buyer UX+quality+security review
 - [v1.1 Roadmap]: Mobile plumbing + Admin Listing UI merged into a single Phase 10 (v1.0 split these into Phases 4+5); justified because LIST-01 ships ONE admin surface (CarDetails bottom sheet) vs. v1.0's two screens (AdminModeration + AdminUserDetail + AdminManagement repurpose) — the LMOB-01..02 plumbing work is materially smaller (5 new methods on the existing ModerationService module, no new shared apiClient or AppState handler) and tightly coupled to LUI-01..04. Splitting would create a phase boundary mid-feature
@@ -348,6 +403,20 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 10 P08: D-15 error split — cannot_moderate_own_listing + already_in_state surface as INLINE admin-error-banner (admin keeps working); listing_not_found is hard-stop Alert + navigation.goBack(); other ListingModerationError codes surface as Alert.alert(code)
 - [Phase ?]: [Phase 10]: Plan 10-11 CR-01 gap closure — chose Option B (extend hint resolver to replace both {email} and {title} placeholders). Lets new listing-domain RU/EN strings read naturally with {title} while existing user-domain typedConfirmHint with {email} stays byte-identical (no-op .replace() on absent tokens). DestructiveAction union NOT widened; BODY_KEY_FOR_ACTION map preserved as default; Phase 5 user-mod call sites byte-identical.
 - [Phase ?]: [Phase 10]: Plan 10-12 — CR-04 closure: fetch gate widened to always-fetch-when-admin
+- [Phase 12]: Plan 12-02: Mobile Wave-0 scaffolds (NotificationService, NotificationContext, WatchButton) import their not-yet-built target modules as wiring checks + enumerate VALIDATION behaviors as test.todo; `--listTests` discovers them now, the imports go green when Wave 2/3 ship the modules (mirrors Phase 5 Plan 05-01)
+- [Phase 12]: Plan 12-02: `car._id || car.id || carId` watch-key fallback order locked verbatim in a WatchButton test.todo string (grep-visible, T-12-02-01 / NSUB-04 / D-04 — prevents the prod booking-status class of bug); MOB-01 guardrail locked as a NotificationService test.todo (notification HTTP stays off AuthService, T-12-02-02)
+- [Phase 12]: Plan 12-02: translation-parity.test.ts left byte-unmodified — existing green set-equality harness auto-covers Wave-2 notification keys (NI18N-02/03); no whitespace touch needed
+- [Phase ?]: [Phase 12] Plan 12-03: emit()+matchSavedSearches take injectable deps; resolveQuery() bridges mongoose .lean() and plain test stubs so the NDOM-03 guard suite runs DB-free while production hits mongoose singletons.
+- [Phase ?]: [Phase 12] Plan 12-03: hide-hook INVERSION — emit uses plain Car.findById (zero bypass flags, grep-gated==0) as a TOCTOU suppression gate; new_match deeplink carex://search?<criteria> vs watch carex://listing/:carId (NCEN-03).
+- [Phase ?]: [Phase 12]: Plan 12-04: /api/notifications/* router uid-scoped from req.auth.uid on every filter (12x), zero body/params uid (IDOR T-12-04-01), zero requireAdmin (NDOM-05) — all three are grep gates. Read-state idempotent (updated:modifiedCount, no 404). Subscription PATCH/DELETE 0-match -> opaque 400 subscription_not_found so callers cannot probe others' ids. body.uid rejected by .strict() discriminatedUnion AND never read. Router built; mount lands in 12-05.
+- [Phase ?]: [Phase 12]: Plan 12-05: notification emit wired at all 6 trigger points AFTER commit, each in its own off-hot-path try/catch so a notification failure never breaks the listing/booking response; oldPrice/oldStatus captured before mutation; /api/notifications mounted verifyIdToken-only (NDOM-05, inverting the moderation requireAdmin mount); PUT /api/users/:uid language whitelisted with RU/EN enum guard
+- [Phase ?]: [Phase 12]: Plan 12-07: LanguageContext persistence (NI18N-02) threads uid via lazy AuthService.getUserData() read at setLanguage time (not useAuth) — keeps App.tsx provider stack untouched (LanguageProvider below StripeProvider, Pitfall 6) AND auto-guards the backend write before auth. Backend write reuses AuthService.updateBackendUser (PUT /api/users/:uid); language is a profile field so MOB-01 N/A.
+- [Phase 12]: Plan 12-08: routeNotification is a two-prefix deeplink WHITELIST (carex://listing/:carId→CarDetails, carex://search?<crit>→SearchResults with parsed saved-search filters); unknown prefixes no-op, no arbitrary nav eval (T-12-08-01); exported for Phase 13 FCM tap-routing reuse.
+- [Phase 12]: Plan 12-08: saved-search criteria parsed via hand-rolled parseQueryString, not URLSearchParams (RN lib lacks .get(), TS2339). No bottom-tab navigator — badges reuse BottomBar More dot + MoreMenu 9+ count (D-05); App.tsx untouched.
+- [Phase 12]: Plan 12-10: NotificationSettingsScreen persists notificationPrefs (muteAll/savedSearchEnabled/watchEnabled/quietHours/dailyCap) via AuthService.updateBackendUser as User profile fields, then refreshUser() re-merges — AuthContext exposes refreshUser not setUser; quiet-hours/daily-cap are plumbing-only (persisted, NOT enforced until Phase 14, D-16).
+- [Phase 12]: Plan 12-10: Daily cadence is a disabled TouchableOpacity whose onPress fires the coming-soon hint and NEVER sets cadence 'daily' (D-10/NSUB-03 invariant, test-proven). ProfileScreen row uses t.notificationSettings, distinct from MoreMenu feed label t.notificationsMenuLabel (D-12).
+- [Phase ?]: 13-05: contextual fire-once push pre-prompt (shared flag covers Watch + Save-search; never on launch; Не сейчас persists)
+- [Phase ?]: 13-05: denied-permission recovery row on NotificationSettings reads live hasPermission and deep-links to OS Settings; in-app center stays functional (no dead-end)
 
 ### Pending Todos
 
@@ -387,6 +456,7 @@ None yet.
 | fast | Add RU+EN translations for 17 admin-moderation UI keys (action labels Edit/Suspend/Archive/Delete/Restore, reason categories, since-prefix, restore-modal header, listings tab/empty-state/search placeholder) that were referenced via `?? 'English'` fallback but never existed in translations.ts — so they rendered English even in RU-default mode. Full parity; reuses listingStatusBannerReason* wording. tsc + 118 tests green | 2026-06-03 | 9f10eca | — |
 | 260605-gvs | Total member-count social-proof strip (handoff Option B) on HomeScreenV2 + backend user-count endpoint. New `MemberCountStrip` (avatar stack · count+caption · YoY growth) rendered between ActiveFilterChips and HeroRotator; `formatMembers` helper (EN comma / RU non-breaking-space grouping, Hermes-safe) + unit test; 3 RU+EN translation keys (parity green); `AuthService.getMemberStats()` returns null→strip hidden. Backend (separate repo, branch `feature/user-count-endpoint`, 86928e2): public `GET /api/stats/users` → `{count, growthPct}` via User.countDocuments + YoY. NOT live in prod until backend branch merges to main + Railway deploys. tsc clean (no new errors); home/v2 29/29 + formatMembers 3/3 green | 2026-06-05 | pending | [260605-gvs-member-count-strip](./quick/260605-gvs-member-count-strip/) |
 | 260606-img | Server-side sharp image variant pipeline (deferred "Fix E") + mobile thumbnail consumption (cross-repo). Backend (carEx-services, branch `feature/image-variant-pipeline` off main, 6fa0175): `uploadMemory` + `processAndUploadCarImages()` resize each seller upload into `full` ~1600px + `thumb` ~400px JPEGs (immutable Cache-Control, collision-hardened keys, decode-failure fallback); `Car.thumbnailUrls:[String]`; POST/PUT `/api/cars` persist it; multer-s3 `upload` + admin moderation path UNCHANGED; 6/6 carImages tests green (2 pre-existing ServiceOrder failures unrelated, confirmed on origin/main). Mobile (d33903a): card `image` derivation prefers `thumbnailUrls[0]` (fallback imageUrls→placeholder) in useHomeListings/MyListings/SellerListings/Favorites + CarDetails header; gallery stays full. New uploads only (no backfill). NOT live until backend branch merges to main + Railway deploys; recommend staging-DB test first. tsc/eslint no new errors | 2026-06-06 | d33903a | [260606-img-image-variant-thumbnails](./quick/260606-img-image-variant-thumbnails/) |
+| 260607-c2i | Fix 5 ultrareview findings on PR #12 (Phase 13 push). (1) App.tsx `routeDeeplink` mirror of `NotificationsScreen.routeNotification` — `carex://listing/:carId` watch taps were silent no-ops (segment-slicing collapsed the carId) and `carex://search` dropped all filters (JSON-parsed a non-existent `initialFilters` param vs discrete URLSearchParams); shared `PUSH_*_FILTER_KEYS`, https branch + isReady guard preserved. (2) Android `carex_default` channel created natively in `MainApplication.onCreate` (O-guarded, idempotent) — was manifest-declared but never registered → silent fallback channel. (3) WatchButton hydrates `watching` from `listSubscriptions()` on mount (mounted-guard) → no duplicate watch POST on remount (WR-03). (4) bodyType saved-search deeplink seeds `selectedCategory` via CATEGORIES reverse-lookup in `normalizeInitialFilters` (CR-03 byte-equality preserved). (5) iOS aps-environment dev→prod swap deferred to release-prep (doc-only; entitlements unchanged). 28/28 tests + eslint green; no new deps/keys/strings | 2026-06-07 | df74a6d | [260607-c2i-fix-pr12-push-findings](./quick/260607-c2i-fix-pr12-push-findings/) |
 
 ## Deferred Items
 
@@ -401,6 +471,10 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-05-29T15:49:07.352Z
-Stopped at: Phase 11 context gathered
+Last session: 2026-06-07T07:27:11.878Z
+Stopped at: Phase 13 context gathered
 Resume file: None
+
+## Operator Next Steps
+
+- Start the next milestone with /gsd-new-milestone

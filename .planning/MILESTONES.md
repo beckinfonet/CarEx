@@ -4,6 +4,35 @@ Historical record of shipped versions. Most recent first.
 
 ---
 
+## v1.1 — Admin Listing Moderation
+
+**Shipped:** 2026-06-06
+**Tag:** v1.1
+**Phases:** 5 (Phases 7–11) | **Plans:** 37 | **Tasks:** 61
+**Known deferred items at close:** 23 (see STATE.md → Deferred Items) — bookkeeping leftovers only (21 quick-task SUMMARYs, 1 fix-applied debug session, 1 approved-UAT with 3 pending optional scenarios); all phase work 100% complete.
+
+### Delivered
+
+Extended v1.0's user-moderation model to the listing domain — admins get four visibly-distinct actions on car listings (Edit, Suspend, Archive, Soft-Delete) plus Restore, each with an append-only audit trail and buyer-side pause-not-cancel behavior. Backend-first: listing schema + audit + auth → moderation endpoints → read-time/TOCTOU enforcement → mobile plumbing + admin UI → buyer-affected UX + security review.
+
+### Key Accomplishments
+
+1. **Listing schema + append-only audit** — `Car.status` (`active`/`suspended`/`archived`/`deleted`) + admin-edit attribution fields + idempotent backfill migration; `ListingModerationAction` sibling collection with 6 append-only pre-hooks (Phase 7)
+2. **Prefix-isolated rate limiter** — per-admin 30/15min listing-moderation limiter with a `listing-admin:` keyGenerator bucket that can't contaminate the v1.0 user-mod throughput bucket (Phase 7)
+3. **Five atomic moderation endpoints** — Edit / Suspend / Archive / Soft-Delete / Restore, each transitioning `status` and writing one audit row inside a single Mongoose transaction (Phase 8)
+4. **Read-time hide hook** — `pre(/^find/)` on `Car` hides non-active listings from all public reads with admin opt-in bypass; caller `status` filter preserved via `$and`-combine (Phase 9)
+5. **TOCTOU-safe checkout** — `create-payment-intent` 409 gate + in-transaction `car.status === 'active'` re-verification in `confirmBooking` with refund-first-throw-second semantics; in-flight paid orders proceed (Phase 9)
+6. **Admin listing UI** — Users|Listings tab on `AdminModerationScreen` (search + 5 status chips + paginated list + per-row Recover), inline bottom-sheet moderation on `CarDetailsScreen`, typed-confirmation modals, admin-only Deleted view (Phase 10)
+7. **Buyer-affected UX + RU/EN parity** — severity-aware listing-detail + cart banners, translation parity scanner, coverage manifest (Phase 11)
+8. **Security review APPROVED** — `LIST-SECURITY.md` merge-gate: 5 PASS verdicts (auth / authz / audit / TOCTOU / deferred-verification) with 28+ cross-repo citations (Phase 11)
+
+### Archive
+
+- Roadmap: `.planning/milestones/v1.1-ROADMAP.md`
+- Requirements: `.planning/milestones/v1.1-REQUIREMENTS.md`
+
+---
+
 ## v1.0 — Admin Moderation
 
 **Shipped:** 2026-04-30

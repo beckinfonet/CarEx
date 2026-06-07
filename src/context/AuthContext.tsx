@@ -15,6 +15,14 @@ import {
   setIdTokenRefreshListener,
   setLogoutTrigger,
 } from '../services/http/client';
+// Phase 13 (NPUSH-04): device-token lifecycle. All RNFB messaging calls are
+// isolated in pushPermission; PushService owns the device-token HTTP (MOB-01).
+import { PushService } from '../services/push/PushService';
+import {
+  registerDeviceTokenIfPermitted,
+  getDeviceTokenSafe,
+  subscribeTokenRefresh,
+} from '../services/push/pushPermission';
 
   interface AuthContextType {
     user: any;
@@ -347,7 +355,18 @@ import {
       setLogoutTrigger(async () => {
         await logoutRef.current?.();
       });
+
+      // Phase 13 (NPUSH-04): subscribe ONCE to FCM token rotation, mirroring
+      // the subscribe-once-on-mount precedent used by the listeners above.
+      // onTokenRefresh re-registers the new token (gated on permission already
+      // granted; no OS dialog). RNFB returns an unsubscribe fn for cleanup.
+      const unsubscribeTokenRefresh = subscribeTokenRefresh();
+
       loadStorageData();
+
+      return () => {
+        unsubscribeTokenRefresh();
+      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -409,6 +428,12 @@ import {
       );
       setUser(userData);
       await checkAdminStatus(data.localId);
+      // Phase 13 (NPUSH-04): register this device's FCM token now that the
+      // session is saved and the request interceptor has a valid Bearer. Gated
+      // on push permission ALREADY being granted — this does NOT trigger the OS
+      // dialog (that is 13-05's contextual pre-prompt). Best-effort: never
+      // throws, so a push failure cannot break login.
+      void registerDeviceTokenIfPermitted();
     }, [checkAdminStatus]);
 
     const signup = useCallback(async (email: string, password: string) => {
@@ -430,9 +455,28 @@ import {
         userData,
       );
       setUser(userData);
+      // Phase 13 (NPUSH-04): mirror login — register the device token (gated on
+      // permission already granted; no OS dialog here). Best-effort.
+      void registerDeviceTokenIfPermitted();
     }, []);
 
     const logout = useCallback(async () => {
+      // Phase 13 (NPUSH-04 / Pitfall 4 — THE ORDERING TRAP): unregister this
+      // device's FCM token BEFORE currentIdTokenRef clears below, so the request
+      // interceptor still attaches a valid Bearer to the DELETE. If this ran
+      // after the ref clear, the backend could not authorize the delete and the
+      // logged-out device would keep receiving the prior user's pushes
+      // (T-13-04-01). Capture the token first, then fire the authorized
+      // unregister, THEN clear the ref. Best-effort: any failure logs and is
+      // swallowed so logout teardown always proceeds.
+      try {
+        const fcmToken = await getDeviceTokenSafe();
+        if (fcmToken) {
+          await PushService.unregisterToken(fcmToken);
+        }
+      } catch (pushErr) {
+        console.error('Device-token unregister on logout failed', pushErr);
+      }
       // Clear the token ref FIRST — before any other teardown or awaits — so
       // the request interceptor cannot attach a stale Bearer on any call
       // triggered by the logout teardown itself.
