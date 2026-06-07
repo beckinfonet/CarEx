@@ -74,7 +74,12 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
   3. A push tap from the QUIT (cold-start) state opens the correct car detail on a real device — `setBackgroundMessageHandler` is registered at the top of `index.js`, `getInitialNotification()` is handled, and `data.deeplink` (built server-side with `car._id || car.id || carId`) routes through the existing `linking` config; foreground and background taps work too.
   4. Device tokens register on login/signup, refresh on `onTokenRefresh`, and unregister on logout (token captured before the idToken ref clears); the backend send loop (firebase-admin, cached OAuth, exponential backoff on 429) prunes `UNREGISTERED`/`INVALID_ARGUMENT` tokens and never aborts the whole fan-out on one bad token.
   5. Push permission is NEVER requested on launch — only contextually on first Watch/Save-search, preceded by a soft in-app pre-prompt with a "Not now" option; if the user denies OS push, the Phase-12 in-app center remains fully functional with no dead-end; send-time re-checks the hide-hook/moderation status (TOCTOU).
-**Plans**: TBD
+**Plans**: 5 plans (4 waves)
+- [ ] 13-01-PLAN.md — iOS static-frameworks gating spike (rollback checkpoint, real-device Release archive, Stripe-intact, notifee decision) — NPUSH-01
+- [ ] 13-02-PLAN.md — Backend: firebase-admin send loop + device-token routes + generic PII-safe push copy + Wave-0 tests (sibling repo) — NPUSH-05/08, NPUSH-04
+- [ ] 13-03-PLAN.md — RNFB 24.1.0 install + Android google-services/POST_NOTIFICATIONS/channel + APNs .p8 (human console) — NPUSH-02/03
+- [ ] 13-04-PLAN.md — Mobile transport: PushService + AuthContext token lifecycle + index.js background handler + App.tsx 3-state routing — NPUSH-04/06/07
+- [ ] 13-05-PLAN.md — Permission pre-prompt (fire-once) + denied-recovery on settings + RU/EN copy + real-device HUMAN-UAT — NPRF-06
 **UI hint**: yes
 
 ### Phase 14: Daily Digest & Scheduling
@@ -95,7 +100,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 12. Notification Domain + In-App Center | 10/10 | Complete    | 2026-06-07 |
-| 13. FCM Push Transport (native) | 0/TBD | Not started | - |
+| 13. FCM Push Transport (native) | 0/5 | Not started | - |
 | 14. Daily Digest & Scheduling | 0/TBD | Not started | - |
 
 ## Backlog / Carry-forward candidates
