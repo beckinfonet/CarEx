@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
 status: executing
-stopped_at: Completed 12-08-PLAN.md
-last_updated: "2026-06-07T01:14:21.598Z"
+stopped_at: Completed 12-09-PLAN.md
+last_updated: "2026-06-07T01:23:32.378Z"
 last_activity: 2026-06-07
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 10
-  completed_plans: 8
-  percent: 80
+  completed_plans: 9
+  percent: 90
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 12 (notification-domain-in-app-center) — EXECUTING
-Plan: 9 of 10
+Plan: 10 of 10
 Status: Ready to execute
 Last activity: 2026-06-07
 
@@ -60,7 +60,7 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 
 Resume file: None
 
-Progress: [████████░░] 80%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
@@ -145,6 +145,7 @@ Progress: [████████░░] 80%
 | Phase 12 P06 | ~6m | 2 tasks | 9 files |
 | Phase 12 P07 | ~5m | 1 tasks | 2 files |
 | Phase 12 P08 | ~5m | 3 tasks | 7 files |
+| Phase 12 P09 | ~12m | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -156,6 +157,8 @@ Recent decisions affecting current work:
 - [Phase 12]: Plan 12-06: NotificationService mirrors the ModerationService split (apiClient verb+path wrappers, isAbortError) — notification HTTP stays OFF AuthService. MOB-01 guardrail enforced as a runtime test reading AuthService.ts source (zero notification/subscription/watch matches), not just an acceptance grep.
 - [Phase 12]: Plan 12-06: NotificationProvider placed innermost (after FavoritesProvider, immediately wrapping NavigationContainer) — inside AuthProvider so useAuth resolves AND wrapping every screen/badge that reads it. prevUidRef skip-on-mount sentinel clears unreadCount/feed on user.localId change (T-12-06-01 cross-user cache-leak mitigation, FavoritesContext pattern).
 - [Phase 12]: Plan 12-06: SearchResults: 'search' added to App.tsx linking.config alongside the untouched CarDetails: 'listing/:carId' — the only two whitelisted notification deeplink routing targets (T-12-06-04). NotificationsScreen/NotificationSettingsScreen are placeholder default-exports; real screens land in 12-08 / 12-10 (Wave 5) and overwrite them.
+- [Phase 12]: Plan 12-09: WatchButton is its own Bell pill (sibling discipline, not a Heart variant — icon/color/shape disambiguators) keyed on car._id || car.id || carId (NSUB-04/D-04). NotificationEvent union extended with canonical 'booked' + 'back_available' watch events (D-03) — 12-08's NotificationFeedItem already cast those spellings defensively, so aligning the type is non-breaking.
+- [Phase 12]: Plan 12-09: SaveSearchBar maps RU-label activeFilters (Цена/Год) to canonical criteria with makeId/modelId as ObjectId strings (Pitfall 4/5) before POST; one-tap instant saved_search + toast-with-Undo (deleteSubscription by returned id); self-hides via internal hasActiveFilters guard (D-08/D-09). bodyType passed as a resolved RU category name (selectedCategory is a CATEGORIES numeric id) so the mapping stays unit-testable.
 
 - [v1.2 Roadmap]: 3-phase structure honored exactly as pre-designed/research-validated — Phase 12 (domain + in-app center, pure REST, zero native), Phase 13 (FCM push, native), Phase 14 (node-cron digest). Phase numbering CONTINUES from v1.1 (12, 13, 14), not reset to 1.
 - [v1.2 Roadmap]: Phase 12 carries 24 of 32 requirements (heaviest by design) — bundles all domain + subscription + in-app + preferences + i18n foundation so the push (Phase 13) and digest (Phase 14) phases ride a stable, standalone-usable substrate. fcm.send ships as a no-op stub in Phase 12 so the in-app center is the guaranteed denied-permission fallback.
@@ -447,7 +450,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-07T01:14:21.589Z
+Last session: 2026-06-07T01:23:32.370Z
 Stopped at: Completed 12-08-PLAN.md
 Resume file: None
 
