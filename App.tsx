@@ -71,14 +71,62 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export const navigationRef =
   createNavigationContainerRef<RootStackParamList>();
 
+// Saved-search criteria key sets — MUST mirror NotificationsScreen's
+// routeNotification (STRING_FILTER_KEYS / NUMERIC_FILTER_KEYS) so the backend's
+// discrete URLSearchParams encoding is decoded identically on the push-tap path
+// and the in-app notification-center path. Numeric keys are coerced via Number()
+// with a NaN guard; string keys are carried as-is.
+const PUSH_STRING_FILTER_KEYS = ['makeId', 'modelId', 'bodyType'];
+const PUSH_NUMERIC_FILTER_KEYS = [
+  'priceMin',
+  'priceMax',
+  'yearMin',
+  'yearMax',
+];
+
+/**
+ * Minimal `a=1&b=2` → `{ a: '1', b: '2' }` parser (URI-decoded, empty/keyless
+ * pairs skipped). Mirrors NotificationsScreen.parseQueryString — avoids relying
+ * on the RN runtime's partial URLSearchParams typing/availability.
+ */
+function parsePushQueryString(query: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!query) return out;
+  query.split('&').forEach((pair) => {
+    if (!pair) return;
+    const eq = pair.indexOf('=');
+    const rawKey = eq >= 0 ? pair.slice(0, eq) : pair;
+    const rawVal = eq >= 0 ? pair.slice(eq + 1) : '';
+    if (!rawKey) return;
+    try {
+      out[decodeURIComponent(rawKey)] = decodeURIComponent(rawVal);
+    } catch {
+      out[rawKey] = rawVal;
+    }
+  });
+  return out;
+}
+
 /**
  * Parse a push data.deeplink (carex://... or https://www.carexmarket.com/...)
  * into a whitelisted navigation target, then navigate via navigationRef.
  *
  * ONLY the two existing linking targets are honored (do NOT widen, T-13-04-02):
  *   - /listing/:carId            → CarDetails  { carId }
- *   - /search?initialQuery=...   → SearchResults { initialQuery, initialFilters }
+ *   - /search?<criteria>         → SearchResults { initialQuery, initialFilters }
  * Anything else is ignored (untrusted deeplink string → whitelist only).
+ *
+ * Parsing mirrors NotificationsScreen.routeNotification so a push tap and an
+ * in-app notification tap resolve identically:
+ *   - DEFECT-a (carex://listing no-op): the old code stripped the scheme then
+ *     sliced off the first path segment, collapsing carex://listing/abc to a
+ *     single 'abc' segment that matched neither branch. We now match the listing
+ *     route directly off the normalized path.
+ *   - DEFECT-b (search filters dropped): the old code read params.initialFilters
+ *     as a JSON blob, but the backend encodes discrete query params. We now build
+ *     initialFilters from the SAME string/numeric key sets as the reference.
+ * The https form is normalized by stripping scheme+host first (the dotted host
+ * absorbs the leading slash); the carex:// form keeps the host as the route token.
  *
  * Car-id rule ([[car_id_field_unreliable]]): the backend builds the deeplink
  * with car._id || car.id || carId, so the carId path segment is already the
@@ -86,57 +134,65 @@ export const navigationRef =
  */
 function routeDeeplink(deeplink?: string) {
   if (!deeplink || !navigationRef.isReady()) return;
-  let pathname = '';
-  let params = new Map<string, string>();
   try {
-    // Strip the scheme/host to get a normalized path. Handles both carex://
-    // (e.g. carex://listing/abc, carex://search?...) and https URLs.
-    const withoutScheme = deeplink.replace(/^[a-z]+:\/\//i, '');
-    const firstSlash = withoutScheme.indexOf('/');
-    const pathAndQuery =
-      firstSlash >= 0
-        ? withoutScheme.slice(firstSlash + 1)
-        : // carex://search?... has the host as the route ("search") with no
-          // leading path — fall back to the host segment.
-          withoutScheme;
-    const [rawPath, rawQuery = ''] = pathAndQuery.split('?');
-    pathname = rawPath.replace(/^\/+|\/+$/g, '');
-    rawQuery
-      .split('&')
-      .filter(Boolean)
-      .forEach((pair) => {
-        const [k, v = ''] = pair.split('=');
-        params.set(decodeURIComponent(k), decodeURIComponent(v));
+    // Normalize to a "path?query" string. For carex:// the host IS the first
+    // route token (carex://listing/abc, carex://search?...), so only the scheme
+    // is stripped. For https the scheme+host are dropped so the path starts at
+    // the first segment (https://host/listing/abc → listing/abc).
+    let pathAndQuery: string;
+    if (/^carex:\/\//i.test(deeplink)) {
+      pathAndQuery = deeplink.replace(/^carex:\/\//i, '');
+    } else {
+      const withoutScheme = deeplink.replace(/^[a-z]+:\/\//i, '');
+      const firstSlash = withoutScheme.indexOf('/');
+      pathAndQuery = firstSlash >= 0 ? withoutScheme.slice(firstSlash + 1) : '';
+    }
+
+    const qIndex = pathAndQuery.indexOf('?');
+    const rawPath = qIndex >= 0 ? pathAndQuery.slice(0, qIndex) : pathAndQuery;
+    const rawQuery = qIndex >= 0 ? pathAndQuery.slice(qIndex + 1) : '';
+    const normalizedPath = rawPath.replace(/^\/+|\/+$/g, '');
+
+    // --- WATCH: listing/:carId → CarDetails ---
+    const listingMatch = normalizedPath.match(/^listing\/([^/?#]+)/);
+    if (listingMatch) {
+      navigationRef.navigate('CarDetails', {
+        carId: decodeURIComponent(listingMatch[1]),
       });
+      return;
+    }
+
+    // --- NEW_MATCH: search?<criteria> → SearchResults(filters) ---
+    if (normalizedPath === 'search' || normalizedPath.startsWith('search/')) {
+      const params = parsePushQueryString(rawQuery);
+
+      const initialFilters: { [key: string]: any } = {};
+      PUSH_STRING_FILTER_KEYS.forEach((key) => {
+        const v = params[key];
+        if (v != null && v !== '') {
+          initialFilters[key] = v;
+        }
+      });
+      PUSH_NUMERIC_FILTER_KEYS.forEach((key) => {
+        const v = params[key];
+        if (v != null && v !== '') {
+          const n = Number(v);
+          if (!Number.isNaN(n)) {
+            initialFilters[key] = n;
+          }
+        }
+      });
+
+      navigationRef.navigate('SearchResults', {
+        initialQuery: params.initialQuery || '',
+        ...(Object.keys(initialFilters).length > 0 ? { initialFilters } : {}),
+      });
+      return;
+    }
+    // Unknown target → ignore (whitelist-only routing).
   } catch (e) {
     console.error('Failed to parse push deeplink', e);
-    return;
   }
-
-  const segments = pathname.split('/').filter(Boolean);
-
-  if (segments[0] === 'listing' && segments[1]) {
-    navigationRef.navigate('CarDetails', { carId: segments[1] });
-    return;
-  }
-
-  if (segments[0] === 'search') {
-    let initialFilters: { [key: string]: any } | undefined;
-    const rawFilters = params.get('initialFilters');
-    if (rawFilters) {
-      try {
-        initialFilters = JSON.parse(rawFilters);
-      } catch {
-        initialFilters = undefined;
-      }
-    }
-    navigationRef.navigate('SearchResults', {
-      initialQuery: params.get('initialQuery') ?? '',
-      initialFilters,
-    });
-    return;
-  }
-  // Unknown target → ignore (whitelist-only routing).
 }
 
 /**
