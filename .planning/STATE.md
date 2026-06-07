@@ -4,14 +4,14 @@ milestone: v1.2
 milestone_name: Notifications
 status: executing
 stopped_at: Phase 12 UI-SPEC approved
-last_updated: "2026-06-07T00:28:19.590Z"
+last_updated: "2026-06-07T00:38:22.126Z"
 last_activity: 2026-06-07
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 10
-  completed_plans: 2
-  percent: 20
+  completed_plans: 3
+  percent: 30
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 12 (notification-domain-in-app-center) — EXECUTING
-Plan: 3 of 10
+Plan: 4 of 10
 Status: Ready to execute
 Last activity: 2026-06-07
 
@@ -60,7 +60,7 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 
 Resume file: None
 
-Progress: [██░░░░░░░░] 20%
+Progress: [███░░░░░░░] 30%
 
 ## Performance Metrics
 
@@ -139,6 +139,7 @@ Progress: [██░░░░░░░░] 20%
 | Phase 10 P12 | ~3m | 2 tasks tasks | 2 files files |
 | Phase 12 P01 | ~6m | 3 tasks | 12 files |
 | Phase 12 P02 | ~5m | 2 tasks | 3 files |
+| Phase 12 P03 | ~9m | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -377,6 +378,8 @@ Recent decisions affecting current work:
 - [Phase 12]: Plan 12-02: Mobile Wave-0 scaffolds (NotificationService, NotificationContext, WatchButton) import their not-yet-built target modules as wiring checks + enumerate VALIDATION behaviors as test.todo; `--listTests` discovers them now, the imports go green when Wave 2/3 ship the modules (mirrors Phase 5 Plan 05-01)
 - [Phase 12]: Plan 12-02: `car._id || car.id || carId` watch-key fallback order locked verbatim in a WatchButton test.todo string (grep-visible, T-12-02-01 / NSUB-04 / D-04 — prevents the prod booking-status class of bug); MOB-01 guardrail locked as a NotificationService test.todo (notification HTTP stays off AuthService, T-12-02-02)
 - [Phase 12]: Plan 12-02: translation-parity.test.ts left byte-unmodified — existing green set-equality harness auto-covers Wave-2 notification keys (NI18N-02/03); no whitespace touch needed
+- [Phase ?]: [Phase 12] Plan 12-03: emit()+matchSavedSearches take injectable deps; resolveQuery() bridges mongoose .lean() and plain test stubs so the NDOM-03 guard suite runs DB-free while production hits mongoose singletons.
+- [Phase ?]: [Phase 12] Plan 12-03: hide-hook INVERSION — emit uses plain Car.findById (zero bypass flags, grep-gated==0) as a TOCTOU suppression gate; new_match deeplink carex://search?<criteria> vs watch carex://listing/:carId (NCEN-03).
 
 ### Pending Todos
 
@@ -430,7 +433,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-07T00:28:19.583Z
+Last session: 2026-06-07T00:38:10.940Z
 Stopped at: Phase 12 UI-SPEC approved
 Resume file: None
 

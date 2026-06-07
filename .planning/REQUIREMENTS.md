@@ -13,15 +13,15 @@ Continues phase numbering from v1.1 (Phases 7–11). v1.2 spans **Phases 12–14
 
 - [x] **NDOM-01**: Three Mongoose models exist with the documented indexes — `DeviceToken` (globally-unique `token`, `{uid}` index), `Subscription` (`{kind,active,criteria.makeId,criteria.modelId}`, `{kind,carId,active}`, `{uid,active}`), `Notification` (`{uid,createdAt}`, `{uid,read}`, `{digestPending}`, `dedupeKey`).
 - [ ] **NDOM-02**: `notificationService.emit()` is called AFTER commit (not in a Mongoose post-save hook) at the six trigger points: `POST /api/cars`, `PUT /api/cars/:id`, `PATCH /api/cars/:id/status`, `confirmBooking` (post-transaction), admin `editListing` (post-commit), and the booked→active transition.
-- [ ] **NDOM-03**: Every emit applies three guards — (a) hide-hook respect by re-reading the Car with a plain `findById` (no bypass flags) and suppressing if null/non-active, (b) actor-exclusion (never notify `event.actorUid`), (c) dedup per `(uid, carId, eventType)`.
-- [ ] **NDOM-04**: A pure, unit-testable `matchSavedSearches` resolves matching active Saved Searches via the indexed query, off the request hot path.
+- [x] **NDOM-03**: Every emit applies three guards — (a) hide-hook respect by re-reading the Car with a plain `findById` (no bypass flags) and suppressing if null/non-active, (b) actor-exclusion (never notify `event.actorUid`), (c) dedup per `(uid, carId, eventType)`.
+- [x] **NDOM-04**: A pure, unit-testable `matchSavedSearches` resolves matching active Saved Searches via the indexed query, off the request hot path.
 - [ ] **NDOM-05**: `/api/notifications/*` router is mounted, uid-scoped (uid taken from the verified ID token, NOT a body param; not admin-gated).
 - [x] **NDOM-06**: Notifications older than 90 days are pruned (job lands in Phase 14 cron; policy defined here).
 
 ### Subscriptions (NSUB)
 
 - [ ] **NSUB-01**: User can create and manage a **Saved Search** with criteria (make, model, price min/max, year min/max, body type); new searches default to **instant** cadence.
-- [ ] **NSUB-02**: User can **Watch** a specific car and receive its lifecycle events — **price drop (decrease only)**, **booked**, **sold**, **back-available** (booked→active only, not admin archived→active restores).
+- [x] **NSUB-02**: User can **Watch** a specific car and receive its lifecycle events — **price drop (decrease only)**, **booked**, **sold**, **back-available** (booked→active only, not admin archived→active restores).
 - [ ] **NSUB-03**: Each Saved Search has a cadence of **instant** or **daily digest** (selector present in v1.2; daily delivery enforced in Phase 14). Watch events are always instant.
 - [x] **NSUB-04**: Watch subscriptions key on `car._id || car.id || carId` (never bare `car.id`); price-drop fires only on a decrease (direction-checked against captured old price).
 
@@ -29,7 +29,7 @@ Continues phase numbering from v1.1 (Phases 7–11). v1.2 spans **Phases 12–14
 
 - [x] **NCEN-01**: A bell icon with an unread-count badge is present in the app header.
 - [ ] **NCEN-02**: `NotificationsScreen` shows a reverse-chronological feed with cursor pagination (reuse the house base64 `{createdAt,_id}` cursor).
-- [ ] **NCEN-03**: Tapping a notification deep-links to its target (car detail or saved-search results) via the existing `linking` config.
+- [x] **NCEN-03**: Tapping a notification deep-links to its target (car detail or saved-search results) via the existing `linking` config.
 - [ ] **NCEN-04**: Notifications mark read on open; a "mark all read" action exists; read vs unread are visually distinct.
 - [ ] **NCEN-05**: An onboarding empty state guides first-time users ("Save a search or watch a car to get alerts").
 - [ ] **NCEN-06**: A **Watch** control on `CarDetailsScreen` (visually disambiguated from the local Favorite heart) and a **"Notify me about new matches"** action on the Home/filter results create the respective subscriptions.
@@ -40,7 +40,7 @@ Continues phase numbering from v1.1 (Phases 7–11). v1.2 spans **Phases 12–14
 - [ ] **NPRF-02**: User can list, edit the cadence of, and delete their subscriptions.
 - [x] **NPRF-03**: **Quiet hours** suppress non-urgent push overnight and queue them to the morning.
 - [x] **NPRF-04**: A **soft per-user daily cap (2–3/day)** applies to instant saved-search push; overflow rolls into the daily digest; Watch/transactional events are exempt.
-- [ ] **NPRF-05**: **Dedup + actor-exclusion** are user-visible-correct: a user never gets duplicate alerts for the same listing event and is never notified about their own action.
+- [x] **NPRF-05**: **Dedup + actor-exclusion** are user-visible-correct: a user never gets duplicate alerts for the same listing event and is never notified about their own action.
 - [ ] **NPRF-06**: A **soft in-app pre-prompt** (with "Not now") precedes the native OS permission dialog; push permission is **never** requested on launch — only contextually on first Watch/Save-search.
 - [x] **NPRF-07**: When OS push is denied, the in-app center remains fully functional as the fallback (no dead-end).
 
