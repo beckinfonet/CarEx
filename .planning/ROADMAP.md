@@ -55,7 +55,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 - [x] 12-01-PLAN.md — Backend foundation: 3 domain models + User.language/notificationPrefs + Wave-0 backend test scaffolds
 - [x] 12-02-PLAN.md — Mobile Wave-0 test scaffolds (NotificationService, NotificationContext, WatchButton)
 - [x] 12-03-PLAN.md — Backend domain engine: emit() 3 guards + matchSavedSearches + translations + fcm stub + schemas
-- [ ] 12-04-PLAN.md — Backend /api/notifications router: cursor feed, read-state, subscription CRUD (uid-scoped, IDOR-safe)
+- [x] 12-04-PLAN.md — Backend /api/notifications router: cursor feed, read-state, subscription CRUD (uid-scoped, IDOR-safe)
 - [ ] 12-05-PLAN.md — Backend server.js wiring: 6 emit trigger points + router mount + PUT users language
 - [ ] 12-06-PLAN.md — Mobile foundation: NotificationService + NotificationContext + nav/provider wiring + translations
 - [ ] 12-07-PLAN.md — LanguageContext persistence (AsyncStorage + backend write)
@@ -94,7 +94,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 12. Notification Domain + In-App Center | 3/10 | In Progress|  |
+| 12. Notification Domain + In-App Center | 4/10 | In Progress|  |
 | 13. FCM Push Transport (native) | 0/TBD | Not started | - |
 | 14. Daily Digest & Scheduling | 0/TBD | Not started | - |
 

@@ -4,14 +4,14 @@ milestone: v1.2
 milestone_name: Notifications
 status: executing
 stopped_at: Phase 12 UI-SPEC approved
-last_updated: "2026-06-07T00:38:22.126Z"
+last_updated: "2026-06-07T00:45:43.019Z"
 last_activity: 2026-06-07
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 10
-  completed_plans: 3
-  percent: 30
+  completed_plans: 4
+  percent: 40
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 12 (notification-domain-in-app-center) — EXECUTING
-Plan: 4 of 10
+Plan: 5 of 10
 Status: Ready to execute
 Last activity: 2026-06-07
 
@@ -60,7 +60,7 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 
 Resume file: None
 
-Progress: [███░░░░░░░] 30%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
@@ -140,6 +140,7 @@ Progress: [███░░░░░░░] 30%
 | Phase 12 P01 | ~6m | 3 tasks | 12 files |
 | Phase 12 P02 | ~5m | 2 tasks | 3 files |
 | Phase 12 P03 | ~9m | 2 tasks | 11 files |
+| Phase 12 P04 | ~8m | 2 tasks tasks | 3 files files |
 
 ## Accumulated Context
 
@@ -380,6 +381,7 @@ Recent decisions affecting current work:
 - [Phase 12]: Plan 12-02: translation-parity.test.ts left byte-unmodified — existing green set-equality harness auto-covers Wave-2 notification keys (NI18N-02/03); no whitespace touch needed
 - [Phase ?]: [Phase 12] Plan 12-03: emit()+matchSavedSearches take injectable deps; resolveQuery() bridges mongoose .lean() and plain test stubs so the NDOM-03 guard suite runs DB-free while production hits mongoose singletons.
 - [Phase ?]: [Phase 12] Plan 12-03: hide-hook INVERSION — emit uses plain Car.findById (zero bypass flags, grep-gated==0) as a TOCTOU suppression gate; new_match deeplink carex://search?<criteria> vs watch carex://listing/:carId (NCEN-03).
+- [Phase ?]: [Phase 12]: Plan 12-04: /api/notifications/* router uid-scoped from req.auth.uid on every filter (12x), zero body/params uid (IDOR T-12-04-01), zero requireAdmin (NDOM-05) — all three are grep gates. Read-state idempotent (updated:modifiedCount, no 404). Subscription PATCH/DELETE 0-match -> opaque 400 subscription_not_found so callers cannot probe others' ids. body.uid rejected by .strict() discriminatedUnion AND never read. Router built; mount lands in 12-05.
 
 ### Pending Todos
 
@@ -433,7 +435,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-07T00:38:10.940Z
+Last session: 2026-06-07T00:45:19.113Z
 Stopped at: Phase 12 UI-SPEC approved
 Resume file: None
 
