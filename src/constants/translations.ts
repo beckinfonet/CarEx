@@ -1005,6 +1005,15 @@ export const TRANSLATIONS = {
     saveSearchCta: 'Сообщать о новых вариантах',
     saveSearchToast: 'Будем сообщать о новых вариантах',
     saveSearchUndo: 'Отменить',
+    // Push permission pre-prompt + status (Phase 13 13-05, D-06 plain/functional
+    // copy — NOT the UNHINGED voice). notNow ('Не сейчас') is reused as-is.
+    pushPrePromptTitle: 'Включить уведомления?',
+    pushPrePromptBody:
+      'Включите уведомления, чтобы не пропустить новые совпадения и изменения цены.',
+    pushEnable: 'Включить',
+    pushStatusOn: 'Push-уведомления: включены',
+    pushStatusOff: 'Push-уведомления: выключены',
+    pushEnableInSettings: 'Включить в настройках',
     notifications: 'Уведомления',
     notificationSettings: 'Настройки уведомлений',
     notificationsMenuLabel: 'Уведомления',
@@ -2063,6 +2072,15 @@ export const TRANSLATIONS = {
     saveSearchCta: 'Notify me about new matches',
     saveSearchToast: "We'll alert you about new matches",
     saveSearchUndo: 'Undo',
+    // Push permission pre-prompt + status (Phase 13 13-05, D-06 plain/functional
+    // copy — NOT the UNHINGED voice). notNow ('Not now') is reused as-is.
+    pushPrePromptTitle: 'Turn on notifications?',
+    pushPrePromptBody:
+      'Turn on notifications so you never miss new matches and price changes.',
+    pushEnable: 'Turn on',
+    pushStatusOn: 'Push notifications: on',
+    pushStatusOff: 'Push notifications: off',
+    pushEnableInSettings: 'Enable in Settings',
     notifications: 'Notifications',
     notificationSettings: 'Notification settings',
     notificationsMenuLabel: 'Notifications',

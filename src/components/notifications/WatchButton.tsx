@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  View,
   Text,
   StyleSheet,
   TouchableOpacity,
@@ -13,6 +12,12 @@ import {
   NotificationService,
   NotificationEvent,
 } from '../../services/notifications/NotificationService';
+import {
+  shouldShowPrePrompt,
+  acceptPrePrompt,
+  declinePrePrompt,
+} from './prePrompt';
+import { PushPrePromptModal } from './PushPrePromptModal';
 
 /**
  * WatchButton — the labeled bell "Watch" pill on CarDetailsScreen (NCEN-06,
@@ -57,6 +62,9 @@ const WatchButton = ({ car, carId }: WatchButtonProps) => {
   const { t } = useLanguage();
   const [watching, setWatching] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // NPRF-06: soft pre-prompt visibility. NEVER true at mount — only flipped on
+  // the FIRST successful watch when the shared fire-once flag is unset (D-04).
+  const [prePromptVisible, setPrePromptVisible] = useState(false);
 
   // D-04 / NSUB-04 watch-key contract (grep-visible): car._id || car.id || carId
   // — NEVER bare car.id. Implemented with optional chaining on the car object.
@@ -74,6 +82,11 @@ const WatchButton = ({ car, carId }: WatchButtonProps) => {
         cadence: 'instant',
       });
       setWatching(true);
+      // NPRF-06 / D-04: on the FIRST successful watch, show the soft pre-prompt
+      // once (shared flag covers both Watch and Save-search). Never on mount.
+      if (await shouldShowPrePrompt()) {
+        setPrePromptVisible(true);
+      }
     } catch (error) {
       // Subscription create failed — keep inactive so the user can retry.
       console.error('Failed to create watch subscription', error);
@@ -82,25 +95,43 @@ const WatchButton = ({ car, carId }: WatchButtonProps) => {
     }
   };
 
+  // "Включить" → trigger OS dialog + register on grant; "Не сейчас" → persist
+  // seen, never auto-re-ask (D-05). Both resolve the fire-once flag.
+  const handleEnable = async () => {
+    setPrePromptVisible(false);
+    await acceptPrePrompt();
+  };
+  const handleNotNow = async () => {
+    setPrePromptVisible(false);
+    await declinePrePrompt();
+  };
+
   return (
-    <TouchableOpacity
-      style={[styles.pill, watching && styles.pillActive]}
-      onPress={handlePress}
-      disabled={submitting}
-      accessibilityRole="button"
-      accessibilityState={{ selected: watching, busy: submitting }}
-      accessibilityLabel={watching ? t.watchCtaActive : t.watchCta}
-      testID="watch-button"
-    >
-      {submitting ? (
-        <ActivityIndicator size="small" color={COLORS.accent} />
-      ) : (
-        <Bell size={20} color={COLORS.accent} />
-      )}
-      <Text style={styles.label}>
-        {watching ? t.watchCtaActive : t.watchCta}
-      </Text>
-    </TouchableOpacity>
+    <>
+      <TouchableOpacity
+        style={[styles.pill, watching && styles.pillActive]}
+        onPress={handlePress}
+        disabled={submitting}
+        accessibilityRole="button"
+        accessibilityState={{ selected: watching, busy: submitting }}
+        accessibilityLabel={watching ? t.watchCtaActive : t.watchCta}
+        testID="watch-button"
+      >
+        {submitting ? (
+          <ActivityIndicator size="small" color={COLORS.accent} />
+        ) : (
+          <Bell size={20} color={COLORS.accent} />
+        )}
+        <Text style={styles.label}>
+          {watching ? t.watchCtaActive : t.watchCta}
+        </Text>
+      </TouchableOpacity>
+      <PushPrePromptModal
+        visible={prePromptVisible}
+        onEnable={handleEnable}
+        onNotNow={handleNotNow}
+      />
+    </>
   );
 };
 

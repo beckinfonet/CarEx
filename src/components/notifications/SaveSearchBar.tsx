@@ -10,6 +10,12 @@ import { Bell } from 'lucide-react-native';
 import { COLORS, SIZES } from '../../constants/theme';
 import { useLanguage } from '../../context/LanguageContext';
 import { NotificationService } from '../../services/notifications/NotificationService';
+import {
+  shouldShowPrePrompt,
+  acceptPrePrompt,
+  declinePrePrompt,
+} from './prePrompt';
+import { PushPrePromptModal } from './PushPrePromptModal';
 
 /**
  * SaveSearchBar — the sticky "Notify me about new matches" conversion bar in
@@ -110,6 +116,9 @@ export const SaveSearchBar = ({
   const [toastVisible, setToastVisible] = useState(false);
   const [createdId, setCreatedId] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // NPRF-06: soft pre-prompt visibility — NEVER true at mount; only on the first
+  // successful save-search when the shared fire-once flag is unset (D-04).
+  const [prePromptVisible, setPrePromptVisible] = useState(false);
 
   useEffect(
     () => () => {
@@ -141,6 +150,11 @@ export const SaveSearchBar = ({
       });
       setCreatedId(sub?._id ?? null);
       showToast();
+      // NPRF-06 / D-04: first successful save-search shows the soft pre-prompt
+      // once (same shared flag as WatchButton). Never on mount.
+      if (await shouldShowPrePrompt()) {
+        setPrePromptVisible(true);
+      }
     } catch (error) {
       console.error('Failed to create saved search', error);
       // Roll back optimistic UI and surface the action error via the toast slot.
@@ -149,6 +163,16 @@ export const SaveSearchBar = ({
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Pre-prompt resolutions — mirror WatchButton (D-04/D-05).
+  const handleEnable = async () => {
+    setPrePromptVisible(false);
+    await acceptPrePrompt();
+  };
+  const handleNotNow = async () => {
+    setPrePromptVisible(false);
+    await declinePrePrompt();
   };
 
   const handleUndo = async () => {
@@ -208,6 +232,12 @@ export const SaveSearchBar = ({
           </TouchableOpacity>
         </View>
       )}
+
+      <PushPrePromptModal
+        visible={prePromptVisible}
+        onEnable={handleEnable}
+        onNotNow={handleNotNow}
+      />
     </>
   );
 };
