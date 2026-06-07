@@ -19,6 +19,8 @@ import { FilterModal } from '../components/FilterModal';
 import { MakeModelFilterBar } from '../components/MakeModelFilterBar';
 import { RootStackParamList } from '../types/navigation';
 import { getCityFromTimezone } from '../utils/greetingSubject';
+import { SaveSearchBar } from '../components/notifications/SaveSearchBar';
+import { CATEGORIES } from '../constants/mockData';
 
 type Nav    = NativeStackNavigationProp<RootStackParamList, 'SearchResults'>;
 type RouteT = RouteProp<RootStackParamList, 'SearchResults'>;
@@ -55,7 +57,15 @@ export const SearchResultsV2 = () => {
     setSelectedMake,
     selectedModel,
     setSelectedModel,
+    selectedCategory,
   } = useHomeListings({ initialFilters: route.params.initialFilters });
+
+  // Resolve the RU category name for the saved-search bodyType criterion
+  // (selectedCategory is a CATEGORIES id, not an object).
+  const bodyType = useMemo(
+    () => CATEGORIES.find((c) => c.id === selectedCategory)?.name ?? null,
+    [selectedCategory],
+  );
 
   const [revealed, setRevealed] = useState(25);
   const [sort,     setSort]     = useState<SortOption>('relevance');
@@ -150,6 +160,16 @@ export const SearchResultsV2 = () => {
         chips={chips}
         onFiltersPress={() => { setCurrentFilterType('Год'); setFilterModalVisible(true); }}
         onChipPress={onChipPress}
+      />
+      {/* Phase 12 Plan 12-09 (NCEN-06 / NSUB-01/03, CTX D-08/D-09) — sticky
+          "Notify me about new matches" save-search bar. Self-hides when no
+          filters are active; maps the RU-label activeFilters to canonical
+          ObjectId criteria internally (Pitfall 4/5). */}
+      <SaveSearchBar
+        activeFilters={activeFilters}
+        selectedMake={selectedMake}
+        selectedModel={selectedModel}
+        bodyType={bodyType}
       />
       <View style={styles.sortRow}>
         <Text style={[styles.sortRowLabel, { fontFamily: typo.display }]}>{t.allResults}</Text>
