@@ -35,7 +35,7 @@
 
 Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](../docs/superpowers/specs/2026-06-06-notifications-system-design.md). Research: [.planning/research/v1.2/SUMMARY.md](research/v1.2/SUMMARY.md). Phase numbering continues from v1.1 (which ended at Phase 11).
 
-- [ ] **Phase 12: Notification Domain + In-App Center (pure REST, zero native)** — 3-model domain, after-commit emit hooks with guards, subscriptions (Saved Search + Watch), in-app feed/bell, preferences, server-side i18n. `fcm.send` is a no-op stub; the in-app center is fully usable standalone (the denied-permission fallback).
+- [x] **Phase 12: Notification Domain + In-App Center (pure REST, zero native)** — 3-model domain, after-commit emit hooks with guards, subscriptions (Saved Search + Watch), in-app feed/bell, preferences, server-side i18n. `fcm.send` is a no-op stub; the in-app center is fully usable standalone (the denied-permission fallback). (completed 2026-06-07)
 - [ ] **Phase 13: FCM Push Transport (native)** — iOS Podfile static-frameworks gate spike (first, rollback-checkpointed, real-device Release archive), RNFB 24.x install, APNs config, firebase-admin send loop, device-token lifecycle, 3-state handling, contextual permission prompt, cold-start deep-link.
 - [ ] **Phase 14: Daily Digest & Scheduling** — in-process `node-cron` digest worker, atomic per-user flush, fixed Asia/Bishkek morning hour, 90-day prune. Enables the daily-cadence selector shipped disabled in Phase 12.
 
@@ -61,7 +61,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 - [x] 12-07-PLAN.md — LanguageContext persistence (AsyncStorage + backend write)
 - [x] 12-08-PLAN.md — In-app feed: NotificationsScreen + feed item + badges + MoreMenu/BottomBar wiring
 - [x] 12-09-PLAN.md — Subscription controls: WatchButton (CarDetails) + SaveSearchBar (SearchResultsV2)
-- [ ] 12-10-PLAN.md — NotificationSettingsScreen (mute/categories/quiet-hours/cap/lists) + ProfileScreen row
+- [x] 12-10-PLAN.md — NotificationSettingsScreen (mute/categories/quiet-hours/cap/lists) + ProfileScreen row
 **UI hint**: yes
 
 ### Phase 13: FCM Push Transport (native)
@@ -94,7 +94,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 12. Notification Domain + In-App Center | 9/10 | In Progress|  |
+| 12. Notification Domain + In-App Center | 10/10 | Complete   | 2026-06-07 |
 | 13. FCM Push Transport (native) | 0/TBD | Not started | - |
 | 14. Daily Digest & Scheduling | 0/TBD | Not started | - |
 
