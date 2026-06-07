@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
 status: executing
-stopped_at: Phase 13 context gathered
+stopped_at: Phase 13 — 13-02 (backend) done; 13-01/03/04/05 deferred (need real iOS device + Firebase console)
 last_updated: "2026-06-07T03:01:12.202Z"
-last_activity: 2026-06-07 -- Phase 13 planning complete
+last_activity: 2026-06-06 -- Phase 13 plan 13-02 (backend FCM transport) executed + verified
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 15
-  completed_plans: 10
-  percent: 67
+  completed_plans: 11
+  percent: 73
 ---
 
 # Project State
@@ -26,9 +26,20 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 13
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-07 -- Phase 13 planning complete
+Plan: 13-02 complete (backend); 13-01/03/04/05 deferred
+Status: Partially executed — blocked on human/hardware gates
+Last activity: 2026-06-06 -- 13-02 backend FCM transport executed + verified (31 tests green)
+
+**Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
+- ✅ **13-02** (backend FCM send loop + device-token routes + PII-safe push copy): DONE. 4 commits on backend branch `feat/fcm-push-transport` (based off `feature/image-variant-pipeline`, which carries the unmerged Phase 12 backend stack). 31/31 target tests green; pre-existing ServiceOrder.providerSnapshot failure untouched. Mobile-side SUMMARY committed on mobile branch `feature/notifications-system` (646d523).
+- ⏸️ **13-01** (iOS Podfile static-frameworks SPIKE — the NPUSH-01 gate): deferred. Verdict requires a real iPhone + Apple signing + Release archive + on-device Stripe check, 2-day timebox, abort/revert path. This gates 13-03/04/05.
+- ⏸️ **13-03** (install @react-native-firebase 24.1.0 + native config): deferred. Needs `google-services.json` + APNs `.p8` from Firebase Console; gated on 13-01 PASS.
+- ⏸️ **13-04** (PushService + AuthContext wiring + 3-state tap routing): deferred. Code automatable but depends on RNFB from 13-03.
+- ⏸️ **13-05** (permission pre-prompt UI + settings + HUMAN-UAT): deferred. Depends on 13-04; validation is real-device.
+
+**To resume mobile waves:** at a Mac with a real iPhone, run `/gsd-execute-phase 13` again — it will pick up the 4 incomplete plans starting with the 13-01 spike. ⚠️ Memory note: native Firebase SDK was historically problematic on this app — 13-01 is the spike that exists to validate it under static frameworks with Stripe intact.
+
+**Pending human verification (13-02):** confirm the existing `FIREBASE_SERVICE_ACCOUNT_JSON` service account has FCM send scope before relying on prod delivery (unit tests mock firebase-admin). Backend `feat/fcm-push-transport` (Phase 12 + 13 stack) must merge to backend `main` for prod — Railway deploys backend main.
 
 ## Milestone Roadmap (v1.2)
 
