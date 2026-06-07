@@ -132,7 +132,7 @@ function parsePushQueryString(query: string): Record<string, string> {
  * with car._id || car.id || carId, so the carId path segment is already the
  * resolved id — we never re-derive from a bare car.id here.
  */
-function routeDeeplink(deeplink?: string) {
+export function routeDeeplink(deeplink?: string) {
   if (!deeplink || !navigationRef.isReady()) return;
   try {
     // Normalize to a "path?query" string. For carex:// the host IS the first
@@ -189,6 +189,22 @@ function routeDeeplink(deeplink?: string) {
       });
       return;
     }
+    // --- DIGEST: notifications → in-app Notification Center ---
+    // Plan 14-05 (NDIG-03 / D-03): the daily digest bundles many items, so its
+    // push deeplink targets the Notification Center (the "here's everything"
+    // destination), NOT a single listing/:carId. The route carries NO params
+    // (the feed is already uid-scoped by NotificationContext), so there is no
+    // injection surface (T-14-05-01/02). A trailing slash / defensive sub-path
+    // (carex://notifications/) is accepted; the unknown-target ignore branch
+    // below stays closed — the whitelist widens by EXACTLY this one route.
+    if (
+      normalizedPath === 'notifications' ||
+      normalizedPath.startsWith('notifications/')
+    ) {
+      navigationRef.navigate('Notifications');
+      return;
+    }
+
     // Unknown target → ignore (whitelist-only routing).
   } catch (e) {
     console.error('Failed to parse push deeplink', e);
@@ -275,6 +291,13 @@ const linking = {
       // above (CarDetails) and this one are the only whitelisted notification
       // routing targets (T-12-06-04). 12-08 owns the in-app tap resolution.
       SearchResults: 'search',
+      // Daily-digest deep-link target (Phase 14 NDIG-03 / D-03). The backend
+      // digest (Plan 03) sets data.deeplink = carex://notifications /
+      // https://.../notifications; both the OS-cold-start linking layer and the
+      // in-app routeDeeplink resolve it to the Notification Center. This is the
+      // third (and final) whitelisted notification routing target — it widens
+      // the whitelist by exactly one route over CarDetails + SearchResults.
+      Notifications: 'notifications',
     },
   },
 };
