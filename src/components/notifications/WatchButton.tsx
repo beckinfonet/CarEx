@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Text,
   StyleSheet,
@@ -70,17 +70,58 @@ const WatchButton = ({ car, carId }: WatchButtonProps) => {
   // — NEVER bare car.id. Implemented with optional chaining on the car object.
   const watchKey = car?._id || car?.id || carId;
 
+  // Cache the active subscription's _id so a future unwatch can target it via
+  // deleteSubscription. (No unwatch tap is wired in this task — handlePress
+  // early-returns when watching is true, which IS the no-duplicate behavior.)
+  const subscriptionIdRef = useRef<string | null>(null);
+
+  // WR-03 dedup (12-REVIEW): hydrate the active state on mount so returning to
+  // CarDetails for an already-watched car shows the "Watching" label and a tap
+  // does NOT POST a duplicate subscription (the backend has no row-level dedup).
+  // Fail-open: a failed hydration logs + leaves watching=false so the existing
+  // tap flow still works. The mounted flag guards setState after unmount.
+  useEffect(() => {
+    if (!watchKey) return;
+    let mounted = true;
+    (async () => {
+      try {
+        const subs = await NotificationService.listSubscriptions();
+        const existing = subs.find(
+          (sub) =>
+            sub.kind === 'watch' &&
+            sub.active &&
+            String(sub.carId) === String(watchKey),
+        );
+        if (existing && mounted) {
+          subscriptionIdRef.current = existing._id;
+          setWatching(true);
+        }
+      } catch (error) {
+        // Never throw on mount — fall open to the tap flow.
+        console.error('Failed to hydrate watch state', error);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [watchKey]);
+
   const handlePress = async () => {
     if (submitting || watching) return;
     if (!watchKey) return;
     setSubmitting(true);
     try {
-      await NotificationService.createSubscription({
+      const created = await NotificationService.createSubscription({
         kind: 'watch',
         carId: watchKey,
         events: WATCH_EVENTS,
         cadence: 'instant',
       });
+      // Cache the new subscription _id alongside the hydration path so the
+      // active-state contract is complete regardless of how watching turned on.
+      if (created && typeof created._id === 'string') {
+        subscriptionIdRef.current = created._id;
+      }
       setWatching(true);
       // NPRF-06 / D-04: on the FIRST successful watch, show the soft pre-prompt
       // once (shared flag covers both Watch and Save-search). Never on mount.

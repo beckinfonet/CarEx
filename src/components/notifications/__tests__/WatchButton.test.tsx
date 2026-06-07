@@ -26,15 +26,20 @@ jest.mock('../../../context/LanguageContext', () => ({
   useLanguage: () => ({ t: { watchCta: 'Watch', watchCtaActive: 'Watching' } }),
 }));
 
-// Mock the service — createSubscription is the conversion call under test.
+// Mock the service — createSubscription is the conversion call under test;
+// listSubscriptions/deleteSubscription back the mount-hydration dedup contract.
 jest.mock('../../../services/notifications/NotificationService', () => ({
   NotificationService: {
     createSubscription: jest.fn().mockResolvedValue({ _id: 'sub_1' }),
+    listSubscriptions: jest.fn().mockResolvedValue([]),
+    deleteSubscription: jest.fn().mockResolvedValue({ ok: true }),
   },
 }));
 
 const createSubscriptionMock =
   NotificationService.createSubscription as jest.Mock;
+const listSubscriptionsMock =
+  NotificationService.listSubscriptions as jest.Mock;
 
 function render(node: React.ReactElement) {
   let tree!: TestRenderer.ReactTestRenderer;
@@ -51,9 +56,24 @@ async function press(tree: TestRenderer.ReactTestRenderer) {
   });
 }
 
+// Mount async helper — flushes the listSubscriptions hydration effect so the
+// active-state assertion sees the resolved subscription.
+async function renderAsync(node: React.ReactElement) {
+  let tree!: TestRenderer.ReactTestRenderer;
+  await act(async () => {
+    tree = TestRenderer.create(node);
+  });
+  await act(async () => {
+    await Promise.resolve();
+  });
+  return tree;
+}
+
 beforeEach(() => {
   createSubscriptionMock.mockClear();
   createSubscriptionMock.mockResolvedValue({ _id: 'sub_1' });
+  listSubscriptionsMock.mockClear();
+  listSubscriptionsMock.mockResolvedValue([]);
 });
 
 describe('WatchButton — D-01 sibling discipline (Bell, not Heart)', () => {
@@ -105,6 +125,37 @@ describe('WatchButton — D-03 one tap, all four events, instant', () => {
       .findAllByType('Text' as any)
       .map((n) => n.props.children);
     expect(labels).toContain('Watching');
+  });
+});
+
+describe('WatchButton — WR-03 mount hydration (no duplicate POST on remount)', () => {
+  it('hydrates the active state from an existing watch subscription and does NOT re-POST on tap', async () => {
+    listSubscriptionsMock.mockResolvedValue([
+      {
+        _id: 'sub_existing',
+        kind: 'watch',
+        carId: 'car_a',
+        active: true,
+        cadence: 'instant',
+      },
+    ]);
+
+    const tree = await renderAsync(
+      <WatchButton car={{ _id: 'car_a' }} carId="car_a" />,
+    );
+
+    // The mount hydration queried existing subscriptions...
+    expect(listSubscriptionsMock).toHaveBeenCalledTimes(1);
+
+    // ...found the active watch for this car → renders the active label.
+    const labels = tree.root
+      .findAllByType('Text' as any)
+      .map((n) => n.props.children);
+    expect(labels).toContain('Watching');
+
+    // Tapping an already-watched car must NOT create a duplicate subscription.
+    await press(tree);
+    expect(createSubscriptionMock).not.toHaveBeenCalled();
   });
 });
 

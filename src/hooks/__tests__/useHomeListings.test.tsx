@@ -122,6 +122,22 @@ describe('useHomeListings', () => {
     await flush();
     expect(hookResult.displayedCars.map((c) => c.id).sort()).toEqual(['b', 'c']);
   });
+
+  // NPUSH-02: a saved-search deeplink carrying bodyType narrows the home list to
+  // that body category (bodyType was previously carried but never applied).
+  test('canonical bodyType deeplink filters the home list by category', async () => {
+    const MIXED = [
+      { _id: 'sedan1', makeId: '1', modelId: '10', make: 'BMW', model: '3',  year: 2022, price: 30000, mileage: 10000, fuel: 'Бензин', currency: 'USD', listingStatus: 'active', bodyType: 'Седан',     transmission: 'Автомат', imageUrls: ['x'] },
+      { _id: 'suv1',   makeId: '1', modelId: '11', make: 'BMW', model: 'X5', year: 2022, price: 50000, mileage: 12000, fuel: 'Бензин', currency: 'USD', listingStatus: 'active', bodyType: 'Кроссовер', transmission: 'Автомат', imageUrls: ['x'] },
+    ];
+    mockedAxios.get.mockResolvedValueOnce({ data: MIXED });
+    const opts = { initialFilters: { bodyType: 'Седан' } };
+    await act(async () => { TestRenderer.create(<Probe opts={opts} />); });
+    await flush();
+    // selectedCategory was seeded from bodyType → only the Седан car survives.
+    expect(hookResult.selectedCategory).toBe(1);
+    expect(hookResult.displayedCars.map((c) => c.id)).toEqual(['sedan1']);
+  });
 });
 
 describe('normalizeInitialFilters (CR-03)', () => {
@@ -131,6 +147,13 @@ describe('normalizeInitialFilters (CR-03)', () => {
     expect(out.activeFilters).toBe(ru); // same reference, untouched
     expect(out.selectedMake).toBeNull();
     expect(out.selectedModel).toBeNull();
+    expect(out.selectedCategory).toBeNull();
+  });
+
+  test('resolves selectedCategory from a canonical bodyType (Седан → id 1)', () => {
+    const out = normalizeInitialFilters({ bodyType: 'Седан' });
+    expect(out.selectedCategory).toBe(1);
+    expect(out.activeFilters.bodyType).toBe('Седан');
   });
 
   test('undefined input yields empty filters + null seeds', () => {
