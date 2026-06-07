@@ -4,14 +4,14 @@ milestone: v1.2
 milestone_name: Notifications
 status: executing
 stopped_at: Phase 14 context gathered
-last_updated: "2026-06-07T22:49:40.978Z"
-last_activity: 2026-06-07 -- Phase 14 planning complete
+last_updated: "2026-06-07T22:59:42.870Z"
+last_activity: 2026-06-07
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 20
-  completed_plans: 15
-  percent: 75
+  completed_plans: 16
+  percent: 80
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 **Core value (current milestone v1.2):** Buyers get alerted to relevant inventory and watched-car events without re-checking the app — via an in-app notification center and OS push.
-**Current focus:** Phase 12 — notification-domain-in-app-center
+**Current focus:** Phase 14 — daily-digest-scheduling
 
 ## Current Position
 
-Phase: 13 ✅ COMPLETE
-Plan: all 5 plans complete; 13-HUMAN-UAT signed PASS (2026-06-07); verification passed (doc gap it flagged is now closed)
+Phase: 14 (daily-digest-scheduling) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-06-07 -- Phase 14 planning complete
+Last activity: 2026-06-07
 
 **Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
 
@@ -70,9 +70,9 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 | debug-session | android-photo-load-lag | fix_applied 2026-05-29 (effectively resolved) |
 | uat-gap | Phase 11 11-HUMAN-UAT.md | approved; 3 optional scenarios pending |
 
-Resume file: .planning/phases/14-daily-digest-scheduling/14-CONTEXT.md
+Resume file: None
 
-Progress: [██████████] 100%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -161,6 +161,7 @@ Progress: [██████████] 100%
 | Phase 12 P09 | ~12m | 2 tasks | 7 files |
 | Phase 12 P10 | ~3m | 2 tasks | 3 files |
 | Phase 13 P03 | 4min | 2 tasks (+2 auto-fix) | 7 files (+1 gitignored) |
+| Phase 14 P01 | 3min | 2 tasks (3 commits — TDD RED+GREEN) tasks | 4 files files |
 
 ## Accumulated Context
 
@@ -417,6 +418,7 @@ Recent decisions affecting current work:
 - [Phase 12]: Plan 12-10: Daily cadence is a disabled TouchableOpacity whose onPress fires the coming-soon hint and NEVER sets cadence 'daily' (D-10/NSUB-03 invariant, test-proven). ProfileScreen row uses t.notificationSettings, distinct from MoreMenu feed label t.notificationsMenuLabel (D-12).
 - [Phase ?]: 13-05: contextual fire-once push pre-prompt (shared flag covers Watch + Save-search; never on launch; Не сейчас persists)
 - [Phase ?]: 13-05: denied-permission recovery row on NotificationSettings reads live hasPermission and deep-links to OS Settings; in-app center stays functional (no dead-end)
+- [Phase 14]: Plan 14-01: digest_title stored as ONE {count}-token template per language + a non-brace #NOUN# sentinel resolved at render time by pluralizeRu — keeps RU/EN placeholder token sets identical so the parity test stays green (three separate RU keys rejected per RESEARCH Pitfall 2). Full adjective+noun agreement folded per RU 3-form (новая машина/новые машины/новых машин); EN selects singular/plural by n===1. renderDigest(lang,count) is the count-only PII-safe surface Plan 02 sendDigest will call. node-cron pinned ^4.2.1.
 
 ### Pending Todos
 
@@ -471,7 +473,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-07T22:21:56.807Z
+Last session: 2026-06-07T22:59:15.927Z
 Stopped at: Phase 14 context gathered
 Resume file: None
 

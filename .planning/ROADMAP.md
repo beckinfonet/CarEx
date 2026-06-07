@@ -92,7 +92,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
   3. A simulated crash mid-run causes neither a double-send nor a drop: the digest snapshots `createdAt <= runStart`, claims, sends, and clears only the successfully-sent ids (`digestPending` cleared per-id).
   4. The same cron run prunes dead device tokens and notifications older than 90 days (satisfying NDOM-06's retention policy), and the digest flush re-checks the hide-hook so a listing hidden overnight is not pushed.
 **Plans**: 5 plans (4 waves)
-- [ ] 14-01-PLAN.md — Backend foundation: install node-cron@^4.2.1 + digest_* translations (RU 3-form pluralizeRu) + Wave-0 digest.test.js scaffold — NDIG-04, NDIG-03/D-04, parity
+- [x] 14-01-PLAN.md — Backend foundation: install node-cron@^4.2.1 + digest_* translations (RU 3-form pluralizeRu) + Wave-0 digest.test.js scaffold — NDIG-04, NDIG-03/D-04, parity
 - [ ] 14-02-PLAN.md — Backend send path: fcm.sendDigest() with {count} interpolation (the param-strip fork) + deeplink-only payload — NDIG-03
 - [ ] 14-03-PLAN.md — Backend core: crash-safe runDigest() flush (digestRunId claim, snapshot bound, hide-hook re-check, per-id clear) + Notification.digestRunId — NDIG-02, NDIG-03
 - [ ] 14-04-PLAN.md — Backend completion: prune() (90-day notifications + stale tokens) + node-cron registration in server.js require.main gate — NDIG-01, NDIG-04, NDIG-05, NDOM-06
@@ -107,7 +107,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 |-------|----------------|--------|-----------|
 | 12. Notification Domain + In-App Center | 10/10 | Complete    | 2026-06-07 |
 | 13. FCM Push Transport (native) | 5/5 | Complete    | 2026-06-07 |
-| 14. Daily Digest & Scheduling | 0/5 | Planned | - |
+| 14. Daily Digest & Scheduling | 1/5 | In Progress|  |
 
 ## Backlog / Carry-forward candidates
 
