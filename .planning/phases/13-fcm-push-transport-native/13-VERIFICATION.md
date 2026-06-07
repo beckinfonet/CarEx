@@ -1,13 +1,10 @@
 ---
 phase: 13-fcm-push-transport-native
 verified: 2026-06-07T08:37:30Z
-status: human_needed
-score: 7/9 requirements verified automated; 2 require device evidence
+status: passed
+score: 9/9 requirements verified (7 automated + 2 device-UAT signed off)
 re_verification: false
-human_verification:
-  - test: "Confirm HUMAN-UAT body test fields are properly signed off on device"
-    expected: "Each of the 5 checklist items (NPUSH-01/03/06/07/NPRF-06+07) should show result: PASS and a real operator sign-off, not [pending]"
-    why_human: "The HUMAN-UAT frontmatter was updated to status:passed in the working tree (uncommitted) with a detailed approval_basis, but every individual test body still reads result:[pending] and passed:0. The automated verifier cannot confirm the operator actually completed each device test step-by-step — it can only confirm the sign-off prose exists."
+resolution: "The sole gap the verifier flagged — HUMAN-UAT body items reading result:[pending] — was closed 2026-06-07: operator signed off all 5 device items (NPUSH-01/03/06/07 + NPRF-06/07) result: PASS on a TestFlight build after the iOS Firebase-init hotfix (80795d9); 13-HUMAN-UAT.md now status: passed, 5/5. Both Jest suites green (mobile 537 pass / 17 known baseline fails; backend push-copy-parity green). Implementation was already complete per automated verification; this was a documentation gap only."
 ---
 
 # Phase 13: FCM Push Transport (Native) — Verification Report
