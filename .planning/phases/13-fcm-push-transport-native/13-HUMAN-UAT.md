@@ -1,11 +1,11 @@
 ---
-status: pending
+status: passed
 phase: 13-fcm-push-transport-native
 source: [13-VALIDATION.md, 13-05-PLAN.md]
-started:
-updated:
-approved_at:
-approval_basis:
+started: 2026-06-07
+updated: 2026-06-07
+approved_at: 2026-06-07
+approval_basis: "Operator signed off all real-device items on a TestFlight build (after the iOS Firebase-init hotfix 80795d9). NPUSH-01 Stripe checkout + 03/06/07 push delivery/tap/cold-start + NPRF-06/07 pre-prompt/recovery confirmed on device; both Jest suites green (mobile 17 known baseline fails only, backend push-copy-parity green)."
 ---
 
 # Phase 13 — Real-Device HUMAN-UAT (FCM Push Transport)
@@ -52,8 +52,8 @@ PASS condition: app launches on the real device AND the Stripe test checkout
 completes ("Payment successful! Your booking is confirmed.", listing flips to
 Booked). No static-frameworks link/compile crash.
 
-result: [pending]
-sign-off: ___________________ (operator / date)
+result: PASS
+sign-off: beckinfonet / 2026-06-07 (TestFlight, post iOS Firebase-init hotfix 80795d9)
 
 ---
 
@@ -76,8 +76,8 @@ The body must be the generic, param-free copy (e.g. "Откройте, чтоб�
 посмотреть"). Title may be category-specific (e.g. "Цена снизилась") but carries
 no PII.
 
-result: [pending]
-sign-off: ___________________ (operator / date)
+result: PASS
+sign-off: beckinfonet / 2026-06-07 (TestFlight, post iOS Firebase-init hotfix 80795d9)
 
 ---
 
@@ -96,8 +96,8 @@ PASS condition: a push in EACH of the three app states is handled — foreground
 received, background tap routes, quit-state push delivered to the tray — with no
 crash in any state.
 
-result: [pending]
-sign-off: ___________________ (operator / date)
+result: PASS
+sign-off: beckinfonet / 2026-06-07 (TestFlight, post iOS Firebase-init hotfix 80795d9)
 
 ---
 
@@ -114,8 +114,8 @@ PASS condition: the app cold-launches AND navigates to the **correct
 CarDetails** for the car referenced in the push (routed via the `linking`
 whitelist `listing/:carId`). The car shown matches the push's listing.
 
-result: [pending]
-sign-off: ___________________ (operator / date)
+result: PASS
+sign-off: beckinfonet / 2026-06-07 (TestFlight, post iOS Firebase-init hotfix 80795d9)
 
 ---
 
@@ -139,26 +139,26 @@ PASS condition: no launch prompt; pre-prompt fires once on first conversion and
 deep-links to OS Settings when off; the in-app center remains fully functional
 when push is denied.
 
-result: [pending]
-sign-off: ___________________ (operator / date)
+result: PASS
+sign-off: beckinfonet / 2026-06-07 (TestFlight, post iOS Firebase-init hotfix 80795d9)
 
 ---
 
 ## Summary
 
 total: 5
-passed: 0
+passed: 5
 issues: 0
-pending: 5
+pending: 0
 skipped: 0
 blocked: 0
 
 ## Phase-Gate Sign-Off
 
-- [ ] Mobile Jest suite green (baseline 17 known failures, no new failures).
-- [ ] Backend Jest suite green (push-copy-parity NPUSH-08 / D-08b green).
-- [ ] All 5 device tests above signed PASS.
+- [x] Mobile Jest suite green (baseline 17 known failures, no new failures — 537 passed).
+- [x] Backend Jest suite green (push-copy-parity NPUSH-08 / D-08b green — merged to main via PR #10).
+- [x] All 5 device tests above signed PASS.
 
-Phase gate satisfied → safe to run `/gsd-verify-work`.
+Phase gate satisfied.
 
-**Overall sign-off:** ___________________ (operator / date)
+**Overall sign-off:** beckinfonet / 2026-06-07

@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
-status: Mobile transport wired end-to-end — final plan 13-05 (contextual permission UI) next
-stopped_at: Phase 13 context gathered
+status: Phase 13 COMPLETE (FCM push transport) — milestone v1.2 has Phase 14 (Daily Digest) remaining
+stopped_at: Phase 13 complete — UAT signed off, verification passed
 last_updated: "2026-06-07T07:27:30.058Z"
-last_activity: 2026-06-07 -- 13-04 mobile FCM wiring done (PushService, AuthContext lifecycle, 3-state tap routing)
+last_activity: 2026-06-07 -- Phase 13 COMPLETE: real-device UAT passed, all 5 plans done, NPUSH-01..08 + NPRF-06 delivered
 progress:
   total_phases: 3
   completed_phases: 2
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 ## Current Position
 
-Phase: 13
-Plan: 13-01/02/03/04 complete; 13-05 Tasks 1-3 complete; Task 4 = real-device UAT gate (pending operator sign-off)
-Status: ALL CODE COMPLETE — phase blocked on 13-HUMAN-UAT.md real-device sign-off (resume signal: "uat passed")
+Phase: 13 ✅ COMPLETE
+Plan: all 5 plans complete; 13-HUMAN-UAT signed PASS (2026-06-07); verification passed (doc gap it flagged is now closed)
+Status: Phase 13 done — NEXT: merge mobile `feature/notifications-system` → main, then Phase 14 (Daily Digest & Scheduling)
 Last activity: 2026-06-07 -- HOTFIX: iOS Firebase init (dark-screen launch crash). 13-03 installed RNFB but never wired iOS Firebase init → first TestFlight build dark-screened on launch. Fixed (`80795d9`): AppDelegate `import FirebaseCore` + guarded `FirebaseApp.configure()`; added GoogleService-Info.plist to carEx target Resources (xcodeproj gem). Verified Release build SUCCEEDED + plist bundled. **Operator must rebuild TestFlight before the device UAT.** (Android unaffected — RNFB auto-inits from google-services.json via FirebaseInitProvider.)
 
 **Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
