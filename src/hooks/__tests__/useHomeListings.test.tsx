@@ -2,7 +2,7 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import axios from 'axios';
-import { useHomeListings } from '../useHomeListings';
+import { useHomeListings, normalizeInitialFilters } from '../useHomeListings';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -97,5 +97,66 @@ describe('useHomeListings', () => {
     await act(async () => { TestRenderer.create(<Probe opts={opts} />); });
     await flush();
     expect(hookResult.displayedCars.map((c) => c.id).sort()).toEqual(['b', 'c']);
+  });
+
+  // CR-03: canonical deep-link filters (makeId/priceMin/...) must be applied.
+  test('canonical deep-link initialFilters narrow results (makeId)', async () => {
+    const opts = { initialFilters: { makeId: '1' } };
+    await act(async () => { TestRenderer.create(<Probe opts={opts} />); });
+    await flush();
+    // Only BMW (makeId 1) rows survive — a, c (d is sold).
+    expect(hookResult.selectedMake).toEqual({ id: '1', name: '' });
+    expect(hookResult.displayedCars.map((c) => c.id).sort()).toEqual(['a', 'c']);
+  });
+
+  test('canonical deep-link initialFilters narrow results (makeId + modelId + priceMax)', async () => {
+    const opts = { initialFilters: { makeId: '1', modelId: '11', priceMax: 45000 } };
+    await act(async () => { TestRenderer.create(<Probe opts={opts} />); });
+    await flush();
+    expect(hookResult.displayedCars.map((c) => c.id)).toEqual(['c']);
+  });
+
+  test('canonical priceMin/priceMax map onto the Цена range filter', async () => {
+    const opts = { initialFilters: { priceMin: 30000, priceMax: 50000 } };
+    await act(async () => { TestRenderer.create(<Probe opts={opts} />); });
+    await flush();
+    expect(hookResult.displayedCars.map((c) => c.id).sort()).toEqual(['b', 'c']);
+  });
+});
+
+describe('normalizeInitialFilters (CR-03)', () => {
+  test('returns input byte-equal when no canonical keys present (home-screen path)', () => {
+    const ru = { Цена: { min: '30000', max: '50000' }, sortPrice: 'asc' };
+    const out = normalizeInitialFilters(ru);
+    expect(out.activeFilters).toBe(ru); // same reference, untouched
+    expect(out.selectedMake).toBeNull();
+    expect(out.selectedModel).toBeNull();
+  });
+
+  test('undefined input yields empty filters + null seeds', () => {
+    const out = normalizeInitialFilters(undefined);
+    expect(out.activeFilters).toEqual({});
+    expect(out.selectedMake).toBeNull();
+    expect(out.selectedModel).toBeNull();
+  });
+
+  test('translates canonical keys into RU-label filters + make/model seeds', () => {
+    const out = normalizeInitialFilters({
+      makeId: '1',
+      modelId: '10',
+      priceMin: 30000,
+      priceMax: 50000,
+      yearMin: 2020,
+      yearMax: 2024,
+      bodyType: 'Кроссовер',
+    });
+    expect(out.selectedMake).toEqual({ id: '1', name: '' });
+    expect(out.selectedModel).toEqual({ id: '10', name: '' });
+    expect(out.activeFilters['Цена']).toEqual({ min: '30000', max: '50000' });
+    expect(out.activeFilters['Год']).toEqual({ min: '2020', max: '2024' });
+    expect(out.activeFilters.bodyType).toBe('Кроссовер');
+    // Canonical keys are consumed, not leaked into activeFilters.
+    expect(out.activeFilters.makeId).toBeUndefined();
+    expect(out.activeFilters.priceMin).toBeUndefined();
   });
 });

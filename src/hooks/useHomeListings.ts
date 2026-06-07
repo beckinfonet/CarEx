@@ -12,6 +12,90 @@ export interface UseHomeListingsOpts {
   initialFilters?: ActiveFilters;
 }
 
+// Canonical saved-search / deep-link keys produced by the backend and parsed by
+// routeNotification (NotificationsScreen). The hook's own predicate keys on RU
+// labels (`'Цена'`/`'Год'`) + selectedMake/selectedModel, so these would be inert
+// without a translation step (CR-03).
+const CANONICAL_KEYS = [
+  'makeId',
+  'modelId',
+  'priceMin',
+  'priceMax',
+  'yearMin',
+  'yearMax',
+  'bodyType',
+];
+
+function hasCanonicalKeys(filters?: ActiveFilters): boolean {
+  if (!filters) return false;
+  return CANONICAL_KEYS.some((k) => filters[k] != null && filters[k] !== '');
+}
+
+/**
+ * Translate canonical deep-link initialFilters (makeId/priceMin/yearMin/...) into
+ * the hook's internal model: RU-label range filters + selectedMake/selectedModel
+ * seeds. ADDITIVE and idempotent-safe — only canonical keys are transformed; any
+ * already-RU-label or unrelated keys (e.g. 'Цена', 'sortPrice') pass through
+ * untouched. When NO canonical key is present the input is returned BYTE-EQUAL so
+ * the shared home-screen path is unaffected (CR-03 critical constraint).
+ */
+export function normalizeInitialFilters(filters?: ActiveFilters): {
+  activeFilters: ActiveFilters;
+  selectedMake: SelectedRef;
+  selectedModel: SelectedRef;
+} {
+  if (!hasCanonicalKeys(filters)) {
+    return {
+      activeFilters: filters ?? {},
+      selectedMake: null,
+      selectedModel: null,
+    };
+  }
+
+  const src = filters as ActiveFilters;
+  const next: ActiveFilters = {};
+  // Carry through everything that is NOT a canonical key (e.g. an RU-label
+  // filter or a sort flag arriving alongside canonical ones).
+  for (const [k, v] of Object.entries(src)) {
+    if (!CANONICAL_KEYS.includes(k)) next[k] = v;
+  }
+
+  const priceMin = src.priceMin;
+  const priceMax = src.priceMax;
+  if ((priceMin != null && priceMin !== '') || (priceMax != null && priceMax !== '')) {
+    next['Цена'] = {
+      ...(priceMin != null && priceMin !== '' ? { min: String(priceMin) } : {}),
+      ...(priceMax != null && priceMax !== '' ? { max: String(priceMax) } : {}),
+    };
+  }
+
+  const yearMin = src.yearMin;
+  const yearMax = src.yearMax;
+  if ((yearMin != null && yearMin !== '') || (yearMax != null && yearMax !== '')) {
+    next['Год'] = {
+      ...(yearMin != null && yearMin !== '' ? { min: String(yearMin) } : {}),
+      ...(yearMax != null && yearMax !== '' ? { max: String(yearMax) } : {}),
+    };
+  }
+
+  // bodyType has no RU-label predicate equivalent — carry it through so a future
+  // consumer can read it without losing the value.
+  if (src.bodyType != null && src.bodyType !== '') {
+    next.bodyType = src.bodyType;
+  }
+
+  const selectedMake: SelectedRef =
+    src.makeId != null && src.makeId !== ''
+      ? { id: String(src.makeId), name: '' }
+      : null;
+  const selectedModel: SelectedRef =
+    src.modelId != null && src.modelId !== ''
+      ? { id: String(src.modelId), name: '' }
+      : null;
+
+  return { activeFilters: next, selectedMake, selectedModel };
+}
+
 export function useHomeListings(opts: UseHomeListingsOpts = {}) {
   const isFocused = useIsFocused();
 
@@ -19,10 +103,16 @@ export function useHomeListings(opts: UseHomeListingsOpts = {}) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const [selectedMake, setSelectedMake] = useState<SelectedRef>(null);
-  const [selectedModel, setSelectedModel] = useState<SelectedRef>(null);
+  // Translate canonical deep-link filters (makeId/priceMin/...) into the hook's
+  // internal model on first render. For non-deep-link callers (no canonical keys,
+  // including undefined) this returns the input unchanged → the home-screen path
+  // is byte-equivalent (CR-03). Lazy initializer so it runs exactly once.
+  const [seed] = useState(() => normalizeInitialFilters(opts.initialFilters));
+
+  const [selectedMake, setSelectedMake] = useState<SelectedRef>(seed.selectedMake);
+  const [selectedModel, setSelectedModel] = useState<SelectedRef>(seed.selectedModel);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [activeFilters, setActiveFilters] = useState<ActiveFilters>(opts.initialFilters ?? {});
+  const [activeFilters, setActiveFilters] = useState<ActiveFilters>(seed.activeFilters);
   const [filtersVisible, setFiltersVisible] = useState(false);
 
   const fetchCars = useCallback(async () => {
