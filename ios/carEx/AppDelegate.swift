@@ -2,6 +2,7 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
+import FirebaseCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -14,6 +15,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
+    // Phase 13 (NPUSH): initialize Firebase BEFORE the RN bridge starts, so
+    // index.js `messaging()` at module scope has a configured default app.
+    // Guard against double-config (RNFB can auto-configure via delegate
+    // swizzling) — calling configure() twice crashes the app.
+    if FirebaseApp.app() == nil {
+      FirebaseApp.configure()
+    }
+
     let delegate = ReactNativeDelegate()
     let factory = RCTReactNativeFactory(delegate: delegate)
     delegate.dependencyProvider = RCTAppDependencyProvider()

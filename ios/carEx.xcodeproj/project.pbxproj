@@ -13,6 +13,7 @@
 		36875B75284D4E76BFA5A898 /* Manrope-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6FB37E5321604CA2B0637F0B /* Manrope-ExtraBold.ttf */; };
 		57FA2B35C82F48119F13397E /* JetBrainsMono-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AAEDDA850FAD419CA1AAFF98 /* JetBrainsMono-Bold.ttf */; };
 		5C84AB103A314261A8F8342B /* Manrope-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 48034508557E443AB9ED42E6 /* Manrope-Regular.ttf */; };
+		6C41D20BB00AAE82A478318B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 15F29CE8A6829138B4FBD595 /* GoogleService-Info.plist */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		84E99A4B59C3445FA924E9AC /* JetBrainsMono-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 92945E9C47BB4FF0A3095A40 /* JetBrainsMono-SemiBold.ttf */; };
@@ -28,6 +29,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = carEx/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = carEx/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = carEx/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		15F29CE8A6829138B4FBD595 /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		19D8723C4B0742BDBB95DDFE /* Manrope-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Medium.ttf"; path = "../src/assets/fonts/Manrope-Medium.ttf"; sourceTree = "<group>"; };
 		323473C2A6104C34ACA1CA55 /* Manrope-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-SemiBold.ttf"; path = "../src/assets/fonts/Manrope-SemiBold.ttf"; sourceTree = "<group>"; };
 		48034508557E443AB9ED42E6 /* Manrope-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Regular.ttf"; path = "../src/assets/fonts/Manrope-Regular.ttf"; sourceTree = "<group>"; };
@@ -67,6 +69,7 @@
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
 				ED4A8E1A2CB1234500000001 /* carEx.entitlements */,
+				15F29CE8A6829138B4FBD595 /* GoogleService-Info.plist */,
 			);
 			name = carEx;
 			sourceTree = "<group>";
@@ -210,6 +213,7 @@
 				12D1E79188F440A08303A23B /* Manrope-Bold.ttf in Resources */,
 				D2DA7B42FB8B4C25B422443E /* JetBrainsMono-Medium.ttf in Resources */,
 				C4C8FAFED60F485C9DE16243 /* README.md in Resources */,
+				6C41D20BB00AAE82A478318B /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,7 +341,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = carEx/carEx.entitlements;
-				CURRENT_PROJECT_VERSION = 55;
+				CURRENT_PROJECT_VERSION = 59;
 				DEVELOPMENT_TEAM = M3W6Y259JR;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = carEx/Info.plist;
@@ -346,7 +350,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.54;
+				MARKETING_VERSION = 1.0.58;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -367,7 +371,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = carEx/carEx.entitlements;
-				CURRENT_PROJECT_VERSION = 55;
+				CURRENT_PROJECT_VERSION = 59;
 				DEVELOPMENT_TEAM = M3W6Y259JR;
 				INFOPLIST_FILE = carEx/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -375,7 +379,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.54;
+				MARKETING_VERSION = 1.0.58;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
