@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- App Store distribution. Re-signs the archive with the distribution
+	     certificate and promotes aps-environment development -> production so
+	     push works for App Store / TestFlight users. -->
+	<key>method</key>
+	<string>app-store</string>
+	<key>teamID</key>
+	<string>M3W6Y259JR</string>
+	<!-- Let Xcode pick the App Store distribution provisioning profile. -->
+	<key>signingStyle</key>
+	<string>automatic</string>
+	<key>destination</key>
+	<string>export</string>
+	<!-- Versions are bumped by build-ios-release.sh; do not let Xcode re-bump. -->
+	<key>manageAppVersionAndBuildNumber</key>
+	<false/>
+	<key>uploadSymbols</key>
+	<true/>
+	<key>stripSwiftSymbols</key>
+	<true/>
+</dict>
+</plist>

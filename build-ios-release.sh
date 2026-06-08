@@ -60,6 +60,29 @@ echo "Archive successful!"
 echo "=========================================="
 echo "Archive: $ARCHIVE_PATH"
 echo ""
-echo "The archive appears in Xcode Organizer (Window → Organizer → Archives)."
-echo "Select it and click 'Distribute App' to send to App Store Connect."
+
+# Export a distribution-signed App Store .ipa. This re-signs the archive with
+# the distribution certificate and promotes the push entitlement aps-environment
+# from 'development' to 'production' (so push works for App Store / TestFlight
+# users). signingStyle=automatic in ExportOptions.plist lets Xcode pick the
+# App Store provisioning profile.
+EXPORT_PATH="$ARCHIVES_DIR/carEx-export-$(date +%H-%M-%S)"
+EXPORT_OPTIONS="$SCRIPT_DIR/ios/ExportOptions.plist"
+
+echo "Exporting App Store .ipa (distribution signing)..."
+xcodebuild -exportArchive \
+  -archivePath "$ARCHIVE_PATH" \
+  -exportPath "$EXPORT_PATH" \
+  -exportOptionsPlist "$EXPORT_OPTIONS"
+
+echo ""
+echo "=========================================="
+echo "Export successful!"
+echo "=========================================="
+echo "IPA folder: $EXPORT_PATH"
+ls "$EXPORT_PATH"/*.ipa 2>/dev/null || true
+echo ""
+echo "Upload to App Store Connect with Transporter, or:"
+echo "  xcrun altool --upload-app -f \"$EXPORT_PATH\"/*.ipa -t ios -u <apple-id> -p <app-specific-password>"
+echo "(The archive above is still in Xcode Organizer → Distribute App as a fallback.)"
 echo "=========================================="
