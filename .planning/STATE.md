@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
-status: Phase 13 SHIPPED — mobile PR #12 open (Phases 12+13 mobile → main); milestone v1.2 has Phase 14 (Daily Digest) remaining
-stopped_at: Phase 13 shipped — mobile PR #12 (https://github.com/beckinfonet/CarEx/pull/12) awaiting merge
-last_updated: "2026-06-07T07:27:30.058Z"
-last_activity: 2026-06-07 -- Phase 13 COMPLETE: real-device UAT passed, all 5 plans done, NPUSH-01..08 + NPRF-06 delivered
+status: milestone_complete
+stopped_at: Phase 14 context gathered
+last_updated: "2026-06-07T23:22:07.720Z"
+last_activity: 2026-06-07
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 15
-  completed_plans: 15
-  percent: 100
+  completed_phases: 4
+  total_plans: 20
+  completed_plans: 20
+  percent: 133
 ---
 
 # Project State
@@ -21,19 +21,19 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 **Core value (current milestone v1.2):** Buyers get alerted to relevant inventory and watched-car events without re-checking the app — via an in-app notification center and OS push.
-**Current focus:** Phase 12 — notification-domain-in-app-center
+**Current focus:** Phase 14 — daily-digest-scheduling
 
 ## Current Position
 
-Phase: 13 ✅ COMPLETE
-Plan: all 5 plans complete; 13-HUMAN-UAT signed PASS (2026-06-07); verification passed (doc gap it flagged is now closed)
-Status: Phase 13 done — NEXT: merge mobile `feature/notifications-system` → main, then Phase 14 (Daily Digest & Scheduling)
-Last activity: 2026-06-07 - Completed quick task 260607-c2i: fixed 5 ultrareview findings on PR #12 (Phase 13 push) — App.tsx routeDeeplink (watch no-op + dropped search filters), Android carex_default channel creation, WatchButton dup-subscription hydration, bodyType saved-search deeplink, iOS aps-environment release-prep note. 28/28 tests green.
+Phase: 14
+Plan: Not started
+Status: Milestone complete
+Last activity: 2026-06-08
 
 **Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
 
-- ✅ **13-02** (backend FCM send loop + device-token routes + PII-safe push copy): DONE + **MERGED to backend `main` 2026-06-06 via PR #10 (`df9ebb0`)** — full Phase 12+13 backend stack now on origin/main, deploys via Railway. 31/31 target tests green; pre-existing ServiceOrder.providerSnapshot failure untouched. Mobile-side SUMMARY on mobile branch `feature/notifications-system`. ⚠️ Railway still on TEST Stripe keys from spike — restore live keys for prod payments.
-- ✅ **13-01** (iOS Podfile static-frameworks SPIKE — the NPUSH-01 gate): **PASSED 2026-06-06.** SUMMARY written. Commits `78aae01` (rollback checkpoint), `7543a51` (static-frameworks switch), `a8cf5ee` (Stripe key-account fix). Bar #1 Release compile PROVEN (orchestrator xcodebuild: BUILD SUCCEEDED, 0 errors, FollyConvert resolved, carEx.app produced). Bar #2 PASSED on TestFlight (Release build runs on real iPhone + Stripe test checkout "Payment successful → Booked"). D-03: RNFB built-in display, no notifee. **Milestone #1 risk RETIRED. Waves 2–4 unlocked.** ⚠️ Release follow-up: App.tsx ships a TEST Stripe pk in all builds (pre-existing CONCERNS) — swap to pk_live + Railway sk_live before prod release.
+- ✅ **13-02** (backend FCM send loop + device-token routes + PII-safe push copy): DONE + **MERGED to backend `main` 2026-06-06 via PR #10 (`df9ebb0`)** — full Phase 12+13 backend stack now on origin/main, deploys via Railway. 31/31 target tests green; pre-existing ServiceOrder.providerSnapshot failure untouched. Mobile-side SUMMARY on mobile branch `feature/notifications-system`. ⚠️ Stripe keys (updated 2026-06-08): client publishable key is LIVE (`pk_live`, App.tsx `6f7040d`). ✅ Railway `STRIPE_SECRET_KEY` confirmed `sk_live` by operator 2026-06-08 — client + server both LIVE and matched. Stripe key concern closed.
+- ✅ **13-01** (iOS Podfile static-frameworks SPIKE — the NPUSH-01 gate): **PASSED 2026-06-06.** SUMMARY written. Commits `78aae01` (rollback checkpoint), `7543a51` (static-frameworks switch), `a8cf5ee` (Stripe key-account fix). Bar #1 Release compile PROVEN (orchestrator xcodebuild: BUILD SUCCEEDED, 0 errors, FollyConvert resolved, carEx.app produced). Bar #2 PASSED on TestFlight (Release build runs on real iPhone + Stripe test checkout "Payment successful → Booked"). D-03: RNFB built-in display, no notifee. **Milestone #1 risk RETIRED. Waves 2–4 unlocked.** ✅ CORRECTED 2026-06-08: the brief test-pk switch (`a8cf5ee`) was REVERTED — App.tsx now ships the LIVE publishable key (`pk_live_…51LaViqJ`) as of `6f7040d` and that is the current committed value on `feature/notifications-system`. Publishable keys are public-by-design, so this is not a leak. ✅ RESOLVED 2026-06-08: Railway `STRIPE_SECRET_KEY` confirmed `sk_live` by operator — client `pk_live` + server `sk_live` are matched LIVE. Stripe key concern fully closed.
 - ✅ **13-03** (install @react-native-firebase 24.1.0 + native config): **DONE 2026-06-07.** RNFB app+messaging at exactly 24.1.0 (locked-step); `RCT_USE_PREBUILT_RNCORE=0 pod install` clean under static frameworks (Firebase iOS 12.11.0, Stripe/fmt intact, FollyConvert resolved, no notifee). Android google-services 4.4.4 applied; `:app:processDebugGoogleServices` BUILD SUCCESSFUL against `com.carex.market`. POST_NOTIFICATIONS + default channel `carex_default` declared. Commits `2e1b1e9` (Task 1), `4f147c0` (Task 2). Operator console artifacts (google-services.json gitignored/local-only + APNs .p8 uploaded) pre-satisfied. Real-device APNs delivery (NPUSH-03) verified later in 13-04/UAT.
 - ✅ **13-04** (PushService + AuthContext wiring + 3-state tap routing): **DONE 2026-06-07.** PushService off AuthService (MOB-01 gate 0); logout unregister fires before idToken clears (awk PASS 475<483); index.js bg handler at module scope before registerComponent (17<22); App.tsx exports `navigationRef` + `PushTapRoutingEffect` (getInitialNotification/onNotificationOpenedApp/onMessage → routeDeeplink, whitelist-only CarDetails/SearchResults). New `src/services/push/pushPermission.ts` isolates RNFB calls (no requestPermission — that's 13-05). PushService test 7/7; full suite 526 pass / 17 pre-existing fails (no regressions). Commits `f55425b`/`ceec024`/`08b0200`/`4ab5803`. Real-device NPUSH-06/07 → 13-HUMAN-UAT (13-05).
 - 🟡 **13-05** (permission pre-prompt UI + settings + HUMAN-UAT): **Tasks 1-3 DONE 2026-06-07; Task 4 = real-device UAT gate (pending).** Contextual fire-once pre-prompt (never on launch; single ask across Watch+Save-search; "Не сейчас" persists, never re-asks); denied-recovery row on NotificationSettings (live `hasPermission` + `Linking.openSettings`); `pushPrePromptTitle/Body`, `pushEnable`, `pushStatusOn/Off`, `pushEnableInSettings` keys RU/EN parity; `13-HUMAN-UAT.md` authored (NPUSH-01/03/06/07). prePrompt 9/9 + Settings 7/7; full suite 537 pass / 17 pre-existing fails. Commits `fcfd42b`/`81a2c9d`/`fa5fde4`/`65030b2`. **Awaiting operator real-device UAT → resume signal "uat passed"** then /gsd-verify-work. Logged 3 pre-existing NotificationSettings lint errors to deferred-items (not fixed — out of scope).
@@ -78,7 +78,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 45
+- Total plans completed: 50
 - Average duration: —
 - Total execution time: 0.0 hours
 
@@ -91,6 +91,7 @@ Progress: [██████████] 100%
 | 09 | 5 | - | - |
 | 11 | 8 | - | - |
 | 12 | 10 | - | - |
+| 14 | 5 | - | - |
 
 **Recent Trend:**
 
@@ -161,6 +162,11 @@ Progress: [██████████] 100%
 | Phase 12 P09 | ~12m | 2 tasks | 7 files |
 | Phase 12 P10 | ~3m | 2 tasks | 3 files |
 | Phase 13 P03 | 4min | 2 tasks (+2 auto-fix) | 7 files (+1 gitignored) |
+| Phase 14 P01 | 3min | 2 tasks (3 commits — TDD RED+GREEN) tasks | 4 files files |
+| Phase 14 P05 | 6min | 1 tasks | 2 files |
+| Phase 14 P02 | 4min | 1 tasks | 2 files |
+| Phase 14 P03 | 5min | 2 tasks (3 commits — Task1 + TDD RED+GREEN) | 3 files |
+| Phase 14 P04 | ~4min | 2 tasks (3 commits — TDD RED+GREEN + cron) | 3 files |
 
 ## Accumulated Context
 
@@ -168,6 +174,9 @@ Progress: [██████████] 100%
 
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
+
+- [Phase 14]: Plan 14-04: same-run retention prune in runDigest — `Notification.deleteMany({createdAt:$lt cutoff})` at 90d + `DeviceToken.deleteMany({lastSeenAt:$lt cutoff})` at `TOKEN_STALE_DAYS=90`; both date-bounded (T-14-04-01, never unconditional). The stale-token prune is the EXTRA layer keyed on `lastSeenAt` age (refreshed on every register, router.js:315), non-duplicative with `fcm.send`'s send-time `pruneToken`. prune is wrapped non-fatal (logged, never thrown) and also runs on idle digest mornings (the no-claimed early-return path calls it before returning).
+- [Phase 14]: Plan 14-04: daily-digest node-cron registered STRICTLY inside server.js's `require.main === module` gate (`cron.schedule('0 ${DIGEST_HOUR} * * *', task, { name:'daily-digest', timezone:'Asia/Bishkek', noOverlap:true })`) so `require('./server')` under Jest starts no scheduler (Pitfall 4). v4 idioms only — auto-start, NO `recoverMissedExecutions` (no catch-up = D-02, zero code); task wraps `runDigest` in try/catch so a digest failure never crashes the process. Expression derives from `DIGEST_HOUR` (digest.js stays the single fire-time retune point, D-01). **Phase 14 backend complete (NDIG-01..05 + NDOM-06).**
 
 - [Phase 12]: Plan 12-06: NotificationService mirrors the ModerationService split (apiClient verb+path wrappers, isAbortError) — notification HTTP stays OFF AuthService. MOB-01 guardrail enforced as a runtime test reading AuthService.ts source (zero notification/subscription/watch matches), not just an acceptance grep.
 - [Phase 12]: Plan 12-06: NotificationProvider placed innermost (after FavoritesProvider, immediately wrapping NavigationContainer) — inside AuthProvider so useAuth resolves AND wrapping every screen/badge that reads it. prevUidRef skip-on-mount sentinel clears unreadCount/feed on user.localId change (T-12-06-01 cross-user cache-leak mitigation, FavoritesContext pattern).
@@ -417,6 +426,10 @@ Recent decisions affecting current work:
 - [Phase 12]: Plan 12-10: Daily cadence is a disabled TouchableOpacity whose onPress fires the coming-soon hint and NEVER sets cadence 'daily' (D-10/NSUB-03 invariant, test-proven). ProfileScreen row uses t.notificationSettings, distinct from MoreMenu feed label t.notificationsMenuLabel (D-12).
 - [Phase ?]: 13-05: contextual fire-once push pre-prompt (shared flag covers Watch + Save-search; never on launch; Не сейчас persists)
 - [Phase ?]: 13-05: denied-permission recovery row on NotificationSettings reads live hasPermission and deep-links to OS Settings; in-app center stays functional (no dead-end)
+- [Phase 14]: Plan 14-01: digest_title stored as ONE {count}-token template per language + a non-brace #NOUN# sentinel resolved at render time by pluralizeRu — keeps RU/EN placeholder token sets identical so the parity test stays green (three separate RU keys rejected per RESEARCH Pitfall 2). Full adjective+noun agreement folded per RU 3-form (новая машина/новые машины/новых машин); EN selects singular/plural by n===1. renderDigest(lang,count) is the count-only PII-safe surface Plan 02 sendDigest will call. node-cron pinned ^4.2.1.
+- [Phase ?]: [Phase 14]: Plan 14-05: routeDeeplink exported (module-private to named export) so the digest notifications route is unit-testable without a device; signature + existing listing/search branches unchanged. linking.config.screens gains Notifications:'notifications' — the third and final notification whitelist route (param-free; D-03 digest to Notification Center, not listing/:carId). Unknown-target ignore branch preserved (T-14-05-01 closed).
+- [Phase 14]: Plan 14-03: runDigest({ now, deps }) is a pure, directly-callable crash-safe flush (no cron — Plan 04 registers the schedule and consumes DIGEST_HOUR=8, the single D-01 retune point). Snapshot+claim is ONE atomic updateMany over { digestPending:true, createdAt:$lte runStart } stamping a re-stampable digestRunId; the claimed set is read back, grouped by uid, hide-hook-rechecked, sent once per uid via fcm.sendDigest, and cleared via $set digestPending:false + $unset digestRunId for ONLY sent ids on { ok:true } (per-id, no drop). No withTransaction — per-doc updateMany atomicity is the design (RESEARCH A1).
+- [Phase 14]: Plan 14-03: LOCKED NDIG-02 contract — guarantee NO DROP, accept the rare post-send/pre-clear duplicate; NO digestSent marker (single-instance Railway, narrow window between sendDigest resolving and the clear, strictly better than a missed digest). Strict zero-duplicate deferred (pairs with NOTF2-06). digestRunId is re-stampable (a leftover row from a crashed run is re-claimed and re-sent). Hide-hook re-check is a PLAIN Car.findById (zero bypass flags, mirrors notificationService.emit) with a grep gate over digest.js returning 0 (T-14-03-01); dropped (null/non-active) rows stay digestPending:true (not sent, not lost).
 
 ### Pending Todos
 
@@ -471,8 +484,8 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-07T07:27:11.878Z
-Stopped at: Phase 13 context gathered
+Last session: 2026-06-07T23:22:07.707Z
+Stopped at: Phase 14 context gathered
 Resume file: None
 
 ## Operator Next Steps
