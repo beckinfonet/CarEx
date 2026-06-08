@@ -14,7 +14,7 @@ Admins can act on bad-actor users after they're already in the system — withou
 **Previous:** v1.0 — Admin Moderation (2026-04-30) · [archive](milestones/v1.0-ROADMAP.md)
 **Distribution:** TestFlight 1.0.45 + Google Play internal 1.0.48 — verified live
 **Tags:** `v1.0`, `v1.1`
-**v1.2 progress:** Phase 12 (Notification Domain + In-App Center) complete 2026-06-07 — backend domain/emit/router + mobile center/subscriptions/settings, RU/EN i18n, all pure-REST. Code review found & fixed 3 contract blockers; 24/24 must-haves verified, 5 runtime UAT items deferred to on-device pass (12-HUMAN-UAT.md). Next: Phase 13 (FCM push, native).
+**v1.2 progress:** ALL 3 PHASES COMPLETE. Phase 12 (Notification Domain + In-App Center, pure-REST) complete 2026-06-07. Phase 13 (FCM push transport, native — static-frameworks spike passed, PushService + 3-state tap routing) complete 2026-06-07, HUMAN-UAT signed PASS. Phase 14 (Daily Digest & Scheduling — in-process node-cron, crash-safe per-user flush, count-bearing RU/EN copy, 90-day + stale-token prune) complete 2026-06-08; 8/8 must-haves verified, digest-push-tap HUMAN-UAT signed PASS on a real device against deployed backend `main`. Milestone v1.2 functionally complete — ready for `/gsd-complete-milestone`.
 
 _Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](../docs/superpowers/specs/2026-06-06-notifications-system-design.md)._
 
@@ -174,4 +174,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-07 — v1.2 Phase 12 (Notification Domain + In-App Center) complete; 24/24 must-haves verified, 5 runtime UAT items deferred to on-device pass. Next: Phase 13 (FCM push, native).*
+*Last updated: 2026-06-08 — v1.2 ALL phases complete (12 in-app center · 13 FCM push · 14 daily digest). Phase 14 verified 8/8, digest-push-tap UAT signed PASS on device. Milestone v1.2 functionally complete. Next: /gsd-complete-milestone.*
