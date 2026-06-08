@@ -8,6 +8,7 @@ import {
 import { Bell } from 'lucide-react-native';
 import { COLORS, SIZES } from '../../constants/theme';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import {
   NotificationService,
   NotificationEvent,
@@ -60,6 +61,7 @@ interface WatchButtonProps {
 
 const WatchButton = ({ car, carId }: WatchButtonProps) => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [watching, setWatching] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   // NPRF-06: soft pre-prompt visibility. NEVER true at mount — only flipped on
@@ -81,7 +83,10 @@ const WatchButton = ({ car, carId }: WatchButtonProps) => {
   // Fail-open: a failed hydration logs + leaves watching=false so the existing
   // tap flow still works. The mounted flag guards setState after unmount.
   useEffect(() => {
-    if (!watchKey) return;
+    // Skip hydration when logged out — listSubscriptions() would 401 and the
+    // catch below would log a noisy "Failed to hydrate watch state" error on
+    // every CarDetails open for unauthenticated users.
+    if (!watchKey || !user?.localId) return;
     let mounted = true;
     (async () => {
       try {
@@ -104,7 +109,7 @@ const WatchButton = ({ car, carId }: WatchButtonProps) => {
     return () => {
       mounted = false;
     };
-  }, [watchKey]);
+  }, [watchKey, user?.localId]);
 
   const handlePress = async () => {
     if (submitting || watching) return;
