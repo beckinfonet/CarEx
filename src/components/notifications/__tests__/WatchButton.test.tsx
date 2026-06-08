@@ -36,6 +36,13 @@ jest.mock('../../../services/notifications/NotificationService', () => ({
   },
 }));
 
+// Mock the auth context — default to a logged-in user so the mount-hydration
+// effect runs. `mockUser` is mutated per-test to cover the logged-out guard.
+let mockUser: { localId: string } | null = { localId: 'uid_test' };
+jest.mock('../../../context/AuthContext', () => ({
+  useAuth: () => ({ user: mockUser }),
+}));
+
 const createSubscriptionMock =
   NotificationService.createSubscription as jest.Mock;
 const listSubscriptionsMock =
@@ -70,6 +77,7 @@ async function renderAsync(node: React.ReactElement) {
 }
 
 beforeEach(() => {
+  mockUser = { localId: 'uid_test' };
   createSubscriptionMock.mockClear();
   createSubscriptionMock.mockResolvedValue({ _id: 'sub_1' });
   listSubscriptionsMock.mockClear();
@@ -156,6 +164,14 @@ describe('WatchButton — WR-03 mount hydration (no duplicate POST on remount)',
     // Tapping an already-watched car must NOT create a duplicate subscription.
     await press(tree);
     expect(createSubscriptionMock).not.toHaveBeenCalled();
+  });
+
+  it('skips hydration (no listSubscriptions call) when logged out', async () => {
+    mockUser = null;
+    await renderAsync(<WatchButton car={{ _id: 'car_a' }} carId="car_a" />);
+    // Logged-out: the mount effect early-returns, so the 401-prone
+    // listSubscriptions request never fires (no noisy hydrate error).
+    expect(listSubscriptionsMock).not.toHaveBeenCalled();
   });
 });
 

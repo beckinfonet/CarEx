@@ -19,7 +19,8 @@
            Channel id "carex_default" is created in-JS (plan 13-04/13-05) and referenced here. -->
       <meta-data
         android:name="com.google.firebase.messaging.default_notification_channel_id"
-        android:value="carex_default" />
+        android:value="carex_default"
+        tools:replace="android:value" />
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
