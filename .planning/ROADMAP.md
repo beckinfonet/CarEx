@@ -107,7 +107,7 @@ Design spec: [docs/superpowers/specs/2026-06-06-notifications-system-design.md](
 |-------|----------------|--------|-----------|
 | 12. Notification Domain + In-App Center | 10/10 | Complete    | 2026-06-07 |
 | 13. FCM Push Transport (native) | 5/5 | Complete    | 2026-06-07 |
-| 14. Daily Digest & Scheduling | 5/5 | Complete   | 2026-06-07 |
+| 14. Daily Digest & Scheduling | 5/5 | Complete    | 2026-06-08 |
 
 ## Backlog / Carry-forward candidates
 

@@ -1,9 +1,10 @@
 ---
 phase: 14-daily-digest-scheduling
 verified: 2026-06-07T23:30:00Z
-status: human_needed
+status: passed
 score: 8/8 must-haves verified
 overrides_applied: 0
+human_verification_resolved: "2026-06-07 — operator confirmed the digest push tap opens the in-app Notification Center on a real device against deployed backend main (runDigest sent:1, delivered to 1 device token). See 14-HUMAN-UAT.md."
 human_verification:
   - test: "Trigger a real digest run (or set DIGEST_HOUR to a near-future minute), then tap the digest push notification on a physical device"
     expected: "Tapping the push opens the in-app Notification Center (NotificationsScreen), NOT a single CarDetails screen; this validates D-03 end-to-end across all three push states (foreground / background / quit)"
@@ -14,7 +15,7 @@ human_verification:
 
 **Phase Goal:** Buyers with daily-cadence saved searches (plus daily-cap overflow and quiet-hours-queued items) receive one localized morning digest push per day, delivered crash-safely by an in-process scheduled worker.
 **Verified:** 2026-06-07T23:30:00Z
-**Status:** human_needed
+**Status:** passed (human verification resolved 2026-06-07)
 **Re-verification:** No — initial verification
 
 ---
