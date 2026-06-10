@@ -4,7 +4,7 @@ milestone: v1.2
 milestone_name: Notifications
 status: executing
 stopped_at: Phase 15 context gathered
-last_updated: "2026-06-10T21:35:07.557Z"
+last_updated: "2026-06-10T21:40:58.451Z"
 last_activity: 2026-06-10
 progress:
   total_phases: 3
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 15 (broadcast-new-listing-notifications) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Last activity: 2026-06-10
 
@@ -169,6 +169,7 @@ Progress: [██████████] 100%
 | Phase 14 P04 | ~4min | 2 tasks (3 commits — TDD RED+GREEN + cron) | 3 files |
 | Phase 15 P01 | ~12min | 3 tasks tasks | 3 files files |
 | Phase 15 P02 | ~6min | 3 tasks | 3 files (backend) |
+| Phase 15 P03 | ~4min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -435,6 +436,7 @@ Recent decisions affecting current work:
 - [Phase 14]: Plan 14-03: runDigest({ now, deps }) is a pure, directly-callable crash-safe flush (no cron — Plan 04 registers the schedule and consumes DIGEST_HOUR=8, the single D-01 retune point). Snapshot+claim is ONE atomic updateMany over { digestPending:true, createdAt:$lte runStart } stamping a re-stampable digestRunId; the claimed set is read back, grouped by uid, hide-hook-rechecked, sent once per uid via fcm.sendDigest, and cleared via $set digestPending:false + $unset digestRunId for ONLY sent ids on { ok:true } (per-id, no drop). No withTransaction — per-doc updateMany atomicity is the design (RESEARCH A1).
 - [Phase 14]: Plan 14-03: LOCKED NDIG-02 contract — guarantee NO DROP, accept the rare post-send/pre-clear duplicate; NO digestSent marker (single-instance Railway, narrow window between sendDigest resolving and the clear, strictly better than a missed digest). Strict zero-duplicate deferred (pairs with NOTF2-06). digestRunId is re-stampable (a leftover row from a crashed run is re-claimed and re-sent). Hide-hook re-check is a PLAIN Car.findById (zero bypass flags, mirrors notificationService.emit) with a grep gate over digest.js returning 0 (T-14-03-01); dropped (null/non-active) rows stay digestPending:true (not sent, not lost).
 - [Phase ?]: [Phase 15]: Plan 15-01: Wave-0 RED scaffolds committed in the BACKEND repo (carEx-services) — broadcast.test.js (5d4673d, 7 RED DI tests), guards.test.js extension (28af09a, new_listing_broadcast source gate RED, bypass grep gate preserved GREEN), users-prefs.test.js (21c302c, GREEN executable spec). Bishkek 08:00 cap boundary locked at 2026-06-10T02:00:00Z (R-01). users-prefs spec registers a distinct UserPrefsSpec forward model carrying notificationPrefs.newListingEnabled (a 15-02 schema addition) to avoid Mongoose strict-mode drop + real-User shadowing.
+- [Phase 15]: Plan 15-03: added generic PII-free broadcast copy — RU+EN push_new_listing (lock-screen push) + in-app new_listing, distinct from saved-search new_match, zero {param} tokens (D-08/T-15-06 lock-screen PII mitigation). 15-04 resolves push via fcm.send({titleKey:'new_listing'})→renderGenericPush. Existing new_match/KEYS_BY_EVENT.new_listing mapping untouched (additive). Backend commit 2ede0fd; parity tests 17/17 GREEN.
 
 ### Pending Todos
 
@@ -492,7 +494,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-10T21:35:07.549Z
+Last session: 2026-06-10T21:40:42.952Z
 Stopped at: Phase 15 context gathered
 Resume file: None
 
