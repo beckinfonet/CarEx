@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
-status: completed
+status: executing
 stopped_at: Phase 15 context gathered
-last_updated: "2026-06-10T20:38:23.143Z"
-last_activity: 2026-06-08
+last_updated: "2026-06-10T21:28:41.502Z"
+last_activity: 2026-06-10
 progress:
   total_phases: 3
   completed_phases: 3
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 **Core value (current milestone v1.2):** Buyers get alerted to relevant inventory and watched-car events without re-checking the app — via an in-app notification center and OS push.
-**Current focus:** Phase 14 — daily-digest-scheduling
+**Current focus:** Phase 15 — broadcast-new-listing-notifications
 
 ## Current Position
 
-Phase: 14
-Plan: Not started
-Status: Milestone complete
-Last activity: 2026-06-08
+Phase: 15 (broadcast-new-listing-notifications) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-06-10
 
 **Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
 
@@ -70,7 +70,7 @@ Items acknowledged and deferred at v1.1 milestone close on 2026-06-06 (23 open a
 | debug-session | android-photo-load-lag | fix_applied 2026-05-29 (effectively resolved) |
 | uat-gap | Phase 11 11-HUMAN-UAT.md | approved; 3 optional scenarios pending |
 
-Resume file: .planning/phases/15-broadcast-new-listing-notifications/15-CONTEXT.md
+Resume file: None
 
 Progress: [██████████] 100%
 
@@ -167,6 +167,7 @@ Progress: [██████████] 100%
 | Phase 14 P02 | 4min | 1 tasks | 2 files |
 | Phase 14 P03 | 5min | 2 tasks (3 commits — Task1 + TDD RED+GREEN) | 3 files |
 | Phase 14 P04 | ~4min | 2 tasks (3 commits — TDD RED+GREEN + cron) | 3 files |
+| Phase 15 P01 | ~12min | 3 tasks tasks | 3 files files |
 
 ## Accumulated Context
 
@@ -430,6 +431,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 14]: Plan 14-05: routeDeeplink exported (module-private to named export) so the digest notifications route is unit-testable without a device; signature + existing listing/search branches unchanged. linking.config.screens gains Notifications:'notifications' — the third and final notification whitelist route (param-free; D-03 digest to Notification Center, not listing/:carId). Unknown-target ignore branch preserved (T-14-05-01 closed).
 - [Phase 14]: Plan 14-03: runDigest({ now, deps }) is a pure, directly-callable crash-safe flush (no cron — Plan 04 registers the schedule and consumes DIGEST_HOUR=8, the single D-01 retune point). Snapshot+claim is ONE atomic updateMany over { digestPending:true, createdAt:$lte runStart } stamping a re-stampable digestRunId; the claimed set is read back, grouped by uid, hide-hook-rechecked, sent once per uid via fcm.sendDigest, and cleared via $set digestPending:false + $unset digestRunId for ONLY sent ids on { ok:true } (per-id, no drop). No withTransaction — per-doc updateMany atomicity is the design (RESEARCH A1).
 - [Phase 14]: Plan 14-03: LOCKED NDIG-02 contract — guarantee NO DROP, accept the rare post-send/pre-clear duplicate; NO digestSent marker (single-instance Railway, narrow window between sendDigest resolving and the clear, strictly better than a missed digest). Strict zero-duplicate deferred (pairs with NOTF2-06). digestRunId is re-stampable (a leftover row from a crashed run is re-claimed and re-sent). Hide-hook re-check is a PLAIN Car.findById (zero bypass flags, mirrors notificationService.emit) with a grep gate over digest.js returning 0 (T-14-03-01); dropped (null/non-active) rows stay digestPending:true (not sent, not lost).
+- [Phase ?]: [Phase 15]: Plan 15-01: Wave-0 RED scaffolds committed in the BACKEND repo (carEx-services) — broadcast.test.js (5d4673d, 7 RED DI tests), guards.test.js extension (28af09a, new_listing_broadcast source gate RED, bypass grep gate preserved GREEN), users-prefs.test.js (21c302c, GREEN executable spec). Bishkek 08:00 cap boundary locked at 2026-06-10T02:00:00Z (R-01). users-prefs spec registers a distinct UserPrefsSpec forward model carrying notificationPrefs.newListingEnabled (a 15-02 schema addition) to avoid Mongoose strict-mode drop + real-User shadowing.
 
 ### Pending Todos
 
@@ -487,7 +489,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-10T20:38:23.136Z
+Last session: 2026-06-10T21:28:22.036Z
 Stopped at: Phase 15 context gathered
 Resume file: None
 
