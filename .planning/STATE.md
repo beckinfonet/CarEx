@@ -4,7 +4,7 @@ milestone: v1.2
 milestone_name: Notifications
 status: executing
 stopped_at: Phase 15 context gathered
-last_updated: "2026-06-10T21:28:41.502Z"
+last_updated: "2026-06-10T21:35:07.557Z"
 last_activity: 2026-06-10
 progress:
   total_phases: 3
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 ## Current Position
 
 Phase: 15 (broadcast-new-listing-notifications) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-06-10
 
@@ -168,6 +168,7 @@ Progress: [██████████] 100%
 | Phase 14 P03 | 5min | 2 tasks (3 commits — Task1 + TDD RED+GREEN) | 3 files |
 | Phase 14 P04 | ~4min | 2 tasks (3 commits — TDD RED+GREEN + cron) | 3 files |
 | Phase 15 P01 | ~12min | 3 tasks tasks | 3 files files |
+| Phase 15 P02 | ~6min | 3 tasks | 3 files (backend) |
 
 ## Accumulated Context
 
@@ -176,6 +177,8 @@ Progress: [██████████] 100%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [Phase 15]: Plan 15-02: `newListingEnabled` (Boolean, default true / opt-out) added to `User.notificationPrefs` after `watchEnabled`; `dailyCap` stays 3 (R-01: broadcast cap = pref value, no separate `BROADCAST_DAILY_CAP`). `pushSuppressed` (default false) added to Notification as a `digestPending` sibling — NO new index, the existing `{uid,createdAt:-1}` serves the date-bounded cap count.
+- [Phase 15]: Plan 15-02: R-02 fixed — `PUT /api/users/:uid` persists `notificationPrefs` via an allowlisted dot-path `$set` (booleans muteAll/savedSearchEnabled/watchEnabled/newListingEnabled, number dailyCap, strings quietHours.start/.end), wrapped in explicit `{ $set: update }` so a partial patch never clobbers siblings (T-15-05); unknown/wrong-typed keys dropped (T-15-01); IDOR keyed on `req.params.uid` only (T-15-04). `users-prefs.test.js` GREEN 4/4, `userLanguage.test.js` unaffected; `broadcast.test.js`/`guards.test.js` stay RED until 15-04 (the emit-site). Backend commits 9422962/0da092e/9054481.
 - [Phase 14]: Plan 14-04: same-run retention prune in runDigest — `Notification.deleteMany({createdAt:$lt cutoff})` at 90d + `DeviceToken.deleteMany({lastSeenAt:$lt cutoff})` at `TOKEN_STALE_DAYS=90`; both date-bounded (T-14-04-01, never unconditional). The stale-token prune is the EXTRA layer keyed on `lastSeenAt` age (refreshed on every register, router.js:315), non-duplicative with `fcm.send`'s send-time `pruneToken`. prune is wrapped non-fatal (logged, never thrown) and also runs on idle digest mornings (the no-claimed early-return path calls it before returning).
 - [Phase 14]: Plan 14-04: daily-digest node-cron registered STRICTLY inside server.js's `require.main === module` gate (`cron.schedule('0 ${DIGEST_HOUR} * * *', task, { name:'daily-digest', timezone:'Asia/Bishkek', noOverlap:true })`) so `require('./server')` under Jest starts no scheduler (Pitfall 4). v4 idioms only — auto-start, NO `recoverMissedExecutions` (no catch-up = D-02, zero code); task wraps `runDigest` in try/catch so a digest failure never crashes the process. Expression derives from `DIGEST_HOUR` (digest.js stays the single fire-time retune point, D-01). **Phase 14 backend complete (NDIG-01..05 + NDOM-06).**
 
@@ -489,7 +492,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-10T21:28:22.036Z
+Last session: 2026-06-10T21:35:07.549Z
 Stopped at: Phase 15 context gathered
 Resume file: None
 
