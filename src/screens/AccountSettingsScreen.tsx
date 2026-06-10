@@ -264,10 +264,6 @@ export const AccountSettingsScreen = () => {
                   )}
                 </TouchableOpacity>
               </View>
-
-              <TouchableOpacity style={styles.deleteLinkButton} onPress={handleDeleteAccount}>
-                <Text style={styles.deleteLinkText}>{t.deleteAccount}</Text>
-              </TouchableOpacity>
             </>
           ) : (
             <>
@@ -291,6 +287,12 @@ export const AccountSettingsScreen = () => {
               </View>
             </>
           )}
+
+          {/* Always visible (both view and edit mode) so the account-deletion
+              path is discoverable — required for App Store review compliance. */}
+          <TouchableOpacity style={styles.deleteLinkButton} onPress={handleDeleteAccount}>
+            <Text style={styles.deleteLinkText}>{t.deleteAccount}</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
