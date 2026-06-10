@@ -68,7 +68,30 @@ jest.mock('../../context/NotificationContext', () => ({
   }),
 }));
 
+import { Text } from 'react-native';
+
 import NotificationSettingsScreen from '../NotificationSettingsScreen';
+
+// Locate the Switch that sits in the same toggleRow as the Text whose visible
+// content equals `labelKey`. The echo-key t Proxy makes the translation key the
+// rendered text, so we match on the key name directly.
+function findSwitchByLabel(
+  tree: TestRenderer.ReactTestRenderer,
+  labelKey: string,
+): any {
+  const switches = tree.root.findAllByType(Switch);
+  return switches.find((sw) => {
+    // The Switch's direct parent is its own toggleRow <View>; match ONLY that
+    // row's Text label (do NOT ascend into the shared .group, which would
+    // collide with sibling rows like Saved searches / Watched cars).
+    const row: any = sw.parent;
+    if (!row) return false;
+    const texts = row.findAllByType(Text);
+    return texts.some(
+      (txt: any) => [].concat(txt.props.children).join('') === labelKey,
+    );
+  });
+}
 
 async function render() {
   let tree: TestRenderer.ReactTestRenderer;
@@ -95,6 +118,30 @@ describe('NotificationSettingsScreen — controls (NPRF-01)', () => {
     const switches = tree.root.findAllByType(Switch);
     // master mute + saved-search category + watch category (NPRF-01).
     expect(switches.length).toBeGreaterThanOrEqual(3);
+  });
+});
+
+describe('NotificationSettingsScreen — New Listings toggle (Req 5 / D-11)', () => {
+  it('defaults ON for a never-set user (newListingEnabled absent → value true)', async () => {
+    // mockUser.notificationPrefs = {} (set in beforeEach) — no newListingEnabled.
+    const tree = await render();
+    const sw = findSwitchByLabel(tree, 'categoryNewListings');
+    expect(sw).toBeTruthy();
+    expect(sw.props.value).toBe(true);
+  });
+
+  it('toggling off persists newListingEnabled:false via updateBackendUser', async () => {
+    const tree = await render();
+    const sw = findSwitchByLabel(tree, 'categoryNewListings');
+    await act(async () => {
+      sw.props.onValueChange(false);
+    });
+    expect(mockUpdateBackendUser).toHaveBeenCalledWith(
+      'u-1',
+      expect.objectContaining({
+        notificationPrefs: expect.objectContaining({ newListingEnabled: false }),
+      }),
+    );
   });
 });
 
