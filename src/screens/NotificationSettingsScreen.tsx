@@ -66,6 +66,7 @@ interface NotificationPrefs {
   muteAll?: boolean;
   savedSearchEnabled?: boolean;
   watchEnabled?: boolean;
+  newListingEnabled?: boolean;
   quietHours?: { start?: string; end?: string };
   dailyCap?: number;
 }
@@ -103,6 +104,9 @@ const NotificationSettingsScreen = () => {
   );
   const [watchEnabled, setWatchEnabled] = useState<boolean>(
     prefs.watchEnabled ?? true,
+  );
+  const [newListingEnabled, setNewListingEnabled] = useState<boolean>(
+    prefs.newListingEnabled ?? true,
   );
   const [quietStart] = useState<string>(prefs.quietHours?.start ?? DEFAULT_QUIET_START);
   const [quietEnd] = useState<string>(prefs.quietHours?.end ?? DEFAULT_QUIET_END);
@@ -228,6 +232,14 @@ const NotificationSettingsScreen = () => {
     (value: boolean) => {
       setWatchEnabled(value);
       persistPrefs({ watchEnabled: value });
+    },
+    [persistPrefs],
+  );
+
+  const onToggleNewListing = useCallback(
+    (value: boolean) => {
+      setNewListingEnabled(value);
+      persistPrefs({ newListingEnabled: value });
     },
     [persistPrefs],
   );
@@ -404,12 +416,21 @@ const NotificationSettingsScreen = () => {
               trackColor={{ false: COLORS.border, true: COLORS.accent }}
             />
           </View>
-          <View style={styles.toggleRow}>
+          <View style={[styles.toggleRow, styles.rowDivider]}>
             <Text style={styles.toggleLabel}>{t.categoryWatchedCars}</Text>
             <Switch
               value={watchEnabled}
               disabled={muteAll}
               onValueChange={onToggleWatch}
+              trackColor={{ false: COLORS.border, true: COLORS.accent }}
+            />
+          </View>
+          <View style={styles.toggleRow}>
+            <Text style={styles.toggleLabel}>{t.categoryNewListings}</Text>
+            <Switch
+              value={newListingEnabled}
+              disabled={muteAll}
+              onValueChange={onToggleNewListing}
               trackColor={{ false: COLORS.border, true: COLORS.accent }}
             />
           </View>
