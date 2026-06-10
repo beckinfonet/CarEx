@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Notifications
-status: executing
+status: verifying
 stopped_at: Phase 15 context gathered
-last_updated: "2026-06-10T21:45:20.536Z"
+last_updated: "2026-06-10T21:53:03.391Z"
 last_activity: 2026-06-10
 progress:
   total_phases: 3
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-30 after v1.0 milestone close)
 
 Phase: 15 (broadcast-new-listing-notifications) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-10
 
 **Phase 13 execution scope decision (2026-06-06):** Operator chose "backend now, spike when ready."
@@ -171,6 +171,7 @@ Progress: [██████████] 100%
 | Phase 15 P02 | ~6min | 3 tasks | 3 files (backend) |
 | Phase 15 P03 | ~4min | 1 tasks | 1 files |
 | Phase 15 P05 | ~2min | 2 tasks | 3 files |
+| Phase 15 P04 | 5min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -439,6 +440,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 15]: Plan 15-01: Wave-0 RED scaffolds committed in the BACKEND repo (carEx-services) — broadcast.test.js (5d4673d, 7 RED DI tests), guards.test.js extension (28af09a, new_listing_broadcast source gate RED, bypass grep gate preserved GREEN), users-prefs.test.js (21c302c, GREEN executable spec). Bishkek 08:00 cap boundary locked at 2026-06-10T02:00:00Z (R-01). users-prefs spec registers a distinct UserPrefsSpec forward model carrying notificationPrefs.newListingEnabled (a 15-02 schema addition) to avoid Mongoose strict-mode drop + real-User shadowing.
 - [Phase 15]: Plan 15-03: added generic PII-free broadcast copy — RU+EN push_new_listing (lock-screen push) + in-app new_listing, distinct from saved-search new_match, zero {param} tokens (D-08/T-15-06 lock-screen PII mitigation). 15-04 resolves push via fcm.send({titleKey:'new_listing'})→renderGenericPush. Existing new_match/KEYS_BY_EVENT.new_listing mapping untouched (additive). Backend commit 2ede0fd; parity tests 17/17 GREEN.
 - [Phase ?]: Plan 15-05 mobile: New Listings toggle on NotificationSettingsScreen; newListingEnabled default ON via prefs.newListingEnabled ?? true (D-11 legacy-absent enabled); persists via existing persistPrefs path no new networking; disabled under muteAll; categoryNewListings RU/EN parity; 9/9 jest green; commits 9318741 7c90bb8
+- [Phase 15]: Plan 15-04: new_listing_broadcast branch live in emit() (backend a9d2ccf/b824168); audience DeviceToken.distinct minus actor/saved-search, per-recipient cap=dailyCap??3 since bishkek boundary, dedupeKey new_listing_broadcast, hide-hook reused zero bypass. broadcast 7/7 + guards 6/6 GREEN.
 
 ### Pending Todos
 
@@ -496,7 +498,7 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-06-10T21:44:55.544Z
+Last session: 2026-06-10T21:52:41.762Z
 Stopped at: Phase 15 context gathered
 Resume file: None
 
