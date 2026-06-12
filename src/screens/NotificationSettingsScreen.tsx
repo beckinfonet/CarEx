@@ -67,6 +67,7 @@ interface NotificationPrefs {
   savedSearchEnabled?: boolean;
   watchEnabled?: boolean;
   newListingEnabled?: boolean;
+  requestUnlockEnabled?: boolean;
   quietHours?: { start?: string; end?: string };
   dailyCap?: number;
 }
@@ -107,6 +108,9 @@ const NotificationSettingsScreen = () => {
   );
   const [newListingEnabled, setNewListingEnabled] = useState<boolean>(
     prefs.newListingEnabled ?? true,
+  );
+  const [requestUnlockEnabled, setRequestUnlockEnabled] = useState<boolean>(
+    prefs.requestUnlockEnabled ?? true,
   );
   const [quietStart] = useState<string>(prefs.quietHours?.start ?? DEFAULT_QUIET_START);
   const [quietEnd] = useState<string>(prefs.quietHours?.end ?? DEFAULT_QUIET_END);
@@ -240,6 +244,14 @@ const NotificationSettingsScreen = () => {
     (value: boolean) => {
       setNewListingEnabled(value);
       persistPrefs({ newListingEnabled: value });
+    },
+    [persistPrefs],
+  );
+
+  const onToggleRequestUnlock = useCallback(
+    (value: boolean) => {
+      setRequestUnlockEnabled(value);
+      persistPrefs({ requestUnlockEnabled: value });
     },
     [persistPrefs],
   );
@@ -425,12 +437,21 @@ const NotificationSettingsScreen = () => {
               trackColor={{ false: COLORS.border, true: COLORS.accent }}
             />
           </View>
-          <View style={styles.toggleRow}>
+          <View style={[styles.toggleRow, styles.rowDivider]}>
             <Text style={styles.toggleLabel}>{t.categoryNewListings}</Text>
             <Switch
               value={newListingEnabled}
               disabled={muteAll}
               onValueChange={onToggleNewListing}
+              trackColor={{ false: COLORS.border, true: COLORS.accent }}
+            />
+          </View>
+          <View style={styles.toggleRow}>
+            <Text style={styles.toggleLabel}>{t.categoryRequestUnlock}</Text>
+            <Switch
+              value={requestUnlockEnabled}
+              disabled={muteAll}
+              onValueChange={onToggleRequestUnlock}
               trackColor={{ false: COLORS.border, true: COLORS.accent }}
             />
           </View>
