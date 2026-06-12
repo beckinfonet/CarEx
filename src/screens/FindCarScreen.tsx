@@ -179,14 +179,13 @@ export const FindCarScreen = () => {
     };
     setSubmitting(true);
     try {
-      if (isEdit) {
-        await RequestService.updateRequest(requestId as string, input);
-        Alert.alert(t.success, t.requestUpdated);
-      } else {
-        await RequestService.createRequest(input);
-        Alert.alert(t.success, t.requestPosted);
-      }
-      navigation.navigate('MyRequests');
+      const successMsg = isEdit ? t.requestUpdated : t.requestPosted;
+      await (isEdit
+        ? RequestService.updateRequest(requestId as string, input)
+        : RequestService.createRequest(input));
+      Alert.alert(t.success, successMsg, [
+        { text: t.done, onPress: () => navigation.navigate('MyRequests') },
+      ]);
     } catch (e: any) {
       const code = e?.response?.data?.error;
       if (code === 'phone_not_verified') {
@@ -367,10 +366,24 @@ export const FindCarScreen = () => {
         />
         <TextInput
           style={styles.input}
+          placeholder={t.interiorMatLabel}
+          placeholderTextColor={COLORS.textSecondary}
+          value={form.interiorMaterial}
+          onChangeText={(v) => set('interiorMaterial', v)}
+        />
+        <TextInput
+          style={styles.input}
           placeholder={t.enterEngine}
           placeholderTextColor={COLORS.textSecondary}
           value={form.engine}
           onChangeText={(v) => set('engine', v)}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder={t.fuel}
+          placeholderTextColor={COLORS.textSecondary}
+          value={form.fuel}
+          onChangeText={(v) => set('fuel', v)}
         />
 
         <Text style={styles.section}>{t.requestNote}</Text>
