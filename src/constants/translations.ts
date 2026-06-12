@@ -1106,6 +1106,18 @@ export const TRANSLATIONS = {
     filterMinBudget: 'Бюджет от',
     telegram: 'Telegram',
     specifications: 'Характеристики',
+    // Find a Car — Slice 3 (paywall / unlock)
+    freeUnlockNote: 'Бесплатно сейчас. Позже это станет платной услугой.',
+    revealContact: 'Показать контакты',
+    unlockForPrice: 'Открыть контакты',
+    callBuyer: 'Позвонить',
+    openWhatsApp: 'Написать в WhatsApp',
+    openTelegram: 'Написать в Telegram',
+    telegramUnverified: 'Telegram (не подтверждён)',
+    contactRevealed: 'Контакты покупателя',
+    categoryRequestUnlock: 'Интерес продавца к заявке',
+    notif_request_unlock_title: 'Продавец заинтересован',
+    notif_request_unlock_body: 'Продавец заинтересован в вашей заявке: {makeModel}.',
   },
   EN: {
     // Header & Navigation
@@ -2210,6 +2222,18 @@ export const TRANSLATIONS = {
     filterMinBudget: 'Min budget',
     telegram: 'Telegram',
     specifications: 'Specifications',
+    // Find a Car — Slice 3 (paywall / unlock)
+    freeUnlockNote: 'Free for now. This will become a paid service later.',
+    revealContact: 'Reveal contact',
+    unlockForPrice: 'Unlock contact',
+    callBuyer: 'Call',
+    openWhatsApp: 'Message on WhatsApp',
+    openTelegram: 'Message on Telegram',
+    telegramUnverified: 'Telegram (unverified)',
+    contactRevealed: 'Buyer contact',
+    categoryRequestUnlock: 'Seller interest in my request',
+    notif_request_unlock_title: 'A seller is interested',
+    notif_request_unlock_body: 'A seller is interested in your request: {makeModel}.',
   }
 };
 
