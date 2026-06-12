@@ -400,7 +400,7 @@ export const FindCarScreen = () => {
             <ActivityIndicator color="#000" />
           ) : (
             <Text style={styles.submitBtnText}>
-              {isEdit ? t.requestUpdated : t.postRequest}
+              {isEdit ? t.saveRequest : t.postRequest}
             </Text>
           )}
         </TouchableOpacity>
