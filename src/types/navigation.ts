@@ -10,6 +10,8 @@ export type RootStackParamList = {
   AccountSettings: undefined;
   Favorites: undefined;
   MyListings: undefined;
+  FindCar: { requestId?: string } | undefined;
+  MyRequests: undefined;
   SellerListings: { sellerId: string; sellerName?: string };
   Services: undefined;
   ServiceApplication: { type: 'broker' | 'logistics' };
