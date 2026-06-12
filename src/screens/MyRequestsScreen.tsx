@@ -57,7 +57,7 @@ export const MyRequestsScreen = () => {
 
   const handleClose = (req: CarRequest) => {
     Alert.alert(t.foundIt, t.closeRequestConfirm, [
-      { text: t.requestStatusClosed, style: 'cancel' },
+      { text: t.cancel, style: 'cancel' },
       {
         text: t.foundIt,
         onPress: async () => {
@@ -74,9 +74,9 @@ export const MyRequestsScreen = () => {
 
   const handleDelete = (req: CarRequest) => {
     Alert.alert(t.myRequests, t.deleteRequestConfirm, [
-      { text: t.requestStatusClosed, style: 'cancel' },
+      { text: t.cancel, style: 'cancel' },
       {
-        text: t.foundIt,
+        text: t.delete,
         style: 'destructive',
         onPress: async () => {
           try {
@@ -105,7 +105,7 @@ export const MyRequestsScreen = () => {
         ) : null}
         <TouchableOpacity style={styles.actionBtn} onPress={() => handleDelete(item)}>
           <Trash2 size={16} color={COLORS.textPrimary} />
-          <Text style={styles.actionText}>{t.requestStatusClosed}</Text>
+          <Text style={styles.actionText}>{t.delete}</Text>
         </TouchableOpacity>
       </View>
     </View>
