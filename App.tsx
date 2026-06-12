@@ -36,6 +36,8 @@ import { AdminDashboardScreen } from './src/screens/AdminDashboardScreen';
 import { AdminManagementScreen } from './src/screens/AdminManagementScreen';
 import { AdminModerationScreen } from './src/screens/AdminModerationScreen';
 import { AdminUserDetailScreen } from './src/screens/AdminUserDetailScreen';
+import { FindCarScreen } from './src/screens/FindCarScreen';
+import { MyRequestsScreen } from './src/screens/MyRequestsScreen';
 import { OfflineNotice } from './src/components/OfflineNotice';
 import { UserStatusBanner } from './src/components/moderation/UserStatusBanner';
 import { RootStackParamList } from './src/types/navigation';
@@ -336,6 +338,8 @@ function App() {
                 <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
                 <Stack.Screen name="Favorites" component={FavoritesScreen} />
                 <Stack.Screen name="MyListings" component={MyListingsScreen} />
+                <Stack.Screen name="FindCar" component={FindCarScreen} />
+                <Stack.Screen name="MyRequests" component={MyRequestsScreen} />
                 <Stack.Screen name="SellerListings" component={SellerListingsScreen} />
                 <Stack.Screen name="Services" component={ServicesScreen} />
                 <Stack.Screen name="ServiceApplication" component={ServiceApplicationScreen} />
