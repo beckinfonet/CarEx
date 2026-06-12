@@ -70,6 +70,12 @@ export const ProfileScreen = () => {
       icon: <Store size={24} color={COLORS.accent} />,
       onPress: () => navigation.navigate('SellCar')
     }] : []),
+    ...(user && user.sellerStatus === 'APPROVED' ? [{
+      id: 'buyerRequests',
+      title: t.buyerRequests,
+      icon: <Users size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('CarRequests')
+    }] : []),
     ...(user && user.brokerStatus === 'APPROVED' ? [{
       id: 'viewBrokerage',
       title: t.viewBrokerage,

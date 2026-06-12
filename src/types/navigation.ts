@@ -12,6 +12,8 @@ export type RootStackParamList = {
   MyListings: undefined;
   FindCar: { requestId?: string } | undefined;
   MyRequests: undefined;
+  CarRequests: undefined;
+  CarRequestDetails: { requestId: string };
   SellerListings: { sellerId: string; sellerName?: string };
   Services: undefined;
   ServiceApplication: { type: 'broker' | 'logistics' };

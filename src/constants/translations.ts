@@ -1095,6 +1095,17 @@ export const TRANSLATIONS = {
     requestStatusExpired: 'Истекла',
     anyModel: 'Любая модель',
     loginToPost: 'Войдите, чтобы разместить заявку',
+    // Find a Car — Slice 2 (seller browse)
+    buyerRequests: 'Заявки покупателей',
+    noOpenRequests: 'Нет открытых заявок',
+    sellersOnly: 'Доступно только одобренным продавцам',
+    requestDetails: 'Детали заявки',
+    contactHidden: 'Контактные данные скрыты',
+    unlockContact: 'Открыть контакты',
+    unlockComingSoon: 'Открытие контактов появится в следующем обновлении',
+    filterMinBudget: 'Бюджет от',
+    telegram: 'Telegram',
+    specifications: 'Характеристики',
   },
   EN: {
     // Header & Navigation
@@ -2188,6 +2199,17 @@ export const TRANSLATIONS = {
     requestStatusExpired: 'Expired',
     anyModel: 'Any model',
     loginToPost: 'Log in to post a request',
+    // Find a Car — Slice 2 (seller browse)
+    buyerRequests: 'Buyer Requests',
+    noOpenRequests: 'No open requests',
+    sellersOnly: 'Approved sellers only',
+    requestDetails: 'Request Details',
+    contactHidden: 'Contact details hidden',
+    unlockContact: 'Unlock Contact',
+    unlockComingSoon: 'Contact unlock is coming in an upcoming update',
+    filterMinBudget: 'Min budget',
+    telegram: 'Telegram',
+    specifications: 'Specifications',
   }
 };
 

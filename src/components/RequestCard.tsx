@@ -3,14 +3,14 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ChevronRight, Calendar, Wallet } from 'lucide-react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { useLanguage } from '../context/LanguageContext';
-import type { CarRequest } from '../services/requests/RequestService';
+import type { RequestCardData } from '../services/requests/RequestService';
 
 interface RequestCardProps {
-  request: CarRequest;
+  request: RequestCardData;
   onPress?: () => void;
 }
 
-function formatBudget(req: CarRequest): string {
+function formatBudget(req: RequestCardData): string {
   const max = req.budgetMax?.toLocaleString?.() ?? String(req.budgetMax);
   if (req.budgetMin) {
     const min = req.budgetMin.toLocaleString();
@@ -19,7 +19,7 @@ function formatBudget(req: CarRequest): string {
   return `${max} ${req.currency}`;
 }
 
-function formatYears(req: CarRequest): string | null {
+function formatYears(req: RequestCardData): string | null {
   if (req.yearMin && req.yearMax) {return `${req.yearMin}–${req.yearMax}`;}
   if (req.yearMin) {return `${req.yearMin}+`;}
   if (req.yearMax) {return `≤ ${req.yearMax}`;}
@@ -67,7 +67,7 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, onPress }) =>
   );
 };
 
-function statusStyle(status: CarRequest['status']) {
+function statusStyle(status: RequestCardData['status']) {
   if (status === 'open') {return { backgroundColor: COLORS.accent };}
   return { backgroundColor: COLORS.textSecondary };
 }
