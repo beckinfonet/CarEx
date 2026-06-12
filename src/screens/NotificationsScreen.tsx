@@ -130,6 +130,15 @@ export function routeNotification(
       return;
     }
 
+    // --- UNLOCK: carex://my-requests → MyRequests ---
+    if (
+      deeplink.startsWith('carex://my-requests') ||
+      deeplink.includes('/my-requests')
+    ) {
+      navigate('MyRequests');
+      return;
+    }
+
     // Unknown prefix — do not crash, do not navigate (T-12-08-01).
     return;
   }

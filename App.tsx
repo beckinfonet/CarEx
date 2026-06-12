@@ -209,6 +209,14 @@ export function routeDeeplink(deeplink?: string) {
       return;
     }
 
+    if (
+      normalizedPath === 'my-requests' ||
+      normalizedPath.startsWith('my-requests/')
+    ) {
+      navigationRef.navigate('MyRequests');
+      return;
+    }
+
     // Unknown target → ignore (whitelist-only routing).
   } catch (e) {
     console.error('Failed to parse push deeplink', e);
@@ -302,6 +310,7 @@ const linking = {
       // third (and final) whitelisted notification routing target — it widens
       // the whitelist by exactly one route over CarDetails + SearchResults.
       Notifications: 'notifications',
+      MyRequests: 'my-requests',
     },
   },
 };
