@@ -68,6 +68,11 @@ export interface RedactedCarRequest {
   expiresAt: string;
   unlockCount: number;
   unlocked: boolean;
+  // Present only when `unlocked` is true (the seller has paid/revealed).
+  contactPhone?: string;
+  contactPhoneVerified?: boolean;
+  telegramUsername?: string | null;
+  telegramVerified?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -81,13 +86,27 @@ export interface BrowseFilters {
 export interface BrowseResponse {
   unlockPrice: number;
   currency: string;
+  paywallEnabled: boolean;
   requests: RedactedCarRequest[];
 }
 
 export interface RequestDetailResponse {
   unlockPrice: number;
   currency: string;
+  paywallEnabled: boolean;
   request: RedactedCarRequest;
+}
+
+export interface UnlockResponse {
+  request: RedactedCarRequest;
+}
+
+export interface UnlockPaymentIntentResponse {
+  clientSecret?: string;
+  paymentIntentId?: string;
+  amount?: number;
+  currency?: string;
+  alreadyUnlocked?: boolean;
 }
 
 // The minimal field set RequestCard renders — satisfied by both the buyer's
@@ -169,6 +188,36 @@ export const RequestService = {
       return response.data;
     } catch (error) {
       console.error('Failed to fetch car request detail', error);
+      throw error;
+    }
+  },
+
+  unlock: async (id: string): Promise<UnlockResponse> => {
+    try {
+      const response = await apiClient.post(`/api/car-requests/${id}/unlock`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to unlock car request', error);
+      throw error;
+    }
+  },
+
+  unlockPaymentIntent: async (id: string): Promise<UnlockPaymentIntentResponse> => {
+    try {
+      const response = await apiClient.post(`/api/car-requests/${id}/unlock/payment-intent`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to create unlock payment intent', error);
+      throw error;
+    }
+  },
+
+  confirmUnlock: async (id: string, paymentIntentId: string): Promise<UnlockResponse> => {
+    try {
+      const response = await apiClient.post(`/api/car-requests/${id}/unlock/confirm`, { paymentIntentId });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to confirm car request unlock', error);
       throw error;
     }
   },

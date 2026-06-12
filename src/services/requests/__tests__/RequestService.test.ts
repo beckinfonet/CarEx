@@ -96,6 +96,34 @@ describe('RequestService', () => {
     expect(result.request._id).toBe('r1');
   });
 
+  it('unlock POSTs /api/car-requests/:id/unlock and returns the revealed request', async () => {
+    mockedApiClient.post.mockResolvedValueOnce({
+      data: { request: { _id: 'r1', unlocked: true, contactPhone: '+996555111222' } },
+    });
+    const result = await RequestService.unlock('r1');
+    expect(mockedApiClient.post).toHaveBeenCalledWith('/api/car-requests/r1/unlock');
+    expect(result.request.unlocked).toBe(true);
+    expect(result.request.contactPhone).toBe('+996555111222');
+  });
+
+  it('unlockPaymentIntent POSTs the payment-intent endpoint', async () => {
+    mockedApiClient.post.mockResolvedValueOnce({
+      data: { clientSecret: 'cs_1', paymentIntentId: 'pi_1', amount: 500, currency: 'KGS' },
+    });
+    const result = await RequestService.unlockPaymentIntent('r1');
+    expect(mockedApiClient.post).toHaveBeenCalledWith('/api/car-requests/r1/unlock/payment-intent');
+    expect(result.clientSecret).toBe('cs_1');
+  });
+
+  it('confirmUnlock POSTs the confirm endpoint with the payment intent id', async () => {
+    mockedApiClient.post.mockResolvedValueOnce({
+      data: { request: { _id: 'r1', unlocked: true, contactPhone: '+996555111222' } },
+    });
+    const result = await RequestService.confirmUnlock('r1', 'pi_1');
+    expect(mockedApiClient.post).toHaveBeenCalledWith('/api/car-requests/r1/unlock/confirm', { paymentIntentId: 'pi_1' });
+    expect(result.request.contactPhone).toBe('+996555111222');
+  });
+
   it('rethrows on network error', async () => {
     mockedApiClient.post.mockRejectedValueOnce(new Error('boom'));
     await expect(RequestService.createRequest({ makeId: 'm1', budgetMax: 1 })).rejects.toThrow('boom');
