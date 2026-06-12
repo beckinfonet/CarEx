@@ -67,6 +67,35 @@ describe('RequestService', () => {
     expect(result.ok).toBe(true);
   });
 
+  it('getOpenRequests GETs /api/car-requests with filter params and returns the payload', async () => {
+    mockedApiClient.get.mockResolvedValueOnce({
+      data: { unlockPrice: 500, currency: 'KGS', requests: [{ _id: 'r1', unlocked: false }] },
+    });
+
+    const result = await RequestService.getOpenRequests({ makeId: 'm1', minBudget: 10000 });
+
+    expect(mockedApiClient.get).toHaveBeenCalledWith('/api/car-requests', {
+      params: { makeId: 'm1', minBudget: 10000 },
+    });
+    expect(result.unlockPrice).toBe(500);
+    expect(result.requests[0]._id).toBe('r1');
+  });
+
+  it('getOpenRequests omits empty filters', async () => {
+    mockedApiClient.get.mockResolvedValueOnce({ data: { unlockPrice: 500, currency: 'KGS', requests: [] } });
+    await RequestService.getOpenRequests();
+    expect(mockedApiClient.get).toHaveBeenCalledWith('/api/car-requests', { params: {} });
+  });
+
+  it('getRequestDetail GETs /api/car-requests/:id and returns the payload', async () => {
+    mockedApiClient.get.mockResolvedValueOnce({
+      data: { unlockPrice: 500, currency: 'KGS', request: { _id: 'r1', unlocked: false } },
+    });
+    const result = await RequestService.getRequestDetail('r1');
+    expect(mockedApiClient.get).toHaveBeenCalledWith('/api/car-requests/r1');
+    expect(result.request._id).toBe('r1');
+  });
+
   it('rethrows on network error', async () => {
     mockedApiClient.post.mockRejectedValueOnce(new Error('boom'));
     await expect(RequestService.createRequest({ makeId: 'm1', budgetMax: 1 })).rejects.toThrow('boom');
