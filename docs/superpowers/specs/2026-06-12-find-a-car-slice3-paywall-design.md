@@ -81,7 +81,7 @@ On an unlocked detail response, include the previously-stripped fields the selle
 
 ### Buyer notification
 
-When an unlock is written (free or paid), send the buyer a v1.2 notification — *"Продавец заинтересован в вашей заявке"* / *"A seller is interested in your request"* — push + in-app, surfaced in the existing Notifications screen. Gated by a new per-user notification preference (follows the "New Listings"/watched-car toggle precedent). PII-safe copy (no seller identity in the push body).
+When an unlock is written (free or paid), send the buyer a v1.2 notification — *"Продавец заинтересован в вашей заявке"* / *"A seller is interested in your request"* — push + in-app, surfaced in the existing Notifications screen. Gated by a new per-user notification preference (follows the "New Listings"/watched-car toggle precedent), which **defaults ON** — including for existing users (a missing/undefined preference is treated as enabled), so buyers receive the notification without having to discover and flip a toggle they may not know exists. PII-safe copy (no seller identity in the push body).
 
 ### Security / preservation rules
 
