@@ -154,6 +154,18 @@ export const AuthService = {
     }
   },
 
+  // Resolve a free-text city to a normalized "City, Country" string via the
+  // public backend geocode endpoint (Nominatim). Returns a uniform shape so
+  // callers can simply gate on `ok` — a 404/network error becomes { ok: false }.
+  geocodeCity: async (city: string): Promise<{ ok: boolean; location?: string }> => {
+    try {
+      const response = await apiClient.get('/api/geocode/city', { params: { q: city } });
+      return response.data;
+    } catch {
+      return { ok: false };
+    }
+  },
+
   getBackendUser: async (firebaseUid: string, config?: AxiosRequestConfig) => {
     try {
       const response = await apiClient.get(`/api/users/${firebaseUid}`, config);

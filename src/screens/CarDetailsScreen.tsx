@@ -903,6 +903,7 @@ export const CarDetailsScreen = () => {
               {renderSpecItem(t.exteriorColor, car.exteriorColor)}
               {renderSpecItem(t.interiorColor, car.interiorColor)}
               {renderSpecItem(t.interiorMaterial, car.interiorMaterial)}
+              {renderSpecItem(t.location, car.location)}
               {renderSpecItem(t.seats, car.seats)}
               {renderSpecItem(t.doors, car.doors)}
             </View>

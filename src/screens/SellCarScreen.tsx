@@ -7,6 +7,7 @@ import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { COLORS, SIZES } from '../constants/theme';
 import { apiClient } from '../services/http/client';
+import { AuthService } from '../services/AuthService';
 import { ArrowLeft, Camera, X, ChevronDown, AlertTriangle, CheckCircle, Clock, Smartphone } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -74,6 +75,7 @@ export const SellCarScreen = () => {
     exteriorColor: '',
     interiorColor: '',
     interiorMaterial: t.leather,
+    location: '',
     seats: '',
     doors: '',
     phoneNumber: '', // Stores only local part
@@ -148,6 +150,7 @@ export const SellCarScreen = () => {
             exteriorColor: c.exteriorColor || '',
             interiorColor: c.interiorColor || '',
             interiorMaterial: c.interiorMaterial || t.leather,
+            location: c.location || '',
             seats: c.seats?.toString() || '',
             doors: c.doors?.toString() || '',
             phoneNumber: phone,
@@ -408,6 +411,21 @@ export const SellCarScreen = () => {
 
     setLoading(true);
 
+    // Geocode gate: an optional, non-empty city is validated + normalized
+    // server-side before we build the multipart. A blank location skips the
+    // call entirely and saves empty. An un-geocodable city BLOCKS submit.
+    let normalizedLocation = '';
+    const typedCity = formData.location.trim();
+    if (typedCity) {
+      const geo = await AuthService.geocodeCity(typedCity);
+      if (!geo.ok) {
+        Alert.alert(t.error, t.locationNotFound);
+        setLoading(false);
+        return;
+      }
+      normalizedLocation = geo.location || '';
+    }
+
     const data = new FormData();
     const mpgValue = formData.mpg?.trim();
     const mpgForApi = mpgValue
@@ -421,6 +439,9 @@ export const SellCarScreen = () => {
         data.append(key, fullPhoneNumber);
       } else if (key === 'mpg') {
         data.append(key, mpgForApi);
+      } else if (key === 'location') {
+        // Append the server-normalized "City, Country", never the raw typed city.
+        data.append(key, normalizedLocation);
       } else {
         // @ts-ignore
         data.append(key, formData[key]);
@@ -976,6 +997,14 @@ export const SellCarScreen = () => {
                 />
               </View>
               {renderDropdown(t.interiorMatLabel, formData.interiorMaterial, 'interiorMaterial', [t.cloth, t.leather, t.veganLeather, t.alcantara])}
+
+              <TextInput
+                style={styles.input}
+                placeholder={t.locationInput}
+                placeholderTextColor={COLORS.textSecondary}
+                value={formData.location}
+                onChangeText={(text) => setFormData({ ...formData, location: text })}
+              />
 
               <View style={styles.row}>
                 <TextInput
