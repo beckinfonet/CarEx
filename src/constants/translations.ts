@@ -1017,7 +1017,7 @@ export const TRANSLATIONS = {
     notifications: 'Уведомления',
     notificationSettings: 'Настройки уведомлений',
     notificationsMenuLabel: 'Уведомления',
-    markAllRead: 'Отметить все как прочитанные',
+    markAllRead: 'Прочитать всё',
     muteAllNotifications: 'Отключить все уведомления',
     categorySavedSearches: 'Сохранённые поиски',
     categoryWatchedCars: 'Отслеживаемые авто',

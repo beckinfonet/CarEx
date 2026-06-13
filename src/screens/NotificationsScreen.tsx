@@ -205,7 +205,9 @@ const NotificationsScreen = () => {
         >
           <ArrowLeft size={24} color={COLORS.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t.notifications}</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>
+          {t.notifications}
+        </Text>
         <TouchableOpacity
           style={styles.markAllButton}
           onPress={() => markAllRead()}
@@ -213,6 +215,7 @@ const NotificationsScreen = () => {
           accessibilityRole="button"
         >
           <Text
+            numberOfLines={2}
             style={[
               styles.markAllText,
               unreadCount === 0 && styles.markAllTextDisabled,
@@ -275,11 +278,14 @@ const styles = StyleSheet.create({
     minHeight: SIZES.minTapTarget,
     justifyContent: 'center',
     paddingHorizontal: SIZES.spacingSm,
+    flexShrink: 1,
+    maxWidth: '45%',
   },
   markAllText: {
     ...TYPOGRAPHY.body,
     color: COLORS.accent,
     fontWeight: '600',
+    textAlign: 'right',
   },
   markAllTextDisabled: {
     color: COLORS.textTertiary,
