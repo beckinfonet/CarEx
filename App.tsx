@@ -36,6 +36,10 @@ import { AdminDashboardScreen } from './src/screens/AdminDashboardScreen';
 import { AdminManagementScreen } from './src/screens/AdminManagementScreen';
 import { AdminModerationScreen } from './src/screens/AdminModerationScreen';
 import { AdminUserDetailScreen } from './src/screens/AdminUserDetailScreen';
+import { FindCarScreen } from './src/screens/FindCarScreen';
+import { MyRequestsScreen } from './src/screens/MyRequestsScreen';
+import { CarRequestsScreen } from './src/screens/CarRequestsScreen';
+import { CarRequestDetailsScreen } from './src/screens/CarRequestDetailsScreen';
 import { OfflineNotice } from './src/components/OfflineNotice';
 import { UserStatusBanner } from './src/components/moderation/UserStatusBanner';
 import { RootStackParamList } from './src/types/navigation';
@@ -205,6 +209,14 @@ export function routeDeeplink(deeplink?: string) {
       return;
     }
 
+    if (
+      normalizedPath === 'my-requests' ||
+      normalizedPath.startsWith('my-requests/')
+    ) {
+      navigationRef.navigate('MyRequests');
+      return;
+    }
+
     // Unknown target → ignore (whitelist-only routing).
   } catch (e) {
     console.error('Failed to parse push deeplink', e);
@@ -298,6 +310,7 @@ const linking = {
       // third (and final) whitelisted notification routing target — it widens
       // the whitelist by exactly one route over CarDetails + SearchResults.
       Notifications: 'notifications',
+      MyRequests: 'my-requests',
     },
   },
 };
@@ -336,6 +349,10 @@ function App() {
                 <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
                 <Stack.Screen name="Favorites" component={FavoritesScreen} />
                 <Stack.Screen name="MyListings" component={MyListingsScreen} />
+                <Stack.Screen name="FindCar" component={FindCarScreen} />
+                <Stack.Screen name="MyRequests" component={MyRequestsScreen} />
+                <Stack.Screen name="CarRequests" component={CarRequestsScreen} />
+                <Stack.Screen name="CarRequestDetails" component={CarRequestDetailsScreen} />
                 <Stack.Screen name="SellerListings" component={SellerListingsScreen} />
                 <Stack.Screen name="Services" component={ServicesScreen} />
                 <Stack.Screen name="ServiceApplication" component={ServiceApplicationScreen} />

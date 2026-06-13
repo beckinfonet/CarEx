@@ -7,7 +7,7 @@ import { COLORS, SIZES } from '../constants/theme';
 import { RootStackParamList } from '../types/navigation';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { User, LogOut, ChevronRight, Heart, ArrowLeft, List, Store, Briefcase, Truck, Shield, ShieldCheck, Users, Package, ClipboardList, Bell } from 'lucide-react-native';
+import { User, LogOut, ChevronRight, Heart, ArrowLeft, List, Store, Briefcase, Truck, Shield, Users, Package, ClipboardList, Bell, Search } from 'lucide-react-native';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Profile'>;
 
@@ -45,6 +45,18 @@ export const ProfileScreen = () => {
       onPress: () => navigation.navigate('MyOrders')
     },
     {
+      id: 'findCar',
+      title: t.findCar,
+      icon: <Search size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('FindCar')
+    },
+    {
+      id: 'myRequests',
+      title: t.myRequests,
+      icon: <ClipboardList size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('MyRequests')
+    },
+    {
       // D-12: distinct from the MoreMenu "Notifications" feed entry — this is the
       // settings surface (t.notificationSettings, not t.notificationsMenuLabel).
       id: 'notificationSettings',
@@ -57,6 +69,12 @@ export const ProfileScreen = () => {
       title: t.requestSellerAccount,
       icon: <Store size={24} color={COLORS.accent} />,
       onPress: () => navigation.navigate('SellCar')
+    }] : []),
+    ...(user && user.sellerStatus === 'APPROVED' ? [{
+      id: 'buyerRequests',
+      title: t.buyerRequests,
+      icon: <Users size={24} color={COLORS.accent} />,
+      onPress: () => navigation.navigate('CarRequests')
     }] : []),
     ...(user && user.brokerStatus === 'APPROVED' ? [{
       id: 'viewBrokerage',
