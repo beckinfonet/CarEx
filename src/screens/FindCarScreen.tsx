@@ -67,8 +67,15 @@ const EMPTY: FormState = {
 };
 
 function toNum(s: string): number | null {
-  const n = Number(s);
-  return s.trim() !== '' && Number.isFinite(n) ? n : null;
+  const cleaned = s.replace(/,/g, '');
+  const n = Number(cleaned);
+  return cleaned.trim() !== '' && Number.isFinite(n) ? n : null;
+}
+
+// Format a raw numeric string with thousands separators (e.g. "15000" -> "15,000").
+function formatThousands(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 export const FindCarScreen = () => {
@@ -103,8 +110,10 @@ export const FindCarScreen = () => {
             modelId: found.modelId ?? '',
             yearMin: found.yearMin?.toString() ?? '',
             yearMax: found.yearMax?.toString() ?? '',
-            budgetMin: found.budgetMin?.toString() ?? '',
-            budgetMax: found.budgetMax?.toString() ?? '',
+            budgetMin:
+              found.budgetMin != null ? formatThousands(String(found.budgetMin)) : '',
+            budgetMax:
+              found.budgetMax != null ? formatThousands(String(found.budgetMax)) : '',
             currency: found.currency === 'USD' ? 'USD' : 'KGS',
             exteriorColor: found.exteriorColor ?? '',
             interiorColor: found.interiorColor ?? '',
@@ -338,7 +347,33 @@ export const FindCarScreen = () => {
           />
         </View>
 
-        <Text style={styles.section}>{t.budget}</Text>
+        <View style={styles.budgetHeader}>
+          <Text style={[styles.section, styles.budgetHeaderLabel]}>{t.budget}</Text>
+          <View style={styles.currencyRow}>
+            {CURRENCY_OPTIONS.map((opt, idx) => {
+              const active = form.currency === opt.value;
+              const isLast = idx === CURRENCY_OPTIONS.length - 1;
+              return (
+                <TouchableOpacity
+                  key={opt.value}
+                  style={[
+                    styles.currencyPill,
+                    isLast && styles.currencyPillLast,
+                    active && styles.currencyPillActive,
+                  ]}
+                  onPress={() => set('currency', opt.value)}>
+                  <Text
+                    style={[
+                      styles.currencyPillText,
+                      active && styles.currencyPillTextActive,
+                    ]}>
+                    {opt.flag} {opt.value}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
         <View style={styles.row}>
           <TextInput
             style={[styles.input, styles.half]}
@@ -346,7 +381,7 @@ export const FindCarScreen = () => {
             placeholderTextColor={COLORS.textSecondary}
             keyboardType="number-pad"
             value={form.budgetMin}
-            onChangeText={(v) => set('budgetMin', v)}
+            onChangeText={(v) => set('budgetMin', formatThousands(v))}
           />
           <TextInput
             style={[styles.input, styles.half]}
@@ -354,34 +389,8 @@ export const FindCarScreen = () => {
             placeholderTextColor={COLORS.textSecondary}
             keyboardType="number-pad"
             value={form.budgetMax}
-            onChangeText={(v) => set('budgetMax', v)}
+            onChangeText={(v) => set('budgetMax', formatThousands(v))}
           />
-        </View>
-
-        <Text style={styles.section}>{t.currency}</Text>
-        <View style={styles.currencyRow}>
-          {CURRENCY_OPTIONS.map((opt, idx) => {
-            const active = form.currency === opt.value;
-            const isLast = idx === CURRENCY_OPTIONS.length - 1;
-            return (
-              <TouchableOpacity
-                key={opt.value}
-                style={[
-                  styles.currencyPill,
-                  isLast && styles.currencyPillLast,
-                  active && styles.currencyPillActive,
-                ]}
-                onPress={() => set('currency', opt.value)}>
-                <Text
-                  style={[
-                    styles.currencyPillText,
-                    active && styles.currencyPillTextActive,
-                  ]}>
-                  {opt.flag} {opt.value}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
         </View>
 
         <Text style={styles.section}>{t.extInt}</Text>
@@ -497,14 +506,22 @@ const styles = StyleSheet.create({
   multiline: { minHeight: 90, textAlignVertical: 'top' },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
   half: { width: '48%' },
-  currencyRow: { flexDirection: 'row', marginBottom: 12 },
+  budgetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  budgetHeaderLabel: { marginTop: 0, marginBottom: 0 },
+  currencyRow: { flexDirection: 'row' },
   currencyPill: {
-    flex: 1,
     backgroundColor: COLORS.cardBackground,
     borderRadius: SIZES.borderRadius,
-    paddingVertical: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 8,
     borderWidth: 1,
     borderColor: COLORS.cardBackground,
   },
