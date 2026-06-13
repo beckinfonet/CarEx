@@ -29,13 +29,13 @@ describe('RequestService', () => {
   });
 
   it('createRequest POSTs the input to /api/car-requests and returns data', async () => {
-    const input = { makeId: 'm1', budgetMax: 15000 };
+    const input = { makeId: 'm1', budgetMax: 15000, currency: 'KGS' as const };
     mockedApiClient.post.mockResolvedValueOnce({ data: { _id: 'r1', ...input } });
 
     const result = await RequestService.createRequest(input);
 
     expect(mockedApiClient.post).toHaveBeenCalledWith('/api/car-requests', input);
-    expect(result).toEqual({ _id: 'r1', makeId: 'm1', budgetMax: 15000 });
+    expect(result).toEqual({ _id: 'r1', makeId: 'm1', budgetMax: 15000, currency: 'KGS' });
   });
 
   it('getMyRequests GETs /api/car-requests/mine and returns the array', async () => {
@@ -46,7 +46,7 @@ describe('RequestService', () => {
   });
 
   it('updateRequest PUTs to /api/car-requests/:id', async () => {
-    const input = { makeId: 'm1', budgetMax: 20000 };
+    const input = { makeId: 'm1', budgetMax: 20000, currency: 'USD' as const };
     mockedApiClient.put.mockResolvedValueOnce({ data: { _id: 'r1', ...input } });
     const result = await RequestService.updateRequest('r1', input);
     expect(mockedApiClient.put).toHaveBeenCalledWith('/api/car-requests/r1', input);
@@ -126,6 +126,6 @@ describe('RequestService', () => {
 
   it('rethrows on network error', async () => {
     mockedApiClient.post.mockRejectedValueOnce(new Error('boom'));
-    await expect(RequestService.createRequest({ makeId: 'm1', budgetMax: 1 })).rejects.toThrow('boom');
+    await expect(RequestService.createRequest({ makeId: 'm1', budgetMax: 1, currency: 'KGS' })).rejects.toThrow('boom');
   });
 });

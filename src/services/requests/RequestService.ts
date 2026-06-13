@@ -7,6 +7,7 @@ export interface CreateRequestInput {
   yearMax?: number | null;
   budgetMin?: number | null;
   budgetMax: number;
+  currency: 'KGS' | 'USD';
   exteriorColor?: string | null;
   interiorColor?: string | null;
   interiorMaterial?: string | null;

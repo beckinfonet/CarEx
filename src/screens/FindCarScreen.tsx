@@ -34,6 +34,7 @@ interface FormState {
   yearMax: string;
   budgetMin: string;
   budgetMax: string;
+  currency: 'KGS' | 'USD';
   exteriorColor: string;
   interiorColor: string;
   interiorMaterial: string;
@@ -43,6 +44,11 @@ interface FormState {
   telegramUsername: string;
 }
 
+const CURRENCY_OPTIONS: { value: 'KGS' | 'USD'; flag: string }[] = [
+  { value: 'KGS', flag: '🇰🇬' },
+  { value: 'USD', flag: '🇺🇸' },
+];
+
 const EMPTY: FormState = {
   makeId: '',
   modelId: '',
@@ -50,6 +56,7 @@ const EMPTY: FormState = {
   yearMax: '',
   budgetMin: '',
   budgetMax: '',
+  currency: 'KGS',
   exteriorColor: '',
   interiorColor: '',
   interiorMaterial: '',
@@ -98,6 +105,7 @@ export const FindCarScreen = () => {
             yearMax: found.yearMax?.toString() ?? '',
             budgetMin: found.budgetMin?.toString() ?? '',
             budgetMax: found.budgetMax?.toString() ?? '',
+            currency: found.currency === 'USD' ? 'USD' : 'KGS',
             exteriorColor: found.exteriorColor ?? '',
             interiorColor: found.interiorColor ?? '',
             interiorMaterial: found.interiorMaterial ?? '',
@@ -120,7 +128,7 @@ export const FindCarScreen = () => {
     };
   }, [isEdit, requestId]);
 
-  const set = (k: keyof FormState, v: string) =>
+  const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((p) => ({ ...p, [k]: v }));
 
   const handleVerifyPhone = async () => {
@@ -169,6 +177,7 @@ export const FindCarScreen = () => {
       yearMax: toNum(form.yearMax),
       budgetMin: toNum(form.budgetMin),
       budgetMax: toNum(form.budgetMax) as number,
+      currency: form.currency,
       exteriorColor: form.exteriorColor || null,
       interiorColor: form.interiorColor || null,
       interiorMaterial: form.interiorMaterial || null,
@@ -349,6 +358,32 @@ export const FindCarScreen = () => {
           />
         </View>
 
+        <Text style={styles.section}>{t.currency}</Text>
+        <View style={styles.currencyRow}>
+          {CURRENCY_OPTIONS.map((opt, idx) => {
+            const active = form.currency === opt.value;
+            const isLast = idx === CURRENCY_OPTIONS.length - 1;
+            return (
+              <TouchableOpacity
+                key={opt.value}
+                style={[
+                  styles.currencyPill,
+                  isLast && styles.currencyPillLast,
+                  active && styles.currencyPillActive,
+                ]}
+                onPress={() => set('currency', opt.value)}>
+                <Text
+                  style={[
+                    styles.currencyPillText,
+                    active && styles.currencyPillTextActive,
+                  ]}>
+                  {opt.flag} {opt.value}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
         <Text style={styles.section}>{t.extInt}</Text>
         <TextInput
           style={styles.input}
@@ -462,6 +497,28 @@ const styles = StyleSheet.create({
   multiline: { minHeight: 90, textAlignVertical: 'top' },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
   half: { width: '48%' },
+  currencyRow: { flexDirection: 'row', marginBottom: 12 },
+  currencyPill: {
+    flex: 1,
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: SIZES.borderRadius,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: COLORS.cardBackground,
+  },
+  currencyPillLast: { marginRight: 0 },
+  currencyPillActive: {
+    backgroundColor: COLORS.accent,
+    borderColor: COLORS.accent,
+  },
+  currencyPillText: {
+    color: COLORS.textPrimary,
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  currencyPillTextActive: { color: '#000' },
   submitBtn: {
     backgroundColor: COLORS.accent,
     borderRadius: SIZES.borderRadius,
